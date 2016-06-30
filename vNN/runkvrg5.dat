@@ -1,0 +1,358 @@
+          14  proton-proton configurations for J           0
+          14  proton-proton configurations for J           1
+          10  proton-proton configurations for J           2
+           2  proton-proton configurations for J           3
+          10  proton-proton configurations for J           0
+          20  proton-proton configurations for J           1
+          10  proton-proton configurations for J           2
+           0  proton-proton configurations for J           3
+          22  proton-neutron configurations for J            0
+          34  proton-neutron configurations for J            1
+          18  proton-neutron configurations for J            2
+           6  proton-neutron configurations for J            3
+          20  proton-neutron configurations for J            0
+          40  proton-neutron configurations for J            1
+          20  proton-neutron configurations for J            2
+           0  proton-neutron configurations for J            3
+          14  neutron-neutron configurations for J            0
+          14  neutron-neutron configurations for J            1
+          10  neutron-neutron configurations for J            2
+           2  neutron-neutron configurations for J            3
+          10  neutron-neutron configurations for J            0
+          20  neutron-neutron configurations for J            1
+          10  neutron-neutron configurations for J            2
+           0  neutron-neutron configurations for J            3
+ points for ho oscillator basis:         200
+  0.30058689D-03  0.15834518D-02  0.38901085D-02  0.72188161D-02  0.11566385D-01
+  0.16928582D-01  0.23300174D-01  0.30674935D-01  0.39045663D-01  0.48404178D-01
+  0.58741336D-01  0.70047038D-01  0.82310237D-01  0.95518950D-01  0.10966027D+00
+  0.12472039D+00  0.14068458D+00  0.15753725D+00  0.17526193D+00  0.19384130D+00
+  0.21325721D+00  0.23349069D+00  0.25452198D+00  0.27633051D+00  0.29889498D+00
+  0.32219334D+00  0.34620283D+00  0.37090000D+00  0.39626070D+00  0.42226016D+00
+  0.44887297D+00  0.47607314D+00  0.50383408D+00  0.53212867D+00  0.56092927D+00
+  0.59020773D+00  0.61993544D+00  0.65008337D+00  0.68062205D+00  0.71152164D+00
+  0.74275195D+00  0.77428247D+00  0.80608239D+00  0.83812064D+00  0.87036592D+00
+  0.90278671D+00  0.93535134D+00  0.96802799D+00  0.10007847D+01  0.10335896D+01
+  0.10664104D+01  0.10992153D+01  0.11319720D+01  0.11646487D+01  0.11972133D+01
+  0.12296341D+01  0.12618794D+01  0.12939176D+01  0.13257175D+01  0.13572480D+01
+  0.13884784D+01  0.14193780D+01  0.14499166D+01  0.14800646D+01  0.15097923D+01
+  0.15390707D+01  0.15678713D+01  0.15961659D+01  0.16239269D+01  0.16511270D+01
+  0.16777398D+01  0.17037393D+01  0.17291000D+01  0.17537972D+01  0.17778067D+01
+  0.18011050D+01  0.18236695D+01  0.18454780D+01  0.18665093D+01  0.18867428D+01
+  0.19061587D+01  0.19247381D+01  0.19424628D+01  0.19593154D+01  0.19752796D+01
+  0.19903397D+01  0.20044810D+01  0.20176898D+01  0.20299530D+01  0.20412587D+01
+  0.20515958D+01  0.20609543D+01  0.20693251D+01  0.20766998D+01  0.20830714D+01
+  0.20884336D+01  0.20927812D+01  0.20961099D+01  0.20984165D+01  0.20996994D+01
+  0.21025621D+01  0.21134970D+01  0.21331585D+01  0.21615318D+01  0.21985897D+01
+  0.22442960D+01  0.22986062D+01  0.23614673D+01  0.24328178D+01  0.25125880D+01
+  0.26007000D+01  0.26970676D+01  0.28015968D+01  0.29141853D+01  0.30347233D+01
+  0.31630928D+01  0.32991685D+01  0.34428175D+01  0.35938993D+01  0.37522663D+01
+  0.39177639D+01  0.40902302D+01  0.42694968D+01  0.44553886D+01  0.46477238D+01
+  0.48463147D+01  0.50509670D+01  0.52614809D+01  0.54776507D+01  0.56992651D+01
+  0.59261077D+01  0.61579567D+01  0.63945857D+01  0.66357634D+01  0.68812542D+01
+  0.71308183D+01  0.73842116D+01  0.76411868D+01  0.79014927D+01  0.81648749D+01
+  0.84310762D+01  0.86998363D+01  0.89708928D+01  0.92439807D+01  0.95188333D+01
+  0.97951819D+01  0.10072757D+02  0.10351286D+02  0.10630498D+02  0.10910121D+02
+  0.11189879D+02  0.11469502D+02  0.11748714D+02  0.12027243D+02  0.12304818D+02
+  0.12581167D+02  0.12856019D+02  0.13129107D+02  0.13400164D+02  0.13668924D+02
+  0.13935125D+02  0.14198507D+02  0.14458813D+02  0.14715788D+02  0.14969182D+02
+  0.15218746D+02  0.15464237D+02  0.15705414D+02  0.15942043D+02  0.16173892D+02
+  0.16400735D+02  0.16622349D+02  0.16838519D+02  0.17049033D+02  0.17253685D+02
+  0.17452276D+02  0.17644611D+02  0.17830503D+02  0.18009770D+02  0.18182236D+02
+  0.18347734D+02  0.18506101D+02  0.18657183D+02  0.18800831D+02  0.18936907D+02
+  0.19065277D+02  0.19185815D+02  0.19298403D+02  0.19402932D+02  0.19499300D+02
+  0.19587412D+02  0.19667182D+02  0.19738533D+02  0.19801394D+02  0.19855704D+02
+  0.19901410D+02  0.19938468D+02  0.19966841D+02  0.19986503D+02  0.19997438D+02
+  0.77136622D-03  0.17948623D-02  0.28181216D-02  0.38387593D-02  0.48556726D-02
+  0.58678494D-02  0.68742959D-02  0.78740269D-02  0.88660650D-02  0.98494406D-02
+  0.10823193D-01  0.11786370D-01  0.12738031D-01  0.13677245D-01  0.14603096D-01
+  0.15514679D-01  0.16411102D-01  0.17291490D-01  0.18154984D-01  0.19000738D-01
+  0.19827927D-01  0.20635742D-01  0.21423394D-01  0.22190114D-01  0.22935153D-01
+  0.23657781D-01  0.24357294D-01  0.25033008D-01  0.25684263D-01  0.26310422D-01
+  0.26910873D-01  0.27485030D-01  0.28032332D-01  0.28552244D-01  0.29044258D-01
+  0.29507893D-01  0.29942697D-01  0.30348244D-01  0.30724138D-01  0.31070012D-01
+  0.31385529D-01  0.31670378D-01  0.31924284D-01  0.32146996D-01  0.32338298D-01
+  0.32498003D-01  0.32625954D-01  0.32722027D-01  0.32786128D-01  0.32818195D-01
+  0.32818195D-01  0.32786128D-01  0.32722027D-01  0.32625954D-01  0.32498003D-01
+  0.32338298D-01  0.32146996D-01  0.31924284D-01  0.31670378D-01  0.31385529D-01
+  0.31070012D-01  0.30724138D-01  0.30348244D-01  0.29942697D-01  0.29507893D-01
+  0.29044258D-01  0.28552244D-01  0.28032332D-01  0.27485030D-01  0.26910873D-01
+  0.26310422D-01  0.25684263D-01  0.25033008D-01  0.24357294D-01  0.23657781D-01
+  0.22935153D-01  0.22190114D-01  0.21423394D-01  0.20635742D-01  0.19827927D-01
+  0.19000738D-01  0.18154984D-01  0.17291490D-01  0.16411102D-01  0.15514679D-01
+  0.14603096D-01  0.13677245D-01  0.12738031D-01  0.11786370D-01  0.10823193D-01
+  0.98494406D-02  0.88660650D-02  0.78740269D-02  0.68742959D-02  0.58678494D-02
+  0.48556726D-02  0.38387593D-02  0.28181216D-02  0.17948623D-02  0.77136622D-03
+  0.65749787D-02  0.15299064D-01  0.24021132D-01  0.32720853D-01  0.41388828D-01
+  0.50016431D-01  0.58595189D-01  0.67116706D-01  0.75572650D-01  0.83954756D-01
+  0.92254833D-01  0.10046477D+00  0.10857655D+00  0.11658223D+00  0.12447401D+00
+  0.13224417D+00  0.13988511D+00  0.14738937D+00  0.15474962D+00  0.16195867D+00
+  0.16900947D+00  0.17589513D+00  0.18260893D+00  0.18914431D+00  0.19549487D+00
+  0.20165442D+00  0.20761694D+00  0.21337659D+00  0.21892776D+00  0.22426502D+00
+  0.22938316D+00  0.23427716D+00  0.23894226D+00  0.24337389D+00  0.24756772D+00
+  0.25151966D+00  0.25522585D+00  0.25868265D+00  0.26188670D+00  0.26483487D+00
+  0.26752427D+00  0.26995227D+00  0.27211651D+00  0.27401487D+00  0.27564549D+00
+  0.27700679D+00  0.27809742D+00  0.27891633D+00  0.27946271D+00  0.27973604D+00
+  0.27973604D+00  0.27946271D+00  0.27891633D+00  0.27809742D+00  0.27700679D+00
+  0.27564549D+00  0.27401487D+00  0.27211651D+00  0.26995227D+00  0.26752427D+00
+  0.26483487D+00  0.26188670D+00  0.25868265D+00  0.25522585D+00  0.25151966D+00
+  0.24756772D+00  0.24337389D+00  0.23894226D+00  0.23427716D+00  0.22938316D+00
+  0.22426502D+00  0.21892776D+00  0.21337659D+00  0.20761694D+00  0.20165442D+00
+  0.19549487D+00  0.18914431D+00  0.18260893D+00  0.17589513D+00  0.16900947D+00
+  0.16195867D+00  0.15474962D+00  0.14738937D+00  0.13988511D+00  0.13224417D+00
+  0.12447401D+00  0.11658223D+00  0.10857655D+00  0.10046477D+00  0.92254833D-01
+  0.83954756D-01  0.75572650D-01  0.67116706D-01  0.58595189D-01  0.50016431D-01
+  0.41388828D-01  0.32720853D-01  0.24021132D-01  0.15299064D-01  0.65749787D-02
+ Norm rel ho wf n,l :            0           0  0.99999998608623297     
+ Norm rel ho wf n,l :            0           1  0.99999998608623197     
+ Norm rel ho wf n,l :            0           2  0.99999998608623275     
+ Norm rel ho wf n,l :            0           3  0.99999998608623353     
+ Norm rel ho wf n,l :            0           4  0.99999998608623342     
+ Norm rel ho wf n,l :            0           5  0.99999998608623253     
+ Norm rel ho wf n,l :            0           6  0.99999998608623353     
+ Norm rel ho wf n,l :            0           7  0.99999998608623286     
+ Norm rel ho wf n,l :            0           8  0.99999998608623564     
+ Norm rel ho wf n,l :            0           9  0.99999998608623575     
+ Norm rel ho wf n,l :            0          10  0.99999998608623430     
+ Norm rel ho wf n,l :            0          11  0.99999998608623653     
+ Norm rel ho wf n,l :            1           0  0.99999998608623308     
+ Norm rel ho wf n,l :            1           1  0.99999998608623308     
+ Norm rel ho wf n,l :            1           2  0.99999998608623308     
+ Norm rel ho wf n,l :            1           3  0.99999998608623286     
+ Norm rel ho wf n,l :            1           4  0.99999998608623331     
+ Norm rel ho wf n,l :            1           5  0.99999998608623353     
+ Norm rel ho wf n,l :            1           6  0.99999998608623319     
+ Norm rel ho wf n,l :            1           7  0.99999998608623653     
+ Norm rel ho wf n,l :            1           8  0.99999998608623697     
+ Norm rel ho wf n,l :            1           9  0.99999998608623486     
+ Norm rel ho wf n,l :            1          10  0.99999998608623730     
+ Norm rel ho wf n,l :            1          11  0.99999998608623664     
+ Norm rel ho wf n,l :            2           0  0.99999998608623297     
+ Norm rel ho wf n,l :            2           1  0.99999998608623275     
+ Norm rel ho wf n,l :            2           2  0.99999998608623286     
+ Norm rel ho wf n,l :            2           3  0.99999998608623264     
+ Norm rel ho wf n,l :            2           4  0.99999998608623419     
+ Norm rel ho wf n,l :            2           5  0.99999998608623331     
+ Norm rel ho wf n,l :            2           6  0.99999998608623475     
+ Norm rel ho wf n,l :            2           7  0.99999998608623464     
+ Norm rel ho wf n,l :            2           8  0.99999998608623675     
+ Norm rel ho wf n,l :            2           9  0.99999998608623586     
+ Norm rel ho wf n,l :            2          10  0.99999998608623897     
+ Norm rel ho wf n,l :            2          11  0.99999998608623952     
+ Norm rel ho wf n,l :            3           0  0.99999998608623297     
+ Norm rel ho wf n,l :            3           1  0.99999998608623408     
+ Norm rel ho wf n,l :            3           2  0.99999998608623375     
+ Norm rel ho wf n,l :            3           3  0.99999998608623364     
+ Norm rel ho wf n,l :            3           4  0.99999998608623331     
+ Norm rel ho wf n,l :            3           5  0.99999998608623630     
+ Norm rel ho wf n,l :            3           6  0.99999998608623653     
+ Norm rel ho wf n,l :            3           7  0.99999998608623530     
+ Norm rel ho wf n,l :            3           8  0.99999998608623519     
+ Norm rel ho wf n,l :            3           9  0.99999998608623386     
+ Norm rel ho wf n,l :            3          10  0.99999998608623253     
+ Norm rel ho wf n,l :            3          11  0.99999998608622942     
+ number of configs per channel:            1          40
+ number of configs per channel:            2          40
+ number of configs per channel:            3          40
+ number of configs per channel:            4          30
+ number of configs per channel:            5          30
+ number of configs per channel:            6          30
+ number of configs per channel:            7          30
+ number of configs per channel:            8          30
+ number of configs per channel:            9          30
+ number of configs per channel:           10          30
+ number of configs per channel:           11          60
+ number of configs per channel:           12          20
+ number of configs per channel:           13          20
+ number of configs per channel:           14          20
+ number of configs per channel:           15          20
+ number of configs per channel:           16          44
+ number of configs per channel:           17          44
+ number of configs per channel:           18          44
+ number of configs per channel:           19          14
+ number of configs per channel:           20          14
+ number of configs per channel:           21          14
+ number of configs per channel:           22          14
+ number of configs per channel:           23          28
+ number of configs per channel:           24           8
+ number of configs per channel:           25           8
+ number of configs per channel:           26           8
+ number of configs per channel:           27           8
+ number of configs per channel:           28          19
+ number of configs per channel:           29          19
+ number of configs per channel:           30          19
+ number of configs per channel:           31           5
+ number of configs per channel:           32           5
+ number of configs per channel:           33           5
+ number of configs per channel:           34           5
+ number of configs per channel:           35          10
+ number of configs per channel:           36           2
+ number of configs per channel:           37           2
+ number of configs per channel:           38           2
+ number of configs per channel:           39           2
+ number of configs per channel:           40           6
+ number of configs per channel:           41           6
+ number of configs per channel:           42           6
+ number of configs per channel:           43           1
+ number of configs per channel:           44           1
+ number of configs per channel:           45           1
+ number of configs per channel:           46           1
+ number of configs per channel:           47           2
+ number of configs per channel:           48           0
+ number of configs per channel:           49           0
+ number of configs per channel:           50           0
+ number of configs per channel:           51           0
+ number of configs per channel:           52           1
+ number of configs per channel:           53           1
+ number of configs per channel:           54           1
+ number of configs per channel:           55           0
+ number of configs per channel:           56           0
+ number of configs per channel:           57           0
+ number of configs per channel:           58           0
+ number of configs per channel:           59           0
+ number of configs per channel:           60           0
+ number of configs per channel:           61           0
+ number of configs per channel:           62           0
+ number of configs per channel:           63           0
+ number of configs per channel:           64           0
+ number of configs per channel:           65           0
+ number of configs per channel:           66           0
+  Total states and model states for channel:            1           4
+ Channel Nr:  1 l_min:  0 l_max:  0 J:  0 S:  0 Tz: -1
+  Total states and model states for channel:            2           4
+ Channel Nr:  2 l_min:  0 l_max:  0 J:  0 S:  0 Tz:  0
+  Total states and model states for channel:            3           4
+ Channel Nr:  3 l_min:  0 l_max:  0 J:  0 S:  0 Tz:  1
+  Total states and model states for channel:            4           4
+ Channel Nr:  4 l_min:  1 l_max:  1 J:  0 S:  1 Tz: -1
+  Total states and model states for channel:            5           4
+ Channel Nr:  5 l_min:  1 l_max:  1 J:  0 S:  1 Tz:  0
+  Total states and model states for channel:            6           4
+ Channel Nr:  6 l_min:  1 l_max:  1 J:  0 S:  1 Tz:  1
+  Total states and model states for channel:            7           4
+ Channel Nr:  7 l_min:  1 l_max:  1 J:  1 S:  0 Tz:  0
+  Total states and model states for channel:            8           4
+ Channel Nr:  8 l_min:  1 l_max:  1 J:  1 S:  1 Tz: -1
+  Total states and model states for channel:            9           4
+ Channel Nr:  9 l_min:  1 l_max:  1 J:  1 S:  1 Tz:  0
+  Total states and model states for channel:           10           4
+ Channel Nr: 10 l_min:  1 l_max:  1 J:  1 S:  1 Tz:  1
+  Total states and model states for channel:           11           7
+ Channel Nr: 11 l_min:  0 l_max:  2 J:  1 S:  1 Tz:  0
+  Total states and model states for channel:           12           3
+ Channel Nr: 12 l_min:  2 l_max:  2 J:  2 S:  0 Tz: -1
+  Total states and model states for channel:           13           3
+ Channel Nr: 13 l_min:  2 l_max:  2 J:  2 S:  0 Tz:  0
+  Total states and model states for channel:           14           3
+ Channel Nr: 14 l_min:  2 l_max:  2 J:  2 S:  0 Tz:  1
+  Total states and model states for channel:           15           3
+ Channel Nr: 15 l_min:  2 l_max:  2 J:  2 S:  1 Tz:  0
+  Total states and model states for channel:           16           7
+ Channel Nr: 16 l_min:  1 l_max:  3 J:  2 S:  1 Tz: -1
+  Total states and model states for channel:           17           7
+ Channel Nr: 17 l_min:  1 l_max:  3 J:  2 S:  1 Tz:  0
+  Total states and model states for channel:           18           7
+ Channel Nr: 18 l_min:  1 l_max:  3 J:  2 S:  1 Tz:  1
+  Total states and model states for channel:           19           3
+ Channel Nr: 19 l_min:  3 l_max:  3 J:  3 S:  0 Tz:  0
+  Total states and model states for channel:           20           3
+ Channel Nr: 20 l_min:  3 l_max:  3 J:  3 S:  1 Tz: -1
+  Total states and model states for channel:           21           3
+ Channel Nr: 21 l_min:  3 l_max:  3 J:  3 S:  1 Tz:  0
+  Total states and model states for channel:           22           3
+ Channel Nr: 22 l_min:  3 l_max:  3 J:  3 S:  1 Tz:  1
+  Total states and model states for channel:           23           5
+ Channel Nr: 23 l_min:  2 l_max:  4 J:  3 S:  1 Tz:  0
+  Total states and model states for channel:           24           2
+ Channel Nr: 24 l_min:  4 l_max:  4 J:  4 S:  0 Tz: -1
+  Total states and model states for channel:           25           2
+ Channel Nr: 25 l_min:  4 l_max:  4 J:  4 S:  0 Tz:  0
+  Total states and model states for channel:           26           2
+ Channel Nr: 26 l_min:  4 l_max:  4 J:  4 S:  0 Tz:  1
+  Total states and model states for channel:           27           2
+ Channel Nr: 27 l_min:  4 l_max:  4 J:  4 S:  1 Tz:  0
+  Total states and model states for channel:           28           5
+ Channel Nr: 28 l_min:  3 l_max:  5 J:  4 S:  1 Tz: -1
+  Total states and model states for channel:           29           5
+ Channel Nr: 29 l_min:  3 l_max:  5 J:  4 S:  1 Tz:  0
+  Total states and model states for channel:           30           5
+ Channel Nr: 30 l_min:  3 l_max:  5 J:  4 S:  1 Tz:  1
+  Total states and model states for channel:           31           2
+ Channel Nr: 31 l_min:  5 l_max:  5 J:  5 S:  0 Tz:  0
+  Total states and model states for channel:           32           2
+ Channel Nr: 32 l_min:  5 l_max:  5 J:  5 S:  1 Tz: -1
+  Total states and model states for channel:           33           2
+ Channel Nr: 33 l_min:  5 l_max:  5 J:  5 S:  1 Tz:  0
+  Total states and model states for channel:           34           2
+ Channel Nr: 34 l_min:  5 l_max:  5 J:  5 S:  1 Tz:  1
+  Total states and model states for channel:           35           3
+ Channel Nr: 35 l_min:  4 l_max:  6 J:  5 S:  1 Tz:  0
+  Total states and model states for channel:           36           1
+ Channel Nr: 36 l_min:  6 l_max:  6 J:  6 S:  0 Tz: -1
+  Total states and model states for channel:           37           1
+ Channel Nr: 37 l_min:  6 l_max:  6 J:  6 S:  0 Tz:  0
+  Total states and model states for channel:           38           1
+ Channel Nr: 38 l_min:  6 l_max:  6 J:  6 S:  0 Tz:  1
+  Total states and model states for channel:           39           1
+ Channel Nr: 39 l_min:  6 l_max:  6 J:  6 S:  1 Tz:  0
+  Total states and model states for channel:           40           3
+ Channel Nr: 40 l_min:  5 l_max:  7 J:  6 S:  1 Tz: -1
+  Total states and model states for channel:           41           3
+ Channel Nr: 41 l_min:  5 l_max:  7 J:  6 S:  1 Tz:  0
+  Total states and model states for channel:           42           3
+ Channel Nr: 42 l_min:  5 l_max:  7 J:  6 S:  1 Tz:  1
+  Total states and model states for channel:           43           1
+ Channel Nr: 43 l_min:  7 l_max:  7 J:  7 S:  0 Tz:  0
+  Total states and model states for channel:           44           1
+ Channel Nr: 44 l_min:  7 l_max:  7 J:  7 S:  1 Tz: -1
+  Total states and model states for channel:           45           1
+ Channel Nr: 45 l_min:  7 l_max:  7 J:  7 S:  1 Tz:  0
+  Total states and model states for channel:           46           1
+ Channel Nr: 46 l_min:  7 l_max:  7 J:  7 S:  1 Tz:  1
+  Total states and model states for channel:           47           1
+ Channel Nr: 47 l_min:  6 l_max:  8 J:  7 S:  1 Tz:  0
+  Total states and model states for channel:           48           0
+  Total states and model states for channel:           49           0
+  Total states and model states for channel:           50           0
+  Total states and model states for channel:           51           0
+  Total states and model states for channel:           52           1
+ Channel Nr: 52 l_min:  7 l_max:  9 J:  8 S:  1 Tz: -1
+  Total states and model states for channel:           53           1
+ Channel Nr: 53 l_min:  7 l_max:  9 J:  8 S:  1 Tz:  0
+  Total states and model states for channel:           54           1
+ Channel Nr: 54 l_min:  7 l_max:  9 J:  8 S:  1 Tz:  1
+  Total states and model states for channel:           55           0
+  Total states and model states for channel:           56           0
+  Total states and model states for channel:           57           0
+  Total states and model states for channel:           58           0
+  Total states and model states for channel:           59           0
+  Total states and model states for channel:           60           0
+  Total states and model states for channel:           61           0
+  Total states and model states for channel:           62           0
+  Total states and model states for channel:           63           0
+  Total states and model states for channel:           64           0
+  Total states and model states for channel:           65           0
+  Total states and model states for channel:           66           0
+          14  proton-proton configurations for J           0
+          14  proton-proton configurations for J           1
+          10  proton-proton configurations for J           2
+           2  proton-proton configurations for J           3
+          10  proton-proton configurations for J           0
+          20  proton-proton configurations for J           1
+          10  proton-proton configurations for J           2
+          22  proton-neutron configurations for J            0
+          34  proton-neutron configurations for J            1
+          18  proton-neutron configurations for J            2
+           6  proton-neutron configurations for J            3
+          20  proton-neutron configurations for J            0
+          40  proton-neutron configurations for J            1
+          20  proton-neutron configurations for J            2
+          14  neutron-neutron configurations for J            0
+          14  neutron-neutron configurations for J            1
+          10  neutron-neutron configurations for J            2
+           2  neutron-neutron configurations for J            3
+          10  neutron-neutron configurations for J            0
+          20  neutron-neutron configurations for J            1
+          10  neutron-neutron configurations for J            2
+ Quantum numbers n, l, j, shell, m, isopin, energy, particle/hole, status
+ amount of J-coupled G-matrix elements:         588        2280         588        3456
