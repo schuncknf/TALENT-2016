@@ -2,9 +2,9 @@ module grid
 	implicit none
 	integer, parameter :: wp=kind(1.0d0)
 	real(wp), parameter :: pi = 3.14159265358979_wp
-	real(wp) :: h,nbox,conv,hbar22m
+	real(wp) :: h,conv,hbar22m
 	real(wp), allocatable,dimension(:) :: meshpoints
-
+        integer :: nbox
 contains
 	subroutine init_params
 	

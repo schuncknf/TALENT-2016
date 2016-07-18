@@ -16,7 +16,13 @@ main.o: main.f95 grid.o
 
 %.o : %.mod
 
-.SUFFIXES : .f90 .f .o
+.SUFFIXES : .f95 .f .o
 
 .f95.o:
 	$(CC) $(CFLAGS) -c $<
+
+clean: 
+	rm -rf *.o
+
+mrproper: clean
+	rm -rf $(EXEC) *.mod
