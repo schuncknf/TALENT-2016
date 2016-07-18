@@ -1,9 +1,9 @@
 CC	= gfortran
-CFLAGS	= 
+CFLAGS	= -g -fbounds-check -Wall
 LDFLAGS	=
 EXEC	= main
 
-OBJS = main.o grid.o
+OBJS = main.o grid.o solver.o
 
 all: $(EXEC)
 
@@ -12,7 +12,9 @@ $(EXEC): $(OBJS)
 
 grid.o: grid.f95
 
-main.o: main.f95 grid.o
+solver.o: solver.f95 grid.o
+
+main.o: main.f95 grid.o solver.o
 
 %.o : %.mod
 
@@ -21,7 +23,7 @@ main.o: main.f95 grid.o
 .f95.o:
 	$(CC) $(CFLAGS) -c $<
 
-clean: 
+clean:
 	rm -rf *.o
 
 mrproper: clean
