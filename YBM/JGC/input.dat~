@@ -6,7 +6,7 @@
 # Mesh width [fm]
 0.1
 # Well depth [keV]
-1000000
+50000
 # Min limit  [keV]
 0
 # Max limit  [keV]
