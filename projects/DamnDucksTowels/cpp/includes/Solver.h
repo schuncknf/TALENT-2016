@@ -7,7 +7,7 @@ public:
   Fields* fields;
   // Operations
 public:
-  virtual void run () = 0;
-  virtual void info () = 0;
+  virtual std::string run () = 0;
+  virtual std::string info () = 0;
 };
 

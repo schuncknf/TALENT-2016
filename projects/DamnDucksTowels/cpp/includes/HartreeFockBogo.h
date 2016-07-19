@@ -14,5 +14,10 @@ public:
   arma::mat D;
   /// Occupation numbers
   arma::vec occ;
+
+// Operations
+public:
+  std::string info();
+  std::string run();
 };
 
