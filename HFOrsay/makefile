@@ -14,7 +14,7 @@ LK = ifort -O2
 # FFLAGS=-O4 -align dcommons
 # FFLAGS=-O5 -align dcommons -tune host
 
-OBJ =  constants.o lag_pol.o maths.o test.o
+OBJ =  constants.o maths.o laguerre.o lag_pol.o ho.o test.o
        
 BLDOBJ = $(foreach obj,$(OBJ),$(blddir)/$(obj))
 

@@ -38,7 +38,7 @@ int main()
 
 		if(jj>0){
 			wfLast = wf_val.at(-1+wf_val.size());
-			if( wfPrev/wfLast < 0 ) cout << "BING!\t" << eMin-eStep << "\t" << eMin << "\t" << wfPrev << "\t" << wfLast << endl;
+			if( wfPrev/wfLast < 0 ) cout << "BINGO!!\t" << eMin-eStep << "\t" << eMin << "\t" << wfPrev << "\t" << wfLast << endl;
 
 
 /*			if( abs( (wf_val.at(-1+wf_val.size())) < 0.01)){
