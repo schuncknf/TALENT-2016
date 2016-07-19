@@ -1,9 +1,9 @@
-subroutine compute_rho(D,rho,dim)
+subroutine compute_rho(rho,D,dim)
 
 implicit none
 ! use constants
 
-integer :: dim
+integer, intent(in):: dim
 complex, dimension (dim,dim), intent(in) :: D
 double precision, dimension (dim,dim), intent(out) :: rho
 
