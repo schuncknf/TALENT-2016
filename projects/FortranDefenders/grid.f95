@@ -19,7 +19,7 @@ contains
 
 		integer :: i
 
-		allocate(meshpoints(nbox+1))
+		allocate(meshpoints(0:nbox))
 		meshpoints = (/ (real(i)*h,i=0,nbox) /)
 
 	end subroutine init_grids
