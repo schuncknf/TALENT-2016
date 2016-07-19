@@ -16,7 +16,7 @@ contains
 
     allocate(potential(0:nbox),test(0:nbox))
 
-    Eupper = 10000_wp
+    Eupper = 100000_wp
     Elower = -v0
     do i=1,100000
       Etrial = (Eupper+Elower)/2.0
@@ -82,8 +82,8 @@ contains
     ! Printing points for plotting. I run $ xmgrace plt
 
     do ir=0,nbox
-      test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
-      write(13,*) ir*h, wavefunctions(ir), test(ir)
+
+      write(13,*) ir*h, wavefunctions(ir), woodsaxon(ir)
     end do
 
   end subroutine solve
@@ -120,11 +120,26 @@ contains
     real(wp), intent(in) :: Etrial
     integer, intent(in) :: ir
 
-    if ((ir <= nbox/4) .OR. (ir >= nbox*3/4)) then
+    if ((ir <= (nbox/2 - radius) .OR. (ir >= (nbox/2 + radius)))) then
       pot = Etrial/hbar22m
     else
       pot = (Etrial+v0)/hbar22m
     end if
+
+  end function
+
+  function woodsaxon(ir) result(pot)
+    real(wp) :: pot
+
+    integer, intent(in) :: ir
+
+
+    if (ir < nbox/2) then
+      pot = v0 * 1 / (1 * exp((meshpoints(ir+nbox/2)-meshpoints(radius))/0.67))
+    else
+      pot = v0 * 1 / (1 * exp((meshpoints(ir-nbox/2)-meshpoints(radius))/0.67))
+    end if
+
 
   end function
 

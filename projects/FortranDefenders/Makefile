@@ -5,6 +5,8 @@ EXEC	= main
 
 OBJS = main.o grid.o solver.o
 
+SHELL =/bin/sh
+
 all: $(EXEC)
 
 $(EXEC): $(OBJS)
