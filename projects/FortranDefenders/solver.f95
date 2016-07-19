@@ -10,23 +10,22 @@ contains
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3
-    real(wp), allocatable :: potential(:)
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
+    real(wp), allocatable :: potential(:), test(:)
     logical :: sign
 
-    allocate(potential(0:nbox))
+    allocate(potential(0:nbox),test(0:nbox))
 
-    Eupper = 100_wp
-    Elower = 0_wp
-    do i=1,10000
+    Eupper = 10000_wp
+    Elower = -v0
+    do i=1,100000
       Etrial = (Eupper+Elower)/2.0
       ! Trying very large values right now, may change this if unstable
-      potential(0) = 1E20_wp
-      potential(nbox) = 1E20_wp
+
       ! Attempting to set the potential before hand, if this does not work, we
       ! can do it "on the fly"
-      do ir=1,nbox-1
-        potential(ir) = Etrial/hbar22m
+      do ir=0,nbox
+        potential(ir) = finitepot(ir,Etrial)
       end do
 
       wavefunctions(0) = 0.0
@@ -58,14 +57,15 @@ contains
         ! This is a variation on the lower energy in order to "squeeze" the
         ! energies together. by moving it a small amount (arbitrarily here)
         ! we can force the solution to converge.
-        Elower = Elower + h
+        Elower = Elower + 0.01
       end if
 
       if (abs(Eupper - Elower) < conv) then
         write (6,*) "Converged!"
         write (6,*) "|Eupper - Elower| =", abs(Eupper - Elower)
         write (6,*) "Energy =", Etrial
-        write (6,*) "Exact Energy =",(nodes+1)**2 *pi**2 *hbar22m/meshpoints(nbox+1)**2
+        write (6,*) "Exact Energy =",finite_exact()
+        write (6,*) "Difference between calculated and exact =",Etrial-finite_exact()
         exit
       end if
     end do
@@ -75,13 +75,57 @@ contains
       write (*,*) abs(Eupper - Elower)
     end if
     ! Normalisation
-    wavefunctions(:) = wavefunctions(:)/sum(wavefunctions(:))
+    norm = sqrt(sum(h*wavefunctions(:)*wavefunctions(:)))
+    wavefunctions(:) = wavefunctions(:)/norm
+    norm = sqrt(h*sum(wavefunctions(:)*wavefunctions(:)))
+    write (*,*) norm
     ! Printing points for plotting. I run $ xmgrace plt
-    
+
     do ir=0,nbox
-      write(13,*) ir*h, wavefunctions(ir)
+      test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
+      write(13,*) ir*h, wavefunctions(ir), test(ir)
     end do
 
   end subroutine solve
+
+  function infwell_exact() result(energy)
+    real(wp) :: energy
+
+    energy = (nodes+1)**2 *pi**2 *hbar22m/(nbox*h)**2
+
+  end function
+
+  function finite_exact() result(energy)
+    real(wp) :: energy
+
+    energy = (nodes+1)**2 *pi**2 *hbar22m/(nbox*h)**2 -v0
+
+  end function
+
+  function infwell(ir, Etrial) result(pot)
+    real(wp) :: pot
+    real(wp), intent(in) :: Etrial
+    integer, intent(in) :: ir
+
+    if ((ir .EQ. 0) .OR. (ir .EQ. nbox)) then
+      pot = 1E20_wp
+    else
+      pot = Etrial/hbar22m
+    end if
+
+  end function
+
+  function finitepot(ir, Etrial) result(pot)
+    real(wp) :: pot
+    real(wp), intent(in) :: Etrial
+    integer, intent(in) :: ir
+
+    if ((ir .EQ. 0) .OR. (ir .EQ. nbox)) then
+      pot = 0
+    else
+      pot = (Etrial+v0)/hbar22m
+    end if
+
+  end function
 
 end module solver
