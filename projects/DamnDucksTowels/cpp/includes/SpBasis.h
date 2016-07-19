@@ -1,5 +1,7 @@
 #include "Basis.h"
 
+#include <armadillo>
+
 /// class SpBasis - 
 class SpBasis : public Basis {
   // Attributes

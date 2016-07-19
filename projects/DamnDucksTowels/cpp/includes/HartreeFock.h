@@ -1,5 +1,5 @@
 #include "Solver.h"
-
+#include <armadillo>
 /// class HartreeFock - 
 class HartreeFock : public Solver {
   // Attributes

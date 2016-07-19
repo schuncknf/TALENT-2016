@@ -1,3 +1,5 @@
+#include <armadillo>
+
 /// class Basis - 
 class Basis {
   // Attributes
