@@ -16,9 +16,9 @@ contains
 
     allocate(potential(0:nbox),test(0:nbox))
 
-    Eupper = 100_wp
+    Eupper = 10000_wp
     Elower = 0_wp
-    do i=1,10000
+    do i=1,100000
       Etrial = (Eupper+Elower)/2.0
       ! Trying very large values right now, may change this if unstable
       potential(0) = 1E20_wp
