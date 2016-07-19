@@ -11,10 +11,10 @@ contains
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3
-    real(wp), allocatable :: potential(:)
+    real(wp), allocatable :: potential(:), test(:)
     logical :: sign
 
-    allocate(potential(0:nbox))
+    allocate(potential(0:nbox),test(0:nbox))
 
     Eupper = 100_wp
     Elower = 0_wp
@@ -58,7 +58,7 @@ contains
         ! This is a variation on the lower energy in order to "squeeze" the
         ! energies together. by moving it a small amount (arbitrarily here)
         ! we can force the solution to converge.
-        Elower = Elower + h
+        Elower = Elower + 0.01
       end if
 
       if (abs(Eupper - Elower) < conv) then
@@ -66,6 +66,7 @@ contains
         write (6,*) "|Eupper - Elower| =", abs(Eupper - Elower)
         write (6,*) "Energy =", Etrial
         write (6,*) "Exact Energy =",(nodes+1)**2 *pi**2 *hbar22m/meshpoints(nbox+1)**2
+        write (6,*) "Difference between calculated and exact =",Etrial-(nodes+1)**2 *pi**2 *hbar22m/meshpoints(nbox+1)**2
         exit
       end if
     end do
@@ -76,10 +77,12 @@ contains
     end if
     ! Normalisation
     wavefunctions(:) = wavefunctions(:)/sum(wavefunctions(:))
+    write (*,*) sum(wavefunctions(:))
     ! Printing points for plotting. I run $ xmgrace plt
-    
+
     do ir=0,nbox
-      write(13,*) ir*h, wavefunctions(ir)
+      test(ir) = sqrt(2/meshpoints(nbox+1)) * sin((nodes+1) * pi * meshpoints(ir)/meshpoints(nbox+1))
+      write(13,*) ir*h, wavefunctions(ir), test(ir)
     end do
 
   end subroutine solve
