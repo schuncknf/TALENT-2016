@@ -26,7 +26,9 @@ $(TARGET): $(OBJ_FILES)
 %.o: %.cpp
 	$(CXX) -c $< -o $@ $(CFLAGS)
 
-.PHONY: clean mrproper
+.PHONY: clean mrproper depend
+
+depend: $(DEPS)
 
 clean:
 	rm -rf $(OBJ_FILES) $(DEPS)
