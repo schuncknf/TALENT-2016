@@ -120,8 +120,8 @@ contains
     real(wp), intent(in) :: Etrial
     integer, intent(in) :: ir
 
-    if ((ir .EQ. 0) .OR. (ir .EQ. nbox)) then
-      pot = 0
+    if ((ir <= nbox/4) .OR. (ir >= nbox*3/4)) then
+      pot = Etrial/hbar22m
     else
       pot = (Etrial+v0)/hbar22m
     end if
