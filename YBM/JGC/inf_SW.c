@@ -5,7 +5,7 @@
 
 using namespace std;	// no need to put std:: before any cout, etc.
 
-// Variables
+// Variables (NOTE: need to check keV and MeV being used correctly here....)
 double     a = 35.;	// Box width  [fm]
 double     l = 6.;	// Well width [fm] (don't use yet)
 double     h = 0.01;	// Mesh width [fm]
@@ -14,7 +14,7 @@ double  eMin = 0.;	// Min limit  [keV]
 double  eMax = 10.;	// Max limit  [keV]
 double eStep = 0.0005;	// Step between different energies in brute force approach, needs getting rid of
 
-double h22m_fac = 20.75;
+double hm_fac = 20.75;	// units? MeV?
 
 // Variable used to check if the wavefunction has crossed x axis
 // between different energies
@@ -82,8 +82,8 @@ int main()
 // f_x_h = Wavefunction value from two steps ago ( f(x) from TALENT school notes) 
 double numerovAlgorithm(double E, double f_x, double f_x_h)
 {
-	double a[3];			// Array for Numerov coefficients
-	double vx = E / h22m_fac;	// Numerov potential
+	double a[3];		// Array for Numerov coefficients
+	double vx = E / hm_fac;	// Numerov potential
 
 	a[0] = 2. * (1. - 5./12. * vx * h * h);	// Coeff. for f(x)
 	a[1] = 1. * (1. + 1./12. * vx * h * h);	// Coeff. for f(x-h)
