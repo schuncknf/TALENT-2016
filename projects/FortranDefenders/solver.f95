@@ -76,11 +76,9 @@ contains
       write (*,*) abs(Eupper - Elower)
     end if
     ! Normalisation
-    norm = sum(abs(wavefunctions(:)))
-    do ir = 0,nbox
-      wavefunctions(ir) = wavefunctions(ir)/norm
-    end do
-    norm = sum(abs(wavefunctions(:)))
+    norm = sqrt(sum(h*wavefunctions(:)*wavefunctions(:)))
+    wavefunctions(:) = wavefunctions(:)/norm
+    norm = sqrt(h*sum(wavefunctions(:)*wavefunctions(:)))
     write (*,*) norm
     ! Printing points for plotting. I run $ xmgrace plt
 
