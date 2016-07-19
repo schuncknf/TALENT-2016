@@ -16,7 +16,7 @@
       Eup=100.0d0
       Edown=0.0d0
       epsil=0.0001d0
-      Node=1
+      Node=0
       Rmin=0
       Rmax=6 !fermi
       meshsize=0.1d0
@@ -44,7 +44,7 @@
 ! counting nodes
          Nodecount=0    
          do i=1,points+1
-           if(sign(1.0d0,trialwf(i-1)) .ne. sign(1.0d0,trialwf(i))) &
+           if(trialwf(i-1)*trialwf(i) .lt. 0.0d0) &
              Nodecount= Nodecount+1
          end do 
          print*, Nodecount
@@ -54,9 +54,9 @@
            Eup=Etrial
          else if(Nodecount .lt. Node) then
            Edown=Etrial
-         else if(Nodecount .eq. Node) then
-           deltae=abs(Eup-Edown)/10.0d0
-           Eup=Eup-deltae
+!         else if(Nodecount .eq. Node) then
+ !          deltae=abs(Eup-Edown)/10.0d0
+ !          Eup=Eup-deltae
 !           Edown=Edown+deltae
          end if
            write(7,*) "Start"
