@@ -10,7 +10,7 @@ contains
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
     real(wp), allocatable :: potential(:), test(:)
     logical :: sign
 
@@ -65,8 +65,8 @@ contains
         write (6,*) "Converged!"
         write (6,*) "|Eupper - Elower| =", abs(Eupper - Elower)
         write (6,*) "Energy =", Etrial
-        write (6,*) "Exact Energy =",(nodes+1)**2 *pi**2 *hbar22m/meshpoints(nbox+1)**2
-        write (6,*) "Difference between calculated and exact =",Etrial-(nodes+1)**2 *pi**2 *hbar22m/meshpoints(nbox+1)**2
+        write (6,*) "Exact Energy =",(nodes+1)**2 *pi**2 *hbar22m/(nbox*h)**2
+        write (6,*) "Difference between calculated and exact =",Etrial-(nodes+1)**2 *pi**2 *hbar22m/(nbox*h)**2
         exit
       end if
     end do
@@ -76,12 +76,15 @@ contains
       write (*,*) abs(Eupper - Elower)
     end if
     ! Normalisation
-    wavefunctions(:) = wavefunctions(:)/sum(wavefunctions(:))
-    write (*,*) sum(wavefunctions(:))
+    norm = sum(wavefunctions(:))
+    do ir = 0,nbox
+      wavefunctions(ir) = wavefunctions(ir)/norm
+    end do
+    write (*,*) norm
     ! Printing points for plotting. I run $ xmgrace plt
 
     do ir=0,nbox
-      test(ir) = sqrt(2/meshpoints(nbox+1)) * sin((nodes+1) * pi * meshpoints(ir)/meshpoints(nbox+1))
+      test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
       write(13,*) ir*h, wavefunctions(ir), test(ir)
     end do
 
