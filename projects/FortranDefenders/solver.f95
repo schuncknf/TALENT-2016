@@ -76,10 +76,11 @@ contains
       write (*,*) abs(Eupper - Elower)
     end if
     ! Normalisation
-    norm = sum(wavefunctions(:))
+    norm = sum(abs(wavefunctions(:)))
     do ir = 0,nbox
       wavefunctions(ir) = wavefunctions(ir)/norm
     end do
+    norm = sum(abs(wavefunctions(:)))
     write (*,*) norm
     ! Printing points for plotting. I run $ xmgrace plt
 
