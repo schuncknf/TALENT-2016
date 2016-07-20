@@ -1,14 +1,14 @@
 module grid
 	implicit none
-	integer, parameter :: wp=kind(selected_real_kind (16))
+	integer, parameter :: wp=kind(1.0d0)
 	real(wp), parameter :: pi = 3.14159265358979_wp
 	real(wp) :: h,conv,hbar22m,v0
-	real(kind =16), allocatable,dimension(:) :: meshpoints,wavefunctions
-  integer :: nbox, nodes, radius
+	real(wp), allocatable,dimension(:) :: meshpoints,wavefunctions,wfl,wfr
+  integer :: nbox, nodes
 contains
 	subroutine init_params
 
-		namelist /input/ nbox,h,nodes,v0,radius,conv,hbar22m
+		namelist /input/ nbox,h,nodes,v0,conv,hbar22m
 		read(5,input)
 
 	end subroutine init_params
@@ -26,7 +26,7 @@ contains
 
 	subroutine init_wavefunctions
 
-		allocate(wavefunctions(0:nbox))
+		allocate(wavefunctions(0:nbox),wfr(0:nbox),wfl(0:nbox))
 
 	end subroutine
 
