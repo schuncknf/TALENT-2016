@@ -1,6 +1,6 @@
       program HFsolver
        use constants
-       use lag
+      ! use lag
        use lag_pol
        use pot
        use maths

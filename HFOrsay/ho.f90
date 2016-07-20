@@ -2,7 +2,6 @@ module ho
 contains
 function ho_rad_wf(n,l,r) result(wf)
 use maths
-use lag
 use constants
 use lag_pol
 implicit none

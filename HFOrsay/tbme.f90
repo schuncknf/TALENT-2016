@@ -2,7 +2,6 @@ subroutine tbme(n,n1,n2,n3,n4,resu)
 use ho
 use lag_pol
 use constants
-use lag
 use pot
 implicit none
 integer::i,n1,n2,n3,n4,n,j,l1,l2,l3,l4
