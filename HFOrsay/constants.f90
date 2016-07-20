@@ -12,4 +12,7 @@ double precision,parameter::v0r=200.00d0 !in MeV
 double precision,parameter::v0t=178.00d0 !in MeV
 double precision,parameter::v0s=91.85d0 !in MeV
 
+double precision,parameter::h_over_2_m = 20.73d0 !in fm 2
+double precision,parameter::mc_2 = 938.90590d0 !in MeV
+
 end module constants
