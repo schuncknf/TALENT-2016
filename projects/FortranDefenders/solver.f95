@@ -93,7 +93,7 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, j, ir, nnodes
+    integer :: i, ir, nnodes
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
     real(wp), allocatable :: potential(:), test(:), test2(:)
     logical :: sign
