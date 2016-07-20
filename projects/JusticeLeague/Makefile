@@ -2,7 +2,7 @@ COMPILER = gfortran
 FLAGS = 
 LINEAR_ALGEBRA = -llapack
 
-SRC = types.f90  HF_variables.f90 HF_HartreeFock.f90 HF_Minnesota.f90 HFSolver_main.f90
+SRC = types.f90  HF_variables.f90 HF_HartreeFock.f90 HF_HOQuadrature.f90 HF_Minnesota.f90 HFSolver_main.f90
 OBJ = $(SRC:.f90=.o)
 
 all: HFSolver
@@ -19,7 +19,10 @@ HF_variables.o: HF_variables.f90 types.mod
 HF_HartreeFock.o: HF_HartreeFock.f90 types.mod variables.mod 
 	$(COMPILER) $(FLAGS) -c $<
 
-HF_Minnesota.o: HF_Minnesota.f90 types.mod variables.mod 
+HF_HOQuadrature.o: HF_HOQuadrature.f90 types.mod
+	$(COMPILER) $(FLAGS) -c $<	
+
+HF_Minnesota.o: HF_Minnesota.f90 types.mod variables.mod ho_quadrature.mod
 	$(COMPILER) $(FLAGS) -c $<
 
 

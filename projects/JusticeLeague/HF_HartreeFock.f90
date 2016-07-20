@@ -7,7 +7,9 @@ contains
   subroutine Initialize_HF
     implicit none
     integer :: i
-!    if(allocated(D_mat)) deallocate(D_mat)
+    if(allocated(D_mat)) then
+       deallocate(D_mat,rho_mat,h_mat,Gamma_mat,E_values,E_prev)
+    endif
     allocate(D_mat(1:Nsize,1:Nsize))
     allocate(rho_mat(1:Nsize,1:Nsize))
     allocate(h_mat(1:Nsize,1:Nsize))
@@ -28,7 +30,7 @@ contains
     do i = 1,Nsize
        do j = i,Nsize
           D = 0
-          do k = 1,Nsize
+          do k = 1,Nparticles/2
              D = D + D_mat(i,k)*D_mat(j,k)
           enddo
           rho_mat(i,j) = D

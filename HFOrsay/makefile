@@ -14,7 +14,9 @@ LK = ifort -O2
 # FFLAGS=-O4 -align dcommons
 # FFLAGS=-O5 -align dcommons -tune host
 
-OBJ =  constants.o maths.o laguerre.o lag_pol.o ho.o test.o
+OBJ =  constants.o maths.o laguerre.o laguerre_polynomial.o lag_pol.o ho.o pot.o compute_rho.o compute_gamma.o \
+	compute_h.o hfsolver.o gausslag.o tbme.o \
+	
        
 BLDOBJ = $(foreach obj,$(OBJ),$(blddir)/$(obj))
 
