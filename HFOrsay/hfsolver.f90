@@ -15,7 +15,7 @@
       DOUBLE PRECISION, ALLOCATABLE :: eigvalR(:), eigvalL(:), eigvalOLD(:), WORK(:)
       DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:)
       DOUBLE PRECISION esum, rhosum, gamasum, vnorm
-      double precision::x
+      double precision::x,ri,rj
 !      external::compute_rho,compute_h,compute_gamma
 !
       EXTERNAL dgeev
@@ -54,18 +54,29 @@
 	 kin(i,i) = (2.d0*i+1.5d0)*ama*2.d0/(bosc**2)
       enddo
 
+do i=0,400
+ri = 0.1*i
+ do j=0,400
+ rj = 0.1*j
+write(11,*) ri,rj,potential(ri,rj,v0r,kr)
+write(12,*) ri,rj,minnesota(ri,rj,v0r,kr)
+enddo
+write(11,*)
+enddo
+
+
      do i = 1,n
       do j = 1,n
        do k = 1,n
         do l = 1,n
-           call tbme(n,i,j,k,l,vpot(i,j,k,l))
-           write(11,*) i,j,k,l,vpot(i,j,k,l)
+           call tbme((n+1)/2,i,j,k,l,vpot(i,j,k,l))
+           write(14,*) i,j,k,l,vpot(i,j,k,l)
         enddo !l
-           write(11,*) 
+           write(14,*) 
        enddo !k
-           write(11,*) 
+           write(14,*) 
       enddo !j
-           write(11,*) 
+           write(14,*) 
      enddo !i
 
 ! ---------- start of iteration loop
