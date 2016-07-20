@@ -4,7 +4,7 @@ function fac(n) result(fak)
 implicit none
 integer::i,n
 double precision::lfak,fak
-if (n==0) then 
+if (n==0) then
  fak=1.d0
 else
  lfak = 0.d0
@@ -26,6 +26,12 @@ if (mod(n,2) == 0) then
   ffak = fac(2*k)/(2**(dble(k))*fac(k))
 endif
 end function ffac
+
+integer function delta(i,j)
+  integer :: i, j
+  delta=0; if(i==j) delta=1
+end function delta
+
 !recursive function ffac(n) result (ffak)
 !implicit none
 !integer::n,ffak
@@ -56,8 +62,3 @@ end function ffac
 
 
 end module maths
-
-
-
-
-
