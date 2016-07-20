@@ -1,5 +1,9 @@
-
       program HFsolver
+       use constants
+       use lag
+       use lag_pol
+       use pot
+       use maths
 !
       IMPLICIT NONE   
 !
@@ -11,6 +15,7 @@
       DOUBLE PRECISION, ALLOCATABLE :: eigvalR(:), eigvalL(:), eigvalOLD(:), WORK(:)
       DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:)
       DOUBLE PRECISION esum, rhosum, gamasum, vnorm
+      double precision::x
 !
       EXTERNAL dgeev
 !
@@ -36,6 +41,8 @@
       ALLOCATE(rho(1:N,1:N),vpot(1:N,1:N,1:N,1:N),kin(1:N,1:N),gama(1:N,1:N))
 !
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
+     call lag_roots(n,0.5d0,.true.)
+     call gausslag(n,1,2,x)
 !
       do i = 1, N
  	 do j = 1, N
