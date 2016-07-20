@@ -18,7 +18,7 @@ double  eMin = 0.;	// Min limit  [keV]
 double  eMax = 10.;	// Max limit  [keV]
 double eStep = 0.25;	// Step between different energies in brute force approach, needs getting rid of
 
-double tolConv = 0.0005;
+double tolConv = 0.15;
 
 double hm_fac = 20.75;	// units? MeV?
 
@@ -34,6 +34,7 @@ int main()
 	double trialE = (eMax-eMin)/2;	// IS this the best way to start the bisection method?
 	vector<double> wf_val;		// Vector for wave function values
 
+	// Nice stuff for terminal output
 	cout << "\n*************************************************" << endl;
 	cout << "*\tEigen E [MeV]\tOutput filename\t\t*" << endl;
 
@@ -65,14 +66,20 @@ int main()
 			//cout << p << "\t" << wfPrev << "\t" << wfLast << endl;
 			p++;
 
-			// If there is a change in sign between different energies, cout info to terminal
+			// Check if there is a change in sign of wavefunction values at the limit of the box for
+			// the most recent two different energies (wfPrev/wfLast negative if this is the case)
 			if(wfPrev/wfLast < 0)
 			{
-					double eigenEng;
+					double eigenEng;	// initiate variable for energy eigenvalue
+
+					// Check if either of the two energies already meet the convergence condition
 					if((fabs(wfPrev)<tolConv) || (fabs(wfLast)<tolConv))
 					{
 						eigenEng = eMin;
 					}
+					// Two else statements check whether wavefunction at limit has pos. or neg. 
+					// gradient at limit of box, then calls the convergence function to calculate
+					// an energy eigenvalue
 					else if(wfPrev<wfLast)
 					{
 							eigenEng = converge(eMin-eStep,eMin,wfPrev,wfLast);
@@ -82,15 +89,18 @@ int main()
 							eigenEng = converge(eMin,eMin-eStep,wfLast,wfPrev);
 					}
 
+					// Clear previous wafefunction vector and initiate first two steps
 					wf_val.clear();
 					wf_val.push_back(0);
 					wf_val.push_back(0.5);
 
+					// Calculate eigenfunction using Numerov
 					for(int i=0; i<a/h; i++)
 					{
 						wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i)));
 					}
 
+					// Write results to file with filename including energy eigenvalue
 					char filename[512];
 					sprintf(filename,"output_%1.3f.dat",eigenEng);
 					if(n<1) firstE = eigenEng;
@@ -99,7 +109,7 @@ int main()
 					for(int k=0; k<a/h; k++) opFile << k << "\t" << wf_val.at(k) << endl;
 					opFile.close();
 
-					
+					// Output energy eigenvalue and the name of the file results are saved to
 					cout << setprecision(5) << "*\t" << eigenEng << "\t\t" << filename << "\t*" << endl;
 			}
 
@@ -112,7 +122,7 @@ int main()
 		wf_val.clear(); // clear wf_val vector for next calculation with different trial energy
 		eMin += eStep;	// increase energy.....will get rid of this
 	}
-	cout << "*************************************************" << endl;
+	cout << "*************************************************" << endl;	// nice stuff for terminal output
 }
 
 // Numerov algorithm function.
@@ -120,7 +130,7 @@ int main()
 // INPUT ARGUMENTS:
 //     E = trial energy
 //   f_x = Wavefunction value from previous step ( f(x)   from TALENT school notes)
-// f_x_h = Wavefunction value from two steps ago ( f(x-h) from TALENT school notes) 
+// f_x_h = Wavefunction value from two steps ago ( f(x-h) from TALENT school notes)
 double numerovAlgorithm(double E, double f_x, double f_x_h)
 {
 	double a[3];		// Array for Numerov coefficients
@@ -134,22 +144,33 @@ double numerovAlgorithm(double E, double f_x, double f_x_h)
 	return nuWF;	// Return nuWF value when function called
 }
 
+// Function to converge on energy eigenvalue
+//
+// INPUT ARGUMENTS:
+//  eLo = the energy of the step with the lowest wavefunction value
+//  eHi = the energy of the step with the highest wavefunction value
+// wfLo = lower wavefunction value of the two energy steps
+// wfHi = higher wavefunction value of the two energy steps
 double converge(double eLo, double eHi, double wfLo, double wfHi)
 {
 	double trialE, wfLowest = wfLo;
 	vector<double> wf_val;
 
+	// While condition to carry on bisection convergence until a state with energy
+	// produces a wavefunction that meets boundary conditions (WF~0 @ box limits)
 	while ((fabs(wfLo)>tolConv) || (fabs(wfHi)>tolConv))
 	{
-		trialE = (eHi+eLo)/2;
-		wf_val.push_back(0);
-		wf_val.push_back(0.5);
+		trialE = (eHi+eLo)/2;	// Trial energy based on average of two previous energies
+		wf_val.push_back(0);	// Initiate Step 0 wavefunction value
+		wf_val.push_back(0.5);	// Initiate Step 1 wavefunction value
 
+		// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
 		for(int i=0; i<a/h; i++)
 		{
 			wf_val.push_back(numerovAlgorithm(trialE, wf_val.at(i+1), wf_val.at(i)));
 		}
 
+		// Work out which wavefunction is......I think this is where the convergence function is messing up.
 		if (wf_val.at(-1+wf_val.size()) <= 0)
 		{
 			eLo = trialE;
@@ -160,7 +181,7 @@ double converge(double eLo, double eHi, double wfLo, double wfHi)
 			eHi = trialE;
 			wfHi = wf_val.at(-1+wf_val.size());
 		}
-		wf_val.clear();
+		wf_val.clear();	// clear wavefunction vector
 	}
-	return trialE;
+	return trialE;	// return the trial energy value that meets the tolerance condition
 }
