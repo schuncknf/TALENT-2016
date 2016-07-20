@@ -7,9 +7,9 @@ def main(cfile, hfile, max_degree, step = 10):
     degrees = list(range(0, max_degree + 1, step))
     degrees.remove(0)
     hfile.write("#ifndef QUADRATURES_H\n#define QUADRATURES_H\n\n")
-    hfile.write("#define GET_LAG_ROOTS(d, xipp, wipp) switch(d) { ")
-    hfile.write(' '.join(["case %i: xipp = &lag_p%03i; wipp = &lag_w%03i; break;" % (d,d,d) for d in degrees]))
-    hfile.write(' default: xipp = NULL; wipp = NULL;')
+    hfile.write("#define GET_LAG_ROOTS(d, xi, wi) switch(d) { ")
+    hfile.write(' '.join(["case %i: xi = lag_p%03i; wi = lag_w%03i; break;" % (d,d,d) for d in degrees]))
+    hfile.write(' default: xi = arma::vec(); wi = arma::vec();')
     hfile.write(" }\n")
     
     cfile.write("#include <armadillo>\n\n")
