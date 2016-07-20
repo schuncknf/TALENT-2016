@@ -1,4 +1,4 @@
-      program infinite 
+      program finite_square_well
       use globals
       implicit none
       real(kind=dm) :: vpot
@@ -97,14 +97,18 @@
            
       numnodes=numnodes+1
       enddo ! end loop to compare if eigenvalues are between 0-100MeV. 
-      end program infinite
+      end program finite_square_well
 
 
       real (kind=dm) function vpot(xy)
       use globals
       implicit none
       real(kind=dm)::xy
-      vpot=0.         
+      if (abs(xy).lt. R_max) then
+      vpot=-V0
+      else
+      vpot=0.
+      endif       
       end function
 
 !***************************************************
