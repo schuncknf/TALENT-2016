@@ -33,9 +33,26 @@ int main(){
 
 //Drawing the function
 
-	
+	cout<<"Which eigenfunction do you want?"<<endl;
+	int a;	cin>>a;
+	TApplication app("app", 0, 0);
+	TGraph * wavefunction = new TGraph();
+		wave_val.push_back(0);
+		wave_val.push_back(0.05);
+	for(int i=0; i<n_step_width; i++){
+		wave_val.push_back(numerov_algorithm(eigenval[a], wave_val[i+1], wave_val[i]));
+		wavefunction->SetPoint(i, i*h_width, wave_val[i]);
+	}
+	TCanvas myCanvas("tela","tela");
+	wavefunction->SetLineColor(2);
+	wavefunction->GetXaxis()->SetRangeUser(0.,35.); 
+    wavefunction->GetXaxis()->SetTitle("l [fm]");
+    wavefunction->GetYaxis()->SetTitle("#Psi");
+    wavefunction->Draw("AC");
+
+    app.Run();
+	delete wavefunction;
+
 
 return 0;
 }
-
-		//cout<<energy<<"	"<<wave_val[wave_val.size()-1]<<endl;//<<"	"<<wave_prev<<endl;
