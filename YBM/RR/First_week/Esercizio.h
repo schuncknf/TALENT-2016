@@ -6,8 +6,12 @@
 	#include <armadillo>
 	#include <vector>
 
-	#define Edown 0
-	#define Eup 10
+	#define Edown 0.
+	#define Eup 10.
+	#define width 35.
+	#define h_width 0.01
+	#define h_energy 0.005
+
 	#define prec 1E-10
 	#define m_factor 20.75
 	//#define h_bar 197.326947
@@ -37,6 +41,6 @@
 	Vettore wave_function(Vettore & x, double energy, double h);
 */
 
-	double numerov_algorithm(double energy, double h, double f_, double f0);
+	double numerov_algorithm(double energy, double f_, double f0);
 
 #endif
