@@ -10,18 +10,19 @@ double precision, dimension (dim,dim), intent(in) :: rho
 double precision, dimension (dim,dim), intent(out) :: gamma_matrix
 
 !subroutine local variables
-integer ::  i,j,k,l
+integer :: n1,n2,n3,n4
 gamma_matrix(:,:) = 0.d0
 
-!compute the gamma matrix out of the TBMEs and the rho matrix
-do i=1,dim
-  do j=1,dim
-    do k=1,dim
-      do l=1,dim
-        gamma_matrix(i,j) = gamma_matrix(i,j) + TBME(i,j,k,l)*rho(k,l)
+!:qcompute the gamma matrix out of the TBMEs and the rho matrix
+do n2=1,dim
+ do n4=1,dim
+  do n1=1,dim
+   do n3=1,dim
+        gamma_matrix(n2,n4) = gamma_matrix(n2,n4) + TBME(n1,n2,n3,n4)*rho(n3,n4)
       enddo
     enddo
   enddo
 enddo
+!Petar idea change order and introduce gamma_temp
 
 end subroutine compute_gamma
