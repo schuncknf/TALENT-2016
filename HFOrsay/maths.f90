@@ -36,23 +36,20 @@ end function ffac
 !endif
 !end function ffac
 
-function gausslag(n,func) result(inte)
-use lag_pol
-use constants
-implicit none
-double precision,external::func
-double precision::inte,wi,xxi,xi,lag_norm,inte2,har_norm
-double precision::wj,xxj,xj,phi1,phi2,phi3,phi4,poten
-double precision::coeffi,coeffj
-integer::i,n1,n2,n3,n4,n,l,j
-inte=0.d0
-do i=1,n
-wi=lag_w(i)
-xxi=(lag_zeros(i))
-xi=dsqrt(xxi)
-inte = inte + wi*func(xi)
-enddo
-end function gausslag
+!function gausslag(n,func) result(inte)
+!use lag_pol
+!use constants
+!implicit none
+!double precision,external::func
+!double precision::inte,wi,xxi,xi
+!integer::i,n
+!inte=0.d0
+!do i=1,n
+!wi=lag_w(i)
+!xxi=(lag_zeros(i))
+!inte = inte + wi*func(xxi)
+!enddo
+!end function gausslag
 
 
 
