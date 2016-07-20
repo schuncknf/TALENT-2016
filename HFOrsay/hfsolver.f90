@@ -16,6 +16,7 @@
       DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:)
       DOUBLE PRECISION esum, rhosum, gamasum, vnorm
       double precision::x
+!      external::compute_rho,compute_h,compute_gamma
 !
       EXTERNAL dgeev
 !
@@ -39,26 +40,11 @@
       ALLOCATE(eigvalR(N),eigvalL(N),eigvalOLD(N),WORK(LWMAX))
 !
       ALLOCATE(rho(1:N,1:N),vpot(1:N,1:N,1:N,1:N),kin(1:N,1:N),gama(1:N,1:N))
-!
-! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
+!----  Laguerre Mesh
      call lag_roots(n,0.5d0,.true.)
      call gausslag(n,1,2,x)
+! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 !
-      do i = 1, N
- 	 do j = 1, N
-            do k = 1, N
- 	       do l = 1, N
-!
-	          if(i .ne. j .and. j .ne. k .and. k .ne. l) then
-                      vpot(i,j,k,l) = 0.0
-                  else 
-                      vpot(i,j,k,l) = real(0.5/i)
-	          endif
-!
-               enddo
-             enddo
-          enddo
-      enddo
 !
       do i = 1, N ! Npart?
 	 do j = 1, N
