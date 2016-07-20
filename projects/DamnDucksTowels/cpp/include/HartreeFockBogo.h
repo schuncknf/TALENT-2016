@@ -12,12 +12,12 @@ public:
   arma::mat kappa;
   /// Transformation matrix from HO to HF
   arma::mat D;
-  /// Occupation numbers
-  arma::vec occ;
+  /// Single-particle energies 
+  arma::vec e;
 
 // Operations
 public:
-  std::string info();
-  std::string run();
+  HartreeFockBogo(System & system);
+  void iter(arma::field<arma::mat> H);
 };
 

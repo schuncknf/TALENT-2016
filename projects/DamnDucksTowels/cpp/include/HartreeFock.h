@@ -8,12 +8,12 @@ public:
   arma::mat rho;
   /// Matrix of eigenstates of the hamiltonian
   arma::mat D;
-  /// Occupation numbers
-  arma::vec occ;
+  /// Single-particle energies 
+  arma::vec e;
 
 // Operations
 public:
-  std::string info();
-  std::string run();
+  HartreeFock(System & system);
+  void iter(arma::field<arma::mat> H);
 };
 

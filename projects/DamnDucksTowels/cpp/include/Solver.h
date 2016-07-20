@@ -1,13 +1,13 @@
-#include "Fields.h"
+#include "System.h"
 
 /// class Solver - 
 class Solver {
   // Attributes
 public:
-  Fields* fields;
-  // Operations
+  System & system;
+  arma::field<arma::mat> RG;
+	// Operations
 public:
-  virtual std::string run () = 0;
-  virtual std::string info () = 0;
+  virtual void iter(arma::field<arma::mat>) = 0;
 };
 

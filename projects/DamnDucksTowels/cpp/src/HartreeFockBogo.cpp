@@ -1,10 +1,12 @@
-#include "HartreeFockBogo.cpp"
+#include "HartreeFockBogo.h"
 
-std::string HartreeFockBogo::info() {
-
+HartreeFockBogo::HartreeFockBogo(System & system) {
+	D(nb_state,nb_state,fill::eye);
+	rho(nb_state,nb_state,fill::zeros);
+	kappa(nb_state,nb_state,fill:zeros);
+	e(nb_state,fill::zeros);
 }
 
-std::string HartreeFockBogo::run() {
+void HartreeFockBogo::iter(arma::field<arma::mat> H) {
 
 }
-
