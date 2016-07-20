@@ -241,28 +241,6 @@ contains
 
   end function
 
- !function woodsaxon(ir) result(pot)
-  !  real(wp) :: pot
-  !  integer, intent(in) :: ir
-
-!    if (ir < nbox/2) then
-!      pot = v0 * 1 / (1 * exp((-meshpoints(nbox/2-ir)+meshpoints!!(radius))/0.67))
-!    else
-!      pot = v0 * 1 / (1 * exp((-meshpoints(ir-nbox/2)+meshpoints(radius))/0.67))
-!    end if
-
-
-!  end function
-
- function woodsaxons( r0, r ) result(res)
-    implicit none
-    real (wp), intent(in) :: r0, r
-    real (wp) :: res
-    !
-    res =  1 / ( 1 + exp( (   r - r0 ) / 0.67 ) )    &
-         + 1 / ( 1 + exp( ( - r - r0 ) / 0.67 ) ) - 1
-    !
-  end function woodsaxons
 
   function woodsaxon(ir) result(pot)
     real(wp) :: pot
