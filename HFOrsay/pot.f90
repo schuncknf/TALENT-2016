@@ -12,7 +12,7 @@ module pot
   use constants
   implicit none
   double precision::r1,r2,vc,cc,res
-  res = vc/cc*half*exp(-cc*(r1**2+r2**2))*sinh(2*cc*r1*r2)
+  res = one/(r1*r2)*vc/cc*half*exp(-cc*(r1**2+r2**2))*sinh(2*cc*r1*r2)
   end function
 
 end module

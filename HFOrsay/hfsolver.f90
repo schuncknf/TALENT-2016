@@ -42,16 +42,31 @@
       ALLOCATE(rho(1:N,1:N),vpot(1:N,1:N,1:N,1:N),kin(1:N,1:N),gama(1:N,1:N))
 !----  Laguerre Mesh
      call lag_roots(n,0.5d0,.true.)
-     call gausslag(n,1,2,x)
+     !call gausslag(n,1,2,x)
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 !
 !
+     
       do i = 1, N ! Npart?
 	 do j = 1, N
 	    kin(i,j) = 0.0
 	 enddo
-	 kin(i,i) = 0.5*i
+	 kin(i,i) = (2.d0*i+1.5d0)*ama*2.d0/(bosc**2)
       enddo
+
+     do i = 1,n
+      do j = 1,n
+       do k = 1,n
+        do l = 1,n
+           call tbme(n,i,j,k,l,vpot(i,j,k,l))
+           write(11,*) i,j,k,l,vpot(i,j,k,l)
+        enddo !l
+           write(11,*) 
+       enddo !k
+           write(11,*) 
+      enddo !j
+           write(11,*) 
+     enddo !i
 
 ! ---------- start of iteration loop
 	
