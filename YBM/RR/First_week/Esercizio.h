@@ -6,11 +6,18 @@
 	#include <armadillo>
 	#include <vector>
 
+	#include "TH1F.h"
+	#include "TH2F.h"
+	#include "TApplication.h"
+	#include "TCanvas.h"
+	#include "TGraph.h"
+	#include "TAxis.h"
+
 	#define Edown 0.
 	#define Eup 10.
 	#define width 35.
 	#define h_width 0.01
-	#define h_energy 0.0001
+	#define h_energy 0.0005
 
 	#define prec 1E-10
 	#define m_factor 20.75

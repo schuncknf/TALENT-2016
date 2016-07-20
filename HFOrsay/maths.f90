@@ -41,4 +41,24 @@ end function delta
 !    ffak = n*ffac(n-2)
 !endif
 !end function ffac
+
+!function gausslag(n,func) result(inte)
+!use lag_pol
+!use constants
+!implicit none
+!double precision,external::func
+!double precision::inte,wi,xxi,xi
+!integer::i,n
+!inte=0.d0
+!do i=1,n
+!wi=lag_w(i)
+!xxi=(lag_zeros(i))
+!inte = inte + wi*func(xxi)
+!enddo
+!end function gausslag
+
+
+
+
+
 end module maths
