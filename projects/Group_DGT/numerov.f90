@@ -15,16 +15,15 @@
 !     set initial values
       Eup=100.0d0
       Edown=0.0d0
-      epsil=0.0001d0
+      epsil=0.0000000000001d0
       Node=0
       Rmin=0
       Rmax=6 !fermi
       meshsize=0.1d0
 !
-      OPEN(UNIT=7, FILE='wavefunction.dat', status='unknown')
       points=(Rmax-Rmin)/meshsize
 ! allocate the trialwf
-      allocate(trialwf(0:points+1), stat = ifail)
+      allocate(trialwf(0:points), stat = ifail)
       if (ifail .ne. 0) STOP
 !loop until convergence
       converg=0
@@ -33,8 +32,8 @@
          print*, Etrial
 !building up the wave function
          trialwf(0)=0.0d0
-         trialwf(1)= 1.0d0
-         do i=1,points
+         trialwf(1)= 0.1d0
+         do i=1,points-1
            pot=Etrial/hb2m !insert V if V=0
            a1= 2.0d0*(1.0d0-5.0d0/12.0d0*pot*meshsize**2)
            a2=(1.0d0+1.0d0/12.0d0*pot*meshsize**2)
@@ -43,26 +42,17 @@
          end do
 ! counting nodes
          Nodecount=0    
-         do i=1,points+1
+         do i=1,points
            if(trialwf(i-1)*trialwf(i) .lt. 0.0d0) &
              Nodecount= Nodecount+1
          end do 
          print*, Nodecount
-!checking nodes
-         
+!checking nodes    
          if(Nodecount .gt. Node) then
            Eup=Etrial
-         else if(Nodecount .lt. Node) then
+         else if(Nodecount .le. Node) then
            Edown=Etrial
-!         else if(Nodecount .eq. Node) then
- !          deltae=abs(Eup-Edown)/10.0d0
- !          Eup=Eup-deltae
-!           Edown=Edown+deltae
          end if
-           write(7,*) "Start"
-         do i=0,points+1
-           write(7,*) i, trialwf(i)
-         end do
 ! checking convergence
          if (abs(Eup-Edown) .lt. epsil) then
            print '("Convergence obtained")'
@@ -72,10 +62,19 @@
       end do
 !renormalization
          normal=0.0d0
-         do i=0,points-1
+         do i=0,points
             normal = normal + trialwf(i)**2*meshsize
          end do
          trialwf(:)=trialwf(:)/sqrt(normal)
 !
          print '("Wavefunction normalized")'
+         OPEN(UNIT=7, FILE='wavefunction.dat', status='unknown')
+         if(trialwf(points-1)*trialwf(points) .lt. 0.0d0) &
+             Nodecount= Nodecount-1 
+         print*, Nodecount
+         write(7,*) "Number of nodes=", Nodecount
+         do i=0,points
+           write(7,*) Rmin+i*meshsize, trialwf(i)
+         end do
+         CLOSE(unit=7)
       end program numerov
