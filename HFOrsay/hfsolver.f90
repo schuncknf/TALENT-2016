@@ -1,5 +1,9 @@
-
       program HFsolver
+       use constants
+       use lag
+       use lag_pol
+       use pot
+       use maths
 !
       IMPLICIT NONE   
 !
@@ -11,6 +15,8 @@
       DOUBLE PRECISION, ALLOCATABLE :: eigvalR(:), eigvalL(:), eigvalOLD(:), WORK(:)
       DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:)
       DOUBLE PRECISION esum, rhosum, gamasum, vnorm
+      double precision::x,ri,rj
+!      external::compute_rho,compute_h,compute_gamma
 !
       EXTERNAL dgeev
 !
@@ -34,31 +40,44 @@
       ALLOCATE(eigvalR(N),eigvalL(N),eigvalOLD(N),WORK(LWMAX))
 !
       ALLOCATE(rho(1:N,1:N),vpot(1:N,1:N,1:N,1:N),kin(1:N,1:N),gama(1:N,1:N))
-!
+!----  Laguerre Mesh
+     call lag_roots(n,0.5d0,.true.)
+     !call gausslag(n,1,2,x)
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 !
-      do i = 1, N
- 	 do j = 1, N
-            do k = 1, N
- 	       do l = 1, N
 !
-	          if(i .ne. j .and. j .ne. k .and. k .ne. l) then
-                      vpot(i,j,k,l) = 0.0
-                  else 
-                      vpot(i,j,k,l) = real(0.5/i)
-	          endif
-!
-               enddo
-             enddo
-          enddo
-      enddo
-!
+     
       do i = 1, N ! Npart?
 	 do j = 1, N
 	    kin(i,j) = 0.0
 	 enddo
-	 kin(i,i) = 0.5*i
+	 kin(i,i) = (2.d0*i+1.5d0)*ama*2.d0/(bosc**2)
       enddo
+
+do i=0,400
+ri = 0.1*i
+ do j=0,400
+ rj = 0.1*j
+write(11,*) ri,rj,potential(ri,rj,v0r,kr)
+write(12,*) ri,rj,minnesota(ri,rj,v0r,kr)
+enddo
+write(11,*)
+enddo
+
+
+     do i = 1,n
+      do j = 1,n
+       do k = 1,n
+        do l = 1,n
+           call tbme((n+1)/2,i,j,k,l,vpot(i,j,k,l))
+           write(14,*) i,j,k,l,vpot(i,j,k,l)
+        enddo !l
+           write(14,*) 
+       enddo !k
+           write(14,*) 
+      enddo !j
+           write(14,*) 
+     enddo !i
 
 ! ---------- start of iteration loop
 	
