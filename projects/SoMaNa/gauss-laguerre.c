@@ -58,7 +58,7 @@ int binomial (int n, int k)
 	
 	}
 
-double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2, int n3, int n4)
+double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2, int n3, int n4, double m, double omega)
 
 	{
 	
@@ -116,11 +116,11 @@ double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2
 	
 	}
 
-double twodgalag (int n, double (*funcp)(double, double, int, int, int, int), int n1, int n2, int n3, int n4)
+double twodgalag (int n, double (*funcp)(double, double, int, int, int, int), int n1, int n2, int n3, int n4, double m, double w)
 
 	{
 	
-	int i;
+	int i, j;
 	
 	double *coefficients;
 	
@@ -150,7 +150,7 @@ double twodgalag (int n, double (*funcp)(double, double, int, int, int, int), in
 	
 	for (i=0; i<n; i++)
 		
-		for (j=0; i<2*n; i+=2)
+		for (j=0; j<2*n; j+=2)
 		
 			{
 				wi = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2));
