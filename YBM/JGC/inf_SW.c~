@@ -14,7 +14,7 @@ double  eMin = 0.;	// Min limit  [keV]
 double  eMax = 10.;	// Max limit  [keV]
 double eStep = 0.0005;	// Step between different energies in brute force approach, needs getting rid of
 
-double hm_fac = 20.75;	// units? MeV?
+double hm_fac = 20.75;	// units?
 
 // Variable used to check if the wavefunction has crossed x axis
 // between different energies

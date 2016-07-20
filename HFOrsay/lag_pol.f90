@@ -3,17 +3,18 @@ module lag_pol
 double precision,dimension(:),allocatable::lag_zeros,lag_w
 contains
 subroutine lag_roots(n,m,pr)
+use maths
 use lag
 implicit none
 !double precision,external::laguerre
-double precision::e,x,step,val,x_max,xi
+double precision::e,step,val,x_max,xi,x,x2,d
 integer,intent(in)::n
 double precision,intent(in)::m
 logical::t,pr
-integer::i,j
+integer::i,j,limit
   write(*,*) '**** Laguerre Roots ****'
   open(10,file='roots_lag.dat')
-  x = 0.0 ; step = 1.0e-6 ; e = 1.0e-9;x_max=1.0e4
+  x = 0.0 ; step = 1.0e-6 ; e = 1.0e-11;x_max=1.0e4
   t = (laguerre(n,m,x) > 0)
   j = 0
   allocate(lag_zeros(n))
@@ -45,7 +46,13 @@ integer::i,j
   close(10)
   do i=1,n
   xi=lag_zeros(i)
+  if (m==0.d0) then
   lag_w(i)=xi/((n+1)**2*laguerre(n+1,m,xi)**2)
+  else
+  lag_w(i)=xi*Gamma(dble(n+m+1))/(fac(n)*(n+1)**2*laguerre(n+1,m,xi)**2)
+
+  endif
+
   enddo
   write(*,*) '** End Laguerre Roots **'
 end subroutine lag_roots
