@@ -1,6 +1,6 @@
-   0.0000000000000000        146.22681031614775     
+   3.5441379177699175E+023   0.0000000000000000     
  Converged!
- |Eupper - Elower| =   9.7645333880791441E-006
- Energy =  -62.070010612334954     
- Exact Energy =  -87.200356792337260     
- Difference between calculated and exact =   25.130346180002306     
+ |Eupper - Elower| =   5.8207660913467407E-006
+ Energy =  -39454.699941815808     
+ Exact Energy =   15382.326770453352     
+ Difference between calculated and exact =  -54837.026712269158     
