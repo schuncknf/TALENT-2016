@@ -6,14 +6,14 @@
      
       NAMELIST / parameters / epsi, h2m
       NAMELIST / sizebox / R_max, R_min,  R_box, h   
-      NAMELIST / energy / E_minus, E_plus
+      NAMELIST / energy / E_minus, E_plus, V0
       open (30, file='infinite.input', status='old')
       read(30, NML=parameters)
       read(30, NML=sizebox)
       read(30, NML=energy)
       close(30)
-
-      Nmesh=nint((R_max-R_min)/h)
+      write(*,'(3a20)') 'nodes', 'eigenvalue', 'filename eigvec'
+      Nmesh=nint((R_box-R_min)/h)
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
       numnodes= 0
       Em=E_minus
@@ -92,6 +92,8 @@
          write(10,*) x, psi(i)
       end do
       close(10)
+
+      write(*, *) numnodes, Em, filename
            
       numnodes=numnodes+1
       enddo ! end loop to compare if eigenvalues are between 0-100MeV. 
@@ -102,8 +104,7 @@
       use globals
       implicit none
       real(kind=dm)::xy
-      vpot=0. 
-          
+      vpot=0.         
       end function
 
 !***************************************************

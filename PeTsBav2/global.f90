@@ -1,7 +1,7 @@
       module globals
       implicit none
       integer, parameter :: dm=kind(1.d0)
-      real (kind=dm) ::h2m= 20.75, epsi=1e-6
+      real (kind=dm) ::h2m= 20.75, epsi=1e-6, V0=5.
       real (kind=dm) :: R_max=6., R_min=0., R_box=6.,h=0.1,Em, nmfactor
       integer  :: Nmesh
       ! psi(grid_index)
