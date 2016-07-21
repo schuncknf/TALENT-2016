@@ -1,20 +1,21 @@
-#include "Solver.h"
+#ifndef HARTREEFOCKBOGO_h
+#define HARTREEFOCKBOGO_h
 
-#include <armadillo>
+#include "Solver.h"
 
 /// class HartreeFockBogo - 
 class HartreeFockBogo : public Solver {
   // Attributes
 public:
   /// Transformation matrix from HO to HF
-  arma::mat D;
-  /// Vector with the occupation numebrs of the states 
-  arma::vec occ;
-
-// Operations
+  arma::field<arma::mat> D;
+  /// Occupation numbers
+  arma::field<arma::vec> occ;
+  // Operations
 public:
-  HartreeFockBogo(System & system);
-  ~HartreeFockBogo();
-  void iter(arma::field<arma::mat> H);
+  HartreeFockBogo (System & system);
+  void calc (arma::field<arma::mat> & H);
+  ~HartreeFockBogo ();
 };
 
+#endif

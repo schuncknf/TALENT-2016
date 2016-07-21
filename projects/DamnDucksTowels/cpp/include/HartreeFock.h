@@ -1,18 +1,21 @@
+#ifndef HARTREEFOCK_H
+#define HARTREEFOCK_H
+
 #include "Solver.h"
-#include <armadillo>
+
 /// class HartreeFock - 
 class HartreeFock : public Solver {
   // Attributes
 public:
   /// Matrix of eigenstates of the hamiltonian
-  arma::mat D;
-  /// Vector with the occupation numbers of the states
-  arma::vec occ;
-
-// Operations
+  arma::field<arma::mat> D;
+  /// Occupation numbers
+  arma::field<arma::vec> occ;
+  // Operations
 public:
-  HartreeFock(System & system);
-  ~HartreeFock();
-  void iter(arma::field<arma::mat> H);
+  HartreeFock (System & system);
+  void calc (arma::field<arma::mat> H);
+  ~HartreeFock ();
 };
 
+#endif
