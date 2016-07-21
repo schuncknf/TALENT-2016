@@ -41,6 +41,8 @@ double Rnl (int n, double l, double m, double w, double r)
 		
 		rnlres = Anl(n,l)/pow(bred(m,w),1.5)*pow(r/bred(m,w),l)*exp(-pow((r/bred(m,w)),2)/2)*laguerre((int)(l+0.5), pow(r/bred(m,w),2));
 		
+		printf ("%lf %lf %lf %lf \n", Anl(n,l), pow(r/bred(m,w),l), exp(-0.5*pow(bred(m,w),2)), laguerre((int)(l+0.5), pow(r/bred(m,w),2)) );
+		
 		return rnlres;
 	
 	}

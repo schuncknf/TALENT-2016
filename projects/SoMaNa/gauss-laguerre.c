@@ -72,6 +72,8 @@ double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2
 	
 	double res = 0;
 	
+	printf("Calling galag. \n");
+	
 	coefficients = (double*) malloc ((n+1)*sizeof(double)); 
 	
 	w = (double*) malloc ((n+1)*sizeof(double)); 
@@ -90,12 +92,16 @@ double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2
 	
 	for (i=0; i<2*n; i+=2)
 	
-		printf ("%f \n", solutions[i]);
+		{
+			
+			printf ("%f \n", solutions[i]);
+		
+		}
 	
 	for (i=0; i<n; i++)
 		
 		{
-			w[i] = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2));
+			w[i] = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2)); 
 						
 			printf("\n\n\n %f %f \n", solutions[2*i], pow(laguerre(n+1,solutions[2*i]),2));
 
@@ -116,7 +122,7 @@ double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2
 	
 	}
 
-double twodgalag (int n, double (*funcp)(double, double, int, int, int, int), int n1, int n2, int n3, int n4, double m, double w)
+double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,double,double), int n1, int n2, int n3, int n4, double m, double w)
 
 	{
 	
@@ -130,6 +136,8 @@ double twodgalag (int n, double (*funcp)(double, double, int, int, int, int), in
 	
 	double res = 0;
 	
+	printf("Calling 2Dgalag. \n");
+
 	coefficients = (double*) malloc ((n+1)*sizeof(double)); 
 
 	solutions = (double*) malloc ((2*n)*sizeof(double));
@@ -153,12 +161,19 @@ double twodgalag (int n, double (*funcp)(double, double, int, int, int, int), in
 		for (j=0; j<2*n; j+=2)
 		
 			{
-				wi = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2));
+				{
+				wi = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2)); 
+	printf("wi = %f \n", wi);
 				
 				wj = solutions[2*j]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*j]),2));
+			 
+	printf("wj = %f \n", wj);
 		
-			res += wi*wj*(*funcp)(solutions[2*i], solutions[2*j], n1, n2, n3, n4);
+			res += wi*wj*funcp(solutions[2*i], solutions[2*j], n1, n2, n3, n4,m,w);
+		 
+	printf("res_sum = %f \n", res);
 			}
+		}
 	
 	free(solutions);
 	

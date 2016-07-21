@@ -11,4 +11,4 @@ int binomial (int, int);
 
 double galag (int, double*(double, int, int, int, int), int, int, int, int, double, double);
 
-double twodgalag (int, double*(double, int, int, int, int), int, int, int, int, double, double);
+double twodgalag (int, double*(double, int, int, int, int,double,double), int, int, int, int, double, double);
