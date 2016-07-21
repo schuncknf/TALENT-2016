@@ -1,1 +1,1 @@
-&input nbox=600,h=0.01,nodes=51,v0=100000,radius=300,conv=1E-5,hbar22m=20.75 /
+&input nbox=1500,h=0.01,nodes=51,v0=100000,radius=300,conv=1E-5,hbar22m=20.75,np=82,nn=126 /
