@@ -1,8 +1,7 @@
 #include "HartreeFock.h"
 
-HartreeFock::HartreeFock(System & system) : D(system.particleNumbers(0))
+HartreeFock::HartreeFock(System & system) : Solver(system.basis->qNumbers.n_rows), D(system.particleNumbers(0))
 	{
-	Solver(system.basis->qNumbers.n_rows);
 	D(0).eye(system.basis->qNumbers.n_rows, system.basis->qNumbers.n_rows);
 	RG(2, system.particleNumbers.n_elem);
 	for(int i=0; i< system.particleNumbers(0); i++){
