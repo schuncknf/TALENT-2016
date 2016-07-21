@@ -4,8 +4,11 @@
 class Solver {
   // Attributes
 public:
-  System & system;
-  arma::field<arma::mat> RG(2,system.particleNumbers.n_elem());
+  System * system;
+  /// Emulation of generalized density matrix
+  arma::field<arma::mat> RG;
+  /// Vector for the single-particle energies
+  arma::vec indivEnergies;
 	// Operations
 public:
   virtual void iter(arma::field<arma::mat>) = 0;

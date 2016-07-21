@@ -4,16 +4,15 @@
 class HartreeFock : public Solver {
   // Attributes
 public:
-  /// Density matrix
-  arma::mat rho;
   /// Matrix of eigenstates of the hamiltonian
   arma::mat D;
-  /// Single-particle energies 
-  arma::vec e;
+  /// Vector with the occupation numbers of the states
+  arma::vec occ;
 
 // Operations
 public:
   HartreeFock(System & system);
+  ~HartreeFock();
   void iter(arma::field<arma::mat> H);
 };
 
