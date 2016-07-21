@@ -12,6 +12,7 @@ PROGNAME=main
 
 #   Fortran objects
 objs= global.o main.o	\
+	Simpson.o \
 #
 .SUFFIXES: .f90 .f	.o
 $(PROGNAME):	$(objs)

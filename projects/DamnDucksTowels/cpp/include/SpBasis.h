@@ -1,21 +1,32 @@
-#include "Basis.h"
+#ifndef SPBASIS_H
+#define SPBASIS_H
 
 #include <armadillo>
+
+#include "Basis.h"
 
 /// class SpBasis - 
 class SpBasis : public Basis {
   // Attributes
 public:
+  /// The harmonic oscillator frequency
   double omega;
   /// Maximum allowed value for the quantum number n
   int nMax;
   /// Maximum allowed value for the quantum number l
-  int lMax;
-  /// Maximum allowed value for the quantum number m
-  int mMax;
+  arma::ivec lMax;
+  arma::imat mMax;
+  arma::vec radialWaveFunction;
+private:
+  double nu;
+  arma::mat N;
   // Operations
 public:
-  void evalWaveFunctions1D (arma::vec r);
-  void evalWaveFunctions3D (arma::mat r);
+  SpBasis (double omega, int nMax, int lMax);
+  void evalRadialWaveFunction (arma::mat & wfMatrix, arma::vec r);
+  ~SpBasis ();
+private:
+  void calcN ();
 };
 
+#endif

@@ -36,7 +36,7 @@
 ! kpot= 0 no potential      
 ! kpot= 1 square well of size a and deepth Vvalue
       kpot= 1
-      a=2.E0_dp
+      a=6.E0_dp
       Vvalue=-100.E0_dp    
 !==================================================================     
 !
@@ -49,6 +49,7 @@
       if (ifail .ne. 0) STOP
       do i=0,points
          pott(i)=potV(i,meshsize,Rmax,Rmin,a,kpot, Vvalue)
+!         print *, pott(i)
       end do
 !loop until convergence
       converg=0
@@ -125,7 +126,7 @@
          pos=Rmin+i*meshsize
          if(kpot .eq. 1) then 
            leftlim= (Rmax+Rmin)/2-a/2
-           rightlim=(Rmax+Rmin)/2-a/2
+           rightlim=(Rmax+Rmin)/2+a/2
            if(pos .ge. leftlim .and. pos .le. rightlim) then
              vr= Vvalue
            else
