@@ -7,6 +7,6 @@ HartreeFockBogo::HartreeFockBogo(System & system) {
 	e(nb_state,fill::zeros);
 }
 
-void HartreeFockBogo::iter(arma::field<arma::mat> H) {
+void HartreeFockBogo::calc(arma::field<arma::mat> H) {
 
 }
