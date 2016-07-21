@@ -14,11 +14,13 @@
       INTEGER :: it, N , LDA, LDVL, LDVR, INFO, i, j, k, l, LWORK
       DOUBLE PRECISION, ALLOCATABLE :: hf(:,:), eigvecR(:,:), eigvecL(:,:)
       DOUBLE PRECISION, ALLOCATABLE :: eigvalR(:), eigvalL(:), eigvalOLD(:), WORK(:)
-      DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:)
+      DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:),trho(:,:),hrho(:,:)
       DOUBLE PRECISION, ALLOCATABLE :: vpotm(:,:,:,:),vpotp(:,:,:,:),vpotas(:,:,:,:)
       DOUBLE PRECISION esum, rhosum, gamasum, vnorm
-      double precision::x,ri,rj
+      double precision::x,ri,rj,hfenergy,hf2body
       double precision,allocatable::temp2(:,:)
+      integer::n1,n2,n3,n4
+      integer::i1,i2,i3,i4
 !      external::compute_rho,compute_h,compute_gamma
 !
       EXTERNAL dgeev
@@ -43,10 +45,10 @@
 !
 ! ----- allocation of memory
 ! 
-      ALLOCATE(hf(1:N,1:N),eigvecR(1:N,1:N),eigvecL(1:N,1:N))
+      ALLOCATE(hf(n,n),eigvecR(n,n),eigvecL(n,n))
       ALLOCATE(eigvalR(N),eigvalL(N),eigvalOLD(N),WORK(LWMAX))
 !
-      ALLOCATE(rho(1:N,1:N),vpot(1:N,1:N,1:N,1:N),kin(1:N,1:N),gama(1:N,1:N))
+      ALLOCATE(trho(n,n),hrho(n,n),rho(n,n),vpot(n,n,n,n),kin(n,n),gama(n,n))
       allocate(vpotm(n,n,n,n),vpotp(n,n,n,n),vpotas(n,n,n,n))
       allocate(temp2(1,n+1))
 !----  Laguerre Mesh
@@ -55,55 +57,48 @@
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 !
 !
-      do i = 1, N ! Npart?
-	 do j = 1, N
-	    kin(i,j) = 0.0
-	 enddo
-	 kin(i,i) = (2.d0*i+1.5d0)*ama*2.d0/(bosc**2)
+        kin =0.d0
+      do i = 1, N+1 ! Npart?
+	 kin(i,i) = (2.d0*(i-1)+1.5d0)*ama*2.d0/(bosc**2)
       enddo
-
-do i=0,400
-ri = 0.1*i
- do j=0,400
- rj = 0.1*j
-write(11,*) ri,rj,potential(ri,rj,v0r,kr)
-write(12,*) ri,rj,minnesota(ri,rj,v0r,kr)
-enddo
-write(11,*)
-enddo
-
-
+vpot=0.d0
+vpotp=0.d0
+vpotas=0.d0
 write(*,*) "Computing TBMEs"
      do i = 1,n
+      n1=i-1
       do j = 1,n
+       n2=j-1
        do k = 1,n
+        n3=k-1
         do l = 1,n
-           call tbme((n+1)/2,i,j,k,l,vpot(i,j,k,l))
+         n4=l-1
+           call tbme(n1,n2,n3,n4,vpot(i,j,k,l),.true.)
            vpotp(i,j,k,l)=vpot(i,j,k,l)
            vpotm(i,j,k,l)=vpot(i,j,l,k)
-           write(14,*) i,j,k,l,vpot(i,j,k,l)
+           !write(14,*) n1,n2,n3,n4,vpot(i,j,k,l)
         enddo !l
-           write(14,*) 
+           !write(14,*) 
        enddo !k
-           write(14,*) 
+           !write(14,*) 
       enddo !j
-           write(14,*) 
+           !write(14,*) 
      enddo !i
-     vpotas = vpotp + vpotm
+     vpotas = 2.d0-(vpotp + vpotm)
 write(*,*) "TBMEs computed and antisymetrized"
 
 ! ---------- start of iteration loop
-	
+
       do it = 1, maxit
 
-	 if(it .eq. 1) then ! initializing eigenfunctions and eigenvalues
-	    do i = 1, N
-	       do j = 1, N
-	          eigvecR(i,j) = 0.0
-	       enddo
-	       if(i .le. Npart) eigvecR(i,i) = 1.0 ! first Npart states occupied with Npart particles
-	       eigvalOLD(i) = 0.0 
-	    enddo
+         if(it .eq. 1) then ! initializing eigenfunctions and eigenvalues
+            do i = 1, N
+               do j = 1, N
+                  eigvecR(i,j) = 0.0
+               enddo
+               if(i .le. Npart) eigvecR(i,i) = 1.0 ! first Npart states occupied with Npart particles
+               eigvalOLD(i) = 0.0 
+            enddo
          endif
 
 ! --------- subroutines: (re)calculate rho and HF hamiltonian
@@ -115,62 +110,92 @@ write(*,*) "TBMEs computed and antisymetrized"
          call compute_h(hf,kin,gama,N)
 
 ! --------- diagonalization of hamiltonian
-	       
-	 LWORK = -1
+               
+         LWORK = -1
          call DGEEV('N','V',N, hf, LDA, eigvalR, eigvalL, eigvecL, LDVL, &
                   eigvecR, LDVR, WORK, LWORK, INFO ) 
          LWORK = MIN( LWMAX, INT( WORK( 1 ) ) )
          call DGEEV('N','V',N, hf, LDA, eigvalR, eigvalL, eigvecL, LDVL, &
                   eigvecR, LDVR, WORK, LWORK, INFO ) 
 
-	 if(info .ne. 0 ) stop 'problem in diagonalization'
+         if(info .ne. 0 ) stop 'problem in diagonalization'
 
 ! --------- check for convergence
 
-	 esum = 0.0 
-	 do i = 1,N 
-	    esum = esum + abs(eigvalR(i) - eigvalOLD(i))
-	 enddo
-	 esum = esum/N
+         esum = 0.0 
+         do i = 1,N 
+            esum = esum + abs(eigvalR(i) - eigvalOLD(i))
+         enddo
+         esum = esum/N
          write(*,*) "Iteration: ",it,"ediffi= ",esum
 
-	 if(esum .lt. lambda) exit ! calculation converged
+         if(esum .lt. lambda) exit ! calculation converged
 
 ! -------- save old eigenvalues
 
          do i = 1, N
-	    eigvalOLD(i) = eigvalR(i)
-	 enddo
+            eigvalOLD(i) = eigvalR(i)
+         enddo
 
       enddo !it
 
 ! ------- check out normalization of states
 
       do j = 1, N
-	 vnorm= 0
-	 do i = 1, N
-	    vnorm = vnorm + eigvecR(i,j)*eigvecR(i,j)
+         vnorm= 0
+         do i = 1, N
+            vnorm = vnorm + eigvecR(i,j)*eigvecR(i,j)
          enddo 
-	 if(abs(vnorm-1.0) .gt. 0.0001) stop 'problem in normalization'
+         if(abs(vnorm-1.0) .gt. 0.0001) stop 'problem in normalization'
       enddo
 
 ! -------- print out eigenfunctions and eigenvalues
 
       do j = 1, N
-	 write(*,*) 'state number = ', j
+         write(*,*) 'state number = ', j
          write(*,*) 'energy = ', eigvalR(j)
-	 write(*,*) 'wave function:'
+         write(*,*) 'wave function:'
          do i = 1, N
-	    write(*,*) eigvecR(i,j)
-	 enddo
-	 write(*,*) '------------------'
+            write(*,*) eigvecR(i,j)
+         enddo
+         write(*,*) '------------------'
       enddo
+
+!-------- HF Energy
+
+
+       call compute_rho(rho,eigvecR,N)
+       call compute_h(hf,kin,gama,N)
+
+       hrho=0.d0
+       hrho = matmul(hf,rho)
+       trho=0.d0
+       trho = matmul(kin,rho)
+       hfenergy = 0.d0
+       do i=1,Npart
+         hfenergy = hfenergy + trho(i,i) + hrho(i,i)
+         !hfenergy = hfenergy + half*trho(i,i) + half*hrho(i,i)
+       enddo
+       write(*,*) 'Hartree-Fock Energy-1',hfenergy*half
+       hfenergy = 0.d0
+       
+       call sort(n,eigvalR)
+       hf2body = 0.d0
+       do i=1,Npart
+        hfenergy = hfenergy  + eigvalR(i) 
+        do j=1,Npart
+           hf2body = hf2body + vpotas(i,j,i,j)
+        enddo
+       enddo
+       hfenergy = hfenergy - half*hf2body
+       write(*,*) 'Hartree-Fock Energy',hfenergy
+
 
 ! -------- deallocate memory
 
-      DEALLOCATE(hf,eigvecR,eigvecL)
-      DEALLOCATE(eigvalR,eigvalL,eigvalOLD,WORK)
-      DEALLOCATE(rho,vpot,kin,gama)
+!      DEALLOCATE(hf,eigvecR,eigvecL)
+!      DEALLOCATE(eigvalR,eigvalL,eigvalOLD,WORK)
+!      DEALLOCATE(rho,vpot,kin,gama)
 
       end subroutine
 !
