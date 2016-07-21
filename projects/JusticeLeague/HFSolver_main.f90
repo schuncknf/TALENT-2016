@@ -5,28 +5,29 @@ program HFSolver
   use :: Minnesota
   implicit none 
   integer :: i,j,k
-  real(dp) :: EHF
+  real(dp) :: EHF,tr_rho
   Nparticles = 2
   do Nsize = 6,6,2
      call initialize_HF
      call Initialize_Minnseota
-     do i = 1,10
+     do i = 1,20
         call Construct_rho
         call Construct_gamma
         h_mat = t_mat + gamma_mat
         call Diagonalize_h 
+        write(*,'(4f15.8)') (E_values(j),j=1,4)
         delta_E = sum(abs(E_values - E_prev))/real(Nsize,kind=dp)
+        if(delta_E.lt.small) then
+           write(*,*) 'Eigenvalues converged'
+           exit 
+        endif
         E_prev = E_values
-        if(delta_E.lt.small) exit 
      enddo
+     call Construct_rho
+     call Construct_gamma
+     h_mat = t_mat + gamma_mat
      write(*,'(4f15.8)') (E_values(i),i=1,4)
-     EHF = 0
-     do i = 1,1!Nsize
-        do j = 1,1!Nsize
-           EHF = EHF + 2*t_mat(i,j)*rho_mat(j,i)+(Gamma_mat(i,j)*rho_mat(j,i))*0.5_dp*4
-        enddo
-     enddo
-
+     EHF = Trace_product(t_mat,rho_mat) + Trace_product(h_mat,rho_mat)
      write(*,*) EHF
   enddo
   

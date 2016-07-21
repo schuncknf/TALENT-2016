@@ -17,6 +17,7 @@ contains
     allocate(E_values(1:Nsize))
     allocate(E_prev(1:Nsize))
     E_prev = 0
+    E_values = 1
     D_mat = 0
     do i = 1,nsize
        D_mat(i,i) = 1
@@ -61,10 +62,26 @@ contains
     implicit none
     real(dp),  dimension(1:3*nsize-1) :: Work
     integer :: lwork,info
-    lwork = 3*nsize-1
+    lwork = 30*nsize-1
     D_mat = h_mat
+!    write(*,*) D_mat
     call dsyev('V','U',Nsize,D_mat,Nsize,E_Values,Work,lwork,info)
+!    write(*,*) E_values
   end subroutine Diagonalize_h
+
+  function Trace_product(A,B) result(TrAB)
+    implicit none
+    real(dp), dimension(:,:) :: A,B
+    real(dp) :: TrAB
+    integer :: N,i,j
+    N = size(A,1)
+    TrAB = 0
+    do i = 1,N
+       do j = 1,N
+          TrAB = TrAB + A(i,j)*B(j,i)
+       enddo
+    enddo
+  end function Trace_product
 
 
 end module HartreeFock
