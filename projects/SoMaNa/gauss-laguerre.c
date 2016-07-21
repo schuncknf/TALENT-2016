@@ -3,6 +3,10 @@
 #include <math.h>
 #include <gsl/gsl_poly.h>
 
+// Gauss-Laguerre integration program.
+
+// Laguerre polynomials.
+
 double laguerre (int n, double x)
 	
 	{
@@ -30,6 +34,8 @@ double laguerre (int n, double x)
 		return result;
 	}
 
+// Factorial function.
+
 int factorial (int n)
 	
 	{
@@ -42,6 +48,8 @@ int factorial (int n)
 	
 	}
 
+// For test purposes.
+
 double function (double x)
 	
 	{
@@ -49,6 +57,8 @@ double function (double x)
 		return pow(x,2);
 	
 	}
+
+// Binomial coefficients.
 
 int binomial (int n, int k)
 	
@@ -58,7 +68,9 @@ int binomial (int n, int k)
 	
 	}
 
-double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2, int n3, int n4, double m, double omega)
+// 1D Gauss-Laguerre quadrature. The function is sadly not general; since a lot of arguments need to be passes to the function it is specifically tailored to the problem at hand.
+
+double galag (int n, double (*funcp)(double, int, int, int, int,double,double), int n1, int n2, int n3, int n4, double m, double omega,double r1, double r2)
 
 	{
 	
@@ -82,11 +94,11 @@ double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2
 	
 	for (i=0; i<=n; i++)
 		
-		coefficients[i] = binomial(n, i)*pow((-1),i)/factorial(i);
+		coefficients[i] = binomial(n, i)*pow((-1),i)/factorial(i); // Coefficients for the Laguerre polynomials.
 	
 	gsl_poly_complex_workspace *dummy = gsl_poly_complex_workspace_alloc (n+1);
 	
-	gsl_poly_complex_solve (coefficients, n+1, dummy, solutions);
+	gsl_poly_complex_solve (coefficients, n+1, dummy, solutions); // Roots of the Laguerre polynomials.
 	
 	gsl_poly_complex_workspace_free (dummy);
 	
@@ -101,13 +113,13 @@ double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2
 	for (i=0; i<n; i++)
 		
 		{
-			w[i] = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2)); 
+			w[i] = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2)); // Calculation of weights.
 						
 			printf("\n\n\n %f %f \n", solutions[2*i], pow(laguerre(n+1,solutions[2*i]),2));
 
 			printf("%f \n", w[i]);
 			
-			res += w[i]*(*funcp)(solutions[2*i], n1, n2, n3, n4);
+			res += w[i]*(*funcp)(solutions[2*i], n1, n2, n3, n4,r1,r2); // Summation of weights with function values at mesh points.
 		}
 	
 	free(w);
@@ -121,6 +133,8 @@ double galag (int n, double (*funcp)(double, int, int, int, int), int n1, int n2
 	return res;
 	
 	}
+
+// 2D G-L quadrature. Analogous to the function above, except the summation over one index is replaced by a double-loop summation.
 
 double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,double,double), int n1, int n2, int n3, int n4, double m, double w)
 
@@ -179,7 +193,7 @@ double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,doub
 	
 	free(coefficients);
 	
-	printf("%f \n", res);
+	printf("%f \n", res); // Freeing up memory.
 	
 	return res;
 	
