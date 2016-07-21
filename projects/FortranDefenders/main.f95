@@ -10,7 +10,7 @@ program main
     call init_grids
     call init_wavefunctions
 
-    call solvelr
+    call solve_r
 
 
     close(6)

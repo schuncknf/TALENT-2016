@@ -1,6 +1,140 @@
-   6.5699167391607681E+104   0.0000000000000000     
  Converged!
- |Eupper - Elower| =   5.7221332099288702E-006
- Energy =  -90208.599999517290     
- Exact Energy =   2461.1722832725363     
- Difference between calculated and exact =  -92669.772282789825     
+ l =           0
+ is =           1
+ iq =           1
+ Energy =  -41.000005661701834     
+ Converged!
+ l =           0
+ is =           2
+ iq =           1
+ Energy =  -40.800006041105441     
+ Converged!
+ l =           1
+ is =           1
+ iq =           1
+ Energy =  -21.600008806589312     
+ Converged!
+ l =           1
+ is =           2
+ iq =           1
+ Energy =  -21.600004228951072     
+ Converged!
+ l =           2
+ is =           1
+ iq =           1
+ Energy =  -14.100006692115965     
+ Converged!
+ l =           2
+ is =           2
+ iq =           1
+ Energy =  -14.100003115835042     
+ Converged!
+ l =           3
+ is =           1
+ iq =           1
+ Energy =   7.3999956548204668     
+ Converged!
+ l =           3
+ is =           2
+ iq =           1
+ Energy =   7.3999982178206567     
+ Converged!
+ l =           4
+ is =           1
+ iq =           1
+ Energy =   10.499994914228708     
+ Converged!
+ l =           4
+ is =           2
+ iq =           1
+ Energy =   13.699994771171168     
+ Converged!
+ l =           5
+ is =           1
+ iq =           1
+ Energy =   31.499992652234379     
+ Converged!
+ l =           5
+ is =           2
+ iq =           1
+ Energy =   31.499996896086607     
+ Converged!
+ l =           6
+ is =           1
+ iq =           1
+ Energy =   48.899993102250335     
+ Converged!
+ l =           6
+ is =           2
+ iq =           1
+ Energy =   48.899997250734685     
+ Converged!
+ l =           0
+ is =           1
+ iq =           2
+ Energy =   48.899999324976861     
+ Converged!
+ l =           0
+ is =           2
+ iq =           2
+ Energy =   48.900000362097948     
+ Converged!
+ l =           1
+ is =           1
+ iq =           2
+ Energy =   48.900000880658496     
+ Converged!
+ l =           1
+ is =           2
+ iq =           2
+ Energy =   48.900001139938766     
+ Converged!
+ l =           2
+ is =           1
+ iq =           2
+ Energy =   48.900001269578901     
+ Converged!
+ l =           2
+ is =           2
+ iq =           2
+ Energy =   48.900001334398965     
+ Converged!
+ l =           3
+ is =           1
+ iq =           2
+ Energy =   48.900001366809001     
+ Converged!
+ l =           3
+ is =           2
+ iq =           2
+ Energy =   48.900001383014015     
+ Converged!
+ l =           4
+ is =           1
+ iq =           2
+ Energy =   48.900001391116525     
+ Converged!
+ l =           4
+ is =           2
+ iq =           2
+ Energy =   48.900001395167777     
+ Converged!
+ l =           5
+ is =           1
+ iq =           2
+ Energy =   48.900001397193407     
+ Converged!
+ l =           5
+ is =           2
+ iq =           2
+ Energy =   48.900001398206221     
+ Converged!
+ l =           6
+ is =           1
+ iq =           2
+ Energy =   48.900001398712632     
+ Converged!
+ l =           6
+ is =           2
+ iq =           2
+ Energy =   48.900001398965834     
