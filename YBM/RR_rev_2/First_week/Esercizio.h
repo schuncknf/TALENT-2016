@@ -14,13 +14,13 @@
 	#include "TAxis.h"
 
 	#define Edown 0.
-	#define Eup 10.
-	#define width 35.
+	#define Eup 50.
+	#define width 6.
 	#define h_width 0.01
 	#define h_energy 0.0005
-	#define V0 20.
+	#define V0 40.
 
-	#define width_box 59.
+	#define width_box 24.
 
 	#define prec 1E-10
 	#define m_factor 20.75

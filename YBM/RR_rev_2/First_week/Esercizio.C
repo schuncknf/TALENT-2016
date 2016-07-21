@@ -107,7 +107,9 @@ int main(){
 	double energy=0., wave_prev=0;
 
 	vector<double> wave_val;
-	vector<double> eigenval;
+	vector<double> wave_val2;
+
+	//vector<double> eigenval;
 
 	for(int j=0; j<n_step_energy; j++){
 		wave_val.push_back(0.);
@@ -117,7 +119,7 @@ int main(){
 		for(int i=0; i<n_step_width_box; i++){
 			wave_val.push_back(numerov_algorithm_finitewell(energy, wave_val[i+1], wave_val[i], i*h_width));
 		}
-		if(wave_val[wave_val.size()-1]*wave_prev<0){
+		if(wave_val[wave_val.size()-1]*wave_prev<0.){
 			cout<<energy-h_energy<<" "<<energy<<endl;
 			//eigenval.push_back(energy+h_energy/2.);
 		}
@@ -134,15 +136,21 @@ int main(){
 	TGraph * wavefunction_finitewell = new TGraph();
 
 		wave_val.push_back(0.);
-		wave_val.push_back(1E-5);
+		wave_val.push_back(1E-5);	//That is to initialise both wavefunctions
+		wave_val2.push_back(0.);
+		wave_val2.push_back(1E-5);
+
 	for(int i=0; i<n_step_width_box; i++){
-		wave_val.push_back(numerov_algorithm_finitewell(7.2525, wave_val[i+1], wave_val[i], i*h_width));
-		wavefunction_finitewell->SetPoint(i, i*h_width, wave_val[i]);
+		wave_val.push_back(numerov_algorithm_finitewell(3.6666 , wave_val[i+1], wave_val[i], i*h_width));	//I use the energy I get after the first eigen
+		wave_val2.push_back(numerov_algorithm_finitewell(3.6667 , wave_val2[i+1], wave_val2[i], i*h_width)); 	//Here the energy I have before the first eigen
+
+		wavefunction_finitewell->SetPoint(i, i*h_width, (wave_val[i]+wave_val2[i])/2.);
 	}
 		TCanvas myCanvas("tela","tela");
 		wavefunction_finitewell->SetLineColor(2);
 	   	wavefunction_finitewell->GetXaxis()->SetTitle("l [fm]");
    		wavefunction_finitewell->GetYaxis()->SetTitle("#Psi");
+   		//wavefunction_finitewell->GetYaxis()->SetRangeUser(-40.,40.); 
    	 	wavefunction_finitewell->Draw("AC");
 
     app.Run();
