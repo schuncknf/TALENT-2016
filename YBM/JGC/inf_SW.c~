@@ -29,7 +29,7 @@ int nNeutron = 126;
 double wfStep1 = 0;
 double wfStep2 = 1e-5;
 
-double convEng = 1e-13;// Convergence energy
+double convEng = 1e-16;// Convergence energy
 //double convEng = 0.5;// Convergence energy
 
 double hm_fac = 20.75;	// units? MeV?
