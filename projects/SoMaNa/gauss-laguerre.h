@@ -9,6 +9,6 @@ int factorial (int);
 
 int binomial (int, int);
 
-double galag (int, double*(double, int, int, int, int), int, int, int, int);
+double galag (int, double*(double, int, int, int, int), int, int, int, int, double, double,double,double);
 
-double twodgalag (int, double*(double, int, int, int, int), int, int, int, int);
+double twodgalag (int, double*(double, int, int, int, int,double,double), int, int, int, int, double, double);
