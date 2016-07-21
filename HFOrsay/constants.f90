@@ -28,7 +28,7 @@ write(*,'(a,i5)') " Base size         ",nbase
 write(*,'(a,i5)') " Paticules Number  ",npart
 write(*,'(a,i5)') " Max iteration     ",maxit
 write(*,*) "****** END READER ***********"
-
+close(1)
 
 
 end subroutine

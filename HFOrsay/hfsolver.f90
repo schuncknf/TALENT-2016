@@ -1,4 +1,4 @@
-      program HFsolver
+      subroutine hfsolver()
        use constants
       ! use lag
        use lag_pol
@@ -29,11 +29,11 @@
       !write(*,*) 'Type in dimension of basis:'
 !
       !read(*,*) N
-      call reader()
-      write(*,*) "Basis size",nbase
+      !call reader()
+      !write(*,*) "Basis size",nbase
       n=nbase
-      write(*,*) "Npart",npart
-      write(*,*) "Iteration",maxit
+      !write(*,*) "Npart",npart
+      !write(*,*) "Iteration",maxit
       
 !
 !
@@ -51,7 +51,7 @@
       allocate(vpotm(n,n,n,n),vpotp(n,n,n,n),vpotas(n,n,n,n))
       allocate(temp2(1,n+1))
 !----  Laguerre Mesh
-     call lag_roots(n,0.5d0,.true.)
+    ! call lag_roots(n,0.5d0,.true.)
      !call gausslag(n,1,2,x)
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 !
@@ -173,5 +173,5 @@ write(*,*) "TBMEs computed and antisymetrized"
       DEALLOCATE(eigvalR,eigvalL,eigvalOLD,WORK)
       DEALLOCATE(rho,vpot,kin,gama)
 
-      end program HFsolver		
+      end subroutine
 !
