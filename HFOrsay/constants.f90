@@ -2,7 +2,7 @@ module constants
 implicit none
 double precision,parameter::one = 1.d0,two=2.d0,half=0.5d0
 double precision,parameter::pi=3.14159265359
-double precision,parameter::bosc=10.d0 !Oscilator length
+double precision,parameter::bosc=2.d0 !Oscilator length
 
 !definition of the parameters of the t
 double precision,parameter::kr=1.487d0 !in fm -2
@@ -21,12 +21,13 @@ implicit none
 open(1,file='hforsay.dat',status='old')
 read(1,'(10x,i5)') nbase
 read(1,'(10x,i5)') npart
-read(1,'(12x,i5)') maxit
+read(1,'(10x,i5)') maxit
 
 write(*,*) "******** READER *************"
 write(*,'(a,i5)') " Base size         ",nbase
 write(*,'(a,i5)') " Paticules Number  ",npart
 write(*,'(a,i5)') " Max iteration     ",maxit
+write(*,'(a,f10.4)') " Osc length       ",bosc
 write(*,*) "****** END READER ***********"
 close(1)
 
