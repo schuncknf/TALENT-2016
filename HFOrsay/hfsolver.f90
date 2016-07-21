@@ -1,28 +1,41 @@
-
-      program HFsolver
+      subroutine hfsolver()
+       use constants
+       use lag_pol
+       use pot
+       use maths
+       use ho
 !
       IMPLICIT NONE   
 !
 !      USE constants  
 !
-      INTEGER, PARAMETER :: maxit= 1000, lambda=1.d-8, lwmax=1000
-      INTEGER :: it, N, Npart, LDA, LDVL, LDVR, INFO, i, j, k, l, LWORK
+      INTEGER, PARAMETER :: lwmax=1000
+      double precision,parameter::lambda=1.d-8
+      INTEGER :: it, N , LDA, LDVL, LDVR, INFO, i, j, k, l, LWORK
       DOUBLE PRECISION, ALLOCATABLE :: hf(:,:), eigvecR(:,:), eigvecL(:,:)
       DOUBLE PRECISION, ALLOCATABLE :: eigvalR(:), eigvalL(:), eigvalOLD(:), WORK(:)
       DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:)
+      DOUBLE PRECISION, ALLOCATABLE :: vpotm(:,:,:,:),vpotp(:,:,:,:),vpotas(:,:,:,:)
       DOUBLE PRECISION esum, rhosum, gamasum, vnorm
+      double precision::x,ri,rj
+      double precision,allocatable::temp2(:,:)
+!      external::compute_rho,compute_h,compute_gamma
 !
       EXTERNAL dgeev
 !
 ! --------------------------------------------------
 !
-      write(*,*) 'Type in dimension of basis:'
+      !write(*,*) 'Type in dimension of basis:'
 !
-      read(*,*) N
+      !read(*,*) N
+      !call reader()
+      !write(*,*) "Basis size",nbase
+      n=nbase
+      !write(*,*) "Npart",npart
+      !write(*,*) "Iteration",maxit
+      
 !
-      write(*,*) 'Type in number of particles:'
 !
-      read(*,*) Npart
 !
       LDA = N
       LDVR = N
@@ -34,31 +47,50 @@
       ALLOCATE(eigvalR(N),eigvalL(N),eigvalOLD(N),WORK(LWMAX))
 !
       ALLOCATE(rho(1:N,1:N),vpot(1:N,1:N,1:N,1:N),kin(1:N,1:N),gama(1:N,1:N))
-!
+      allocate(vpotm(n,n,n,n),vpotp(n,n,n,n),vpotas(n,n,n,n))
+      allocate(temp2(1,n+1))
+!----  Laguerre Mesh
+    ! call lag_roots(n,0.5d0,.true.)
+     !call gausslag(n,1,2,x)
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 !
-      do i = 1, N
- 	 do j = 1, N
-            do k = 1, N
- 	       do l = 1, N
-!
-	          if(i .ne. j .and. j .ne. k .and. k .ne. l) then
-                      vpot(i,j,k,l) = 0.0
-                  else 
-                      vpot(i,j,k,l) = real(0.5/i)
-	          endif
-!
-               enddo
-             enddo
-          enddo
-      enddo
 !
       do i = 1, N ! Npart?
 	 do j = 1, N
 	    kin(i,j) = 0.0
 	 enddo
-	 kin(i,i) = 0.5*i
+	 kin(i,i) = (2.d0*i+1.5d0)*ama*2.d0/(bosc**2)
       enddo
+
+do i=0,400
+ri = 0.1*i
+ do j=0,400
+ rj = 0.1*j
+write(11,*) ri,rj,potential(ri,rj,v0r,kr)
+write(12,*) ri,rj,minnesota(ri,rj,v0r,kr)
+enddo
+write(11,*)
+enddo
+
+
+write(*,*) "Computing TBMEs"
+     do i = 1,n
+      do j = 1,n
+       do k = 1,n
+        do l = 1,n
+           call tbme((n+1)/2,i,j,k,l,vpot(i,j,k,l))
+           vpotp(i,j,k,l)=vpot(i,j,k,l)
+           vpotm(i,j,k,l)=vpot(i,j,l,k)
+           write(14,*) i,j,k,l,vpot(i,j,k,l)
+        enddo !l
+           write(14,*) 
+       enddo !k
+           write(14,*) 
+      enddo !j
+           write(14,*) 
+     enddo !i
+     vpotas = vpotp + vpotm
+write(*,*) "TBMEs computed and antisymetrized"
 
 ! ---------- start of iteration loop
 	
@@ -78,7 +110,7 @@
 
          call compute_rho(rho,eigvecR,N)
 
-         call compute_gamma(gama,vpot,rho,N)
+         call compute_gamma(gama,vpotas,rho,N)
 
          call compute_h(hf,kin,gama,N)
 
@@ -100,6 +132,7 @@
 	    esum = esum + abs(eigvalR(i) - eigvalOLD(i))
 	 enddo
 	 esum = esum/N
+         write(*,*) "Iteration: ",it,"ediffi= ",esum
 
 	 if(esum .lt. lambda) exit ! calculation converged
 
@@ -139,5 +172,5 @@
       DEALLOCATE(eigvalR,eigvalL,eigvalOLD,WORK)
       DEALLOCATE(rho,vpot,kin,gama)
 
-      end program HFsolver		
+      end subroutine
 !

@@ -16,23 +16,22 @@ contains
 
     allocate(potential(0:nbox),test(0:nbox))
 
-    Eupper = 10000_wp
+    Eupper = 100000_wp
     Elower = -v0
-    do i=1,100000
+    do i=1,1000000
       Etrial = (Eupper+Elower)/2.0
       ! Trying very large values right now, may change this if unstable
 
       ! Attempting to set the potential before hand, if this does not work, we
       ! can do it "on the fly"
       do ir=0,nbox
-        potential(ir) = finitepot(ir,Etrial)
+        potential(ir) = finitepot(ir, Etrial)
       end do
 
       wavefunctions(0) = 0.0
       wavefunctions(1) = 1.0
       do ir=1,nbox-1
         a1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(ir))
-        !a1 = 2.0 * (1.0- 5.0*h**2/12.0 * potential(ir))
         a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
         a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
 
@@ -57,15 +56,15 @@ contains
         ! This is a variation on the lower energy in order to "squeeze" the
         ! energies together. by moving it a small amount (arbitrarily here)
         ! we can force the solution to converge.
-        Elower = Elower + 0.01
+        Elower = Elower + 0.1
       end if
 
       if (abs(Eupper - Elower) < conv) then
-        write (6,*) "Converged1!"
+        write (6,*) "Converged!"
         write (6,*) "|Eupper - Elower| =", abs(Eupper - Elower)
         write (6,*) "Energy =", Etrial
-        write (6,*) "Exact Energy =",finite_exact()
-        write (6,*) "Difference between calculated and exact =",Etrial-finite_exact()
+        write (6,*) "Exact Energy =",infwell_exact()
+        write (6,*) "Difference between calculated and exact =",Etrial-infwell_exact()
         exit
       end if
     end do
@@ -82,7 +81,7 @@ contains
 
     do ir=0,nbox
       test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
-      write(13,*) ir*h, wavefunctions(ir)
+      write(13,*) ir*h, wavefunctions(ir), -woodsaxon_s(ir,Etrial)
     end do
 
   end subroutine solve
@@ -95,14 +94,14 @@ contains
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
-    real(wp), allocatable :: potential(:), test(:), test2(:)
+    real(wp), allocatable :: potential(:), test(:), test2(:),test3(:)
     logical :: sign
 
-    allocate(potential(0:nbox),test(0:nbox),test2(0:nbox))
+    allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
 
-    Eupper = 100_wp
+    Eupper = 100000_wp
     Elower = -v0
-    do i=1,10000
+    do i=1,1000000
       Etrial = (Eupper+Elower)/2.0
       ! Trying very large values right now, may change this if unstable
 
@@ -118,18 +117,14 @@ contains
       wfr(nbox-1) = 1.0
       do ir=1,nbox-1
         a1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(ir))
-        !a1 = 2.0 * (1.0- 5.0*h**2/12.0 * potential(ir))
         a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
         a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
 
         wfl(ir+1) = (a1*wfl(ir) - a2*wfl(ir-1))/a3
       end do
-      a1 = 0
-      a2 = 0
-      a3 = 0
+
       do ir=nbox-1,1,-1
         a1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(ir))
-        !a1 = 2.0 * (1.0- 5.0*h**2/12.0 * potential(ir))
         a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
         a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
 
@@ -160,7 +155,7 @@ contains
         ! This is a variation on the lower energy in order to "squeeze" the
         ! energies together. by moving it a small amount (arbitrarily here)
         ! we can force the solution to converge.
-        Elower = Elower + .01
+        Elower = Elower + .1
 
       end if
 
@@ -172,8 +167,8 @@ contains
             write (6,*) "Converged!"
             write (6,*) "|Eupper - Elower| =", abs(Eupper - Elower)
             write (6,*) "Energy =", Etrial
-            write (6,*) "Exact Energy =",finite_exact()
-            write (6,*) "Difference between calculated and exact =",Etrial-finite_exact()
+            write (6,*) "Exact Energy =",infwell_exact()
+            write (6,*) "Difference between calculated and exact =",Etrial-infwell_exact()
             exit
           !end if
         !end if
@@ -195,8 +190,9 @@ contains
 
     do ir=0,nbox
       test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
-      test2(ir) = woodsaxon(ir)
-      write(13,*) ir*h, wavefunctions(ir),test2(ir)
+      test2(ir) = fullwoodsaxon(ir)
+      test3(ir) = dfullwoodsaxon(ir)
+      write(13,*) ir*h, wavefunctions(ir),test2(ir),test3(ir)
     end do
 
   end subroutine solvelr
@@ -242,19 +238,45 @@ contains
   end function
 
 
-  function woodsaxon(ir) result(pot)
+  function woodsaxon_s(ir, Etrial) result(pot)
     real(wp) :: pot
-
+    real(wp), intent(in) :: Etrial
     integer, intent(in) :: ir
 
   !pot = -v0 * 1 / (1 + exp((meshpoints(ir)-300*h)/0.67))
     if (ir < nbox/2) then
-      pot =-v0 * 1 / (1 + exp((+meshpoints(nbox/2-ir)-300*h)/0.67))
+      pot = (Etrial + v0 * 1 / (1 + exp((meshpoints(nbox/2-ir)-radius/2*h)/0.67)))/hbar22m
     else
-      pot = -v0 * 1 / (1 + exp((+meshpoints(ir-nbox/2)-300*h)/0.67))
+      pot = (Etrial + v0 * 1 / (1 + exp((meshpoints(ir-nbox/2)-radius/2*h)/0.67)))/hbar22m
   end if
 
 
+  end function
+
+  function woodsaxon(ir, Etrial) result(pot)
+    real(wp) :: pot
+    integer, intent(in) :: ir
+    real(wp), intent(in) :: Etrial
+
+    if (ir < (nbox/2 - radius)) then
+      pot = Etrial/hbar22m
+    else
+      pot = (etrial + v0 * 1 / (1 + exp((meshpoints(ir-(nbox/2 - radius))-radius*h)/0.67)))/ hbar22m
+    end if
+  end function
+
+!!!Must be multiplied by (positive) vpb in calculations
+ function fullwoodsaxon(ir) result(pot)
+    real(wp) :: pot
+    integer, intent(in) :: ir
+      pot = -1 / (1 + exp((meshpoints(ir)-nrad)/0.67))
+  end function
+
+!!!Must be multiplied by (positive) vpb in calculations
+function dfullwoodsaxon(ir) result(pot)
+    real(wp) :: pot
+    integer, intent(in) :: ir
+      pot = 1 / (1 + exp((meshpoints(ir)-nrad)/0.67))*(1/0.67)*(1 / (1 + exp((-meshpoints(ir)+nrad)/0.67)))
   end function
 
 end module solver
