@@ -10,9 +10,9 @@
 !
 !      USE constants  
 !
-      INTEGER, PARAMETER :: maxit= 1000, lwmax=1000
+      INTEGER, PARAMETER :: lwmax=1000
       double precision,parameter::lambda=1.d-8
-      INTEGER :: it, N, Npart, LDA, LDVL, LDVR, INFO, i, j, k, l, LWORK
+      INTEGER :: it, N , LDA, LDVL, LDVR, INFO, i, j, k, l, LWORK
       DOUBLE PRECISION, ALLOCATABLE :: hf(:,:), eigvecR(:,:), eigvecL(:,:)
       DOUBLE PRECISION, ALLOCATABLE :: eigvalR(:), eigvalL(:), eigvalOLD(:), WORK(:)
       DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:)
@@ -26,13 +26,17 @@
 !
 ! --------------------------------------------------
 !
-      write(*,*) 'Type in dimension of basis:'
+      !write(*,*) 'Type in dimension of basis:'
 !
-      read(*,*) N
+      !read(*,*) N
+      call reader()
+      write(*,*) "Basis size",nbase
+      n=nbase
+      write(*,*) "Npart",npart
+      write(*,*) "Iteration",maxit
+      
 !
-      write(*,*) 'Type in number of particles:'
 !
-      read(*,*) Npart
 !
       LDA = N
       LDVR = N

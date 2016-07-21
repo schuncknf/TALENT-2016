@@ -40,7 +40,7 @@ integer,intent(in)::n
 double precision,intent(in)::m
 logical::t,pr
 integer::i,j,limit
-  write(*,*) '**** Laguerre Roots ****'
+  write(*,*) '******* Laguerre Roots ***************************'
   allocate(lag_zeros(n))
   allocate(lag_w(n))
   allocate(temp(1,n+2))
@@ -59,10 +59,10 @@ integer::i,j,limit
   else
   lag_w(i)=xi*Gamma(dble(n+m+1))/(fac(n)*(n+1)**2*clag**2)
   endif
-  if (pr) write(*,'(A,I2,A,F10.6,A,F10.6,A)') "Laguerre (root,weight) ",i,": (",xi,',',lag_w(i),')'
+  if (pr) write(*,'(A,I2,A,F10.6,A,F10.6,A)') " Laguerre (root,weight) ",i,": (",xi,',',lag_w(i),')'
 
   enddo
-  write(*,*) '** End Laguerre Roots **'
+  write(*,*) '*********** End Laguerre Roots *******************'
 end subroutine lag_roots
 
 
