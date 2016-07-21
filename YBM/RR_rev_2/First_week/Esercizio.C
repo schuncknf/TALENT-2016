@@ -99,6 +99,8 @@ int main(){
 	delete wavefunction_0, wavefunction_1, wavefunction_2, wavefunction_3, wavefunction_4, wavefunction_5;
 */
 
+
+
 //Finite well
 //Discretize the energy to find eigenvalues
 
@@ -107,9 +109,9 @@ int main(){
 	double energy=0., wave_prev=0;
 
 	vector<double> wave_val;
-	vector<double> wave_val2;
+	vector<double> eigenval;
 
-	//vector<double> eigenval;
+	//Routine to find eigevalues: this works finding the value of energy at which the eigenfunction cross the 0 
 
 	for(int j=0; j<n_step_energy; j++){
 		wave_val.push_back(0.);
@@ -121,31 +123,48 @@ int main(){
 		}
 		if(wave_val[wave_val.size()-1]*wave_prev<0.){
 			cout<<energy-h_energy<<" "<<energy<<endl;
-			//eigenval.push_back(energy+h_energy/2.);
+			eigenval.push_back(energy+h_energy/2.);
 		}
 
 		wave_prev = wave_val[wave_val.size()-1];
 		wave_val.clear();	
 	}
+	
 
 
 
-	//Drawing the function
+//Drawing the function
 
 	TApplication app("app", 0, 0);
 	TGraph * wavefunction_finitewell = new TGraph();
 
+	//This is to initialise the wavefunctions
+	//The new vector that needs to subtract the function, probabily useless
+
+		vector<double> wave_val2;
 		wave_val.push_back(0.);
-		wave_val.push_back(1E-5);	//That is to initialise both wavefunctions
+		wave_val.push_back(1E-5);	
 		wave_val2.push_back(0.);
 		wave_val2.push_back(1E-5);
 
-	for(int i=0; i<n_step_width_box; i++){
-		wave_val.push_back(numerov_algorithm_finitewell(3.6666 , wave_val[i+1], wave_val[i], i*h_width));	//I use the energy I get after the first eigen
-		wave_val2.push_back(numerov_algorithm_finitewell(3.6667 , wave_val2[i+1], wave_val2[i], i*h_width)); 	//Here the energy I have before the first eigen
 
-		wavefunction_finitewell->SetPoint(i, i*h_width, (wave_val[i]+wave_val2[i])/2.);
+		int count =0;
+
+
+	for(int i=0; i<n_step_width_box; i++){		//Loop to draw the eigenfunction
+		wave_val.push_back(numerov_algorithm_finitewell(eigenval[1], wave_val[i+1], wave_val[i], i*h_width));	//I use the energy I get after the first eigen
+		if(i*h_width>18.&&wave_val[i]*wave_val[i-1]<0){
+			count = i;
+			break;
+		}
+		wavefunction_finitewell->SetPoint(i, i*h_width, wave_val[i]);
 	}
+
+	for(int i=count; i<n_step_width_box; i++){
+		wave_val.push_back(0.);
+		wavefunction_finitewell->SetPoint(i, i*h_width, wave_val[i]); //Fill the restant part of the wavefunctions with 0
+	}
+
 		TCanvas myCanvas("tela","tela");
 		wavefunction_finitewell->SetLineColor(2);
 	   	wavefunction_finitewell->GetXaxis()->SetTitle("l [fm]");
