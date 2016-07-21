@@ -94,10 +94,10 @@ contains
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
-    real(wp), allocatable :: potential(:), test(:), test2(:)
+    real(wp), allocatable :: potential(:), test(:), test2(:),test3(:)
     logical :: sign
 
-    allocate(potential(0:nbox),test(0:nbox),test2(0:nbox))
+    allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
 
     Eupper = 100000_wp
     Elower = -v0
@@ -190,8 +190,9 @@ contains
 
     do ir=0,nbox
       test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
-      !test2(ir) = woodsaxon(ir)
-      write(13,*) ir*h, wavefunctions(ir)
+      test2(ir) = fullwoodsaxon(ir)
+      test3(ir) = dfullwoodsaxon(ir)
+      write(13,*) ir*h, wavefunctions(ir),test2(ir),test3(ir)
     end do
 
   end subroutine solvelr
@@ -262,9 +263,20 @@ contains
     else
       pot = (etrial + v0 * 1 / (1 + exp((meshpoints(ir-(nbox/2 - radius))-radius*h)/0.67)))/ hbar22m
     end if
+  end function
 
+!!!Must be multiplied by (positive) vpb in calculations
+ function fullwoodsaxon(ir) result(pot)
+    real(wp) :: pot
+    integer, intent(in) :: ir
+      pot = -1 / (1 + exp((meshpoints(ir)-nrad)/0.67))
+  end function
 
-
+!!!Must be multiplied by (positive) vpb in calculations
+function dfullwoodsaxon(ir) result(pot)
+    real(wp) :: pot
+    integer, intent(in) :: ir
+      pot = 1 / (1 + exp((meshpoints(ir)-nrad)/0.67))*(1/0.67)*(1 / (1 + exp((-meshpoints(ir)+nrad)/0.67)))
   end function
 
 end module solver
