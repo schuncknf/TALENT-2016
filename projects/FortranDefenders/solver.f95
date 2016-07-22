@@ -98,7 +98,7 @@ contains
 
     allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
 
-    Eupper = 10000_wp
+    Eupper = 100000_wp
     if (welltype .EQ. 1) Elower = 0
     if (welltype .EQ. 2) Elower = -v0
     do i=1,1000000
@@ -167,7 +167,7 @@ contains
           !if (abs((wfr(nbox/2+1)-wfr(nbox/2))/h - (wfl(nbox/2)-wfl(nbox/2-1))/h) < conv) then
             write (6,*) "Converged!"
             write (6,*) "|Eupper - Elower| =", abs(Eupper - Elower)
-            !write (6,*) "Energy =", Etrial
+            write (6,*) "Energy =", Etrial
             !write (6,*) "Exact Energy =",infwell_exact()
             !write (6,*) "Difference between calculated and exact =",Etrial-infwell_exact()
             exit
