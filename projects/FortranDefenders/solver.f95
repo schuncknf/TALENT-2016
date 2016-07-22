@@ -289,7 +289,9 @@ contains
       write (*,*) abs(Eupper - Elower)
     end if
 
-
+    do ir=0,nbox
+      potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,0,2)+Etrial)/hbar22m
+    end do
 
     ! Printing points for plotting. I run $ xmgrace plt
 
@@ -297,7 +299,7 @@ contains
       test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
       test2(ir) = fullwoodsaxon(ir)
       test3(ir) = dfullwoodsaxon(ir)
-      write(13,*) ir*h, spinorbit(ir,0,1), spinorbit(ir,1,1), spinorbit(ir,1,2)!wfr(ir,0,1,1)!, wfr(ir,1,1,1), wfr(ir,2,1,1)!, sum(wfr(ir,:,:,:)*wfr(ir,:,:,:))
+      write(13,*) ir*h, -potential(ir)
     end do
 
   end subroutine solve_r
@@ -367,7 +369,7 @@ contains
     if (ir < (nbox/2 - radius)) then
       pot = Etrial/hbar22m
     else
-      pot = (etrial + v0 * 1 / (1 + exp((meshpoints(ir-(nbox/2 - radius))-radius*h)/0.67)))/ hbar22m
+      pot = ( v0 * 1 / (1 + exp((meshpoints(ir-(nbox/2 - radius))-radius*h)/0.67)))/ hbar22m
     end if
   end function
 
@@ -393,7 +395,11 @@ function dfullwoodsaxon(ir) result(pot)
     if (ir .EQ. 0) then
       pot = 0
     else
-      pot = r0**2 * dfullwoodsaxon(ir)/meshpoints(ir) * 0.5 *((l+spin)*(l+spin+1) - l*(l+1) - 0.75)
+      if (l .EQ. 0) then
+        pot = 0
+      else
+        pot = r0**2 * dfullwoodsaxon(ir)/meshpoints(ir) * 0.5 *((l+spin)*(l+spin+1) - l*(l+1) - 0.75)
+      end if
     end if
 
   end function
