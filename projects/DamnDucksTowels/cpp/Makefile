@@ -1,7 +1,7 @@
 TARGET = libhffs.a
 
-CC =gcc
-CXX=g++
+CC =gcc-5
+CXX=g++-5
 AR=ar
 
 DEBUG_CFLAGS  =-g -fno-inline-functions -O0 -D_GLIBCXX_DEBUG
@@ -13,7 +13,7 @@ CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
 LDFLAGS = -larmadillo -lgsl -lgslcblas
 
 CPP_FILES=src/Basis.cpp src/FieldMinnesota.cpp src/Fields.cpp src/FieldSph.cpp src/HartreeFockBogo.cpp src/HartreeFock.cpp \
-            src/ReducedSpBasis.cpp src/Solver.cpp src/SpBasis.cpp src/System.cpp src/NeutronDrop.cpp src/Nucleus.cpp
+            src/quadrature.cpp src/ReducedSpBasis.cpp src/Solver.cpp src/SpBasis.cpp src/System.cpp src/NeutronDrop.cpp src/Nucleus.cpp
 OBJ_FILES=$(CPP_FILES:.cpp=.o)
 
 DEPS=$(CPP_FILES:.cpp=.d)
