@@ -1,7 +1,7 @@
 TARGET1 = ex_quad
 
-CC =gcc
-CXX=g++
+CC =gcc-5
+CXX=g++-5
 DEBUG_CFLAGS  =-g -fno-inline-functions -O0 -D_GLIBCXX_DEBUG
 RELEASE_FLAGS =-O3 -march=native -Wall -fPIC -Wextra -DARMA_NO_DEBUG
 COMMON_CFLAGS =-Wall -Wextra -std=c++11 -I../include
