@@ -16,7 +16,7 @@
       DOUBLE PRECISION, ALLOCATABLE :: eigvalR(:), eigvalL(:), eigvalOLD(:), WORK(:)
       DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:),trho(:,:),hrho(:,:)
       DOUBLE PRECISION, ALLOCATABLE :: vpotm(:,:,:,:),vpotp(:,:,:,:),vpotas(:,:,:,:)
-      DOUBLE PRECISION esum, rhosum, gamasum, vnorm
+      DOUBLE PRECISION esum, rhosum, gamasum, vnorm,tr
       double precision::x,ri,rj,hfenergy,hf2body,kin_energy
       double precision,allocatable::temp2(:,:)
       integer::n1,n2,n3,n4
@@ -78,20 +78,30 @@ write(*,*) "Computing TBMEs"
            !     vpotp(i,j,k,l)=vpot(i,j,k,l)
            !vpotm(i,j,k,l)=vpot(i,j,l,k)
            !vpotas(i,j,k,l) = (vpot(i,j,k,l) + vpotp(i,j,l,k))
-           !vpotas(i,j,k,l) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
-           !vpotas(i,j,l,k) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
-           !vpotas(j,i,k,l) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
-           !vpotas(j,i,l,k) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
-           write(14,*) n1,n2,n3,n4,vpotas(i,j,k,l)
+          ! write(14,*) n1,n2,n3,n4,vpotas(i,j,k,l)
         enddo !l
-           write(14,*) 
+          ! write(14,*) 
        enddo !k
-           write(14,*) 
+          ! write(14,*) 
       enddo !j
-           write(14,*) 
+          ! write(14,*) 
      enddo !i
-           vpotas = vpot + vpotp 
-           !vpotas = 0.d0
+     do i=1,n
+      do j=1,n
+       do k=1,n
+        do l=1,n        
+         vpotas(i,j,k,l) = vpot(i,j,k,l) + vpotp(i,j,k,l)
+          ! vpotas(i,j,k,l) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
+           !vpotas(i,j,l,k) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
+           write(14,*) i-1,j-1,k-1,l-1,vpot(i,j,k,l)
+        enddo
+           write(14,*) 
+       enddo
+           write(14,*) 
+      enddo
+           write(14,*) 
+     enddo
+      !     vpotas = 0.d0
 write(*,*) "TBMEs computed and antisymetrized"
 
 ! ---------- start of iteration loop
@@ -101,16 +111,18 @@ write(*,*) "TBMEs computed and antisymetrized"
          if(it .eq. 1) then ! initializing eigenfunctions and eigenvalues
             do i = 1, N
                do j = 1, N
+               if(i .le. Npart/2) eigvecR(i,i) = 2.d0 ! first Npart states occupied with Npart particles
                   eigvecR(i,j) = 0.d0
                enddo
-               if(i .le. Npart) eigvecR(i,i) = 11.d0 ! first Npart states occupied with Npart particles
                eigvalOLD(i) = 0.d0 
             enddo
          endif
 
 ! --------- subroutines: (re)calculate rho and HF hamiltonian
+       
 
          call compute_rho(rho,eigvecR,N)
+         !call sort(n,eigvalR)
 
          call compute_gamma(gama,vpotas,rho,N)
 
@@ -126,6 +138,7 @@ write(*,*) "TBMEs computed and antisymetrized"
                   eigvecR, LDVR, WORK, LWORK, INFO ) 
 
          if(info .ne. 0 ) stop 'problem in diagonalization'
+       call sorteigv(n,eigvalR,eigvecR)
 
 ! --------- check for convergence
 
@@ -171,8 +184,27 @@ write(*,*) "TBMEs computed and antisymetrized"
 !-------- HF Energy
 
 
-       !call compute_rho(rho,eigvecR,N)
-       !call compute_h(hf,kin,gama,N)
+       call compute_rho(rho,eigvecR,N)
+       call compute_h(hf,kin,gama,N)
+       do i=1,N
+         write(17,*) i,eigvalR(i)
+        do j=1,N
+         write(17,*) i,j,eigvecR(i,j)
+         enddo
+         tr = tr + rho(i,i)
+         write(17,*)
+        enddo
+       tr=0.d0
+       do i=1,N
+         write(16,*) i,eigvalR(i)
+        do j=1,N
+         write(16,*) i,j,eigvecR(i,j),rho(i,j)
+         !write(16,*) i,j,eigvecR(i,j)
+         enddo
+         tr = tr + rho(i,i)
+         write(16,*)
+        enddo
+        write(*,*) "Npart =",tr
 
        hrho=0.d0
        hrho = matmul(hf,rho)
@@ -183,24 +215,25 @@ write(*,*) "TBMEs computed and antisymetrized"
          hfenergy = hfenergy + half*trho(i,i) + half*hrho(i,i)
          !hfenergy = hfenergy + half*trho(i,i) + half*hrho(i,i)
        enddo
+       hfenergy = hfenergy!*2.d0
        write(*,*) 'Hartree-Fock Energy-1',hfenergy
        
-       call sort(n,eigvalR)
+       !call sort(n,eigvalR)
        do i=1,n
          write(*,'(a,i3,a,f16.8)') 'E(',i,')= ',eigvalR(i)
        enddo
        hfenergy = 0.d0
        hf2body = 0.d0
        kin_energy = 0.d0
-       do i=1,Npart
-        hfenergy = hfenergy  + eigvalR(i)
+       do i=1,Npart/2
+        hfenergy = hfenergy  + 2.d0*eigvalR(i)
         kin_energy = kin_energy + kin(i,i)
-        do j=1,Npart
-           hf2body = hf2body + vpotas(i,j,i,j)
+        do j=1,Npart/2
+           hf2body = hf2body + 2.d0*vpotas(i,j,i,j)
         enddo
        enddo
-       hfenergy = hfenergy  + kin_energy
-       write(*,*) 'Hartree-Fock Energy',hfenergy*half
+       hfenergy = hfenergy  - hf2body*half
+       write(*,*) 'Hartree-Fock Energy',hfenergy
        write(*,*) "Kinetic energy",kin_energy
 
 

@@ -12,7 +12,7 @@ public:
   void calcH0 (arma::field<arma::mat> & H0, int type);
   void calcH (arma::field<arma::mat> & H, arma::field<arma::mat> & RG);
   void calcKineticField (arma::field<arma::mat> & RG);
-  ~Nucleus (){};
+  ~Nucleus ();
 };
 
 #endif
