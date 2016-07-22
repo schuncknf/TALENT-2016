@@ -5,8 +5,8 @@ CXX=g++
 AR=ar
 
 DEBUG_CFLAGS  =-g -fno-inline-functions -O0 -D_GLIBCXX_DEBUG
-RELEASE_CFLAGS =-O2 -march=native -DARMA_NO_DEBUG
-COMMON_CFLAGS =-fPIC -Wall -Wextra -std=c++11 -Iinclude
+#RELEASE_CFLAGS =-O2 -march=native -DARMA_NO_DEBUG
+COMMON_CFLAGS =-fPIC -Wall -Wextra -std=gnu++11 -Iinclude
 
 CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
 #CFLAGS  =$(RELEASE_CFLAGS) $(COMMON_CFLAGS)
