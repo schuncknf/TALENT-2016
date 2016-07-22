@@ -219,7 +219,11 @@ contains
               ! Attempting to set the potential before hand, if this does not work, we
               ! can do it "on the fly"
               do ir=0,nbox
-                potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial)/hbar22m
+								if (iq .EQ. 1) then
+                	potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial)/hbar22m
+								else 
+									potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial-coulomb(ir))/hbar22m
+								end if
               end do
 
               wfr(nbox,l,is,iq) = 0.0
@@ -403,5 +407,13 @@ function dfullwoodsaxon(ir) result(pot)
     end if
 
   end function
+
+	function coloumb(ir)	result(pot) 
+		integer,intent(in) :: ir
+		real(wp) ::pot
+		if(ir*h .lt. nrads ) pot= (np*e2/nrads)*(3.0d0- (ir*h/nrads)**2) 
+		if(ir*h .ge. nrads ) pot= np*e2/(ir*h)
+
+	end function
 
 end module solver

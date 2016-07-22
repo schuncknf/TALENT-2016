@@ -20,10 +20,11 @@
 	}
 
 	double potential(double x){
-		if(x<12)
+		double half_box = (width_box-width)/2.;
+		if(x<half_box)
 			return V0;
-		else if(x>=12&&x<=47)
+		else if(x>=half_box&&x<=6+half_box)
 			return 0;
-		else if(x>47)
+		else if(x>6+half_box)
 			return V0;
 	}
