@@ -82,7 +82,7 @@ void SpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec r)
   {
     int n = qNumbers(i,0);
     int l = qNumbers(i,1);
-    arma::vec laguerre(size(r));
+    arma::vec laguerre(r.n_elem);
     for (unsigned int j = 0; j < r.n_elem; j++)
       laguerre(j) = gsl_sf_laguerre_n(n,l+0.5,2*nu*r(j)*r(j));
     wfMatrix.col(i) = N(i) * arma::pow(r,l) % arma::exp(-nu * arma::pow(r,2)) % laguerre;
