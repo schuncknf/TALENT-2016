@@ -20,7 +20,7 @@
 	#define h_energy 0.0005
 	#define V0 40.
 
-	#define width_box 24.
+	#define width_box 34.
 
 	#define prec 1E-10
 	#define m_factor 20.75
@@ -31,6 +31,8 @@
 
 	double numerov_algorithm(double energy, double f_, double f0);
 	double numerov_algorithm_finitewell(double energy, double f0, double f_,double x);
-	double potential(double x);
+	double numerov_algorithm_woods(double energy, double f0, double f_,double x);
+	double potential_well(double x);
+	double potential_woods(double x);
 
 #endif

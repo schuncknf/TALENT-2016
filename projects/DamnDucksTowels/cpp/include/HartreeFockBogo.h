@@ -2,6 +2,8 @@
 #define HARTREEFOCKBOGO_h
 
 #include "Solver.h"
+#include "System.h"
+#include <armadillo>
 
 /// class HartreeFockBogo - 
 class HartreeFockBogo : public Solver {
@@ -14,8 +16,8 @@ public:
   // Operations
 public:
   HartreeFockBogo (System & system);
-  void calc (arma::field<arma::mat> H);
-  ~HartreeFockBogo ();
+  void calc (arma::field<arma::mat> & H);
+  ~HartreeFockBogo (){};
 };
 
 #endif

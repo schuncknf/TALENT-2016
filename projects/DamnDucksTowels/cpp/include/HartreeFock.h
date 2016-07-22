@@ -2,6 +2,7 @@
 #define HARTREEFOCK_H
 
 #include "Solver.h"
+#include "System.h"
 
 /// class HartreeFock - 
 class HartreeFock : public Solver {
@@ -14,8 +15,8 @@ public:
   // Operations
 public:
   HartreeFock (System & system);
-  void calc (arma::field<arma::mat> H);
-  ~HartreeFock ();
+  void calc (arma::field<arma::mat> & H);
+  ~HartreeFock () {};
 };
 
 #endif
