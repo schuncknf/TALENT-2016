@@ -2,9 +2,9 @@ COMP = gfortran
 
  
 CFLAGS = -c  -g -C -fbounds-check -fcheck=all -fbacktrace -pedantic -Wextra -Wall
+#CFLAGS = -c  -O3 -funroll-loops -msse4a -mtune=native -march=native -ffast-math -floop-parallelize-all -ftree-vectorize
 
-
-LD_FLAGS =  
+LD_FLAGS = -O3 
 
 
 PROGNAME=main
