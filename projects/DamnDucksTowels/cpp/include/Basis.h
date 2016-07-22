@@ -19,6 +19,7 @@ public:
   arma::imat qNumbers;
   // Operations
 public:
+  Basis (std::string type, std::vector<std::string> & qNames,  );
   void calcOverlaps (arma::mat & overlaps);
   virtual ~Basis () = 0;
 };

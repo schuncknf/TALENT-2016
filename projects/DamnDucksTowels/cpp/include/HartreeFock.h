@@ -2,6 +2,7 @@
 #define HARTREEFOCK_H
 
 #include "Solver.h"
+#include "System.h"
 
 /// class HartreeFock - 
 class HartreeFock : public Solver {
