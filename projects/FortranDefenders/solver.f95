@@ -99,7 +99,8 @@ contains
     allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
 
     Eupper = 100000_wp
-    Elower = -v0
+    if (welltype .EQ. 1) Elower = 0
+    if (welltype .EQ. 2) Elower = -v0
     do i=1,1000000
       Etrial = (Eupper+Elower)/2.0
       ! Trying very large values right now, may change this if unstable
@@ -107,7 +108,9 @@ contains
       ! Attempting to set the potential before hand, if this does not work, we
       ! can do it "on the fly"
       do ir=0,nbox
-        potential(ir) = (-vpb*fullwoodsaxon(ir)+Etrial)/hbar22m
+        if (welltype .EQ. 1) potential(ir) = (infwell(ir,Etrial))/hbar22m
+        if (welltype .EQ. 2) potential(ir) = (finitepot(ir,Etrial))/hbar22m
+
       end do
 
       wfl(0,0,1,1) = 0.0
@@ -165,8 +168,8 @@ contains
             write (6,*) "Converged!"
             write (6,*) "|Eupper - Elower| =", abs(Eupper - Elower)
             write (6,*) "Energy =", Etrial
-            write (6,*) "Exact Energy =",infwell_exact()
-            write (6,*) "Difference between calculated and exact =",Etrial-infwell_exact()
+            !write (6,*) "Exact Energy =",infwell_exact()
+            !write (6,*) "Difference between calculated and exact =",Etrial-infwell_exact()
             exit
           !end if
         !end if
@@ -188,9 +191,8 @@ contains
 
     do ir=0,nbox
       test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
-      test2(ir) = fullwoodsaxon(ir)
-      test3(ir) = dfullwoodsaxon(ir)
-      write(13,*) ir*h, wavefunctions(ir,0,1,1), wavefunctions(ir,0,1,1)*wavefunctions(ir,0,1,1)
+
+      write(13,*) ir*h, wavefunctions(ir,0,1,1)
     end do
 
   end subroutine solvelr
@@ -204,7 +206,7 @@ contains
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
     real(wp), allocatable :: potential(:), test(:), test2(:),test3(:)
     logical :: sign
-
+    density(:) = 0.0
     allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
     wfr(:,:,:,:) = 0.0
     do iq =1,2
@@ -274,6 +276,7 @@ contains
                     ! Normalization
                     norm = sqrt(sum(h*wfr(:,l,is,iq)*wfr(:,l,is,iq)))
                     wfr(:,l,is,iq) = wfr(:,l,is,iq)/norm
+                    density(:) = wfr(:,l,is,iq)*wfr(:,l,is,iq) + density(:)
                     exit
                   !end if
                 !end if
@@ -292,14 +295,14 @@ contains
     do ir=0,nbox
       potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,0,2)+Etrial)/hbar22m
     end do
- 
+
     ! Printing points for plotting. I run $ xmgrace plt
 
     do ir=0,nbox
       test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
       test2(ir) = fullwoodsaxon(ir)
       test3(ir) = dfullwoodsaxon(ir)
-      write(13,*) ir*h, -potential(ir)
+      write(13,*) ir*h
     end do
 
   end subroutine solve_r
