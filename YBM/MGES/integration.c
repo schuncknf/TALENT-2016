@@ -98,6 +98,6 @@ double checkDLS(double E_trial, double matchFraction){
     DLSfile.close();
     
     // Return DLS condition
-    return (LHSderiv/LHSval)-(RHSderiv/RHSval);
+    return RHSderiv*LHSval - LHSderiv*RHSval;
     
 }
