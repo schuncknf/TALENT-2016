@@ -5,6 +5,7 @@
 #include <stdlib.h>	// abs
 #include <math.h>	// sin
 #include <vector>	// vectors
+#include <numeric>	// accumulate
 #include "inf_SW.h"	// header file
 
 using namespace std;	// no need to put std:: before any cout, etc.
@@ -15,13 +16,13 @@ int selectFunc = 3;	// Select the potential you want:
 			// 3. Woods-Saxon potential
 
 // Variables
-double     a = 75.;	// Box width  [fm]
-double     l = 35.;	// Well width [fm] (don't use yet)
+double  wBox = 200.;	// Box width  [fm]
+double wWell = 35.;	// Well width [fm] (don't use yet)
 double     h = 0.01;	// Mesh width [fm]
 double    V0 = 20;	// Well depth [MeV] (don't use yet)
 double  eMin = -100.;	// Min limit  [MeV]
 double  eMax = 0.;	// Max limit  [MeV]
-double eStep = 1.;	// Step between different energies in brute force approach, needs getting rid of
+double eStep = 0.25;	// Step between different energies in brute force approach, needs getting rid of
 
 int nProton  = 82;
 int nNeutron = 126;
@@ -29,14 +30,14 @@ int nNeutron = 126;
 double wfStep1 = 0;
 double wfStep2 = 1e-5;
 
-double convEng = 1e-13;// Convergence energy
+double convEng = 1e-14;// Convergence energy
 //double convEng = 0.5;// Convergence energy
 
 double hm_fac = 20.75;	// units? MeV?
 
 // Variable used to check if the wavefunction has crossed x axis
 // between different energies
-double wfPrev, wfLast;
+double wfPrev, wfLast, wfTmp;
 
 // Main code
 int main()
@@ -61,7 +62,7 @@ int main()
 					//	 of this step, this is important when defining if calc. has converged.
 
 		// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
-		for(int i=0; i<a/h; i++)
+		for(int i=0; i<wBox/h; i++)
 		{
 			wf_val.push_back(numerovAlgorithm(eMin, wf_val.at(i+1), wf_val.at(i), i*h));
 		}
@@ -73,6 +74,10 @@ int main()
 		// Need if jj>0 condition otherwise will have no previous value for wavefunction
 		if(jj>0)
 		{
+
+			wfTmp = wf_val.at(-1+wf_val.size());
+
+			//cout << "*\t" << eMin << "\t" << wfPrev << "\t\t" << wfLast << "\t*"  << endl;
 			// Check if there is a change in sign of wavefunction values at the limit of the box for
 			// the most recent two different energies (wfPrev/wfLast negative if this is the case)
 			if(wfPrev/wfLast < 0)
@@ -90,16 +95,20 @@ int main()
 						eigenEng = converge(eMin,eMin-eStep,wfLast,wfPrev);
 				}
 
+		
+
 				// Clear previous wafefunction vector and initiate first two steps
 				wf_val.clear();
 				wf_val.push_back(wfStep1);
 				wf_val.push_back(wfStep2);
 
 				// Calculate eigenfunction using Numerov
-				for(int i=0; i<a/h; i++)
+				for(int i=0; i<wBox/h; i++)
 				{
 					wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
 				}
+
+				double normFac = normalise(eigenEng);
 
 				// Write results to file with filename including energy eigenvalue
 				char filename[512], eigEng[512];
@@ -107,18 +116,18 @@ int main()
 				sprintf(eigEng,"%1.4f",eigenEng);
 				ofstream opFile;
 				opFile.open(filename);
-				for(int k=0; k<a/h; k++) opFile << h*k << "\t" << wf_val.at(k) << endl;
+				for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << normFac*wf_val.at(k) << endl;
 				opFile.close();
 
 				// Output energy eigenvalue and the name of the file results are saved to
-				cout << "*\t" << eigEng << "\t\t" << filename << "\t*"  << wfPrev << "\t\t" << wfLast << "\t*" << endl;
+				cout << "*\t" << eigEng << "\t\t" << filename << "\t*"  << endl;
 			}
-
 		}
 
 		// Store the last value of the Numerov calculation 
 		// so as to check whether change in sign in next iteration
-		wfPrev = wf_val.at(-1+wf_val.size());
+//		wfPrev = wf_val.at(-1+wf_val.size());
+		wfPrev = wfTmp;
 
 		wf_val.clear(); // clear wf_val vector for next calculation with different trial energy
 		eMin += eStep;	// increase energy.....will get rid of this
@@ -167,7 +176,7 @@ double converge(double eLo, double eHi, double wfLo, double wfHi)
 		diffE = trialE-eLo;		// Difference between new trial energy and previous energies (used to check convergence)
 
 		// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
-		for(int i=0; i<a/h; i++)
+		for(int i=0; i<wBox/h; i++)
 		{
 			wf_val.push_back(numerovAlgorithm(trialE, wf_val.at(i+1), wf_val.at(i), i*h));
 		}
@@ -187,6 +196,20 @@ double converge(double eLo, double eHi, double wfLo, double wfHi)
 	return trialE;	// return the trial energy value that meets the tolerance condition
 }
 
+double normalise(double eigenEng)
+{
+	vector<double> wfWork;
+	wfWork.push_back(wfStep1);
+	wfWork.push_back(wfStep2);
+
+	double sum = 0;
+	for(int i=0; i<wBox/h; i++) wfWork.push_back(fabs((numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h))));
+	double normFac = 1/(h*accumulate(wfWork.begin(),wfWork.end(),0));
+	wfWork.clear();
+
+	return normFac;
+}
+
 double V(double x)
 {
 	if (selectFunc == 1) return infSW();
@@ -203,8 +226,7 @@ double infSW()
 // Finite square well
 double finSW(double x)
 {
-	double c = a/2;
-	if( (x < ((a-l)/2))  || (x > ((a+l)/2)) ) 
+	if( (x < ((wBox-wWell)/2))  || (x > ((wBox+wWell)/2)) ) 
 		return V0;
 	else
 		return 0;
@@ -220,20 +242,13 @@ double woodsSaxon(double x)
 	double a_comp = 0.67;
 	double coeffV = -51 + 33*((nNeutron-nProton)/A);
 
-	if(x>a/2)
+	if(x>wBox/2)
 	{
-		WS = coeffV * (1 / ( 1 + exp( ((x-(a/2))-R)/a_comp )));
+		WS = coeffV * (1 / ( 1 + exp( ((x-(wBox/2))-R)/a_comp )));
 	}
 	else 
 	{
-		WS = coeffV * (1 / ( 1 + exp( ((-x+(a/2))-R)/a_comp )));
+		WS = coeffV * (1 / ( 1 + exp( ((-x+(wBox/2))-R)/a_comp )));
 	}
 	return WS;
 }
-
-
-
-
-
-
-
