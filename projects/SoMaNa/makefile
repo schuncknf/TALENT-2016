@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -W -Wall -I/usr/userfs/t/tmpu3150/include/include -L/usr/userfs/t/tmpu3150/include/lib -o
 LDFLAGS = -lgsl -lgslcblas -lm
-PROGRAM = gauss-laguerre harmon tbme test
-SOURCE = gauss-laguerre.c harmon.c tbme.c test.c
+PROGRAM = gauss-laguerre harmon tbme test tbmeoutput hermv
+SOURCE = gauss-laguerre.c harmon.c tbme.c test.c tbmeoutput.c hermv.c
 OBJS = $(SOURCE: .c=.o)
 
 all: $(PROGRAM)
