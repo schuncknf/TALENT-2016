@@ -6,7 +6,7 @@ HartreeFock::HartreeFock(System & system) : Solver(system.basis->qNumbers.n_rows
 	RG(1, system.particleNumbers.n_elem);
 	RG(0,0).zeros(system.basis->qNumbers.n_rows, system.basis->qNumbers.n_rows);
 	for(int i=0; i< system.particleNumbers(0); i++){
-		RG(0,0)(i,i,1);
+		RG(0,0)(i,i) = 1;
 	}
 }
 
