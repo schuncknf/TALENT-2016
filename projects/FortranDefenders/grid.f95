@@ -2,6 +2,7 @@ module grid
 implicit none
      integer, parameter :: wp=kind(1.0d0)
      real(wp), parameter :: pi = 3.14159265358979_wp
+     real(wp), parameter :: e2 = 1.439646_wp
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb,r0,small
      real(wp), allocatable,dimension(:) :: meshpoints
      real(wp), allocatable, dimension(:,:,:,:) :: wavefunctions,wfl,wfr
