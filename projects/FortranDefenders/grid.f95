@@ -15,7 +15,7 @@ contains
           read(5,input)
           nt = np+nn
           nrad = r0 * (nt)**(1._wp/3._wp)
-          vpb = -51+33*(nn-np)/nt
+          vpb = -51.+33.*(nn-np)/nt
 
      end subroutine init_params
 
