@@ -207,7 +207,7 @@ contains
 
     allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
     wfr(:,:,:,:) = 0.0
-    Eupper = 100000_wp
+    Eupper = 100_wp
     Elower = vpb
     do iq =1,2
       do l =0,lmax
@@ -239,10 +239,6 @@ contains
 
               end do
 
-              if (.NOT. (mod(l,2) .EQ. 0)) then
-                wfr(:,l,is,iq) = wfr(:,l,is,iq)
-              end if
-
               nnodes = 0
               ! I believe this is appropriate logic for checking the sign change of the
               ! wavefunction
@@ -262,7 +258,7 @@ contains
                 ! This is a variation on the lower energy in order to "squeeze" the
                 ! energies together. by moving it a small amount (arbitrarily here)
                 ! we can force the solution to converge.
-                Elower = Elower + .1
+                Elower = Elower + .01
 
               end if
 
@@ -402,7 +398,7 @@ function dfullwoodsaxon(ir) result(pot)
       if (l .EQ. 0) then
         pot = 0
       else
-        pot = r0**2 * dfullwoodsaxon(ir)/meshpoints(ir) * 0.5 *((l+spin)*(l+spin+1) - l*(l+1) - 0.75)
+        pot = r0**2 * dfullwoodsaxon(ir)/meshpoints(ir) *hbar**2* 0.5 *((l+spin)*(l+spin+1) - l*(l+1) - 0.75)
       end if
     end if
 
