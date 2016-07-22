@@ -2,6 +2,7 @@
 #define HARTREEFOCKBOGO_h
 
 #include "Solver.h"
+#include "System.h"
 #include <armadillo>
 
 /// class HartreeFockBogo - 
