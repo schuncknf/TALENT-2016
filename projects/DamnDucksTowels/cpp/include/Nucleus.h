@@ -2,6 +2,7 @@
 #define NUCLEUS_H
 
 #include "System.h"
+#include "Basis.h"
 
 /// class Nucleus - 
 class Nucleus : public System {

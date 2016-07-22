@@ -7,9 +7,9 @@ double hbar2m = 20.75;
 double h = 0.01;
 double epsilon = 0.001;
 
-double a = 35.0;
+double L_well = 35.0;
 double E_trial = -2.5;
-double L = 59.0; // 0 to 30
+double L_box = 59.0;
 double V0 = 20.0;
 // 0 > inf; 1 > finite square well; 
 int potType = 1;
@@ -28,7 +28,7 @@ int main(){
     ofile << x << "\t" << psi0 << "\t" << potential(x, potType) << endl;
     
     // Loop from left to right of well
-    for(int i=1;i<=L/h;++i){
+    for(int i=1;i<=L_box/h;++i){
         
         // Store last calculated wavefn value in 'temp' variable
         double psi_temp = psi1;
@@ -47,7 +47,7 @@ int main(){
     
     ofile.close();
     
-    cout << checkDLS(E_trial,0.5) << endl;
+    cout << checkDLS(E_trial) << endl;
     
     return 0;
 }

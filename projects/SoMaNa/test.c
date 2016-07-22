@@ -12,7 +12,7 @@ void main (void)
 		
 		int i,j;
 		
-		res = int1(fun1, 1,2,3,4,1.2,3.4,0.3,0.1);
+		/* res = int1(fun1, 1,2,3,4,1.2,3.4,0.3,0.1);
 		
 		printf("Res1 = %f \n\n\n", res);
 	
@@ -20,12 +20,12 @@ void main (void)
 		
 		res = int2(fun2,1,2,3,4,0.1, 0.3);
 		
-		printf("Res2 = %f \n\n\n", res);
+		printf("Res2 = %f \n\n\n", res); */
 		
 		for (i=0; i<30; i++)
 		
 			{
-			printf("%lf \n",Rnl(1,0.5,0.1,0.3,i*0.01));
+			printf("%lf \n",Rnl(0,0,10,30,i*0.1));
 			
 			}
 	

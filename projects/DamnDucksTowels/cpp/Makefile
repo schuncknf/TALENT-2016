@@ -5,8 +5,8 @@ CXX=g++
 AR=ar
 
 DEBUG_CFLAGS  =-g -fno-inline-functions -O0 -D_GLIBCXX_DEBUG
-RELEASE_CFLAGS =-O3 -march=native -Wall -fPIC -Wextra -DARMA_NO_DEBUG
-COMMON_CFLAGS =-Wall -Wextra -std=c++11 -Iinclude -fPIC
+RELEASE_CFLAGS =-O2 -march=native -DARMA_NO_DEBUG
+COMMON_CFLAGS =-fPIC -Wall -Wextra -std=c++11 -Iinclude
 
 CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
 #CFLAGS  =$(RELEASE_CFLAGS) $(COMMON_CFLAGS)
@@ -24,7 +24,7 @@ $(TARGET): $(OBJ_FILES)
 	$(AR) rcs $@ $(OBJ_FILES)
 
 %.o: %.cpp
-	$(CXX) -c $< -o $@ $(CFLAGS)
+	$(CXX) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean mrproper depend
 

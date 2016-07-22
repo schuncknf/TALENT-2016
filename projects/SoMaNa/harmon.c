@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <math.h>
 #include "gauss-laguerre.h"
+#include <gsl/gsl_sf.h>
 
-#define h 1
+#define hbar 197.3269788
 #define pi 4*atan(1)
 
 // Code for the eigenfunctions of a harmonic oscillator.
@@ -37,7 +38,7 @@ double bred(double m, double w)
 	
 	{
 	
-		return sqrt(h/m/w);
+		return sqrt(hbar/m/w);
 	
 	}
 
@@ -49,7 +50,7 @@ double Rnl (int n, double l, double m, double w, double r)
 	
 		double rnlres;
 		
-		rnlres = Anl(n,l)/pow(bred(m,w),1.5)*pow(r/bred(m,w),l)*exp(-pow((r/bred(m,w)),2)/2)*laguerre((int)(l+0.5), pow(r/bred(m,w),2));
+		rnlres = Anl(n,l)/pow(bred(m,w),1.5)*pow(r/bred(m,w),l)*exp(-pow((r/bred(m,w)),2)/2)*gsl_sf_laguerre_n(n,(l+0.5), pow(r/bred(m,w),2));
 		
 		/* printf ("%lf %lf %lf %lf \n", Anl(n,l), pow(r/bred(m,w),l), exp(-0.5*pow(bred(m,w),2)), laguerre((int)(l+0.5), pow(r/bred(m,w),2)) ); */ // Used to check elements of the radial wavefunction.
 		

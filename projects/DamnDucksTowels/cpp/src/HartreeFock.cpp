@@ -6,11 +6,11 @@ HartreeFock::HartreeFock(System & system) : Solver(system.basis->qNumbers.n_rows
 	RG(1, system.particleNumbers.n_elem);
 	RG(0,0).zeros(system.basis->qNumbers.n_rows, system.basis->qNumbers.n_rows);
 	for(int i=0; i< system.particleNumbers(0); i++){
-		RG(0,0)(i,i,1);
+		RG(0,0)(i,i) = 1;
 	}
 }
 
-void HartreeFock::calc(arma::field<arma::mat> H) {
+void HartreeFock::calc(arma::field<arma::mat> & H) {
 
 	int nb_state = system->basis->qNumbers.n_rows;
 	// Hamiltonian diagonalization to extract D and e
@@ -20,6 +20,8 @@ void HartreeFock::calc(arma::field<arma::mat> H) {
 	arma::uvec sorted_ind = sort_index(indivEnergies);
 
 	// Temporary vectors and matrices to store eigenvecs and energies
+    arma::vec old_indivE(nb_state);
+    old_indivE = indivEnergies ;
 	arma::vec new_indivE(nb_state);
 	arma::field<arma::mat> new_D(system->particleNumbers(0));
 	new_indivE.zeros();
@@ -38,5 +40,12 @@ void HartreeFock::calc(arma::field<arma::mat> H) {
 
 	// New derivation of rho
 	RG(0,0) = D(0)*D(0);
+
+    // Convergence check
+    cvg = 0;
+    for(int i=0; i < nb_state; i++) {
+        cvg += abs(indivEnergies(i) - old_indivE(i));
+    }
+    cvg = cvg / nb_state;
 }
 

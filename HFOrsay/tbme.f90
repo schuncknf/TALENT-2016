@@ -1,46 +1,52 @@
-subroutine tbme(n,n1,n2,n3,n4,resu)
+subroutine tbme(n1,n2,n3,n4,resu,pr)
 use ho
 use lag_pol
 use constants
 use pot
+use maths
 implicit none
 integer::i,n1,n2,n3,n4,n,j,l1,l2,l3,l4
 double precision::inte1,inte2,resu
-double precision::osc,osc1,osc2
 double precision::coeffi,coeffj
 double precision::xxi,xi,xxj,xj
 double precision::wi,wj
+double precision::orth,lag1,lag2
+double precision::a1,a2,a3,a4
+double precision::norm_lag,norm_lag1
+double precision::testw,ri,rj
+double precision::nosc1,nosc2,nosc3,nosc4
+logical::pr
 l1=0;l2=0;l3=0;l4=0
+a1=dble(l1)+0.5d0
+a2=dble(l2)+0.5d0
+a3=dble(l3)+0.5d0
+a4=dble(l4)+0.5d0
 inte1=0.d0
-coeffi =0.d0
-coeffj=0.d0
-osc2=0.d0
-osc=0.d0
 inte2=0.d0
-resu=0.d0
-xxi = 0.d0
-xxj = 0.d0
-xi = 0.d0
-xj = 0.d0
-do i=1,n
-    osc = 0.d0
-    osc1 = 0.d0
-    osc2 = 0.d0
+orth=0.d0
+norm_lag=Gamma(dble(n1)+1.d0+a1)/fac(n1)
+norm_lag1=Gamma(dble(n4)+1.d0+a1)/fac(n4)
+nosc1=ho_norm(n1,0.d0)
+nosc2=ho_norm(n2,0.d0)
+nosc3=ho_norm(n3,0.d0)
+nosc4=ho_norm(n4,0.d0)
+do i=1,ngauss
     wi=lag_w(i)
     xxi=(lag_zeros(i))
-    xi = dsqrt(xxi)
-    coeffi =1.d0!exp(xxi)*xxi**(0.d0)
-    osc1 = coeffi*ho_rad_wf(n1,l1,xi)*ho_rad_wf(n3,l3,xi)
- do j=1,n
-    wj = lag_w(j)
+    lag1 = laguerre(n1,a1,xxi)*laguerre(n2,a2,xxi)
+ do j=1,ngauss
+    wj=lag_w(j)
     xxj=(lag_zeros(j))
-    xj = dsqrt(xxj)
-    coeffj = 1.d0!exp(xxj)*xxj**(0.d0)
-    osc2 = coeffj*ho_rad_wf(n2,l2,xj)*ho_rad_wf(n4,l4,xj)
-    inte1 = inte1 + xxi**2*xxj**2*osc1*osc2*potential(xxi,xxj,v0r,kr)*coeffi*coeffj
-    inte2 = inte2 + xxi**2*xxj**2*osc1*osc2*potential(xxi,xxj,v0s,ks)*coeffi*coeffj
-  enddo !j
- enddo !i
-resu = -inte1 + inte2
-!write(*,*) "Integral result",resu
+    lag2 = laguerre(n3,a3,xxj)*laguerre(n4,a4,xxj)
+    orth = orth + wi*wj*lag1*lag2
+    inte2 = inte2 + wi*wj*(-potential(xxi,xxj,v0r,kr)+potential(xxi,xxj,v0s,ks))*lag1*lag2
+        enddo
+enddo
+orth = orth*nosc1*nosc2*nosc3*nosc3/4.d0
+resu = inte2
+resu = resu*nosc1*nosc2*nosc3*nosc3/4.d0
+!endif
+if (pr .and. orth .gt. 0.001d0) then
+write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,orth
+endif
 end
