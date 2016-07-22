@@ -30,21 +30,16 @@ nosc1=ho_norm(n1,0.d0)
 nosc2=ho_norm(n2,0.d0)
 nosc3=ho_norm(n3,0.d0)
 nosc4=ho_norm(n4,0.d0)
-testw=0.d0
 do i=1,ngauss
     wi=lag_w(i)
     xxi=(lag_zeros(i))
-    ri = dsqrt(xxi)*bosc
-    lag1 = laguerre(n1,a1,xxi)*laguerre(n2,a3,xxi)
+    lag1 = laguerre(n1,a1,xxi)*laguerre(n2,a2,xxi)
  do j=1,ngauss
     wj=lag_w(j)
-    testw = testw + wj
     xxj=(lag_zeros(j))
-    rj = dsqrt(xxj)*bosc
-    lag2 = laguerre(n3,a2,xxj)*laguerre(n4,a4,xxj)
+    lag2 = laguerre(n3,a3,xxj)*laguerre(n4,a4,xxj)
     orth = orth + wi*wj*lag1*lag2
-    !inte1 = inte1 + wi*wj*lag1*lag2*minnesota(ri,rj)
-    inte2 = inte2 + wi*wj*(potential(xxi,xxj,v0r,kr)-potential(xxi,xxj,v0s,ks))*lag1*lag2
+    inte2 = inte2 + wi*wj*(-potential(xxi,xxj,v0r,kr)+potential(xxi,xxj,v0s,ks))*lag1*lag2
         enddo
 enddo
 orth = orth*nosc1*nosc2*nosc3*nosc3/4.d0
