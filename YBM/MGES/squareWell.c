@@ -47,7 +47,7 @@ int main(){
     
     ofile.close();
     
-    cout << checkDLS(E_trial,0.5) << endl;
+    cout << checkDLS(E_trial,0.535) << endl;
     
     return 0;
 }
