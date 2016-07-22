@@ -22,11 +22,13 @@ void main (void)
 		
 		printf("Res2 = %f \n\n\n", res); */
 		
-		for (i=0; i<30; i++)
+		/*for (i=0; i<30; i++)
 		
 			{
 			printf("%lf \n",Rnl(0,0,10,30,i*0.1));
 			
-			}
+			} */
+		
+		tbmeprint(0.1,12.3, 2);
 	
 	}
