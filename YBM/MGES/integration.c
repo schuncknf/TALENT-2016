@@ -19,7 +19,7 @@ double v(double x, double E_trial){
 
 double potential(double x, int potType){
     if(potType == 0){ // Infinite square well - use positive energies
-        if(x > (L-a)/2.0 && x < (L+a)/2.0){
+        if(x > (L_box-L_well)/2.0 && x < (L_box+L_well)/2.0){
             return 0.0;
         }
         else{
@@ -27,7 +27,7 @@ double potential(double x, int potType){
         }
     }
     else if(potType == 1){ // Finite square well
-        if(x >= (L-a)/2.0 && x <= (L+a)/2.0){
+        if(x >= (L_box-L_well)/2.0 && x <= (L_box+L_well)/2.0){
             return -V0;
         }
         else{
@@ -41,7 +41,7 @@ double potential(double x, int potType){
 }
 
 
-double checkDLS(double E_trial, double matchFraction){
+double checkDLS(double E_trial){
     
     // Output
     ofstream DLSfile;
@@ -51,8 +51,8 @@ double checkDLS(double E_trial, double matchFraction){
     double psi0 = 0.0;
     double psi1 = 1.0e-5;
     
-    // Integrate from LHS to boxlength*matchFraction
-    for(int i=1;i<=L*matchFraction/h;++i){
+    // Integrate from LHS of box to RHS of well
+    for(int i=1;i<=(L_box+L_well)/2.0/h;++i){
         
         DLSfile << x << "\t" << psi0 << endl;
         
@@ -70,14 +70,14 @@ double checkDLS(double E_trial, double matchFraction){
     double LHSval = psi1;
     double LHSderiv = (psi1-psi0)/h;
     
-    // Integrate from RHS to boxlength*matchFraction
-    x=L;
+    // Integrate from RHS of box to RHS of well
+    x=L_box;
     psi0 = 0.0;
     psi1 = 1.0e-5;
     
     h = -h;
     
-    for(int i=L/-h;i>=L*matchFraction/-h;--i){
+    for(int i=L_box/-h;i>=(L_box+L_well)/2.0/-h;--i){
         
         DLSfile << x << "\t" << psi0 << endl;    
         
