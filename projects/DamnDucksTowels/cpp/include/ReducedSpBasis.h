@@ -6,11 +6,13 @@
 /// class ReducedSpBasis 
 class ReducedSpBasis : public SpBasis {
 public:
-  ReducedSpBasis(double _omega, double _nMax) : SpBasis(_omega, _nMax, 0)
+  ReducedSpBasis(double _omega, int _nMax) : SpBasis(_omega, _nMax, 0)
   {
     type = "ReducedSpBasis";
-  }
-  ~ReducedSpBasis ();
+  };
+  ~ReducedSpBasis ()
+  {
+  };
 };
 
 #endif

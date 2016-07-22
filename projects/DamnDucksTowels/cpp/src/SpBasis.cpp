@@ -19,13 +19,8 @@ double sqrtDoubleFactorial(int n)
     return sqrt(n) * sqrtDoubleFactorial(n-2);
 }
 
-SpBasis::SpBasis(double _omega, int _nMax, int _lMax)
-{
-  //Defining the quantum numbers
-  type = "SpBasis";
-  qNames = {"n","l","m"};
-  qNumSize = qNames.size();
-  
+SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBasis"),std::vector<std::string>({"n","l","m"}))
+{  
   //Initializing vectors of maximum numbers
   omega = _omega;
   nMax = _nMax;
@@ -62,6 +57,10 @@ SpBasis::SpBasis(double _omega, int _nMax, int _lMax)
   nu = NUCLEON_MASS*omega/2/HBAR;
   N = arma::vec(basisSize);
   calcN();
+}
+
+SpBasis::~SpBasis()
+{
 }
 
 void SpBasis::calcN()

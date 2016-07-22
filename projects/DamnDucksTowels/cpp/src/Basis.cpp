@@ -1,6 +1,17 @@
 #include <iostream>
 #include "Basis.h"
 
+Basis::Basis(std::string _type, std::vector<std::string> _qNames)
+{
+  type = _type;
+  qNames = _qNames;
+  qNumSize = qNames.size();
+}
+
+Basis::~Basis()
+{
+}
+
 void Basis::printBasis()
 {
   //Printing the names of quantum numbers
