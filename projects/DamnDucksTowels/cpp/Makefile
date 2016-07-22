@@ -10,7 +10,7 @@ COMMON_CFLAGS =-fPIC -Wall -Wextra -std=gnu++11 -Iinclude
 
 CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
 #CFLAGS  =$(RELEASE_CFLAGS) $(COMMON_CFLAGS)
-LDFLAGS = -larmadillo
+LDFLAGS = -larmadillo -lgsl -lgslcblas
 
 CPP_FILES=src/Basis.cpp src/FieldMinnesota.cpp src/Fields.cpp src/FieldSph.cpp src/HartreeFockBogo.cpp src/HartreeFock.cpp \
             src/ReducedSpBasis.cpp src/Solver.cpp src/SpBasis.cpp src/System.cpp
@@ -21,7 +21,7 @@ DEPS=$(CPP_FILES:.cpp=.d)
 all: $(TARGET)
 
 test: src/test.o $(TARGET)
-	$(CXX) $^ -o $@ $(CFLAGS) $(LDFLAGS) -lgsl -lgslcblas
+	$(CXX) $^ -o $@ $(CFLAGS) $(LDFLAGS)
 
 $(TARGET): $(OBJ_FILES)
 	$(AR) rcs $@ $(OBJ_FILES)
