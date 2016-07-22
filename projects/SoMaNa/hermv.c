@@ -8,7 +8,7 @@
 
 int findeigenvecs(complex double hmatrix[size][size]);
 
-int main(void){
+int notmain(void){
 
 complex double hmatrixdiagdata[size][size] =
                   {{-2., 1., 0., 4.},
@@ -38,7 +38,7 @@ int findeigenvecs(complex double hmatrix[size][size])
 	for (j = 0; j < size; j++) {
 	    GSL_SET_COMPLEX(&tempconvert, creal(hmatrix[i][j]),
 			    cimag(hmatrix[i][j]));
-	    gsl_matrix_complex_set(hermmatrix, i, j, tempconvert);
+	    gsl_matrix_complex_set(hermmatrix, j, i, tempconvert);
 	};
 
 /* Here we go. */

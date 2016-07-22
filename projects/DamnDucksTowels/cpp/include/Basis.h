@@ -17,9 +17,13 @@ public:
   std::vector<std::string> qNames;
   /// The k-th column of the i-th row of this matrix contain the k-th quantum number 
   arma::imat qNumbers;
+  /// Size of the basis
+  int basisSize;
   // Operations
+  /// Printing basis states with quantum numbers
+  void printBasis();
 public:
-  Basis (std::string type, std::vector<std::string> & qNames,  );
+  Basis (std::string type, std::vector<std::string> qNames);
   void calcOverlaps (arma::mat & overlaps);
   virtual ~Basis () = 0;
 };

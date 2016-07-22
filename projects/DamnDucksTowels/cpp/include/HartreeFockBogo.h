@@ -17,7 +17,7 @@ public:
 public:
   HartreeFockBogo (System & system);
   void calc (arma::field<arma::mat> & H);
-  ~HartreeFockBogo ();
+  ~HartreeFockBogo (){};
 };
 
 #endif
