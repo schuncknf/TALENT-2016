@@ -411,7 +411,7 @@ function dfullwoodsaxon(ir) result(pot)
 	function coulomb(ir)	result(pot)
 		integer,intent(in) :: ir
 		real(wp) ::pot
-		if(ir*h .lt. nrad ) pot= (np*e2/nrad)*(3.0d0- (ir*h/nrad)**2)
+		if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
 		if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
 
 	end function
