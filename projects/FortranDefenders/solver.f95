@@ -207,11 +207,11 @@ contains
 
     allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
     wfr(:,:,:,:) = 0.0
-    Eupper = 100000_wp
-    Elower = vpb
     do iq =1,2
       do l =0,lmax
         do is = 1,2
+            Eupper = 100_wp
+            Elower = vpb
             do i=1,100000
               Etrial = (Eupper+Elower)/2.0
               ! Trying very large values right now, may change this if unstable
@@ -220,9 +220,9 @@ contains
               ! can do it "on the fly"
               do ir=0,nbox
 								if (iq .EQ. 1) then
-                	potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial)/hbar22m
+                	potential(ir) = (-vpb*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is)+Etrial)/hbar22m
 								else
-									potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial-coulomb(ir))/hbar22m
+									potential(ir) = (-vpb*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is)+Etrial-coulomb(ir))/hbar22m
 								end if
               end do
 
@@ -238,10 +238,6 @@ contains
                 wfr(ir-1,l,is,iq) = (a1*wfr(ir,l,is,iq) - a2*wfr(ir+1,l,is,iq))/a3
 
               end do
-
-              if (.NOT. (mod(l,2) .EQ. 0)) then
-                wfr(:,l,is,iq) = wfr(:,l,is,iq)
-              end if
 
               nnodes = 0
               ! I believe this is appropriate logic for checking the sign change of the
@@ -296,7 +292,7 @@ contains
     do ir=0,nbox
       potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,0,2)+Etrial)/hbar22m
     end do
-
+ 
     ! Printing points for plotting. I run $ xmgrace plt
 
     do ir=0,nbox
@@ -397,12 +393,12 @@ function dfullwoodsaxon(ir) result(pot)
     if(is .EQ. 1) spin = -0.5
     if(is .EQ. 2) spin = 0.5
     if (ir .EQ. 0) then
-      pot = 0
+      pot = 0._wp
     else
       if (l .EQ. 0) then
-        pot = 0
+        pot = 0._wp
       else
-        pot = r0**2 * dfullwoodsaxon(ir)/meshpoints(ir) * 0.5 *((l+spin)*(l+spin+1) - l*(l+1) - 0.75)
+        pot = r0**2 * dfullwoodsaxon(ir)/meshpoints(ir)* 0.5 *((l+spin)*(l+spin+1) - l*(l+1) - 0.75)
       end if
     end if
 
