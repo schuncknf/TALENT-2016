@@ -14,6 +14,8 @@ int main(){
 
 	double energy=0., wave_prev=0;
 
+//Find Eigenvalues
+
 	for(int j=0; j<n_step_energy; j++){
 		wave_val.push_back(0);
 		wave_val.push_back(0.05);
@@ -32,22 +34,18 @@ int main(){
 		wave_val.clear();
 	}
 
-	//Drawing the function
-/*
+//Write eigenfunctions data on files
+
+	ofstream myfile0,myfile1,myfile2,myfile3;
+	myfile0.open("Eigen_0.txt");
+	myfile1.open("Eigen_1.txt");
+	myfile2.open("Eigen_2.txt");
+	myfile3.open("Eigen_3.txt");
+
 	vector<double> wave_val0;
 	vector<double> wave_val1;
 	vector<double> wave_val2;
 	vector<double> wave_val3;
-	vector<double> wave_val4;
-	vector<double> wave_val5;
-
-	TApplication app("app", 0, 0);
-	TGraph * wavefunction_0 = new TGraph();
-	TGraph * wavefunction_1 = new TGraph();
-	TGraph * wavefunction_2 = new TGraph();
-	TGraph * wavefunction_3 = new TGraph();
-	TGraph * wavefunction_4 = new TGraph();
-	TGraph * wavefunction_5 = new TGraph();
 
 	wave_val0.push_back(0);
 	wave_val0.push_back(0.05);
@@ -57,48 +55,22 @@ int main(){
 	wave_val2.push_back(0.05);
 	wave_val3.push_back(0);
 	wave_val3.push_back(0.05);
-	wave_val4.push_back(0);
-	wave_val4.push_back(0.05);
-	wave_val5.push_back(0);
-	wave_val5.push_back(0.05);
-	for(int i=0; i<n_step_width; i++){
+
+	for(int i=0; i<n_step_width+1; i++){
 		wave_val0.push_back(numerov_algorithm(eigenval[0], wave_val0[i+1], wave_val0[i]));
 		wave_val1.push_back(numerov_algorithm(eigenval[1], wave_val1[i+1], wave_val1[i]));
 		wave_val2.push_back(numerov_algorithm(eigenval[2], wave_val2[i+1], wave_val2[i]));
 		wave_val3.push_back(numerov_algorithm(eigenval[3], wave_val3[i+1], wave_val3[i]));
-		//wave_val4.push_back(numerov_algorithm(eigenval[4], wave_val4[i+1], wave_val4[i]));
-		//wave_val5.push_back(numerov_algorithm(eigenval[5], wave_val5[i+1], wave_val5[i]));
-
-		wavefunction_0->SetPoint(i, i*h_width, wave_val0[i]);
-		wavefunction_1->SetPoint(i, i*h_width, wave_val1[i]);
-		wavefunction_2->SetPoint(i, i*h_width, wave_val2[i]);
-		wavefunction_3->SetPoint(i, i*h_width, wave_val3[i]);
-		//wavefunction_4->SetPoint(i, i*h_width, wave_val4[i]);
-		//wavefunction_5->SetPoint(i, i*h_width, wave_val5[i]);
+		myfile0 << i*h_width << "   " << wave_val0[i] << endl;
+		myfile1 << i*h_width << "   " << wave_val1[i] << endl;
+		myfile2 << i*h_width << "   " << wave_val2[i] << endl;
+		myfile3 << i*h_width << "   " << wave_val3[i] << endl;
 	}
 
-	TCanvas myCanvas("tela","tela");
-    wavefunction_0->SetLineColor(2);
-    wavefunction_1->SetLineColor(4);
-    wavefunction_2->SetLineColor(9);
-    wavefunction_3->SetLineColor(8);
-    wavefunction_4->SetLineColor(6);
-    wavefunction_5->SetLineColor(1);
-  	//wavefunction_0->GetXaxis()->SetRangeUser(0.,35.); 
-  	wavefunction_0->GetYaxis()->SetRangeUser(-5.,10.); 
-    wavefunction_0->GetXaxis()->SetTitle("l [fm]");
-    wavefunction_0->GetYaxis()->SetTitle("#Psi");
-
-    wavefunction_0->Draw("AC");
-    wavefunction_1->Draw("SAME");
-    wavefunction_2->Draw("SAME");
-    wavefunction_3->Draw("SAME");
-   // wavefunction_4->Draw("SAME");
-   // wavefunction_5->Draw("SAME");
-    
-    app.Run();
-	delete wavefunction_0, wavefunction_1, wavefunction_2, wavefunction_3, wavefunction_4, wavefunction_5;
-*/
+	myfile0.close();
+	myfile1.close();
+	myfile2.close();
+	myfile3.close();
 
 return 0;
 }

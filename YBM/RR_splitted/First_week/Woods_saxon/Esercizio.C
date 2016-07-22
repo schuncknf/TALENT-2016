@@ -34,56 +34,29 @@ int main(){
 	}
 
 
+// Write results to file with filename
 
-
-//Drawing the function
-/*
-	TApplication app("app", 0, 0);
-	TGraph * wavefunction_finitewell = new TGraph();
-
-	//This is to initialise the wavefunctions
-	//The new vector that needs to subtract the function, probabily useless
-
-		vector<double> wave_val2;
-		wave_val.push_back(0.);
-		wave_val.push_back(1E-5);	
-		wave_val2.push_back(0.);
-		wave_val2.push_back(1E-5);
-
-
+	ofstream myfile;
+	myfile.open("Eigen.txt");
 	int count =0;
 
-
-	for(int i=0; i<n_step_width_box; i++){		//Loop to draw the eigenfunction
-		wave_val.push_back(numerov_algorithm_finitewell(eigenval[0], wave_val[i+1], wave_val[i], i*h_width));	//I use the energy I get after the first eigen
-		if(i*h_width>20.&&wave_val[i]*wave_val[i-1]<0){
+	wave_val.push_back(0);
+	wave_val.push_back(1E-5);
+	for(int i=0; i<n_step_width_box+1; i++){
+		wave_val.push_back(numerov_algorithm_woods(eigenval[3], wave_val[i+1], wave_val[i], i*h_width));
+		if(i*h_width>24.&&wave_val[i]*wave_val[i-1]<0){
 			count = i;
 			break;
 		}
-		wavefunction_finitewell->SetPoint(i, i*h_width, wave_val[i]);
+		myfile << i*h_width << "   " << wave_val[i] << endl;
 	}
-
 	for(int i=count; i<n_step_width_box; i++){
 		wave_val.push_back(0.);
-		wavefunction_finitewell->SetPoint(i, i*h_width, wave_val[i]); //Fill the restant part of the wavefunctions with 0
+		myfile << i*h_width << "   " << wave_val[i] << endl;
 	}
 
-//Drawing potential
-		
-	for(int i=0; i<n_step_width_box; i++){
-		wavefunction_finitewell->SetPoint(i, i*h_width, potential_woods(i*h_width-12)); //Fill the restant part of the wavefunctions with 0
-	}
-	
 
-		TCanvas myCanvas("tela","tela");
-		wavefunction_finitewell->SetLineColor(2);
-	   	wavefunction_finitewell->GetXaxis()->SetTitle("l [fm]");
-   		wavefunction_finitewell->GetYaxis()->SetTitle("#Psi");
-   		//wavefunction_finitewell->GetYaxis()->SetRangeUser(-40.,40.); 
-   	 	wavefunction_finitewell->Draw("AC");
+	myfile.close();
 
-    app.Run();
-	delete wavefunction_finitewell;
-*/
 return 0;
 }
