@@ -12,11 +12,11 @@ Esercizio.o: Esercizio.C
 oggetto.o: oggetto.C
 	g++ -c oggetto.C -o oggetto.o  ${LIBS} ${INCS}
 
-clean:
+clean_ob:
 	rm -rf *.o
 
-clean_all: clean
+clean: clean_ob
 	rm -rf Esercizio
 
-esegui: ;
+do: ;
 	./Esercizio

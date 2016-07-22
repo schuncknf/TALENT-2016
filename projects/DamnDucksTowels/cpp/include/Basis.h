@@ -1,12 +1,17 @@
+#ifndef BASIS_H
+#define BASIS_H
+
 #include <armadillo>
+#include <vector>
+#include <string>
 
 /// class Basis - 
 class Basis {
   // Attributes
 public:
-  /// Type of basis (S-waves only or not)
-  int type;
-  /// Number of quantum number for each states
+  /// Type of basis (S-waves only or not, etc)
+  std::string type;
+  /// Number of quantum numbers for each states
   int qNumSize;
   /// The k-th element of this vector is the name of the k-th quantum number (e.g. "n
   std::vector<std::string> qNames;
@@ -14,7 +19,8 @@ public:
   arma::imat qNumbers;
   // Operations
 public:
-  virtual void calcOverlaps () = 0;
-  virtual void calcPOverlaps () = 0;
+  void calcOverlaps (arma::mat & overlaps);
+  virtual ~Basis () = 0;
 };
 
+#endif

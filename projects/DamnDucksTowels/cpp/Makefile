@@ -1,11 +1,11 @@
-TARGET = hffs.a
+TARGET = libhffs.a
 
 CC =gcc
 CXX=g++
 AR=ar
 
 DEBUG_CFLAGS  =-g -fno-inline-functions -O0 -D_GLIBCXX_DEBUG
-RELEASE_FLAGS =-O3 -march=native -Wall -fPIC -Wextra -DARMA_NO_DEBUG
+RELEASE_CFLAGS =-O3 -march=native -Wall -fPIC -Wextra -DARMA_NO_DEBUG
 COMMON_CFLAGS =-Wall -Wextra -std=c++11 -Iinclude -fPIC
 
 CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
@@ -31,10 +31,10 @@ $(TARGET): $(OBJ_FILES)
 depend: $(DEPS)
 
 clean:
-	rm -rf $(OBJ_FILES) $(DEPS)
+	rm -rf $(OBJ_FILES)
 
 mrproper: clean
-	rm -rf $(TARGET)
+	rm -rf $(TARGET) $(DEPS)
 
 
 %.d: %.cpp
