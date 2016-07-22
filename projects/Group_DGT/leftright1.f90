@@ -102,7 +102,7 @@
          integer, INTENT(IN):: points
          integer:: converg
          integer :: Nodecount , ifail, i, idir, imin, imax, kpot
-         REAL(kind=dp) :: a1, a2, a3, normal
+         REAL(kind=dp) :: a1, a2, a3, normal, Eexp
          REAL(kind=dp) , ALLOCATABLE, DIMENSION(:), INTENT(OUT) :: trialwf
          REAL(kind=dp) :: pot, a, Vvalue
          REAL(kind=dp) , DIMENSION(points), INTENT(IN) :: pott
@@ -168,7 +168,7 @@
 ! expected energy from the formula Eq. 1.14 in manuale_hf.pdf
 !          if (kpot .eq. 0) then 
 !            Eexp= ((Node+1)*pi)**2*hb2m/(Rmax-Rmin)**2
- !           print *, "Expected energy= ", Eexp
+!            print *, "Expected energy= ", Eexp
 !          end if
            converg=1
          end if
@@ -190,7 +190,7 @@
 !         REAL(kind=dp):: Eup, Edown
          integer, INTENT(IN):: points
          integer :: Nodecount , ifail, i, idir, imin, imax
-         REAL(kind=dp) :: a1, a2, a3, normal
+         REAL(kind=dp) :: a1, a2, a3, normal, normalr, normall
          REAL(kind=dp) , ALLOCATABLE, DIMENSION(:), INTENT(OUT) :: trialwf
          REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) ::  triall, trialr
          REAL(kind=dp) :: pot
@@ -201,12 +201,11 @@
          allocate(triall(0:points), stat = ifail)
          if (ifail .ne. 0) STOP 
 !           
-           idir= 1
-           triall(:)=0.0E0_dp
+           idir=1
            triall(0)=0.0E0_dp
            triall(1)= 0.1E0_dp
            imin=1
-           imax=(points+1)/2+2 !because f(x+2h) is necessary
+           imax=points-1 !because f(x+2h) is necessary
          do i=imin,imax,idir
            pot=(Etrial-pott(i))/hb2m !insert V if V=0
            a1= 2.0E0_dp*(1.0E0_dp-5.0E0_dp/12.0E0_dp*pot*meshsize**2)
@@ -220,12 +219,11 @@
          if (ifail .ne. 0) STOP
 !
            idir=-1
-           trialr(:)=0.0E0_dp
            trialr(points)=0.0E0_dp
            trialr(points-1)= 0.1E0_dp
-           imin=(points+1)/2-2 !because f(x-2h) is necessary
+           imin=1 !because f(x-2h) is necessary
            imax=(points-1)
-         do i=imin,imax,idir
+         do i=imax,imin,idir
            pot=(Etrial-pott(i))/hb2m !insert V if V=0
            a1= 2.0E0_dp*(1.0E0_dp-5.0E0_dp/12.0E0_dp*pot*meshsize**2)
            a2=(1.0E0_dp+1.0E0_dp/12.0E0_dp*pot*meshsize**2)
@@ -243,18 +241,40 @@
 ! 
 ! matching condition
            if((-1)**Node .eq. -1) then
+            if(derivr .lt. 1.0E-10_dp) then
+              print*, "dividing by zero"
+            end if
             coeff= derivl/derivr
-            trialr(:)= trialr(:)
+            trialr(:)= coeff*trialr(:)
            else if((-1)**Node .eq. 1) then
+            if(contir .lt. 1.0E-10_dp) then
+              print*, "dividing by zero"
+            end if
             coeff= contil/contir
-            trialr(:)= trialr(:)
+            trialr(:)= coeff*trialr(:)
            end if
+         normall=0.0E0_dp
+         do i=0,(points+1)/2-1
+            normall = normall + triall(i)**2*meshsize
+         end do
+         
+         triall(:)=triall(:)/sqrt(normall*2)
+         normalr=0.0E0_dp
+         do i=points,(points+1)/2+1
+            normalr = normalr + trialr(i)**2*meshsize
+         end do
+         trialr(:)=trialr(:)/sqrt(normalr*2)
 !check values
+            i=(points+1)/2
+           derivl= (triall(i+2)/12-2*triall(i+1)+2*triall(i-1)/3 &
+                 -triall(i-2)/12)/4/meshsize
+           contil=triall(i)
            derivr= (trialr(i+2)/12-2*trialr(i+1)+2*trialr(i-1)/3 &
                  -trialr(i-2)/12)/4/meshsize
            contir=trialr(i)
-           if(abs(contir-contil) .lt. 1.0E-2_dp .and.  &
-             abs(derivr-derivl) .lt. 1.0E-2_dp) then 
+           
+           if(abs(contir-contil) .lt. 1.0E-6_dp .and.  &
+             abs(derivr-derivl) .lt. 1.0E-6_dp) then 
              print '("Merging successfull")'
            else      
              print '("Error in merging left and right wavefunctions")'
