@@ -26,10 +26,10 @@
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: pott
 !     CHARACTER(LEN=5), DIMENSION(7) :: char
 !==========     set initial values     ==============================
-      Eup=100.E0_dp
+      Eup=1000.E0_dp
       Edown=-100.E0_dp
       epsil=1.E-12_dp
-      Node=0
+      Node=42
       Rmin=-20.E0_dp
       Rmax=20.E0_dp !fermi
       meshsize=0.001E0_dp
@@ -43,7 +43,7 @@
       points=(Rmax-Rmin)/meshsize
          allocate(trialwf(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
-         trialwf(:)=0.0E0_dp
+!         trialwf(:)=0.0E0_dp
          allocate(pott(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
          do i=0,points
@@ -64,6 +64,7 @@
          trialwf(:)=trialwf(:)/sqrt(normal)
 !
          print '("Wavefunction normalized")'
+         print*, normal
 ! output number of nodes excluded a possible node in the last point of the box
 ! normalized wavefunction
          Nodecount=0    
@@ -105,7 +106,7 @@
          REAL(kind=dp) :: a1, a2, a3, normal, Eexp
          REAL(kind=dp) , ALLOCATABLE, DIMENSION(:), INTENT(OUT) :: trialwf
          REAL(kind=dp) :: pot, a, Vvalue
-         REAL(kind=dp) , DIMENSION(points), INTENT(IN) :: pott
+         REAL(kind=dp) , DIMENSION(0:points), INTENT(IN) :: pott
 !
          allocate(trialwf(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
@@ -189,17 +190,17 @@
          integer, INTENT(IN)  :: Node
 !         REAL(kind=dp):: Eup, Edown
          integer, INTENT(IN):: points
-         integer :: Nodecount , ifail, i, idir, imin, imax
+         integer :: Nodecount , ifail, i, idir, imin, imax, converg
          REAL(kind=dp) :: a1, a2, a3, normal, normalr, normall
-         REAL(kind=dp) , ALLOCATABLE, DIMENSION(:), INTENT(OUT) :: trialwf
-         REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) ::  triall, trialr
+         REAL(kind=dp), DIMENSION(0:points), INTENT(OUT) :: trialwf
+         REAL(kind=dp), DIMENSION(0:points) ::  triall, trialr
          REAL(kind=dp) :: pot
-         REAL(kind=dp), DIMENSION(points), INTENT(IN) :: pott
+         REAL(kind=dp), DIMENSION(0:points), INTENT(IN) :: pott
          REAL(kind=dp) :: derivr, derivl, contir, contil, coeff
 !
 ! half left wavefunction
-         allocate(triall(0:points), stat = ifail)
-         if (ifail .ne. 0) STOP 
+!         allocate(triall(0:points), stat = ifail)
+!         if (ifail .ne. 0) STOP 
 !           
            idir=1
            triall(0)=0.0E0_dp
@@ -215,8 +216,8 @@
          end do
 !
 ! half right wavefunction
-         allocate(trialr(0:points), stat = ifail)
-         if (ifail .ne. 0) STOP
+!         allocate(trialr(0:points), stat = ifail)
+!         if (ifail .ne. 0) STOP
 !
            idir=-1
            trialr(points)=0.0E0_dp
@@ -240,6 +241,24 @@
            contir=trialr(i)
 ! 
 ! matching condition
+!
+         converg=0
+         do while(converg .ne. 1)
+!
+         normall=0.0E0_dp
+         do i=1,(points+1)/2
+            normall = normall + triall(i)**2*meshsize
+         end do
+!         print*, "normal L=", normall
+         triall(:)=triall(:)/sqrt(normall*2)
+         normalr=0.0E0_dp
+         do i=points-1,(points+1)/2,-1
+            normalr = normalr + trialr(i)**2*meshsize
+         end do
+!         print*, "normal R=",normalr
+         trialr(:)=trialr(:)/sqrt(normalr*2)
+!
+!
            if((-1)**Node .eq. -1) then
             if(derivr .lt. 1.0E-10_dp) then
               print*, "dividing by zero"
@@ -253,37 +272,36 @@
             coeff= contil/contir
             trialr(:)= coeff*trialr(:)
            end if
-         normall=0.0E0_dp
-         do i=0,(points+1)/2-1
-            normall = normall + triall(i)**2*meshsize
-         end do
-         
-         triall(:)=triall(:)/sqrt(normall*2)
-         normalr=0.0E0_dp
-         do i=points,(points+1)/2+1
-            normalr = normalr + trialr(i)**2*meshsize
-         end do
-         trialr(:)=trialr(:)/sqrt(normalr*2)
+!
+
+!
 !check values
-            i=(points+1)/2
+           i=(points+1)/2
            derivl= (triall(i+2)/12-2*triall(i+1)+2*triall(i-1)/3 &
                  -triall(i-2)/12)/4/meshsize
            contil=triall(i)
            derivr= (trialr(i+2)/12-2*trialr(i+1)+2*trialr(i-1)/3 &
                  -trialr(i-2)/12)/4/meshsize
            contir=trialr(i)
-           
-           if(abs(contir-contil) .lt. 1.0E-6_dp .and.  &
-             abs(derivr-derivl) .lt. 1.0E-6_dp) then 
+!           
+           if(abs((contir-contil)) .lt. 1.0E-6_dp .and.  &
+             abs((derivr-derivl)) .lt. 1.0E-6_dp) then 
              print '("Merging successfull")'
-           else      
-             print '("Error in merging left and right wavefunctions")'
              print *, "continuity: ", contil, contir
              print *, "derivative: ", derivl, derivr
+!             print*, "normal L=", normall
+!             print*, "normal R=",normalr
+             converg=1
+           else      
+             print '("Error in merging left and right wavefunctions")'
+!             print *, "continuity: ", contil, contir
+!             print *, "derivative: ", derivl, derivr
            end if
 !
-         allocate(trialwf(0:points), stat = ifail)
-         if (ifail .ne. 0) STOP           
+          end do
+!
+!         allocate(trialwf(0:points), stat = ifail)
+!         if (ifail .ne. 0) STOP           
 !
            do i=0,(points+1)/2
               trialwf(i)= triall(i)
@@ -315,4 +333,4 @@
          else if(kpot .eq. 0) then
              vr=0
          end if
-         end function potV
+end function potV

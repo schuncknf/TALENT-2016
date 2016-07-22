@@ -99,7 +99,8 @@ contains
     allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
 
     Eupper = 100000_wp
-    Elower = -v0
+    if (welltype .EQ. 1) Elower = 0
+    if (welltype .EQ. 2) Elower = -v0
     do i=1,1000000
       Etrial = (Eupper+Elower)/2.0
       ! Trying very large values right now, may change this if unstable
@@ -107,7 +108,9 @@ contains
       ! Attempting to set the potential before hand, if this does not work, we
       ! can do it "on the fly"
       do ir=0,nbox
-        potential(ir) = (-vpb*fullwoodsaxon(ir)+Etrial)/hbar22m
+        if (welltype .EQ. 1) potential(ir) = (infwell(ir,Etrial))/hbar22m
+        if (welltype .EQ. 2) potential(ir) = (finitepot(ir,Etrial))/hbar22m
+
       end do
 
       wfl(0,0,1,1) = 0.0
@@ -165,8 +168,8 @@ contains
             write (6,*) "Converged!"
             write (6,*) "|Eupper - Elower| =", abs(Eupper - Elower)
             write (6,*) "Energy =", Etrial
-            write (6,*) "Exact Energy =",infwell_exact()
-            write (6,*) "Difference between calculated and exact =",Etrial-infwell_exact()
+            !write (6,*) "Exact Energy =",infwell_exact()
+            !write (6,*) "Difference between calculated and exact =",Etrial-infwell_exact()
             exit
           !end if
         !end if
@@ -188,9 +191,8 @@ contains
 
     do ir=0,nbox
       test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
-      test2(ir) = fullwoodsaxon(ir)
-      test3(ir) = dfullwoodsaxon(ir)
-      write(13,*) ir*h, wavefunctions(ir,0,1,1), wavefunctions(ir,0,1,1)*wavefunctions(ir,0,1,1)
+
+      write(13,*) ir*h, wavefunctions(ir,0,1,1)
     end do
 
   end subroutine solvelr
@@ -204,14 +206,14 @@ contains
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
     real(wp), allocatable :: potential(:), test(:), test2(:),test3(:)
     logical :: sign
-
+    density(:) = 0.0
     allocate(potential(0:nbox),test(0:nbox),test2(0:nbox),test3(0:nbox))
     wfr(:,:,:,:) = 0.0
-    Eupper = 100_wp
-    Elower = vpb
     do iq =1,2
       do l =0,lmax
         do is = 1,2
+            Eupper = 100_wp
+            Elower = vpb
             do i=1,100000
               Etrial = (Eupper+Elower)/2.0
               ! Trying very large values right now, may change this if unstable
@@ -220,9 +222,9 @@ contains
               ! can do it "on the fly"
               do ir=0,nbox
 								if (iq .EQ. 1) then
-                	potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial)/hbar22m
+                	potential(ir) = (-vpb*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is)+Etrial)/hbar22m
 								else
-									potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial-coulomb(ir))/hbar22m
+									potential(ir) = (-vpb*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is)+Etrial-coulomb(ir))/hbar22m
 								end if
               end do
 
@@ -258,7 +260,7 @@ contains
                 ! This is a variation on the lower energy in order to "squeeze" the
                 ! energies together. by moving it a small amount (arbitrarily here)
                 ! we can force the solution to converge.
-                Elower = Elower + .01
+                Elower = Elower + .1
 
               end if
 
@@ -274,6 +276,7 @@ contains
                     ! Normalization
                     norm = sqrt(sum(h*wfr(:,l,is,iq)*wfr(:,l,is,iq)))
                     wfr(:,l,is,iq) = wfr(:,l,is,iq)/norm
+                    density(:) = wfr(:,l,is,iq)*wfr(:,l,is,iq) + density(:)
                     exit
                   !end if
                 !end if
@@ -299,7 +302,7 @@ contains
       test(ir) = sqrt(2/(nbox*h)) * sin((nodes+1) * pi * meshpoints(ir)/(nbox*h))
       test2(ir) = fullwoodsaxon(ir)
       test3(ir) = dfullwoodsaxon(ir)
-      write(13,*) ir*h, -potential(ir)
+      write(13,*) ir*h
     end do
 
   end subroutine solve_r
@@ -393,12 +396,12 @@ function dfullwoodsaxon(ir) result(pot)
     if(is .EQ. 1) spin = -0.5
     if(is .EQ. 2) spin = 0.5
     if (ir .EQ. 0) then
-      pot = 0
+      pot = 0._wp
     else
       if (l .EQ. 0) then
-        pot = 0
+        pot = 0._wp
       else
-        pot = r0**2 * dfullwoodsaxon(ir)/meshpoints(ir) *hbar**2* 0.5 *((l+spin)*(l+spin+1) - l*(l+1) - 0.75)
+        pot = r0**2 * dfullwoodsaxon(ir)/meshpoints(ir)* 0.5 *((l+spin)*(l+spin+1) - l*(l+1) - 0.75)
       end if
     end if
 

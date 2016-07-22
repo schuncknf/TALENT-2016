@@ -3,16 +3,16 @@
 
 #include "SpBasis.h"
 
-/// class ReducedSpBasis - 
+/// class ReducedSpBasis 
 class ReducedSpBasis : public SpBasis {
-  // Attributes
 public:
-  double omega;
-  int lMax;
-  int mMax;
-  // Operations
-public:
-  ~ReducedSpBasis ();
+  ReducedSpBasis(double _omega, int _nMax) : SpBasis(_omega, _nMax, 0)
+  {
+    type = "ReducedSpBasis";
+  };
+  ~ReducedSpBasis ()
+  {
+  };
 };
 
 #endif
