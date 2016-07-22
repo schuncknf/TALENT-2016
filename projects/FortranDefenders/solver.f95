@@ -221,7 +221,7 @@ contains
               do ir=0,nbox
 								if (iq .EQ. 1) then
                 	potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial)/hbar22m
-								else 
+								else
 									potential(ir) = (-vpb*fullwoodsaxon(ir)-vpb*spinorbit(ir,l,is)+Etrial-coulomb(ir))/hbar22m
 								end if
               end do
@@ -408,11 +408,11 @@ function dfullwoodsaxon(ir) result(pot)
 
   end function
 
-	function coloumb(ir)	result(pot) 
+	function coulomb(ir)	result(pot)
 		integer,intent(in) :: ir
 		real(wp) ::pot
-		if(ir*h .lt. nrads ) pot= (np*e2/nrads)*(3.0d0- (ir*h/nrads)**2) 
-		if(ir*h .ge. nrads ) pot= np*e2/(ir*h)
+		if(ir*h .lt. nrad ) pot= (np*e2/nrad)*(3.0d0- (ir*h/nrad)**2)
+		if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
 
 	end function
 
