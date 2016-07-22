@@ -11,6 +11,6 @@ HartreeFockBogo::HartreeFockBogo(System & system) : Solver(system.basis->qNumber
 	}
 }
 
-void HartreeFockBogo::calc(arma::field<arma::mat> H) {
-
+void HartreeFockBogo::calc(arma::field<arma::mat> & H) {
+  (void) H;
 }

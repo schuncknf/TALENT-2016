@@ -10,7 +10,7 @@ HartreeFock::HartreeFock(System & system) : Solver(system.basis->qNumbers.n_rows
 	}
 }
 
-void HartreeFock::calc(arma::field<arma::mat> H) {
+void HartreeFock::calc(arma::field<arma::mat> & H) {
 
 	int nb_state = system->basis->qNumbers.n_rows;
 	// Hamiltonian diagonalization to extract D and e
