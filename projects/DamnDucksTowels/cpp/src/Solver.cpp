@@ -4,3 +4,4 @@ Solver::Solver(int matSize) : indivEnergies(matSize, arma::fill::zeros), cvg(0)
 {
 }
 
+Solver::~Solver(){}

@@ -8,7 +8,7 @@
 class Nucleus : public System {
   // Operations
 public:
-  Nucleus (Basis & basis, int nbNeut, int nbProt);
+  Nucleus (Basis & basis, int nbNeut, int nbProt, arma::field<arma::mat> & TBME);
   void calcH0 (arma::field<arma::mat> & H0, int type);
   void calcH (arma::field<arma::mat> & H, arma::field<arma::mat> & RG);
   void calcKineticField (arma::field<arma::mat> & RG);
