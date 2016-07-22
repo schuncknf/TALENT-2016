@@ -71,6 +71,35 @@ end function delta
    30   CONTINUE
         END subroutine
 
+subroutine sorteigv(n,indexarray,arraytosort)
+implicit none
+integer::n,i,j,k,l
+double precision::val1,val2
+double precision::indexarray(n),arraytosort(n,n),tempar(n),te(n,n)
+integer::sorted(n)
+
+tempar=indexarray
+sorted =0
+call sort(n,tempar)
+do i=1,n
+ val1=indexarray(i)
+ do j=1,n
+         val2=tempar(j)
+ if (val1 .eq. val2) sorted(j)=i
+ enddo
+enddo
+do i=1,n
+ do j=1,n
+  te(i,j) = arraytosort(sorted(i),j)
+ enddo
+enddo
+arraytosort= 0.d0
+arraytosort=te
+call sort(n,indexarray)
+
+
+end subroutine
+
 
 
 
