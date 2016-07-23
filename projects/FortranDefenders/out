@@ -1,129 +1,54 @@
- Converged! n =            0
- |Eupper - Elower| =   6.4133710111491382E-006
- Energy =  -18.999993124692992     
- Converged! n =            1
- |Eupper - Elower| =   8.6033019570663782E-006
- Energy =   53.169725903654722     
- Converged! n =            2
- |Eupper - Elower| =   7.3915122413836798E-006
- Energy =   32.884856026721465     
- Converged! n =            3
- |Eupper - Elower| =   8.8285839581203618E-006
- Energy =   106.94437718120676     
- Converged! n =            4
- |Eupper - Elower| =   5.9737266440151870E-006
- Energy =   113.20827759018127     
- Converged! n =            5
- |Eupper - Elower| =   5.7101096331280132E-006
- Energy =   209.00801470890565     
- Converged! n =            6
- |Eupper - Elower| =   7.5216287882540200E-006
- Energy =   240.55600494503227     
- Converged! n =            7
- |Eupper - Elower| =   6.1416776020450925E-006
- Energy =   343.59625030031088     
- Converged! n =            8
- |Eupper - Elower| =   7.6652693792311766E-006
- Energy =   407.89718248438271     
- Converged! n =            9
- |Eupper - Elower| =   6.5185340645257384E-006
- Energy =   517.26003063783423     
- Converged! n =           10
- |Eupper - Elower| =   5.4772198154751095E-006
- Energy =   609.15252375679415     
- Converged! n =           11
- |Eupper - Elower| =   7.4330531560917734E-006
- Energy =   733.85845394017224     
- Converged! n =           12
- |Eupper - Elower| =   6.5039215542128659E-006
- Energy =   842.97614377975958     
- Converged! n =           13
- |Eupper - Elower| =   8.8983174464374315E-006
- Energy =   992.26512895143537     
- Converged! n =           14
- |Eupper - Elower| =   7.1654833391221473E-006
- Energy =   1112.4819843997636     
- Converged! n =           15
- |Eupper - Elower| =   5.2405857786652632E-006
- Energy =   1288.3268588371311     
- Converged! n =           16
- |Eupper - Elower| =   7.9458443451585481E-006
- Energy =   1421.6359980159343     
- Converged! n =           17
- |Eupper - Elower| =   5.8836565131059615E-006
- Energy =   1619.0587465686779     
- Converged! n =           18
- |Eupper - Elower| =   9.1125864400964929E-006
- Energy =   1771.9425696281276     
- Converged! n =           19
- |Eupper - Elower| =   6.3398060774488840E-006
- Energy =   1984.6711575532827     
- Converged! n =           20
- |Eupper - Elower| =   5.2789764595218003E-006
- Energy =   2161.8042094616494     
- Converged! n =           21
- |Eupper - Elower| =   6.7341998146730475E-006
- Energy =   2387.7664450630991     
- Converged! n =           22
- |Eupper - Elower| =   5.9735657487181015E-006
- Energy =   2588.2060415302194     
- Converged! n =           23
- |Eupper - Elower| =   7.2274247031600680E-006
- Energy =   2830.7181627778891     
- Converged! n =           24
- |Eupper - Elower| =   6.5283511503366753E-006
- Energy =   3049.7732770229732     
- Converged! n =           25
- |Eupper - Elower| =   7.8697257777093910E-006
- Energy =   3313.8374461610629     
- Converged! n =           26
- |Eupper - Elower| =   6.9665957198594697E-006
- Energy =   3547.5976054255161     
- Converged! n =           27
- |Eupper - Elower| =   8.5637020674766973E-006
- Energy =   3834.9477541550941     
- Converged! n =           28
- |Eupper - Elower| =   7.4234835665265564E-006
- Energy =   4084.0385194267983     
- Converged! n =           29
- |Eupper - Elower| =   9.1824322225875221E-006
- Energy =   4392.1498130285563     
- Converged! n =           30
- |Eupper - Elower| =   7.9889787230058573E-006
- Energy =   4660.2154498568570     
- Converged! n =           31
- |Eupper - Elower| =   9.6859266704996116E-006
- Energy =   4985.2212143992319     
- Converged! n =           32
- |Eupper - Elower| =   8.6485943029401824E-006
- Energy =   5275.4198888643987     
- Converged! n =           33
- |Eupper - Elower| =   5.0705766625469550E-006
- Energy =   5615.7005198172283     
- Converged! n =           34
- |Eupper - Elower| =   9.2997215688228607E-006
- Energy =   5927.7473765613759     
- Converged! n =           35
- |Eupper - Elower| =   5.3285866670194082E-006
- Energy =   6285.3427738274386     
- Converged! n =           36
- |Eupper - Elower| =   9.8562404673430137E-006
- Energy =   6616.0633101673347     
- Converged! n =           37
- |Eupper - Elower| =   5.6354037951678038E-006
- Energy =   6994.2488348287334     
- Converged! n =           38
- |Eupper - Elower| =   5.1687247832887806E-006
- Energy =   7341.1160620205692     
- Converged! n =           39
- |Eupper - Elower| =   5.9623662309604697E-006
- Energy =   7741.2436885241832     
- Converged! n =           40
- |Eupper - Elower| =   5.4124539019539952E-006
- Energy =   8104.4673268858824     
- Converged! n =           41
- |Eupper - Elower| =   6.2625549617223442E-006
- Energy =   8524.7402267179168     
- Converged! n =           42
- |Eupper - Elower| =   5.6958106142701581E-006
- Energy =   8906.9795986259069     
+ Single Particle States | 
+ Neutrons | 
+ n=           1 l=           0 is=           1 Energy=  -39.9555016552403     
+ n=           1 l=           0 is=           2 Energy=  -39.9555016552403     
+ n=           1 l=           1 is=           1 Energy=  -35.7032109444917     
+ n=           1 l=           1 is=           2 Energy=  -36.1386398871778     
+ n=           1 l=           2 is=           1 Energy=  -30.5824391029097     
+ n=           1 l=           2 is=           2 Energy=  -31.6605778827593     
+ n=           1 l=           3 is=           1 Energy=  -7.78151173867231     
+ n=           1 l=           3 is=           2 Energy=  -10.5117481572928     
+ n=           1 l=           4 is=           1 Energy=  -17.8747995899627     
+ n=           1 l=           4 is=           2 Energy=  -21.1442717176744     
+ n=           1 l=           5 is=           1 Energy=  -10.4635070148311     
+ n=           1 l=           5 is=           2 Energy=  -15.2491135453750     
+ n=           1 l=           6 is=           1 Energy=  -2.48978310854768     
+ n=           1 l=           6 is=           2 Energy=  -8.99897554767504     
+ n=           2 l=           0 is=           1 Energy=  -29.4687884984733     
+ n=           2 l=           0 is=           2 Energy=  -29.4687884984733     
+ n=           2 l=           1 is=           1 Energy=  -22.5134980103940     
+ n=           2 l=           1 is=           2 Energy=  -23.3811185736699     
+ n=           2 l=           2 is=           1 Energy=  -15.2895248106949     
+ n=           2 l=           2 is=           2 Energy=  -17.0270976246565     
+ n=           2 l=           4 is=           1 Energy= -0.390070160816819     
+ n=           2 l=           4 is=           2 Energy=  -3.98314251585624     
+ n=           3 l=           0 is=           1 Energy=  -15.1613753564948     
+ n=           3 l=           0 is=           2 Energy=  -15.1613753564948     
+ n=           3 l=           1 is=           1 Energy=  -7.15912181153148     
+ n=           3 l=           1 is=           2 Energy=  -8.23132997181646     
+ n=           3 l=           2 is=           1 Energy= -0.501086594827214     
+ n=           3 l=           2 is=           2 Energy=  -1.95275676180201     
+ n=           4 l=           0 is=           1 Energy=  -1.25203801848996     
+ n=           4 l=           0 is=           2 Energy=  -1.25203801848996     
+ Protons  | 
+ n=           1 l=           0 is=           1 Energy=  -32.3384592473292     
+ n=           1 l=           0 is=           2 Energy=  -32.3384592473292     
+ n=           1 l=           1 is=           1 Energy=  -28.5625631172213     
+ n=           1 l=           1 is=           2 Energy=  -29.0462452869881     
+ n=           1 l=           2 is=           1 Energy=  -23.7347187681616     
+ n=           1 l=           2 is=           2 Energy=  -24.8575676781787     
+ n=           1 l=           3 is=           2 Energy=  -2.59039325028134     
+ n=           1 l=           4 is=           1 Energy=  -11.2502424525114     
+ n=           1 l=           4 is=           2 Energy=  -14.4542554635151     
+ n=           1 l=           5 is=           1 Energy=  -3.80626665422689     
+ n=           1 l=           5 is=           2 Energy=  -8.43757451364699     
+ n=           1 l=           6 is=           2 Energy=  -1.96941661693917     
+ n=           2 l=           0 is=           1 Energy=  -21.7975312348605     
+ n=           2 l=           0 is=           2 Energy=  -21.7975312348605     
+ n=           2 l=           1 is=           1 Energy=  -14.8928378444703     
+ n=           2 l=           1 is=           2 Energy=  -15.7169942289630     
+ n=           2 l=           2 is=           1 Energy=  -7.63367748725598     
+ n=           2 l=           2 is=           2 Energy=  -9.28812032462362     
+ n=           3 l=           0 is=           1 Energy=  -7.04651510208639     
+ n=           3 l=           0 is=           2 Energy=  -7.04651510208639     
+ Total Bound States =   252.000000000000      Vpb(1) =  -44.0192298889160     
