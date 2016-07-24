@@ -39,6 +39,7 @@
 vpot=0.d0
 vpotas=0.d0
 write(*,*) "computing TBME"
+!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(n,vpotas,vpotp) SCHEDULE(DYNAMIC)
      do i = 1,n
       n1=i-1
       do j = 1,n
@@ -54,6 +55,7 @@ write(*,*) "computing TBME"
        enddo !k
       enddo !j
      enddo !i
+!$OMP END PARALLEL DO
 !     do i=1,n
 !      do j=1,n
 !       do k=1,n
