@@ -5,6 +5,8 @@
 	#include <cmath>
 	#include <armadillo>
 	#include <vector>
+	#include <fstream>
+
 /*
 	#include "TH1F.h"
 	#include "TH2F.h"
@@ -13,6 +15,7 @@
 	#include "TGraph.h"
 	#include "TAxis.h"
 */
+
 	#define Edown 0.
 	#define Eup 100.
 	#define width 6.

@@ -19,7 +19,7 @@ double sqrtDoubleFactorial(int n)
     return sqrt(n) * sqrtDoubleFactorial(n-2);
 }
 
-SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBasis"),std::vector<std::string>({"n","l","m"}))
+SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBasis"),std::vector<std::string>({"n","l","m","s"}))
 {  
   //Initializing vectors of maximum numbers
   omega = _omega;
@@ -39,6 +39,8 @@ SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBas
       basisSize += 2*l+1;
     }
   }
+  //Considering spin
+  basisSize *= 2;
   
   //Filling the quantum numbers for each state
   qNumbers = arma::imat(basisSize,qNumSize);
@@ -46,12 +48,14 @@ SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBas
   for (int n = 0; n <= nMax; n++)
     for (int l = 0; l <= lMax(n); l++)
       for (int m = -mMax(n,l); m <= mMax(n,l); m++)
-      {
-	qNumbers(i,0) = n;
-	qNumbers(i,1) = l;
-	qNumbers(i,2) = m;
-	i++;
-      }
+	for (int s = -1; s <= 1; s += 2) 
+	{
+	  qNumbers(i,0) = n;
+	  qNumbers(i,1) = l;
+	  qNumbers(i,2) = m;
+	  qNumbers(i,3) = s;
+	  i++;
+	}
   
   //Calculating N normalization coefficients
   nu = NUCLEON_MASS*omega/2/HBAR;
@@ -61,6 +65,14 @@ SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBas
 
 SpBasis::~SpBasis()
 {
+}
+
+int SpBasis::deltaSpin (int idx1, int idx2)
+{
+  if (qNumbers(idx1,3) == qNumbers(idx2,3))
+    return 1;
+  else
+    return 0;
 }
 
 void SpBasis::calcN()

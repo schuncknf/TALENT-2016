@@ -5,6 +5,7 @@
 	#include <cmath>
 	#include <armadillo>
 	#include <vector>
+	#include <fstream>
 
 /*
 	#include "TH1F.h"

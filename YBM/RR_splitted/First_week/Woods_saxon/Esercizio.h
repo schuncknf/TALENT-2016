@@ -15,13 +15,13 @@
 */
 	#define Edown 0.
 	#define Eup 100.
-	#define width 6.
-	#define h_width 0.01
 	#define h_energy 0.001
-	#define V0 40.
 
 	#define width_box 34.
+	#define width 6.
+	#define h_width 0.01
 
+	#define V0 40.
 	#define prec 1E-10
 	#define m_factor 20.75
 
