@@ -1,8 +1,8 @@
 CC	= g++
-CFLAGS	= -W
+CFLAGS	= -W -O3
 LDFLAGS	=
-EXEC	= inf
-SRC	= inf_SW.c #hello.c
+EXEC	= exe
+SRC	= radial_1D.c #hello.c
 OBJ	= $(SRC:.c=.o)
 
 all: $(EXEC)
