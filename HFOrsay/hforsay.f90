@@ -10,22 +10,14 @@ double precision::ml,x
 double precision::test
 integer::i,nl,n1,n2
 double precision::test11(4)
+double precision::start,finish
 
 
 call reader()
+call cpu_time(start)
 call lag_roots(ngauss,0.5d0,.true.)
-!call gausslag(2*nbase,1,1,x)
-!call lag_roots(nbase,0.0d0,.true.)
-!read(*,*)
-call hfsolver()
-!do i=1,10
-!write(*,*) 'nl,ml,x ?'
-!read(*,*) nl,ml,x
-!write(*,*) 'Laguerre',laguerre(nl,ml,x)
-!enddo
-
-
-
-
+call hfsolver(.true.)
+call cpu_time(finish)
+print '("Cpu-time = ",f6.3," Seconds")',finish-start
 
 end program
