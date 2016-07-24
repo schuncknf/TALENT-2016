@@ -213,7 +213,7 @@ double normalise(double eigenEng)
 
 	for(int i=0; i<(wBox/h)-1; i++) sum += h*pow(wfWork.at(i),2);
 
-	double normFac = 1/sum;
+	double normFac = ;
 	wfWork.clear();
 
 	return normFac;
