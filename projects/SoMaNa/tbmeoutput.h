@@ -4,4 +4,4 @@
 // #include "potential.h"
 // #include "harmon.h"
 
-void tbmeprint (double, double, int)
+void tbmeprint (double, double, double,double,int,double);

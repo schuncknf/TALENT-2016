@@ -1,12 +1,11 @@
 !parameters:
 5.0                  ! n_max
 0.0                  ! L for S wave
-10.                  ! k*omega[MeV]
-20.736209412         ! hbar/2m [fm^2] 
+20.	             ! hbar*omega [MeV] 
 938.90590            ! mc^2[MeV]
 200.0	             ! V_0,R numerical parameter [MeV]
 178.0                ! V_0,t numerical parameter [MeV] 
 91.85                ! V_0,s numerical parameter [MeV]
-1.487                ! Kappa_R umerical parameter [fm^-2]
-0.639                ! Kappa_t umerical parameter [fm^-2]
-0.465                ! Kappa_s umerical parameter [fm^-2]
+1.487                ! Kappa_R numerical parameter [fm^-2]
+0.639                ! Kappa_t numerical parameter [fm^-2]
+0.465                ! Kappa_s numerical parameter [fm^-2]

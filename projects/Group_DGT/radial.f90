@@ -24,14 +24,17 @@
       meshsize=0.001E0_dp
 ! kpot= 0 no potential      
 ! kpot= 1 square well of size a and deepth Vvalue
-! kpot=2  Wood-Saxons potential
+! kpot= 2 Wood-Saxon potential
 ! kpot= 3 Coulomb
+! kpot= 4 spin-orbit W potential
       numN= 8
       numZ= 8 
       kpot= 2
       a=0.67E0_dp
       Vvalue=-100.E0_dp 
-      rzero=1.27E0_dp   
+      rzero=1.27E0_dp 
+      rProt= rzero*(numZ**(1.0E0_dp/3.0E0_dp))
+      esquare=1.44 !MeV  
 !==================================================================     
 !
       points=(Rmax-Rmin)/meshsize
@@ -349,5 +352,15 @@
          else if(kpot .eq. 2) then
              ferre=1/(1+exp((abs(pos-pos0)-bigR)/a))
              vr=-(51-33*(numN-numZ)/(numN+numZ))*ferre
+         else if(kpot .eq. 3) then
+             if(abs(pos-pos0) .le. rProt) then
+             vr=numZ*esquare/2/rPot*(3-(pos/rpot)**2)         
+             else if(abs(pos-pos0) .gt. rProt) then
+             vr=numZ*esquare/rPot  
+         else if(kpot .eq. 4) then
+             ferre=0.44*exp((abs(pos-pos0)-bigR)/a) * rzero**2 &
+                   /a/pos/(1+exp((abs(pos-pos0)-bigR)/a))**2
+             vr=-(51-33*(numN-numZ)/(numN+numZ))*ferre         
          end if
+         
 end function potV
