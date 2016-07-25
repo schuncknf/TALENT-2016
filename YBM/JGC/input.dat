@@ -2,7 +2,7 @@
 # Potential? 1. Infinite square well, 2. Finite square well, 3. Woods-Saxon potential
 2
 # Box width [fm]
-30.
+45.
 # Well width  [fm]
 6.
 # Mesh width [fm]
@@ -10,9 +10,9 @@
 # Well depth [MeV]
 50.
 # Min limit  [MeV]
--50
+-100.
 # Max limit  [MeV]
-0
+100.
 # Energy mesh [MeV]
 0.05
 # First step wavefunction value [a.u]
