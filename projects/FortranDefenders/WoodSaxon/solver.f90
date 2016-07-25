@@ -14,7 +14,7 @@ contains
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes, l, is, iq, n
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm, spin(2),j
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, spin(2),j
     real(wp), allocatable :: potential(:)
     density(:,:) = 0.0
     spin(1) = -0.5
@@ -30,7 +30,7 @@ contains
                 Eupper = 100_wp
 
                 Elower = vpb(iq)
-
+                density(:,iq) = 0.
                 do i=1,100000
                   Etrial = (Eupper+Elower)/2.0
                   ! Attempting to set the potential before hand, if this does not work, we
@@ -46,8 +46,10 @@ contains
                   end do
 
 
-                  wfr(nbox,n,l,is,iq) = 0.0
-                  wfr(nbox-1,n,l,is,iq) = 1.0
+                  wfr(nbox,n,l,is,iq) = 0.
+                  wfr(nbox-1,n,l,is,iq) = 1.
+                  wfl(0,n,l,is,iq) = 0.
+                  wfl(1,n,l,is,iq) = 1.
 
                   nnodes = 0
                   do ir=nbox-1,1,-1
@@ -55,7 +57,12 @@ contains
                     a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
                     a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
 
+                    b1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(nbox-ir))
+                    b2 = (1.0 + (1.0/12.0) * h**2 * potential(nbox - ir-1))
+                    b3 = (1.0 + (1.0/12.0) * h**2 * potential(nbox - ir+1))
+
                     wfr(ir-1,n,l,is,iq) = (a1*wfr(ir,n,l,is,iq) - a2*wfr(ir+1,n,l,is,iq))/a3
+                    wfl(ir+1,n,l,is,iq) = (b1*wfl(ir,n,l,is,iq) - b2*wfl(ir-1,n,l,is,iq))/b3
                     if(wfr(ir,n,l,is,iq)*wfr(ir-1,n,l,is,iq) < 0) nnodes = nnodes + 1
                   end do
 
@@ -68,29 +75,34 @@ contains
 
                   if (abs(Eupper - Elower) < conv) then
                     if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
-                      if (l==0) then
-                        vocc(n,l,is,iq) = 2*l+1
-                        energies(n,l,is,iq) = etrial
-                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                      else if (l<=3) then
-                        vocc(n-1,l,is,iq) = 2*l+1
-                        energies(n-1,l,is,iq) = etrial
-                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        wfr(:,n-1,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                      else
-                        vocc(n-2,l,is,iq) = 2*l+1
-                        energies(n-2,l,is,iq) = etrial
-                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        wfr(:,n-2,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                      end if
-
                       do ir=0,nbox
-                        density(ir,iq) = density(ir,iq) + ((2.*j+1)/(4.*pi*meshpoints(ir)**2)) &
-                        * h*wfr(ir,n,l,is,iq)*wfr(ir,n,l,is,iq)
+                        write(13,*) ir*h, wfr(ir,1,0,1,1), wfl(ir,1,0,1,1)
                       end do
+                      !if (abs(wfr(10,n,l,is,iq) - wfl(10,n,l,is,iq)) < conv) then
+                        if (l==0) then
+                          vocc(n,l,is,iq) = 2*l+1
+                          energies(n,l,is,iq) = etrial
+                          norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)/meshpoints(:)**2))
+                          wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                        else if (l<=3) then
+                          vocc(n-1,l,is,iq) = 2*l+1
+                          energies(n-1,l,is,iq) = etrial
+                          norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)/meshpoints(:)**2))
+                          wfr(:,n-1,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                        else
+                          vocc(n-2,l,is,iq) = 2*l+1
+                          energies(n-2,l,is,iq) = etrial
+                          norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)/meshpoints(:)**2))
+                          wfr(:,n-2,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                        end if
 
+
+                      !end if
                     end if
+                    do ir=0,nbox
+                      density(ir,iq) = density(ir,iq) + ((2.*j+1)/(4.*pi)) &
+                      * h*wfr(ir,n,l,is,iq)*wfr(ir,n,l,is,iq)
+                    end do
                     exit
                   end if
                 end do
