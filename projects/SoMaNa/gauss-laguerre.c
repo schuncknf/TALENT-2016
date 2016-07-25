@@ -40,7 +40,11 @@ double fun2 (double kappa, double V, double m, double w,double r1, double r2,int
 		
 		dummy1 = galag(5,n1,n2,n3,n4,m,w,r1,r2,V);
 		
-		res = dummy1*r1*r1*r2*r2*/* Rnl(n1,0,m,w,r1)*Rnl(n2,0,m,w,r2)*Rnl(n3,0,m,w,r1)*Rnl(n4,0,m,w,r2) **/exp(r1)*exp(r2);
+		printf ("AAaaaa! \n\n\n n1 = %d  n2 = %d  n3 = %d  n4 = %d",n1,n2,n3,n4);
+		
+		res = dummy1*r1*r1*r2*r2*Rnl(n1,0.0,m,w,r1)*Rnl(n2,0.0,m,w,r2)*Rnl(n3,0.0,m,w,r1)*Rnl(n4,0.0,m,w,r2)*exp(r1)*exp(r2);
+		
+		printf("\n\n\n R = %lf R = %lf R = %lf R = %lf",Rnl(n1,0.0,m,w,r1),Rnl(n2,0.0,m,w,r2),Rnl(n3,0.0,m,w,r1),Rnl(n4,0.0,m,w,r2));
 		
 		return res;
 	

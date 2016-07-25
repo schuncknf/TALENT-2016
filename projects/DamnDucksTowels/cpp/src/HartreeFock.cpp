@@ -18,7 +18,8 @@ HartreeFock::~HartreeFock()
 {
 }
 
-void HartreeFock::calc() {
+void HartreeFock::run()
+{
   int nb_state = system->basis->size;
   arma::field<arma::mat> &H = system->H;
   arma::field<arma::mat> &R = system->R;
@@ -47,3 +48,7 @@ void HartreeFock::calc() {
   }
 }
 
+void HartreeFock::calcH()
+{
+  
+}

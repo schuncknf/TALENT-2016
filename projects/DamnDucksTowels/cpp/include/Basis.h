@@ -25,7 +25,6 @@ public:
   Basis (std::string _type, std::vector<std::string> _qNames);
   /// Pure virtual destructor
   virtual ~Basis () = 0;
-  //TODO virtual operator=
   /// Return few information about the basis
   std::string info ();
   /// Return a lot of information about the basis
