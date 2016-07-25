@@ -104,7 +104,14 @@ int main()
 				wf_val.push_back(wfStep2);
 
 				// Calculate eigenfunction using Numerov
-				for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
+
+				if(selectFunc==2) for(int i=0; i<wBox/h; i++)
+				{
+					if (i < (wBox+wWell)/(2*h)) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
+					else if ( (numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h))/wf_val.at((wBox+wWell)/(2*h))>0) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
+					else wf_val.push_back(0);
+				}
+				else for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
 
 				double normFac = normalise(eigenEng);
 
@@ -114,7 +121,7 @@ int main()
 				sprintf(eigEng,"%1.4f",eigenEng);
 				ofstream opFile;
 				opFile.open(filename);
-				for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << V(h*k) << "\t" << sqrt(normFac)*wf_val.at(k) << endl;
+				for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << endl;
 				opFile.close();
 
 				// Output energy eigenvalue and the name of the file results are saved to
@@ -161,25 +168,25 @@ double numerovAlgorithm(double E, double f_x, double f_x_h, double x)
 // wfHi = higher wavefunction value of the two energy steps
 double converge(double eLo, double eHi, double wfLo, double wfHi)
 {
-	double trialE;
-	vector<double> wf_val;
-	double wfEnd = 10;
+	long double trialE = (eHi+eLo)/2;
+	vector<long double> wf_val;
+	long double wfBarr=0, wfEnd = 10;
 
 //	cout << grad << "\t" << wfHi << "\t" << wfLo << endl;
-	double i=0;
+	long double diffE=eStep;
 	// While condition to carry on bisection convergence energy difference between
 	// trial energy and previous energies is small enough
-//	while (diffE>convEng)
-	while (fabs(wfEnd)>1e-7 && i<150)
-//	while ((grad>1) && (wfEnd>1))
+	while (fabs(wfEnd)>1e-7 && diffE>1e-14)
 	{
-		i++;
 		trialE = (eHi+eLo)/2;		// Trial energy based on average of two previous energies
 		wf_val.push_back(wfStep1);	// Initiate Step 0 wavefunction value
 		wf_val.push_back(wfStep2);	// Initiate Step 1 wavefunction value
 
 		// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
-		for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(trialE, wf_val.at(i+1), wf_val.at(i), i*h));
+		for(int i=0; i<wBox/h; i++)
+		{
+			wf_val.push_back(numerovAlgorithm(trialE, wf_val.at(i+1), wf_val.at(i), i*h));
+		}
 
 		// Work out which wavefunction is......I think this is where the convergence function is messing up.
 		if ( wf_val.at(-1+wf_val.size()) > 0)
@@ -194,10 +201,16 @@ double converge(double eLo, double eHi, double wfLo, double wfHi)
 		}
 		wfEnd = wf_val.at(-1+wf_val.size());
 
+		wfBarr = wf_val.at((wBox+wWell)/(2*h));
+
 		wf_val.clear();	// clear wavefunction vector
+		diffE = fabs(eHi-eLo);
 	}
 
-	return trialE;	// return the trial energy value that meets the tolerance condition
+	if ( wfBarr/wfLo < 0 ) return eLo;
+	else return eHi;
+
+//	return eHi;	// return the trial energy value that meets the tolerance condition
 }
 
 // Find factor for normalising wavefunction
@@ -209,11 +222,18 @@ double normalise(double eigenEng)
 
 	double sum = 0;
 
-	for(int i=0; i<wBox/h; i++) wfWork.push_back(fabs((numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h))));
+//	for(int i=0; i<wBox/h; i++) wfWork.push_back(fabs((numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h))));
+
+	if(selectFunc == 2) for(int i=0; i<wBox/h; i++){
+		if (i < (wBox+wWell)/(2*h)) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
+		else if ( (numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h))/wfWork.at((wBox+wWell)/(2*h))>0) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
+		else wfWork.push_back(0);
+	}
+	else for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
 
 	for(int i=0; i<(wBox/h)-1; i++) sum += h*pow(wfWork.at(i),2);
 
-	double normFac = ;
+	double normFac = 1/sum;
 	wfWork.clear();
 
 	return normFac;
@@ -272,3 +292,6 @@ double woodsSaxon(double x)
 	}
 	return WS;
 }
+
+double spinOrbit()
+
