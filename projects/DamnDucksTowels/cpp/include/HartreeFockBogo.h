@@ -1,9 +1,10 @@
 #ifndef HARTREEFOCKBOGO_h
 #define HARTREEFOCKBOGO_h
 
+#include <armadillo>
+
 #include "Solver.h"
 #include "System.h"
-#include <armadillo>
 
 /// class HartreeFockBogo - 
 class HartreeFockBogo : public Solver {
@@ -16,8 +17,8 @@ public:
   // Operations
 public:
   HartreeFockBogo (System & system);
-  void calc (arma::field<arma::mat> & H);
-  ~HartreeFockBogo (){};
+  ~HartreeFockBogo ();
+  void calc ();
 };
 
 #endif

@@ -1,9 +1,11 @@
 #ifndef NEUTRONDROP_H
 #define NEUTRONDROP_H
 
-#include "System.h"
-#include "Basis.h"
 #include <armadillo>
+
+#include "System.h"
+#include "Interaction.h"
+#include "Basis.h"
 
 /// class NeutronDrop - 
 class NeutronDrop : public System {
@@ -11,12 +13,12 @@ class NeutronDrop : public System {
   enum { SQUARE, WOOD_SAXON };
   // Operations
 public:
-  NeutronDrop (int nbNeut, Basis & basis, arma::field<arma::mat> &TBME);
-  void calcH0 (arma::field<arma::mat> & H0, int type);
-  void calcH (arma::field<arma::mat> & H, arma::field<arma::mat> & RG);
+  NeutronDrop (Basis & _basis, Interaction & _inter, int _nbNeut);
+  /// Destructor of the NeutronDrop class
   ~NeutronDrop ();
-private:
-  void calcKineticField (arma::field<arma::mat> & RG);
+  void calcH0 (int _type);
+  /// calculate the hamiltonian of the system from densities
+  void calcH ();
 };
 
 #endif

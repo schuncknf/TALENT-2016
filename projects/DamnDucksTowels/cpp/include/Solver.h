@@ -8,15 +8,16 @@ class Solver {
   // Attributes
 public:
   System * system;
-  /// Deneralized densities: RG(dtype, ptype) where dtype is an integer representing 
-  arma::field<arma::mat> RG;
-  arma::vec indivEnergies;
+  /// Individual energies (indivEnergies(ptype, idState))
+  arma::mat indivEnergies;
   double cvg;
   // Operations
 public:
-  Solver (int matSize);
-  virtual void calc ( arma::field<arma::mat> &) = 0;
+  Solver (System & _system, unsigned int _dNumber);
   virtual ~Solver () = 0;
+  virtual void calc () = 0;
+  std::string info ();
+  std::string toString ();
 };
 
 #endif
