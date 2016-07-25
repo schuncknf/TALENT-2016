@@ -216,11 +216,14 @@ end do
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
     wfr(:,:,:,:) = 0.0
     do iq =1,2
-      do n =1,lmax-2
+      do n =0,lmax-2
         do l =0,lmax
             do is = 1,2
                 Eupper = 100_wp
+
                 Elower = vpb(iq)
+
+
                 do i=1,100000
                   Etrial = (Eupper+Elower)/2.0
                   ! Attempting to set the potential before hand, if this does not work, we
@@ -246,22 +249,26 @@ end do
                     a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
 
                     wfr(ir-1,l,is,iq) = (a1*wfr(ir,l,is,iq) - a2*wfr(ir+1,l,is,iq))/a3
-                    if(wfr(ir,l,is,iq)*wfr(ir-1,l,is,iq) < 0) nnodes = nnodes + 1
+                    if(wfr(ir,l,is,iq)*wfr(ir-1,l,is,iq) < small) nnodes = nnodes + 1
                   end do
 
-                  if (nnodes > n-1) then
+                  if (nnodes > n) then
                     Eupper = Etrial
-                  else if (nnodes <= n-1) then
+                  else if (nnodes <= n) then
                     Elower = Etrial
                   end if
 
 
                   if (abs(Eupper - Elower) < conv) then
                     if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
-                      vocc(n,l,is,iq) = 2*l+1
-                      energies(n,l,is,iq) = etrial
+
+                      vocc(n+1,l,is,iq) = 2*l+1
+                      energies(n+1,l,is,iq) = etrial
                       norm = sqrt(sum(h*wfr(:,l,is,iq)*wfr(:,l,is,iq)))
                       wfr(:,l,is,iq) = wfr(:,l,is,iq)/norm
+                      do ir=0,nbox
+                        If (n==1 .AND. l==1) write (13,*) ir*h, wfr(ir,l,is,iq)
+                      end do
                     end if
                     exit
                   end if
@@ -278,12 +285,31 @@ end do
 
     ! Printing points for plotting. I run $ xmgrace plt
 
-    do ir=0,nbox
 
-      write(13,*) ir*h
-    end do
 
   end subroutine solve_r
+
+  subroutine energy_sort
+    integer :: n, l, iq, is, ni
+    real(wp) :: tempe
+    do iq =1,2
+      do l=0,lmax
+        do is=1,2
+          do ni = 1, lmax-2
+            tempe = 0.
+            do n=1,lmax-2
+              if(tempe > energies(n,l,is,iq)) tempe = energies(n,l,is,iq)
+            end do
+            energies(ni,l,is,iq) = tempe
+          end do
+        end do
+      end do
+    end do
+
+
+
+
+  end subroutine energy_sort
 
 
   function infwell_exact() result(energy)

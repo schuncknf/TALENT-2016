@@ -1,4 +1,4 @@
 &box nbox=3000,h=0.01 /
 &squarewell welltype=2,nodes=42,v0=50,radius=500 / ! Type 1 = Infinite Well, 2 = Finite of depth v0 and width radius
 &params r0=1.27,conv=1E-6,hbar22m=20.73553 /
-&nucleus np=82,nn=126,lmax=6 /
+&nucleus np=20,nn=20,lmax=6 /

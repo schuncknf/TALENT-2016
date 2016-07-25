@@ -25,6 +25,7 @@ contains
           nrad = r0 * (nt)**(1._wp/3._wp)
           vpb(1) = -51.+33.*(nn-np)/nt
           vpb(2) = -51.-33.*(nn-np)/nt
+          lmax = nodes
 
      end subroutine init_params
 
