@@ -6,7 +6,7 @@ implicit none
      real(wp), parameter :: hbar = 6.582119E-22_wp
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small
      real(wp), allocatable,dimension(:) :: meshpoints, density
-     real(wp), allocatable, dimension(:,:,:,:) :: wavefunctions,wfl,wfr
+     real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
      integer :: nbox, nodes, radius, lmax, welltype,nmax
      integer :: nn,np,nt
 contains
@@ -27,9 +27,9 @@ contains
           vpb(2) = -51.-33.*(nn-np)/nt
 
           nmax = nn - np
-          if (nmax.ge.0) then 
+          if (nmax.ge.0) then
           nmax = nn
-          else 
+          else
           nmax = np
           end if
 
@@ -47,7 +47,7 @@ contains
 
      subroutine init_wavefunctions
 
-          allocate(wavefunctions(0:nbox,0:lmax,2,2),wfr(0:nbox,0:lmax,2,2),wfl(0:nbox,0:lmax,2,2),density(0:nbox))
+          allocate(wavefunctions(0:nbox,lmax,0:lmax,2,2),wfr(0:nbox,lmax,0:lmax,2,2),wfl(0:nbox,lmax,0:lmax,2,2),density(0:nbox))
 
      end subroutine
 

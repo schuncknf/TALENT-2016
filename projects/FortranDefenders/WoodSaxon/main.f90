@@ -1,7 +1,7 @@
 program main
     use grid
     use solver
-    integer :: n,l,is,iq,i,npr
+    integer :: n,l,is,iq,i,npr,j
     open(unit=5,file='in',status='old',form='formatted')
     open(unit=6,file='out',form='formatted')
     open(unit=13,file='plt',form='formatted')
@@ -43,6 +43,8 @@ program main
 
       do i = 1, npr
             if (sortenergies(i,iq) < - small) then
+              j = (2*sortstates(i,2,iq)+1)
+              if (j >= npr) exit
               write (6,*) "n=", sortstates(i,1,iq), &
                           &"l=",sortstates(i,2,iq),&
                           &"is=",sortstates(i,3,iq),&
