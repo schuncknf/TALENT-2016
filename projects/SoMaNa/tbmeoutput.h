@@ -2,6 +2,6 @@
 #include <stdlib.h>
 #include "gauss-laguerre.h"
 // #include "potential.h"
-#include "harmon.h"
+// #include "harmon.h"
 
 void tbmeprint (double, double, int)
