@@ -1,0 +1,18 @@
+// read_file
+
+double read_file()
+{
+  char parameters.dat;
+  FILE *fp;
+
+  fp = fopen(parameters.dat, "r");
+
+  if( fp == NULL )
+   {
+      perror("Error while opening the file.\n");
+      exit(EXIT_FAILURE);
+   }
+
+  fclose(fp);
+  return ;
+}
