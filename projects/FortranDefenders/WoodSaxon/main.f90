@@ -1,7 +1,7 @@
 program main
     use grid
     use solver
-    integer :: n,l,is,iq,i,npr,j
+    integer :: iq,i,npr,j
     open(unit=5,file='in',status='old',form='formatted')
     open(unit=6,file='out',form='formatted')
     open(unit=13,file='plt',form='formatted')

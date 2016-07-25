@@ -15,7 +15,9 @@ public:
 public:
   Solver (System & _system, unsigned int _dNumber);
   virtual ~Solver () = 0;
-  virtual void calc () = 0;
+  virtual void run () = 0;
+  void initH (int type);
+  virtual void calcH () = 0;
   std::string info ();
   std::string toString ();
 };

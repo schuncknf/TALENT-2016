@@ -17,7 +17,7 @@ double precision,parameter::v0s=91.85d0 !in MeV
 
 double precision,parameter::ama = 20.736209412d0 !in (fm**2)
 double precision,parameter::mc2 = 938.90590d0 !in MeV
-integer::nbase,npart,maxit,ngauss
+integer::nbase,npart,maxit,ngauss,ntx
 double precision::homega,bosc
 contains
 subroutine reader()
@@ -28,6 +28,7 @@ read(1,'(10x,i5)') ngauss
 read(1,'(10x,i5)') npart
 read(1,'(10x,i5)') maxit
 read(1,'(10x,f10.4)') homega
+read(1,'(10x,i5)') ntx
 nbase = nbase + 1
 bosc = dsqrt(2.d0*ama/homega)
 

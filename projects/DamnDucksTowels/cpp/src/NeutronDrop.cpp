@@ -11,12 +11,3 @@ NeutronDrop::NeutronDrop(Basis & _basis, Interaction & _inter, int _nbNeut) :
 NeutronDrop::~NeutronDrop()
 {
 }
-
-void NeutronDrop::calcH0 (int type)
-{
-  (void) type;
-}
-
-void NeutronDrop::calcH ()
-{
-}
