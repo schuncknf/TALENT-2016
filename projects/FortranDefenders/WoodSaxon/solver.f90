@@ -13,12 +13,11 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes, nnodesl, l, is, iq, n
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, spin(2),j
+    integer :: i, ir, nnodes, nnodesl, l, is, iq, n, k
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j,coefmin,coefmax,coef, diff, ddiff
     real(wp), allocatable :: potential(:)
     density(:,:) = 0.0
-    spin(1) = -0.5
-    spin(2) = 0.5
+
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
     wfr(:,:,:,:,:) = 0.0
     do iq =1,2
@@ -73,33 +72,79 @@ contains
                     Elower = Etrial
                   end if
 
-
                   if (abs(Eupper - Elower) < conv) then
                     if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
                       !do ir=0,3
                         !wfr(ir,n,l,is,iq) = ir*h**(l+1)
                       !end do
-                      do ir=0,nbox
-                        write(13,*) ir*h, wfl(ir,1,0,1,1), wfl(ir,1,0,1,1)
-                      end do
+                      !do ir=0,nbox
+                      !  write(13,*) ir*h, wfl(ir,1,0,1,1), wfl(ir,1,0,1,1)
+                      !end do
                       !if (abs(wfr(30,n,l,is,iq) - wfl(30,n,l,is,iq)) < 1.) then
                         if (l==0) then
-
-                          wfr(0:30,n,l,is,iq) = wfl(0:30,n,l,is,iq)
+                          if(mod(n-1,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
+                          coefmin = 0.
+                          coefmax = 1E10
+                          do k=1,10000000
+                            coef = (coefmin+coefmax)/2
+                            diff = wfr(100,n,l,is,iq)-coef*wfl(100,n,l,is,iq)
+                            if (diff > 0) then
+                              coefmin=coef
+                            else
+                              coefmax=coef
+                            end if
+                            if (abs(diff) < conv) then
+                              wfl(:,n,l,is,iq) = coef*wfl(:,n,l,is,iq)
+                              exit
+                            end if
+                          end do
+                          wfr(0:100,n,l,is,iq) = wfl(0:100,n,l,is,iq)
                           vocc(n,l,is,iq) = 2*l+1
                           energies(n,l,is,iq) = etrial
                           norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
                           wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
                           write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)*meshpoints(:)**2))
                         else if (l<=3) then
-                          wfr(0:30,n,l,is,iq) = wfl(0:30,n-1,l,is,iq)
+                          if(mod(n-2,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
+                          coefmin = 0.
+                          coefmax = 1E10
+                          do k=1,10000000
+                            coef = (coefmin+coefmax)/2
+                            diff = wfr(100,n,l,is,iq)-coef*wfl(100,n-1,l,is,iq)
+                            if (diff > 0) then
+                              coefmin=coef
+                            else
+                              coefmax=coef
+                            end if
+                            if (abs(diff) < conv) then
+                              wfl(:,n-1,l,is,iq) = coef*wfl(:,n-1,l,is,iq)
+                              exit
+                            end if
+                          end do
+                          wfr(0:100,n,l,is,iq) = wfl(0:100,n-1,l,is,iq)
                           vocc(n-1,l,is,iq) = 2*l+1
                           energies(n-1,l,is,iq) = etrial
                           norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
                           wfr(:,n-1,l,is,iq) = wfr(:,n,l,is,iq)/norm
                           write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n-1,l,is,iq)*wfr(:,n-1,l,is,iq)*meshpoints(:)**2))
                         else
-                          wfr(0:30,n,l,is,iq) = wfl(0:30,n-2,l,is,iq)
+                          if(mod(n-3,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
+                          coefmin = 0.
+                          coefmax = 1E10
+                          do k=1,10000000
+                            coef = (coefmin+coefmax)/2
+                            diff = wfr(100,n,l,is,iq)-coef*wfl(100,n-2,l,is,iq)
+                            if (diff > 0) then
+                              coefmin=coef
+                            else
+                              coefmax=coef
+                            end if
+                            if (abs(diff) < conv) then
+                              wfl(:,n-2,l,is,iq) = coef*wfl(:,n-2,l,is,iq)
+                              exit
+                            end if
+                          end do
+                          wfr(0:100,n,l,is,iq) = wfl(0:100,n-2,l,is,iq)
                           vocc(n-2,l,is,iq) = 2*l+1
                           energies(n-2,l,is,iq) = etrial
                           norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
