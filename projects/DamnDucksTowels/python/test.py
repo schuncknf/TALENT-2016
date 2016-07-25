@@ -7,5 +7,5 @@ inter = hffs.RawInteraction(basis, 1)
 system = hffs.NeutronDrop(basis, inter, 4)
 solver = hffs.HartreeFock(system)
 for i in range(10):
-    solver.calc()
+    solver.run()
     print(solver.cvg)

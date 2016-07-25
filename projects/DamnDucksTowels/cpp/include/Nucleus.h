@@ -11,8 +11,6 @@ class Nucleus : public System {
 public:
   Nucleus (Basis & _basis, Interaction & _inter, int _nbNeut, int _nbProt);
   ~Nucleus ();
-  void calcH0 (int _type);
-  void calcH ();
 };
 
 #endif

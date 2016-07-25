@@ -24,6 +24,13 @@ Solver::Solver(System & _system, unsigned int _dNumber) : system(&_system),
 
 Solver::~Solver(){}
 
+void Solver::initH (int type)
+{
+  
+}
+
+
+
 std::string Solver::info()
 {
   std::stringstream info;

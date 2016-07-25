@@ -5,6 +5,16 @@ System::System (std::string _name, Basis & _basis, arma::ivec _particleNumbers, 
 
 System::~System(){}
 
+arma::mat & System::getH(int dType, int pType)
+{
+  return H(dType, pType);
+}
+
+arma::mat & System::getR(int dType, int pType)
+{
+  return R(dType, pType);
+}
+
 std::string System::info()
 {
   return std::string();

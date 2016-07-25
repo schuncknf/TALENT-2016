@@ -8,13 +8,3 @@ Nucleus::Nucleus (Basis & basis, Interaction & _inter, int nbNeut, int nbProt)
 Nucleus::~Nucleus()
 {
 }
-
-void Nucleus::calcH0(int type)
-{
-  (void)type;
-}
-
-void Nucleus::calcH()
-{
-}
-
