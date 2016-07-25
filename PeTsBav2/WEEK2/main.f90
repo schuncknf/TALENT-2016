@@ -31,8 +31,8 @@
       !-----------------------------------------------------------------
       write(*,'(3a20)') 'nodes', 'eigenvalue', 'filename eigvec'
 
-      Nmesh=nint((R_box-R_min)/h)
-
+      Nmesh=nint((R_box)/h)
+      print*, nmesh
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
 
       numnodes= 0
@@ -46,7 +46,7 @@
 orbital = 0
 do n=0, n_max !loop n
       do l=0, l_max !loop l 
-            do ii=-1,1, 2!loop sm--->j
+            do ii=1,-1, -2!loop sm--->j
                  if((l.eq.0).and.(ii.eq.-1)) exit 
                  orbital = orbital + 1            
             end do
@@ -58,7 +58,7 @@ allocate(Enl2j(2,orbital))
 
 do n=0, n_max !loop n
       do l=0, l_max !loop l    
-            do ii=-1,1, 2!loop sm--->j
+            do ii=1,-1, -2!loop sm--->j
                   sm=1./2.*ii
                   if((l.eq.0).and.(ii.eq.-1)) exit 
                   j=1.*l+sm
@@ -70,18 +70,20 @@ do n=0, n_max !loop n
                               E_right= E_plus
                               psi(0) = 0.
                               psi(1) = 0.1
-
+                              
                               !begin bissection method
                               do while (bisloop) ! begin loop bissection method
 
-                                    if (E_right-E_left<1e-6) exit
+                                    if (abs(E_right-E_left)<1e-6) exit
                                     
                                     Em=(E_right+E_left)/2.
+                                   ! print*, Em
                                     cnodes=0     
                                     !begin numerov method
                                     Do i = 0,Nmesh
-                                          x=R_min+i*h
+                                          x=i*h
                                           k_sq(i) = (Em-Vpot(x, sm))/h2m -1.*(l*(l+1))/x**2 
+                                         
                                     Enddo
                                     Do i = 2,Nmesh
                      psi(i) = (2.*(1.-5.*h**2*k_sq(i-1)/12.)*psi(i-1)-(1.+h**2*k_sq(i-2)/12.)*psi(i-2))/(1.+h**2*k_sq(i)/12.)
@@ -96,7 +98,7 @@ do n=0, n_max !loop n
                      E_left = Em
                   Endif
 
-                 if (abs(E_right-Em)<epsi) bisloop= .false.
+               !  if (abs(E_right-Em)<epsi) bisloop= .false.
 
             end do! end loop bissection method  
             Em=E_right !eigenvalue
@@ -111,7 +113,7 @@ do n=0, n_max !loop n
 
             cnodes = 0
             Do i = 0,Nmesh
-                  x=R_min+i*h
+                  x=i*h
                   k_sq(i) = (Em-Vpot(x, sm))/h2m - 1.*((l*(l+1))/x**2) 
             Enddo
             

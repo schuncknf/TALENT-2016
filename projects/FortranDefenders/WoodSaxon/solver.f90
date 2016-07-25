@@ -36,13 +36,13 @@ contains
                   ! Attempting to set the potential before hand, if this does not work, we
                   ! can do it "on the fly"
                   do ir=0,nbox
-    								if (iq .EQ. 1) then
-                    	potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
+                    if (iq .EQ. 1) then
+                       potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
                       -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m
-    								else
-    									potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
+                    else
+                       potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
                       -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial-coulomb(ir))/hbar22m
-    								end if
+                    end if
                   end do
 
 
@@ -265,12 +265,12 @@ function dfullwoodsaxon(ir) result(pot)
 
   end function
 
-	function coulomb(ir)	result(pot)
-		integer,intent(in) :: ir
-		real(wp) ::pot
-		if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
-		if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
+  function coulomb(ir) result(pot)
+    integer,intent(in) :: ir
+    real(wp) ::pot
+        if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
+        if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
 
-	end function
+  end function
 
 end module solver
