@@ -36,6 +36,7 @@
 ! kpot= 0 no potential      
 ! kpot= 1 square well of size a and deepth Vvalue
 ! kpot=2  Wood-Saxons potential
+! kpot= 3 Coulomb
       numN= 8
       numZ= 8 
       kpot= 2

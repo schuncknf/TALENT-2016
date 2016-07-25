@@ -1,0 +1,8 @@
+hbar_2m    =   20.73                ! [fm^2] hbar/2m
+mc2        =   938.90590            ! [MeV] mc^2 
+V0r        =   200.0	            ! V_0,R numerical parameter [MeV]
+V0t        =   178.0                ! V_0,t numerical parameter [MeV] 
+V0s        =   91.85                ! V_0,s numerical parameter [MeV]
+Kap_r      =   1.487                ! Kappa_R umerical parameter [fm^-2]
+Kap_t      =   0.639                ! Kappa_t umerical parameter [fm^-2]
+Kap_s      =   0.465                ! Kappa_s umerical parameter [fm^-2]

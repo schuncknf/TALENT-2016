@@ -28,8 +28,8 @@ public:
 public:
   System (std::string _name, Basis & _basis, arma::ivec _particleNumbers, std::vector<std::string> _particleNames, Interaction & _inter);
   virtual ~System () = 0;
-  virtual void calcH0 (int type) = 0;
-  virtual void calcH () = 0;
+  arma::mat & getH (int dType, int pType);
+  arma::mat & getR (int dType, int pType);
   std::string info ();
   std::string toString ();
 protected:
