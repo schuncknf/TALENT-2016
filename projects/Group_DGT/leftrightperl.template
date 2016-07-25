@@ -16,7 +16,7 @@
 !      INTEGER, PARAMETER :: dp = SELECTED_REAL_KIND(12)
       REAL(kind=dp) :: Eup, Edown, epsil
       REAL(kind=dp) :: Rmin, Rmax, meshsize, a, Vvalue
-      integer :: Nodemax, kpot, Node
+      integer :: Node, kpot
       REAL(kind=dp) :: Etrial, Eexp
       integer :: points, ifail, converg, i
       integer :: Nodecount
@@ -24,12 +24,12 @@
       REAL(kind=dp) :: potV
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: trialwf
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: pott
-      CHARACTER(LEN=2):: Nodecc
+!     CHARACTER(LEN=5), DIMENSION(7) :: char
 !==========     set initial values     ==============================
-      Eup=1000.E0_dp
+      Eup=100.E0_dp
       Edown=-100.E0_dp
       epsil=1.E-12_dp
-      Nodemax=30
+      Node= XVX
       Rmin=-20.E0_dp
       Rmax=20.E0_dp !fermi
       meshsize=0.001E0_dp
@@ -50,23 +50,22 @@
          pott(i)=potV(i,meshsize,Rmax,Rmin,a,kpot, Vvalue)
 !         print *, pott(i)
          end do
-!
-         OPEN(UNIT=8, FILE='summary_table.dat', status='unknown')
-         do Node=0, Nodemax
-           call wavef(Rmax,Rmin,points,meshsize, Node, Eup, Edown, epsil, pott, &
-                 trialwf, Etrial)
 
            call parwf(Rmax,Rmin,points,meshsize, Node, Etrial, &
                     epsil, pott, trialwf) 
+!
+           call wavef(Rmax,Rmin,points,meshsize, Node, Eup, Edown, epsil, pott, &
+                Etrial)
+
 !renormalization
          normal=0.0E0_dp
          do i=0,points
             normal = normal + trialwf(i)**2*meshsize
          end do
+         print*, normal
          trialwf(:)=trialwf(:)/sqrt(normal)
 !
-!         print '("Wavefunction normalized")'
-!         print*, normal
+         print '("Wavefunction normalized")'
 ! output number of nodes excluded a possible node in the last point of the box
 ! normalized wavefunction
          Nodecount=0    
@@ -76,27 +75,15 @@
          end do 
          if(trialwf(points-1)*trialwf(points) .lt. 0.0E0_dp) &
              Nodecount= Nodecount-1 
-         print*, "Number of nodes= ", Nodecount
-         print*, "Energy= ", Etrial
+         print*, Nodecount
 !
-         if ( Nodecount < 10 ) then
-           write( Nodecc, '("0",i1)' ) Nodecount
-         else
-           write( Nodecc, '(i2)' ) Nodecount
-         end if
-
-         OPEN(UNIT=7, FILE='wavefunction'//Nodecc//'.dat', status='unknown')
+         OPEN(UNIT=7, FILE='wavefunction.dat', status='unknown')
          
          write(7,*) "Number of nodes=", Nodecount
-         write(7,*) "Energy= ", Etrial
          do i=0,points
            write(7,*) Rmin+i*meshsize, trialwf(i)
          end do
          CLOSE(unit=7)
-         print*, "------------------------------------- "
-         write(8,'("Nod ",i3,10x,"Energy ", 1f18.10)') Nodecount, Etrial
-         end do
-         CLOSE(unit=8)
       end program numerov
 ! end
 !
@@ -105,8 +92,7 @@
  
 
 !wave function calculation
-         subroutine wavef(Rmax,Rmin,points,meshsize, Node, Eup0, Edown0, epsil, pott, &
-                 trialwf, Etrial) 
+         subroutine wavef(Rmax,Rmin,points,meshsize, Node, Eup0, Edown0, epsil, pott, Etrial) 
          use variables
          implicit none
          REAL(kind=dp), INTENT(IN) :: Eup0, Edown0, epsil
@@ -118,7 +104,7 @@
          integer:: converg
          integer :: Nodecount , ifail, i, idir, imin, imax, kpot
          REAL(kind=dp) :: a1, a2, a3, normal, Eexp
-         REAL(kind=dp) , ALLOCATABLE, DIMENSION(:), INTENT(OUT) :: trialwf
+         REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: trialwf
          REAL(kind=dp) :: pot, a, Vvalue
          REAL(kind=dp) , DIMENSION(0:points), INTENT(IN) :: pott
 !
@@ -213,8 +199,8 @@
          REAL(kind=dp) :: derivr, derivl, contir, contil, coeff
 !
 ! half left wavefunction
-!         allocate(triall(0:points), stat = ifail)
-!         if (ifail .ne. 0) STOP 
+  !        allocate(triall(0:points), stat = ifail)
+ !         if (ifail .ne. 0) STOP 
 !           
            idir=1
            triall(0)=0.0E0_dp
@@ -263,13 +249,13 @@
          do i=1,(points+1)/2
             normall = normall + triall(i)**2*meshsize
          end do
-!         print*, "normal L=", normall
+         print*, "normal L=", normall
          triall(:)=triall(:)/sqrt(normall*2)
          normalr=0.0E0_dp
          do i=points-1,(points+1)/2,-1
             normalr = normalr + trialr(i)**2*meshsize
          end do
-!         print*, "normal R=",normalr
+         print*, "normal R=",normalr
          trialr(:)=trialr(:)/sqrt(normalr*2)
 !
 !
@@ -298,18 +284,16 @@
                  -trialr(i-2)/12)/4/meshsize
            contir=trialr(i)
 !           
-           if(abs((contir-contil)) .lt. 1.0E-6_dp .and.  &
-             abs((derivr-derivl)) .lt. 1.0E-6_dp) then 
+           if(abs(contir-contil) .lt. 1.0E-3_dp .and.  &
+             abs(derivr-derivl) .lt. 1.0E-3_dp) then 
              print '("Merging successfull")'
              print *, "continuity: ", contil, contir
              print *, "derivative: ", derivl, derivr
-!             print*, "normal L=", normall
-!             print*, "normal R=",normalr
              converg=1
            else      
              print '("Error in merging left and right wavefunctions")'
-!             print *, "continuity: ", contil, contir
-!             print *, "derivative: ", derivl, derivr
+             print *, "continuity: ", contil, contir
+             print *, "derivative: ", derivl, derivr
            end if
 !
           end do
@@ -347,4 +331,4 @@
          else if(kpot .eq. 0) then
              vr=0
          end if
-end function potV
+         end function potV
