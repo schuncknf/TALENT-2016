@@ -55,7 +55,7 @@ program main
     end do
   write(6,*) "Total Bound States =", sum(vocc(1:lmax-2,:,:,:)), "Vpb(1) =", vpb(1)
     do ir=0,nbox
-      write (13,*) ir*h, density(ir,1), density(ir,2)
+      !write (13,*) ir*h, wfr(ir,1,0,1,1), wfr(ir,1,5,1,1), density(ir,1), density(ir,2)
     end do
     close(13)
     close(6)
