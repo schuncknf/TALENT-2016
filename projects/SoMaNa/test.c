@@ -29,6 +29,6 @@ void main (void)
 			
 			} */
 		
-		tbmeprint(0.1,12.3, 2);
+		tbmeprint(9.39565,10, 3);
 	
 	}
