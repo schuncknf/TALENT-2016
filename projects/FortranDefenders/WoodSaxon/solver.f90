@@ -13,10 +13,9 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes, j, l, m, is, iq, n
+    integer :: i, ir, nnodes, l, is, iq, n
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
-    real(wp), allocatable :: potential(:), test(:), test2(:),test3(:)
-    logical :: sign
+    real(wp), allocatable :: potential(:)
     density(:) = 0.0
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
     wfr(:,:,:,:,:) = 0.0
