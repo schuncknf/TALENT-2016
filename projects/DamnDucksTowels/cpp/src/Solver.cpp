@@ -26,7 +26,13 @@ Solver::~Solver(){}
 
 void Solver::initH (int type)
 {
-  
+  (void) type;
+  int pNum = system->H.n_cols;
+
+  for(int pType = 0; pType < pNum; pType++)
+  {
+    system->H(0, pType).eye();
+  }
 }
 
 
