@@ -31,6 +31,6 @@ void main (void)
 		
 		printf("\n\n STOP");		
 		
-		tbmeprint(9.39565,10.0, 3);
+		tbmeprint(939.565,10.0/197.3269788, 3);
 	
 	}
