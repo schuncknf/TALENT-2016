@@ -1,16 +1,14 @@
 #include "HartreeFockBogo.h"
+#include <armadillo>
 
-HartreeFockBogo::HartreeFockBogo(System & system) : Solver(system.basis->qNumbers.n_rows), D(system.particleNumbers(0)) 
+HartreeFockBogo::HartreeFockBogo(System & _system) : Solver(_system, (unsigned int)2), D(_system.particleNumbers.n_rows) 
 {
-	D(0).eye(system.basis->qNumbers.n_rows, system.basis->qNumbers.n_rows);
-	RG(2, system.particleNumbers.n_elem);
-	RG(0,0).zeros(system.basis->qNumbers.n_rows, system.basis->qNumbers.n_rows);
-	RG(1,0).zeros(system.basis->qNumbers.n_rows, system.basis->qNumbers.n_rows);
-	for(int i=0; i < system.particleNumbers(0); i++) {
-		RG(0, 0)(i, i) = 1;
-	}
 }
 
-void HartreeFockBogo::calc(arma::field<arma::mat> & H) {
-  (void) H;
+HartreeFockBogo::~HartreeFockBogo()
+{
+}
+
+void HartreeFockBogo::calc()
+{
 }

@@ -113,16 +113,14 @@ contains
       ! Attempting to set the potential before hand, if this does not work, we
       ! can do it "on the fly"
       do ir=0,nbox
-        potential(ir) = finitepot(ir,Etrial)
-        if (welltype .EQ. 1) potential(ir) = (infwell(ir,Etrial))/hbar22m
-        !if (welltype .EQ. 2) potential(ir) = (finitepot(ir,Etrial))/hbar22m
-
+        if (welltype .EQ. 1) potential(ir) = (infwell(ir,Etrial))
+        if (welltype .EQ. 2) potential(ir) = (finitepot(ir,Etrial))
       end do
 
       wfl(0,j,1,1) = 0.0
       wfr(nbox,j,1,1) = 0.0
-      wfl(1,j,1,1) = 1.0
-      wfr(nbox-1,j,1,1) = 1.0
+      wfl(1,j,1,1) = .1
+      wfr(nbox-1,j,1,1) = .1
       if (.NOT. (mod(j,2) .EQ. 0)) then
         wfr(:,j,1,1) = -wfr(:,j,1,1)
       end if
@@ -169,14 +167,14 @@ contains
               write(s1,'(i1)') j
               open(unit=13,file="plt_"//s1//".dat",form='formatted')
               do ir=0,nbox
-                write(13,*) ir*h, wavefunctions(ir,j,1,1)
+                write(13,*) ir*h, wavefunctions(ir,j,1,1), -potential(ir)
               end do
               close(13)
             else
               write(s2,'(i2)') j
               open(unit=13,file="plt_"//s2//".dat",form='formatted')
               do ir=0,nbox
-                write(13,*) ir*h, wavefunctions(ir,j,1,1)
+                write(13,*) ir*h, wavefunctions(ir,j,1,1), -potential(ir)
               end do
               close(13)
             end if
@@ -203,88 +201,7 @@ end do
 
   end subroutine solvelr
 
-  subroutine solve_r
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ! This subroutine is closely based on the notes provided by the organizers
-    ! of the 2016 Density Functional Theory TALENT Course.
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes, j, l, m, is, iq, n
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
-    real(wp), allocatable :: potential(:), test(:), test2(:),test3(:)
-    logical :: sign
-    density(:) = 0.0
-    allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
-    wfr(:,:,:,:) = 0.0
-    do iq =1,2
-      do n =1,lmax-2
-        do l =0,lmax
-            do is = 1,2
-                Eupper = 100_wp
-                Elower = vpb(iq)
-                do i=1,100000
-                  Etrial = (Eupper+Elower)/2.0
-                  ! Attempting to set the potential before hand, if this does not work, we
-                  ! can do it "on the fly"
-                  do ir=0,nbox
-    								if (iq .EQ. 1) then
-                    	potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
-                      -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m
-    								else
-    									potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
-                      -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial-coulomb(ir))/hbar22m
-    								end if
-                  end do
-
-
-                  wfr(nbox,l,is,iq) = 0.0
-                  wfr(nbox-1,l,is,iq) = 1.0
-
-                  nnodes = 0
-                  do ir=nbox-1,1,-1
-                    a1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(ir))
-                    a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
-                    a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
-
-                    wfr(ir-1,l,is,iq) = (a1*wfr(ir,l,is,iq) - a2*wfr(ir+1,l,is,iq))/a3
-                    if(wfr(ir,l,is,iq)*wfr(ir-1,l,is,iq) < 0) nnodes = nnodes + 1
-                  end do
-
-                  if (nnodes > n-1) then
-                    Eupper = Etrial
-                  else if (nnodes <= n-1) then
-                    Elower = Etrial
-                  end if
-
-
-                  if (abs(Eupper - Elower) < conv) then
-                    if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
-                      vocc(n,l,is,iq) = 2*l+1
-                      energies(n,l,is,iq) = etrial
-                      norm = sqrt(sum(h*wfr(:,l,is,iq)*wfr(:,l,is,iq)))
-                      wfr(:,l,is,iq) = wfr(:,l,is,iq)/norm
-                    end if
-                    exit
-                  end if
-                end do
-              end do
-          end do
-        end do
-      end do
-
-    if (abs(Eupper - Elower) > conv) then
-      write (6,*) "Program did not converge!"
-      write (*,*) abs(Eupper - Elower)
-    end if
-
-    ! Printing points for plotting. I run $ xmgrace plt
-
-    do ir=0,nbox
-
-      write(13,*) ir*h
-    end do
-
-  end subroutine solve_r
-
+ 
 
   function infwell_exact() result(energy)
     real(wp) :: energy

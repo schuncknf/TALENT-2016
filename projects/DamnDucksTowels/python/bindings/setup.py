@@ -8,8 +8,8 @@ hffs_include_dir = hffs_dir + "/include"
 hffs = Extension('_hffs', ['hffs.i'],
                 include_dirs = [hffs_include_dir ,'/usr/include/python2','/usr/include','./armanpy-0.1.4/include'],
                 libraries = ['m', 'z', 'armadillo', 'gsl', 'gslcblas'],
-                #extra_compile_args = ['-O2', '-march=native', '-DARMA_NO_DEBUG'],
-                extra_compile_args = ['-g', '-fno-inline-functions', '-O0', '-D_GLIBCXX_DEBUG'],
+                #extra_compile_args = ['-O2', '-march=native', '-DARMA_NO_DEBUG', '-std=gnu++11'],
+                extra_compile_args = ['-g', '-fno-inline-functions', '-O0', '-D_GLIBCXX_DEBUG', '-std=gnu++11'],
                 extra_objects = [hffs_build_dir + '/libhffs.a'],
                 depends = [hffs_build_dir + '/libhffs.a']
                 )

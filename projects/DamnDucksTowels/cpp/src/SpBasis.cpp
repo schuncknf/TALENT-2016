@@ -19,16 +19,15 @@ double sqrtDoubleFactorial(int n)
     return sqrt(n) * sqrtDoubleFactorial(n-2);
 }
 
-SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBasis"),std::vector<std::string>({"n","l","m","s"}))
+SpBasis::SpBasis(double _omega, int _nMax, int _lMax) :
+  Basis(std::string("SpBasis"),std::vector<std::string>({"n","l","m","s"})),
+  omega(_omega),
+  nMax(_nMax),
+  lMax(_nMax+1),
+  mMax(_nMax+1,_lMax+1)
 {  
-  //Initializing vectors of maximum numbers
-  omega = _omega;
-  nMax = _nMax;
-  lMax = arma::ivec(_nMax+1);
-  mMax = arma::imat(_nMax+1,_lMax+1);
-  
   //Defining maximum numbers and determining basis size
-  basisSize = 0;
+  size = 0;
   for (int n = 0; n <= nMax; n++)
   {
     // Here to specify lMax dependency on n
@@ -36,14 +35,14 @@ SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBas
     for (int l = 0; l <= lMax(n); l++)
     {
       mMax(n,l) = l;
-      basisSize += 2*l+1;
+      size += 2*l+1;
     }
   }
   //Considering spin
-  basisSize *= 2;
+  size *= 2;
   
   //Filling the quantum numbers for each state
-  qNumbers = arma::imat(basisSize,qNumSize);
+  qNumbers = arma::imat(size,qNumSize);
   int i = 0;
   for (int n = 0; n <= nMax; n++)
     for (int l = 0; l <= lMax(n); l++)
@@ -59,7 +58,7 @@ SpBasis::SpBasis(double _omega, int _nMax, int _lMax) : Basis(std::string("SpBas
   
   //Calculating N normalization coefficients
   nu = NUCLEON_MASS*omega/2/HBAR;
-  N = arma::vec(basisSize);
+  N = arma::zeros<arma::vec>(size);
   calcN();
 }
 
@@ -78,7 +77,7 @@ int SpBasis::deltaSpin (int idx1, int idx2)
 void SpBasis::calcN()
 {
   //Calculating N noramalization coefficients for each basis state
-  for (int i = 0; i < basisSize; i++)
+  for (int i = 0; i < size; i++)
   {
     int n = qNumbers(i,0);
     int l = qNumbers(i,1);
@@ -86,11 +85,11 @@ void SpBasis::calcN()
   }
 }
 
-void SpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec r)
+void SpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec & r)
 {
   //Calculating wave function values for each basis state and each r point provided
-  wfMatrix = arma::zeros(r.n_elem,basisSize);
-  for (int i = 0; i < basisSize; i++)
+  wfMatrix = arma::zeros(r.n_elem, size);
+  for (int i = 0; i < size; i++)
   {
     int n = qNumbers(i,0);
     int l = qNumbers(i,1);

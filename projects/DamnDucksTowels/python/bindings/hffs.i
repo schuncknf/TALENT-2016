@@ -20,6 +20,7 @@
 %{
 #define SWIG_FILE_WITH_INIT
 
+#include "utils.h"
 #include "Basis.h"
 #include "SpBasis.h"
 #include "ReducedSpBasis.h"
@@ -29,11 +30,13 @@
 #include "Solver.h"
 #include "HartreeFock.h"
 #include "HartreeFockBogo.h"
+#include "Interaction.h"
+#include "RawInteraction.h"
 %}
 
 %include "armanpy.i"
 
-
+%include "utils.h"
 %include "Basis.h"
 %include "SpBasis.h"
 %include "ReducedSpBasis.h"
@@ -43,3 +46,5 @@
 %include "Solver.h"
 %include "HartreeFock.h"
 %include "HartreeFockBogo.h"
+%include "Interaction.h"
+%include "RawInteraction.h"
