@@ -2,17 +2,17 @@
 #define NUCLEUS_H
 
 #include "System.h"
+#include "Interaction.h"
 #include "Basis.h"
 
 /// class Nucleus - 
 class Nucleus : public System {
   // Operations
 public:
-  Nucleus (Basis & basis, int nbNeut, int nbProt, arma::field<arma::mat> & TBME);
-  void calcH0 (arma::field<arma::mat> & H0, int type);
-  void calcH (arma::field<arma::mat> & H, arma::field<arma::mat> & RG);
-  void calcKineticField (arma::field<arma::mat> & RG);
-  ~Nucleus (){};
+  Nucleus (Basis & _basis, Interaction & _inter, int _nbNeut, int _nbProt);
+  ~Nucleus ();
+  void calcH0 (int _type);
+  void calcH ();
 };
 
 #endif

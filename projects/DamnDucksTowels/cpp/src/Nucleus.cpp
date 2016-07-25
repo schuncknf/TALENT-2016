@@ -1,20 +1,20 @@
 #include "Nucleus.h"
 
-Nucleus::Nucleus (Basis & basis, int nbNeut, int nbProt, arma::field<arma::mat> & TBME) 
-    : System("Nucleus", basis, arma::ivec {nbNeut,nbProt}, std::vector<std::string> {"Neutrons","Protons"}, TBME)
-{}
-
-void calcH0(arma::field<arma::mat> & H, int type) {
-    (void) H;
-    (void) type;
+Nucleus::Nucleus (Basis & basis, Interaction & _inter, int nbNeut, int nbProt) 
+    : System("Nucleus", basis, arma::ivec {nbNeut,nbProt}, std::vector<std::string> {"Neutrons","Protons"}, _inter)
+{
 }
 
-void calcH(arma::field<arma::mat> & H, arma::field<arma::mat> & RG) {
-    (void) H;
-    (void) RG;
+Nucleus::~Nucleus()
+{
 }
 
-void calcKineticField(arma::field<arma::mat> & RG){
-    (void) RG;
+void Nucleus::calcH0(int type)
+{
+  (void)type;
+}
+
+void Nucleus::calcH()
+{
 }
 

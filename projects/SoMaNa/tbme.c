@@ -28,13 +28,13 @@ double fun1 (double x, int n1, int n2, int n3, int n4, double r1,double r2, doub
 
 // 1D integral.
 
-double int1 (double(*pot)(double, int, int, int, int,double,double,double), int n1, int n2, int n3, int n4, double r1, double r2, double m, double w,double V)
+double int1 (int n1, int n2, int n3, int n4, double r1, double r2, double m, double w,double V)
 	
 	{
 		
 		double res;
 		
-		res=0.5*exp((-m*(pow(r1,2)+pow(r2,2))))*galag(5, fun1, n1, n2, n3, n4,m,w,r1,r2,V);
+		res=0.5*exp((-m*(pow(r1,2)+pow(r2,2))))*galag(5, n1, n2, n3, n4,m,w,r1,r2,V);
 		
 		printf ("int1 = %lf %lf %lf %lf %lf", res,(-1*m*(pow(r1,2)+pow(r2,2))),r1,r2,m); 		
 		
@@ -49,7 +49,7 @@ double fun2 (double r1, double r2, int n1, int n2, int n3, int n4, double m, dou
 	
 		double res;
 		
-		res= Rnl(n1,0,m,w,r1)*Rnl(n2,0,m,w,r2)*Rnl(n3,0,m,w,r1)*Rnl(n4,0,m,w,r2)*exp(-m*(pow(r1,2)+pow(r2,2)))*exp(r1)*exp(r2)*int1(fun1,n1,n2,n3,n4,r1,r2,m,w,V);
+		res= Rnl(n1,0,m,w,r1)*Rnl(n2,0,m,w,r2)*Rnl(n3,0,m,w,r1)*Rnl(n4,0,m,w,r2)*exp(-m*(pow(r1,2)+pow(r2,2)))*exp(r1)*exp(r2)*int1(n1,n2,n3,n4,r1,r2,m,w,V);
 		
 		
 		printf ("fun2 = %lf", res); 		
@@ -60,13 +60,13 @@ double fun2 (double r1, double r2, int n1, int n2, int n3, int n4, double m, dou
 
 // 2D integral.
 
-double int2 (double(*int1v)(double,double,int,int,int,int,double,double), int n1, int n2, int n3, int n4, double m, double w, double V)
+double int2 (int n1, int n2, int n3, int n4, double m, double w, double V)
 
 	{
 		
 		double res;
 		
-		res=twodgalag(5,fun2,n1,n2,n3,n4,m,w,V);
+		res=twodgalag(5,n1,n2,n3,n4,m,w,V);
 		
 		printf ("int2 = %lf", res); 		
 		

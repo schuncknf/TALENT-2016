@@ -11,6 +11,8 @@
       integer(kind=dm) :: numnodes ! the number of excited state, that has to be the same as number of nodes in wavefunction
       integer(kind=dm) :: cnodes ! nodes of wavefuntion 
       integer(kind=dm) :: i
+      integer(kind=dm) :: n, l
+      real(kind=dm)    :: sm, j
       real(kind=dm),allocatable :: k_sq(:)
       real(kind=dm) :: x  
       end module globals

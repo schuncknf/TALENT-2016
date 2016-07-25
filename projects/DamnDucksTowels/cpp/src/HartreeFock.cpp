@@ -1,51 +1,50 @@
 #include "HartreeFock.h"
 
-HartreeFock::HartreeFock(System & system) : Solver(system.basis->qNumbers.n_rows), D(system.particleNumbers(0))
-	{
-	D(0).eye(system.basis->qNumbers.n_rows, system.basis->qNumbers.n_rows);
-	RG(1, system.particleNumbers.n_elem);
-	RG(0,0).zeros(system.basis->qNumbers.n_rows, system.basis->qNumbers.n_rows);
-	for(int i=0; i< system.particleNumbers(0); i++){
-		RG(0,0)(i,i) = 1;
-	}
+HartreeFock::HartreeFock(System & _system) : Solver(_system, (unsigned int)1), D(_system.particleNumbers.n_rows), occ(_system.particleNumbers.n_rows)
+{
+  int basisSize = _system.basis->size;
+  for (unsigned int pType = 0; pType < _system.particleNumbers.n_rows; pType++)
+  {
+    D(pType).eye(basisSize, basisSize);
+    occ(pType) = arma::zeros<arma::vec>(basisSize);
+    for(unsigned int state = 0; state < _system.particleNumbers(pType); state++)
+    {
+      occ(pType)(state) = 1;
+    }
+  }
 }
 
-void HartreeFock::calc(arma::field<arma::mat> & H) {
+HartreeFock::~HartreeFock()
+{
+}
 
-	int nb_state = system->basis->qNumbers.n_rows;
-	// Hamiltonian diagonalization to extract D and e
-	arma::eig_sym(indivEnergies,D(0),H(0));
+void HartreeFock::calc() {
+  int nb_state = system->basis->size;
+  arma::field<arma::mat> &H = system->H;
+  arma::field<arma::mat> &R = system->R;
 
-	// Extraction of eigenenergies' sequence
-	arma::uvec sorted_ind = sort_index(indivEnergies);
+  for (unsigned int pType = 0; pType < system->particleNumbers.n_rows; pType++)
+  {
+    // Temporary vectors and matrices to store eigenvecs and energies
+    arma::vec old_indivE = indivEnergies.row(pType);
+    arma::vec new_indivE;
 
-	// Temporary vectors and matrices to store eigenvecs and energies
-    arma::vec old_indivE(nb_state);
-    old_indivE = indivEnergies ;
-	arma::vec new_indivE(nb_state);
-	arma::field<arma::mat> new_D(system->particleNumbers(0));
-	new_indivE.zeros();
-	new_D(0).zeros(nb_state);
+    // Hamiltonian diagonalization to extract D and e
+    arma::eig_sym(new_indivE, D(pType), H(0, pType));
 
-	// Eigenstates reorganized with growing energy
-	for (int i=0; i < nb_state; i++) {
-		int ind = sorted_ind(i);
-		new_indivE(i) = indivEnergies(ind);
-		new_D(0).col(i) = D(0).col(ind);
-	}
+    // Extraction of eigenenergies' sequence
+    arma::uvec sorted_ind = arma::sort_index(new_indivE);
+    sorted_ind = sorted_ind.cols(0,system->particleNumbers(pType));
+    occ(pType).zeros();
+    occ(pType)(sorted_ind) = arma::ones<arma::vec>(sorted_ind.n_rows);
 
-	// Eigenvecs and eigenenergies stored in class' attributes
-	indivEnergies = new_indivE;
-	D(0) = new_D(0);
+    // New derivation of rho
+    R(0,pType) = D(pType).t() * occ(pType) * D(pType);
 
-	// New derivation of rho
-	RG(0,0) = D(0)*D(0);
+    indivEnergies.row(pType) = new_indivE;
 
     // Convergence check
-    cvg = 0;
-    for(int i=0; i < nb_state; i++) {
-        cvg += abs(indivEnergies(i) - old_indivE(i));
-    }
-    cvg = cvg / nb_state;
+    cvg = arma::accu(arma::abs(new_indivE - old_indivE)) / nb_state;
+  }
 }
 

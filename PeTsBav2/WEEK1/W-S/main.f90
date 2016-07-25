@@ -4,7 +4,7 @@
       !      
       !Authors: Fang Ni, Kai Wang, Claudia Gonzalez Boquera
       !TALENT COURSE 4 2016 
-      program finite_square_well
+      program WoodsSaxon
       use globals  
       implicit none
       external vpot
@@ -106,17 +106,17 @@
             open(10,file=filename)
             do i=0,Nmesh
                   x = R_min + i*h
-                  write(10,*) x, psi(i), vpot(x)
+                  write(10,'(3F20.10)') x, psi(i), vpot(x)
             end do
             close(10)
       
-            write(*, *) numnodes, Em, filename
+            write(*, '(I15,F15.5,5X, A15)') numnodes, Em, filename
            
             numnodes=numnodes+1
 
       enddo ! end loop to compare if eigenvalues are between 0-100MeV. 
 
-      end program finite_square_well
+      end program WoodsSaxon
 
       ! Woods-Saxon potential
       real (8) function vpot(xy)

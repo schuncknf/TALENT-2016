@@ -9,9 +9,6 @@
 class SpBasis : public Basis {
   // Attributes
 public:
-  /// The harmonic oscillator frequency
-  SpBasis(double _omega, int _nMax, int _lMax);
-  ~SpBasis ();
   /// Parameter of the harmonic oscillator basis
   double omega;
   /// Maximum allowed value for the quantum number n
@@ -20,16 +17,21 @@ public:
   arma::ivec lMax;
   /// Maximum allowed value for the quantum number m
   arma::imat mMax;
-  // Operations
-public:
-  /// Calculating radial wave function
-  void evalRadialWaveFunction (arma::mat &wfMatrix, arma::vec r);
 private:
   /// Auxiliary parameter
   double nu;
-  /// Calculating normalization coefficient
-  void calcN();
   arma::vec N;
+  // Operations
+public:
+  /// The harmonic oscillator frequency
+  SpBasis (double _omega, int _nMax, int _lMax);
+  ~SpBasis ();
+  /// Calculating radial wave function
+  void evalRadialWaveFunction (arma::mat & wfMatrix, arma::vec & r);
+  int deltaSpin (int idx1, int idx2);
+private:
+  /// Calculating normalization coefficient
+  void calcN ();
 };
 
 #endif

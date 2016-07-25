@@ -5,27 +5,31 @@
 #include <vector>
 #include <string>
 
-/// class Basis - 
+/// class Basis - Abstract class representing a basis
 class Basis {
   // Attributes
 public:
   /// Type of basis (S-waves only or not, etc)
   std::string type;
-  /// Number of quantum numbers for each states
-  int qNumSize;
   /// The k-th element of this vector is the name of the k-th quantum number (e.g. "n
   std::vector<std::string> qNames;
+  /// Number of quantum numbers for each states
+  int qNumSize;
   /// The k-th column of the i-th row of this matrix contain the k-th quantum number 
   arma::imat qNumbers;
   /// Size of the basis
-  int basisSize;
+  int size;
   // Operations
-  /// Printing basis states with quantum numbers
-  void printBasis();
 public:
-  Basis (std::string type, std::vector<std::string> qNames);
-  void calcOverlaps (arma::mat & overlaps);
+  /// Constructor
+  Basis (std::string _type, std::vector<std::string> _qNames);
+  /// Pure virtual destructor
   virtual ~Basis () = 0;
+  //TODO virtual operator=
+  /// Return few information about the basis
+  std::string info ();
+  /// Return a lot of information about the basis
+  std::string toString ();
 };
 
 #endif
