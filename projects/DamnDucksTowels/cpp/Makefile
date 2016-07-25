@@ -8,13 +8,13 @@ DEBUG_CFLAGS  =-g -fno-inline-functions -O0 -D_GLIBCXX_DEBUG
 RELEASE_CFLAGS =-O2 -march=native -DARMA_NO_DEBUG
 COMMON_CFLAGS =-fPIC -Wall -Wextra -std=gnu++11 -Iinclude
 
-#CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
-CFLAGS  =$(RELEASE_CFLAGS) $(COMMON_CFLAGS)
+CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
+#CFLAGS  =$(RELEASE_CFLAGS) $(COMMON_CFLAGS)
 LDFLAGS = -larmadillo -lgsl -lgslcblas
 
 CPP_FILES=src/Basis.cpp src/FieldMinnesota.cpp src/Fields.cpp src/FieldSph.cpp src/HartreeFockBogo.cpp src/HartreeFock.cpp \
             src/quadrature.cpp src/ReducedSpBasis.cpp src/Solver.cpp src/SpBasis.cpp src/System.cpp src/NeutronDrop.cpp \
-            src/Nucleus.cpp src/Interaction.cpp src/RawInteraction.cpp
+            src/Nucleus.cpp src/Interaction.cpp src/RawInteraction.cpp src/MinnesotaS0.cpp
 OBJ_FILES=$(CPP_FILES:.cpp=.o)
 
 DEPS=$(CPP_FILES:.cpp=.d)
