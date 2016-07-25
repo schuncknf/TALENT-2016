@@ -2,7 +2,9 @@ module solver
   use grid
   implicit none
 
-  real(wp), allocatable :: vocc(:,:,:,:), energies(:,:,:,:)
+  real(wp), allocatable :: vocc(:,:,:,:), energies(:,:,:,:), &
+                         &  sortenergies(:,:)
+  integer, allocatable :: sortstates(:,:,:)
 
 contains
 
@@ -92,24 +94,38 @@ contains
   end subroutine solve_r
 
   subroutine energy_sort
-    integer :: n, l, iq, is, ni
-    real(wp) :: tempe
+    integer :: n, l, iq, is, n1,k,i
+    real(wp) :: temp
+    integer, dimension(1:3) :: state
+
+
+    allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
     do iq =1,2
-      do l=0,lmax
+         k = 1
+     do n1 = 1,nmax
+      temp = 0._wp
+      state = 1
+     do n = 1,lmax
+      do l = 0,lmax
         do is=1,2
-          do ni = 1, lmax-2
-            tempe = 0.
-            do n=1,lmax-2
-              if(tempe > energies(n,l,is,iq)) tempe = energies(n,l,is,iq)
-            end do
-            energies(ni,l,is,iq) = tempe
-          end do
+              if(temp > energies(n,l,is,iq)) then
+              temp = energies(n,l,is,iq)
+              state(1) = n
+              state(2) = l
+              state(3) = is
+              end if
         end do
       end do
-    end do
-
-
-
+     end do    
+     sortenergies(k,iq) = energies(state(1),state(2),state(3),iq)
+     do i = 1,3
+     sortstates(k,i,iq) = state(i)
+     end do
+     energies(state(1),state(2),state(3),iq) = 0.0_wp
+     if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
+     k = k+1       
+        end do
+      end do
 
   end subroutine energy_sort
 

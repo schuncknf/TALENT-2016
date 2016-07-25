@@ -7,7 +7,7 @@ implicit none
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small
      real(wp), allocatable,dimension(:) :: meshpoints, density
      real(wp), allocatable, dimension(:,:,:,:) :: wavefunctions,wfl,wfr
-     integer :: nbox, nodes, radius, lmax, welltype
+     integer :: nbox, nodes, radius, lmax, welltype,nmax
      integer :: nn,np,nt
 contains
      subroutine init_params
@@ -25,6 +25,13 @@ contains
           nrad = r0 * (nt)**(1._wp/3._wp)
           vpb(1) = -51.+33.*(nn-np)/nt
           vpb(2) = -51.-33.*(nn-np)/nt
+
+          nmax = nn - np
+          if (nmax.ge.0) then 
+          nmax = nn
+          else 
+          nmax = np
+          end if
 
      end subroutine init_params
 
