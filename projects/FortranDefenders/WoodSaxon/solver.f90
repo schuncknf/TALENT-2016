@@ -2,7 +2,9 @@ module solver
   use grid
   implicit none
 
-  real(wp), allocatable :: vocc(:,:,:,:), energies(:,:,:,:)
+  real(wp), allocatable :: vocc(:,:,:,:), energies(:,:,:,:), &
+                         &  sortenergies(:,:)
+  integer, allocatable :: sortstates(:,:,:)
 
 contains
 
@@ -11,13 +13,12 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes, j, l, m, is, iq, n
+    integer :: i, ir, nnodes, l, is, iq, n
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
-    real(wp), allocatable :: potential(:), test(:), test2(:),test3(:)
-    logical :: sign
+    real(wp), allocatable :: potential(:)
     density(:) = 0.0
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
-    wfr(:,:,:,:) = 0.0
+    wfr(:,:,:,:,:) = 0.0
     do iq =1,2
       do n =1,lmax-2
         do l =0,lmax
@@ -41,8 +42,8 @@ contains
                   end do
 
 
-                  wfr(nbox,l,is,iq) = 0.0
-                  wfr(nbox-1,l,is,iq) = 1.0
+                  wfr(nbox,n,l,is,iq) = 0.0
+                  wfr(nbox-1,n,l,is,iq) = 1.0
 
                   nnodes = 0
                   do ir=nbox-1,1,-1
@@ -50,8 +51,8 @@ contains
                     a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
                     a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
 
-                    wfr(ir-1,l,is,iq) = (a1*wfr(ir,l,is,iq) - a2*wfr(ir+1,l,is,iq))/a3
-                    if(wfr(ir,l,is,iq)*wfr(ir-1,l,is,iq) < small) nnodes = nnodes + 1
+                    wfr(ir-1,n,l,is,iq) = (a1*wfr(ir,n,l,is,iq) - a2*wfr(ir+1,n,l,is,iq))/a3
+                    if(wfr(ir,n,l,is,iq)*wfr(ir-1,n,l,is,iq) < 0) nnodes = nnodes + 1
                   end do
 
                   if (nnodes > n-1) then
@@ -63,13 +64,24 @@ contains
 
                   if (abs(Eupper - Elower) < conv) then
                     if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
-
-                      vocc(n,l,is,iq) = 2*l+1
-                      energies(n,l,is,iq) = etrial
-                      norm = sqrt(sum(h*wfr(:,l,is,iq)*wfr(:,l,is,iq)))
-                      wfr(:,l,is,iq) = wfr(:,l,is,iq)/norm
+                      if (l==0) then
+                        vocc(n,l,is,iq) = 2*l+1
+                        energies(n,l,is,iq) = etrial
+                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
+                        wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                      else if (l<=3) then
+                        vocc(n-1,l,is,iq) = 2*l+1
+                        energies(n-1,l,is,iq) = etrial
+                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
+                        wfr(:,n-1,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                      else
+                        vocc(n-2,l,is,iq) = 2*l+1
+                        energies(n-2,l,is,iq) = etrial
+                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
+                        wfr(:,n-2,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                      end if
                       do ir=0,nbox
-                        If (n==1 .AND. l==1) write (13,*) ir*h, wfr(ir,l,is,iq)
+                        If (n==1 .AND. l==1) write (13,*) ir*h, wfr(ir,n,l,is,iq)
                       end do
                     end if
                     exit
@@ -92,24 +104,38 @@ contains
   end subroutine solve_r
 
   subroutine energy_sort
-    integer :: n, l, iq, is, ni
-    real(wp) :: tempe
+    integer :: n, l, iq, is, n1,k,i
+    real(wp) :: temp
+    integer, dimension(1:3) :: state
+
+
+    allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
     do iq =1,2
-      do l=0,lmax
+         k = 1
+     do n1 = 1,nmax
+      temp = 0._wp
+      state = 1
+     do n = 1,lmax
+      do l = 0,lmax
         do is=1,2
-          do ni = 1, lmax-2
-            tempe = 0.
-            do n=1,lmax-2
-              if(tempe > energies(n,l,is,iq)) tempe = energies(n,l,is,iq)
-            end do
-            energies(ni,l,is,iq) = tempe
-          end do
+              if(temp > energies(n,l,is,iq)) then
+              temp = energies(n,l,is,iq)
+              state(1) = n
+              state(2) = l
+              state(3) = is
+              end if
         end do
       end do
-    end do
-
-
-
+     end do
+     sortenergies(k,iq) = energies(state(1),state(2),state(3),iq)
+     do i = 1,3
+     sortstates(k,i,iq) = state(i)
+     end do
+     energies(state(1),state(2),state(3),iq) = 0.0_wp
+     if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
+     k = k+1
+        end do
+      end do
 
   end subroutine energy_sort
 
