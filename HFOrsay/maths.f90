@@ -26,50 +26,24 @@ if (mod(n,2) == 0) then
   ffak = fac(2*k)/(2**(dble(k))*fac(k))
 endif
 end function ffac
-
 integer function delta(i,j)
   integer :: i, j
   delta=0; if(i==j) delta=1
 end function delta
-
-!recursive function ffac(n) result (ffak)
-!implicit none
-!integer::n,ffak
-!if (n .gt. -2 .and. n .le. 0) then
-!    ffak = 1
-!else
-!    ffak = n*ffac(n-2)
-!endif
-!end function ffac
-
-!function gausslag(n,func) result(inte)
-!use lag_pol
-!use constants
-!implicit none
-!double precision,external::func
-!double precision::inte,wi,xxi,xi
-!integer::i,n
-!inte=0.d0
-!do i=1,n
-!wi=lag_w(i)
-!xxi=(lag_zeros(i))
-!inte = inte + wi*func(xxi)
-!enddo
-!end function gausslag
- SUBROUTINE SORT(N,A)
-  IMPLICIT NONE
-  INTEGER N,I,J
-        DOUBLE PRECISION A(N),X
-        DO 30 I=2,N
-        X=A(I)
-        J=I
-   10   J=J-1
-        IF(J.EQ.0 .OR. A(J).LE.X) GO TO 20
-        A(J+1)=A(J)
-        GO TO 10
-   20   A(J+1)=X
-   30   CONTINUE
-        END subroutine
+ subroutine sort(n,a)
+  implicit none
+  integer n,i,j
+        double precision a(n),x
+        do 30 i=2,n
+        x=a(i)
+        j=i
+   10   j=j-1
+        if(j.eq.0 .or. a(j).le.x) go to 20
+        a(j+1)=a(j)
+        go to 10
+   20   a(j+1)=x
+   30   continue
+        end subroutine
 
 subroutine sorteigv(n,indexarray,arraytosort)
 implicit none
