@@ -1,7 +1,7 @@
 program main
     use grid
     use solver
-    integer :: iq,i,npr,j
+    integer :: iq,i,npr,j,ir
     open(unit=5,file='in',status='old',form='formatted')
     open(unit=6,file='out',form='formatted')
     open(unit=13,file='plt',form='formatted')
@@ -49,11 +49,14 @@ program main
                           &"l=",sortstates(i,2,iq),&
                           &"is=",sortstates(i,3,iq),&
                           &"Energy=", sortenergies(i,iq)
+
             end if
       end do
     end do
   write(6,*) "Total Bound States =", sum(vocc(1:lmax-2,:,:,:)), "Vpb(1) =", vpb(1)
-
+    do ir=0,nbox
+      write (13,*) ir*h, density(ir,1), density(ir,2)
+    end do
     close(13)
     close(6)
     close(5)
