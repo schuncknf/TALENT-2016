@@ -56,24 +56,7 @@ write(*,*) "computing TBME"
       enddo !j
      enddo !i
 !$OMP END PARALLEL DO
-!     do i=1,n
-!      do j=1,n
-!       do k=1,n
-!        do l=1,n        
-         !vpotas(i,j,k,l) = vpot(i,j,k,l) + vpotp(i,j,k,l)
-         ! vpotas(i,j,l,k) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
-         ! vpotas(j,i,k,l) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
-         ! vpotas(j,i,l,k) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
-           !vpotas(i,j,l,k) = vpot(i,j,k,l)+vpotp(i,j,k,l) 
-!           write(14,*) i-1,j-1,k-1,l-1,vpotas(i,j,k,l)
-!        enddo
-!           write(14,*) 
-!       enddo
-!           write(14,*) 
-!      enddo
-!           write(14,*) 
-!     enddo
-      !     vpotas = 0.d0
+!           vpotas = 0.d0
 write(*,*) "TBME's computed and antisymetrized"
 
 ! ---------- start of iteration loop
@@ -136,8 +119,6 @@ write(*,*) "TBME's computed and antisymetrized"
          if(abs(vnorm-1.d0) .gt. 0.0001d0) stop 'problem in normalization'
       enddo
 
-! -------- print out eigenfunctions and eigenvalues
-
 
 !-------- hf energy
 
@@ -166,14 +147,20 @@ write(*,*) "TBME's computed and antisymetrized"
            hf2body = hf2body + 2.d0*vpotas(i,j,i,j)
          enddo
         enddo
-       hfenergy = hfenergy  - hf2body*half
-       write(*,*) 'hartree-fock energy',hfenergy
-       write(*,*) "kinetic energy",kin_energy
+       hfenergy = hfenergy  + hf2body*half
+       !write(*,*) 'hartree-fock energy',hfenergy 
+       !write(*,*) "kinetic energy",kin_energy
        hfenergy = 0.d0
        do i=1,n
          hfenergy = hfenergy + trho(i,i) + hrho(i,i)
        enddo
-       write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',hfenergy,'MeV'
+       tr=0.d0
+       do i=1,n
+        tr = tr + 2.d0*rho(i,i)
+       enddo
+       write(*,*) "Part Num",tr
+
+       write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',hfenergy,' MeV'
 ! -------- Writing Outputs
 open(22,file='hforsay.out')
 write(22,*) "------ System ------"
@@ -182,6 +169,7 @@ write(22,'(a,i5)') 'Oscillator Shell.........',n
 write(22,*) "---- RESULTS ------"
 write(22,'(a,f16.9,a)') 'Kinetic Energy..........',kin_energy,' MeV'
 write(22,'(a,f16.9,a)') "Hartree-Fock Energy ....",hfenergy,' MeV'
+write(22,'(a,f16.9)') "Particles Number ....",tr
 write(22,*)
 if (pr) then
 write(22,*) "---- Spectrum and Wave-Function ----"

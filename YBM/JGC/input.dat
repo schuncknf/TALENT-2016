@@ -1,6 +1,6 @@
 # Iput variables
 # Potential? 1. Infinite square well, 2. Finite square well, 3. Woods-Saxon potential
-2
+3
 # Box width [fm]
 45.
 # Well width  [fm]
@@ -12,7 +12,7 @@
 # Min limit  [MeV]
 -100.
 # Max limit  [MeV]
-100.
+0.
 # Energy mesh [MeV]
 0.05
 # First step wavefunction value [a.u]

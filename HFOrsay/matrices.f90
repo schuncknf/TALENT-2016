@@ -18,7 +18,6 @@ rho_temp =0.d0
       rho_temp = rho_temp+ 1.d0*D(i,k)*D(j,k)
     enddo
     rho(i,j) = rho_temp
-  !  rho(j,i) = rho_temp
   enddo
 enddo
 end subroutine compute_rho
