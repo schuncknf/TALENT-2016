@@ -22,11 +22,10 @@ void HartreeFock::calc() {
   int nb_state = system->basis->size;
   arma::field<arma::mat> &H = system->H;
   arma::field<arma::mat> &R = system->R;
-
   for (unsigned int pType = 0; pType < system->particleNumbers.n_rows; pType++)
   {
     // Temporary vectors and matrices to store eigenvecs and energies
-    arma::vec old_indivE = indivEnergies.row(pType);
+    arma::vec old_indivE = indivEnergies.row(pType).t();
     arma::vec new_indivE;
 
     // Hamiltonian diagonalization to extract D and e
@@ -34,14 +33,14 @@ void HartreeFock::calc() {
 
     // Extraction of eigenenergies' sequence
     arma::uvec sorted_ind = arma::sort_index(new_indivE);
-    sorted_ind = sorted_ind.cols(0,system->particleNumbers(pType));
+    sorted_ind = sorted_ind.head(system->particleNumbers(pType));
     occ(pType).zeros();
     occ(pType)(sorted_ind) = arma::ones<arma::vec>(sorted_ind.n_rows);
 
     // New derivation of rho
-    R(0,pType) = D(pType).t() * occ(pType) * D(pType);
+    R(0,pType) = D(pType).t() * arma::diagmat(occ(pType)) * D(pType);
 
-    indivEnergies.row(pType) = new_indivE;
+    indivEnergies.row(pType) = new_indivE.t();
 
     // Convergence check
     cvg = arma::accu(arma::abs(new_indivE - old_indivE)) / nb_state;
