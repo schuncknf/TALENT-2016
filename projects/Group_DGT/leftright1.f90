@@ -16,7 +16,7 @@
 !      INTEGER, PARAMETER :: dp = SELECTED_REAL_KIND(12)
       REAL(kind=dp) :: Eup, Edown, epsil
       REAL(kind=dp) :: Rmin, Rmax, meshsize, a, Vvalue
-      integer :: Node, kpot
+      integer :: Nodemax, kpot, Node
       REAL(kind=dp) :: Etrial, Eexp
       integer :: points, ifail, converg, i
       integer :: Nodecount
@@ -24,12 +24,12 @@
       REAL(kind=dp) :: potV
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: trialwf
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: pott
-!     CHARACTER(LEN=5), DIMENSION(7) :: char
+      CHARACTER(LEN=2):: Nodecc
 !==========     set initial values     ==============================
       Eup=1000.E0_dp
       Edown=-100.E0_dp
       epsil=1.E-12_dp
-      Node=42
+      Nodemax=30
       Rmin=-20.E0_dp
       Rmax=20.E0_dp !fermi
       meshsize=0.001E0_dp
@@ -51,6 +51,8 @@
 !         print *, pott(i)
          end do
 !
+         OPEN(UNIT=8, FILE='summary_table.dat', status='unknown')
+         do Node=0, Nodemax
            call wavef(Rmax,Rmin,points,meshsize, Node, Eup, Edown, epsil, pott, &
                  trialwf, Etrial)
 
@@ -63,8 +65,8 @@
          end do
          trialwf(:)=trialwf(:)/sqrt(normal)
 !
-         print '("Wavefunction normalized")'
-         print*, normal
+!         print '("Wavefunction normalized")'
+!         print*, normal
 ! output number of nodes excluded a possible node in the last point of the box
 ! normalized wavefunction
          Nodecount=0    
@@ -74,15 +76,27 @@
          end do 
          if(trialwf(points-1)*trialwf(points) .lt. 0.0E0_dp) &
              Nodecount= Nodecount-1 
-         print*, Nodecount
+         print*, "Number of nodes= ", Nodecount
+         print*, "Energy= ", Etrial
 !
-         OPEN(UNIT=7, FILE='wavefunction.dat', status='unknown')
+         if ( Nodecount < 10 ) then
+           write( Nodecc, '("0",i1)' ) Nodecount
+         else
+           write( Nodecc, '(i2)' ) Nodecount
+         end if
+
+         OPEN(UNIT=7, FILE='wavefunction'//Nodecc//'.dat', status='unknown')
          
          write(7,*) "Number of nodes=", Nodecount
+         write(7,*) "Energy= ", Etrial
          do i=0,points
            write(7,*) Rmin+i*meshsize, trialwf(i)
          end do
          CLOSE(unit=7)
+         print*, "------------------------------------- "
+         write(8,'("Nod ",i3,10x,"Energy ", 1f18.10)') Nodecount, Etrial
+         end do
+         CLOSE(unit=8)
       end program numerov
 ! end
 !

@@ -3,7 +3,7 @@
 #include "gauss-laguerre.h"
 // #include "potential.h"
 #include "harmon.h"
-#include "tbme.h"
+// #include "tbme.h"
 
 void main (void)
 
@@ -22,13 +22,15 @@ void main (void)
 		
 		printf("Res2 = %f \n\n\n", res); */
 		
-		/*for (i=0; i<30; i++)
+		for (i=0; i<30; i++)
 		
 			{
-			printf("%lf \n",Rnl(0,0,10,30,i*0.1));
+			printf("%lf \n",Rnl(2,0,900,20,i*0.001));
 			
-			} */
+			} 
 		
-		tbmeprint(0.1,12.3, 2);
+		printf("\n\n STOP");		
+		
+		tbmeprint(9.39565,10.0, 3);
 	
 	}

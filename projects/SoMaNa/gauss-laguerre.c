@@ -3,9 +3,48 @@
 #include <math.h>
 #include <gsl/gsl_poly.h>
 
+
+// Module to calculate two-body matrix elements; currently it is specifically adapted to the simple V outlined in the manuals for the course. Later we will of course modify it for the more complex case, inevitably breaking everything in the process.
+
+// The calculation proceeds in four steps, really; first the function to be integrated in the 1D integral is calculated, then it is integrated, then it is all repeated for the 2D integral (r1, r2).
+
+// There is a lot of passing functions as arguments. Even I don't believe it's all correct.
+
+// 1D function.
+
 // Gauss-Laguerre integration program.
 
 // Laguerre polynomials.
+
+double galag (int n, int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double V);
+
+double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, double V);
+
+double fun1 (double kappa, double V,double r1, double r2)
+
+	{
+	
+		double res;
+		
+		res = V*exp(-1*kappa*(r1*r1+r2*r2))/(2*(r1+0.01)*(r2+0.01))/4;		
+		
+		return res;
+	
+	}
+
+double fun2 (double kappa, double V, double m, double w,double r1, double r2,int n1, int n2, int n3, int n4)
+	
+	{
+	
+		double res, dummy1;
+		
+		dummy1 = galag(5,n1,n2,n3,n4,m,w,r1,r2,V);
+		
+		res = dummy1*r1*r1*r2*r2*/* Rnl(n1,0,m,w,r1)*Rnl(n2,0,m,w,r2)*Rnl(n3,0,m,w,r1)*Rnl(n4,0,m,w,r2) **/exp(r1)*exp(r2);
+		
+		return res;
+	
+	}
 
 double laguerre (int n, double x)
 	
@@ -29,7 +68,7 @@ double laguerre (int n, double x)
 		
 		for (i=0; i<=n; i++)
 			
-			result += binomial(n, i)*pow((-1),i)/factorial(i)*pow(x,i);
+			result+= binomial(n, i)*pow((-1),i)/factorial(i)*pow(x,i);
 		
 		return result;
 	}
@@ -70,7 +109,9 @@ int binomial (int n, int k)
 
 // 1D Gauss-Laguerre quadrature. The function is sadly not general; since a lot of arguments need to be passes to the function it is specifically tailored to the problem at hand.
 
-double galag (int n, double (*funcp)(double, int, int, int, int,double,double,double), int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double V)
+/* double galag (int n, double (*funcp)(double, int, int, int, int,double,double,double), int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double V) */
+
+double galag (int n, int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double V)
 
 	{
 	
@@ -83,8 +124,6 @@ double galag (int n, double (*funcp)(double, int, int, int, int,double,double,do
 	double *ws;
 	
 	double res = 0;
-	
-	printf("Calling galag. \n");
 	
 	coefficients = (double*) malloc ((n+1)*sizeof(double)); 
 	
@@ -108,10 +147,10 @@ double galag (int n, double (*funcp)(double, int, int, int, int,double,double,do
 		{
 			ws[i] = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2)); // Calculation of weights.
 						
-			//printf("\n\n\n root = %f weight = %f \n", solutions[2*i], ws[i]);
+			printf("\n\n\n root = %f weight = %f \n", solutions[2*i], ws[i]);
 			
-			res += ws[i]*(*funcp)(solutions[2*i], n1, n2, n3, n4,r1,r2,V); // Summation of weights with function values at mesh points.
-			//printf("\n\n\n sum = %f \n", res);
+			res+= ws[i]*fun1(1.487,200,r1,r2); // Summation of weights with function values at mesh points.
+			printf("\n\n\n sum = %f \n", res);
 		}
 	
 	free(ws);
@@ -120,15 +159,15 @@ double galag (int n, double (*funcp)(double, int, int, int, int,double,double,do
 	
 	free(coefficients);
 	
-	printf("%f \n", res);
-	
 	return res;
 	
 	}
 
 // 2D G-L quadrature. Analogous to the function above, except the summation over one index is replaced by a double-loop summation.
 
-double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,double,double,double), int n1, int n2, int n3, int n4, double m, double w, double V)
+/* double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,double,double,double), int n1, int n2, int n3, int n4, double m, double w, double V) */
+
+double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, double V)
 
 	{
 	
@@ -141,8 +180,6 @@ double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,doub
 	double wi, wj;
 	
 	double res = 0;
-	
-	printf("Calling 2Dgalag. \n");
 
 	coefficients = (double*) malloc ((n+1)*sizeof(double)); 
 
@@ -171,21 +208,16 @@ double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,doub
 			 
 	// printf("wj = %f \n", wj);
 		
-			res += wi*wj*funcp(solutions[2*i], solutions[2*j], n1, n2, n3, n4,m,w,V);
-	
-	
-	printf ("root1 = %lf weight1 = %lf root2 = %lf weight2 = %lf\n", solutions[2*i],wi,solutions[2*j],wj);
-	
-		 
-	printf("res_sum = %f \n", res);
+			res+= wi*wj*fun2(1.487,200.01,m,w,solutions[2*i], solutions[2*j], n1, n2, n3, n4);
+			
+			printf ("\n\n\n 2DGALAG \t sol1 = %lf sol2 = %lf wi=%lf wi=%lf res =%lf",solutions[2*i],solutions[2*j],wi,wj,res);
 			}
 		}
 	
 	free(solutions);
 	
 	free(coefficients);
-	
-	printf("%f \n", res); // Freeing up memory.
+	 // Freeing up memory.
 	
 	return res;
 	

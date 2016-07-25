@@ -1,3 +1,10 @@
+subroutine tmbe_spherical(n1,n2,n3,n4,resu)
+
+
+
+end subroutine
+
+
 subroutine tbme(n1,n2,n3,n4,resu,pr)
 use ho
 use lag_pol
@@ -36,15 +43,13 @@ do i=1,ngauss
     xxj=(lag_zeros(j))
     lag2 = laguerre(n3,a3,xxj)*laguerre(n4,a4,xxj)
     orth = orth + wi*wj*lag1*lag2
-    inte2 = inte2 + wi*wj*(potential(xxi,xxj,v0r,kr)-potential(xxi,xxj,v0s,ks))*lag1*lag2
+    inte2 = inte2 + wi*wj*(minessota(xxi,xxj))*lag1*lag2
         enddo
 enddo
 orth = orth*nosc1*nosc2*nosc3*nosc4/4.d0
 resu = inte2
 resu = resu*nosc1*nosc2*nosc3*nosc4/4.d0
-!endif
 if (pr .and. orth .gt. 0.001d0) then
 write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,orth
-!write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,resu
 endif
 end

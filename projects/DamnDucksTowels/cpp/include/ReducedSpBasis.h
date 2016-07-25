@@ -3,10 +3,11 @@
 
 #include "SpBasis.h"
 
-/// class ReducedSpBasis 
+/// class ReducedSpBasis - 
 class ReducedSpBasis : public SpBasis {
+  // Operations
 public:
-  ReducedSpBasis(double _omega, int _nMax) : SpBasis(_omega, _nMax, 0)
+  ReducedSpBasis (double _omega, int _nMax) : SpBasis(_omega, _nMax, 0)
   {
     type = "ReducedSpBasis";
   };
