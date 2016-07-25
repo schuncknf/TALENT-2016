@@ -1,0 +1,26 @@
+j          =   1                    ! resulting j of ph-pairs 
+parity     =   0                    ! parity of ph-pairs 1:+ 0:- 
+ediffmaxu  =   200.0	            ! maximal excitation-energy particles
+ediffmaxd  =   2000.0               ! maximal excitation-energy a-p 
+calc       =   1                    ! 1:calc mat and exc. 0:only exc.  
+xyprint    =   1                    ! saves xy-matrices on disk 1:yes 0:no
+lorchange  =   0                    ! 1:only changing lorentz-curves
+lorswidth  =   1.0                  ! width of isoscalar lorentz-curve
+lorvwidth  =   1.0                  ! width of isovector lorentz-curve 
+hlorswidth =   2.0                  ! width of isoscalar h-lorentz-curve
+hlorvwidth =   2.0                  ! width of isovector h-lorentz-curve 
+hartree    =   0                    ! solution also without interact.1:yes
+matprint   =   1                    ! prints out RPA ascii-matrix yes:1no:0
+xyread     =   0                    ! x- and y read in for further calc.
+xyprobe    =   0                    ! making rpa-probe 1:yes 0:no
+exccalc    =   0                    ! only calculating exc 1:yes 0:no
+transdens  =   0                    ! calculate trans-dens1:yes0:no
+transiso   =   1                    ! isosc:0 isovec:1 for tr-dens
+transerg   =    2.90                ! energy for tr-dens, specify 2 digits
+tc_cur     =   0                    ! calculate transition-currents 1:yes 0:no
+tc_iso     =   1                    ! isoscalar:0 isovector:1 for tr-cur
+tc_erg     =   31.80                ! energy for tr-curr, specify 2 digits
+qptresh    =   0.01     	    ! for lower occ inqp1noqp2-qp1pairs
+respair    =   1                    ! 1:pairing in residual inter. 0:no
+pairfac    =   0.0                  ! pairing strength
+deltafac   =   0.52                 ! delta interaction factor =0.55 DD-ME1,=0.56 for PKDD, =0.52 for DDME2.

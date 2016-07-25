@@ -14,15 +14,19 @@ contains
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes, l, is, iq, n
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm, spin(2),j
     real(wp), allocatable :: potential(:)
-    density(:) = 0.0
+    density(:,:) = 0.0
+    spin(1) = -0.5
+    spin(2) = 0.5
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
     wfr(:,:,:,:,:) = 0.0
     do iq =1,2
       do n =1,lmax-2
         do l =0,lmax
             do is = 1,2
+                j = l + spin(is)
+                if (l==0) j=1
                 Eupper = 100_wp
 
                 Elower = vpb(iq)
@@ -80,9 +84,12 @@ contains
                         norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
                         wfr(:,n-2,l,is,iq) = wfr(:,n,l,is,iq)/norm
                       end if
+
                       do ir=0,nbox
-                        If (n==1 .AND. l==1) write (13,*) ir*h, wfr(ir,n,l,is,iq)
+                        density(ir,iq) = density(ir,iq) + ((2.*j+1)/(4.*pi*meshpoints(ir)**2)) &
+                        * h*wfr(ir,n,l,is,iq)*wfr(ir,n,l,is,iq)
                       end do
+
                     end if
                     exit
                   end if
