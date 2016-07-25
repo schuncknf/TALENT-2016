@@ -15,7 +15,10 @@ int main(){
 
 //Routine to find eigevalues: this works finding the value of energy at which the eigenfunction cross the 0 
 
-	for(int node=0; node<10; node++){
+	//for(int node=0; node<10; node++){
+	int node=1;
+	double S = 1./2.;
+	double L = 1.;
 		int nodecount=0;
 		double Etrial=0.;
 		Edown = 0.;
@@ -25,7 +28,7 @@ int main(){
 			wave_val.push_back(0.);
 			wave_val.push_back(0.05);
 			for(int i=1; i<=n_step_width_box; i++){
-				wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width));
+				wave_val.push_back(numerov_algorithm_woods_spin(Etrial, wave_val[i], wave_val[i-1], -width_box/2. + i*h_width,S,L));
 			}
 
 		nodecount = 0;
@@ -44,10 +47,34 @@ int main(){
 	}while(abs(Eup-Edown)>prec);
 	cout<<Etrial<<endl;
 	eigenval.push_back(Etrial);
-}
+//}
 
 
 // Write results to file with filename
+/*
+	ofstream myfile;
+	myfile.open("Eigen.txt");
+	int count =0;
+
+	wave_val.push_back(0);
+	wave_val.push_back(1E-5);
+	for(int i=0; i<=n_step_width_box; i++){
+		wave_val.push_back(numerov_algorithm_woods_spin(eigenval[0], wave_val[i+1], wave_val[i], i*h_width,S,L);
+		if(i*h_width>12.&&wave_val[i]*wave_val[i-1]<0){
+			count = i;
+			break;
+		}
+		myfile << -width_box/2. + i*h_width << "   " << wave_val[i] << endl;
+	}
+	for(int i=count; i<=n_step_width_box; i++){
+		wave_val.push_back(0.);
+		myfile << -width_box/2. + i*h_width << "   " << wave_val[i] << endl;
+	}
+
+	myfile.close();
+*/
+
+//Plot the potential
 
 	ofstream myfile;
 	myfile.open("Eigen.txt");
@@ -56,20 +83,12 @@ int main(){
 	wave_val.push_back(0);
 	wave_val.push_back(1E-5);
 	for(int i=0; i<=n_step_width_box; i++){
-		wave_val.push_back(numerov_algorithm_woods(eigenval[5], wave_val[i+1], wave_val[i], i*h_width));
-		if(i*h_width>24.&&wave_val[i]*wave_val[i-1]<0){
-			count = i;
-			break;
-		}
-		myfile << i*h_width << "   " << wave_val[i] << endl;
+		wave_val.push_back(potential_spin_orbit(-width_box/2. + i*h_width,S,L));
+		myfile << -width_box/2. + i*h_width << "   " << wave_val[i] << endl;
 	}
-	for(int i=count; i<=n_step_width_box; i++){
-		wave_val.push_back(0.);
-		myfile << i*h_width << "   " << wave_val[i] << endl;
-	}
-
 
 	myfile.close();
+
 
 return 0;
 }
