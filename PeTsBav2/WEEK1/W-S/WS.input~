@@ -1,7 +1,0 @@
-&parameters
-epsi=1e-6, h2m=20.75 /
-&sizebox
-R_max=6., R_min=0. ,R_box= 200., h= 0.1, a=0.67 /
-&energy
-E_minus=-5., E_plus=100. , V0=5./
-

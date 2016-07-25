@@ -1,0 +1,31 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+
+Begin optimization report for: GRID::INIT_GRIDS
+
+    Report from: Auto-parallelization optimizations [par]
+
+
+LOOP BEGIN at grid.f90(36,11)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+LOOP END
+
+LOOP BEGIN at grid.f90(36,11)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at grid.f90(36,11)
+   remark #17104: loop was not parallelized: existence of parallel dependence
+
+   LOOP BEGIN at grid.f90(36,11)
+   <Multiversioned v2>
+      remark #17108: loop was not parallelized: insufficient computational work
+   LOOP END
+
+   LOOP BEGIN at grid.f90(36,11)
+   <Remainder loop for vectorization, Multiversioned v2>
+   LOOP END
+LOOP END
+===========================================================================

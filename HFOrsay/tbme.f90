@@ -21,11 +21,8 @@ a1=dble(l1)+0.5d0
 a2=dble(l2)+0.5d0
 a3=dble(l3)+0.5d0
 a4=dble(l4)+0.5d0
-inte1=0.d0
 inte2=0.d0
 orth=0.d0
-norm_lag=Gamma(dble(n1)+1.d0+a1)/fac(n1)
-norm_lag1=Gamma(dble(n4)+1.d0+a1)/fac(n4)
 nosc1=ho_norm(n1,0.d0)
 nosc2=ho_norm(n2,0.d0)
 nosc3=ho_norm(n3,0.d0)
@@ -39,14 +36,16 @@ do i=1,ngauss
     xxj=(lag_zeros(j))
     lag2 = laguerre(n3,a3,xxj)*laguerre(n4,a4,xxj)
     orth = orth + wi*wj*lag1*lag2
-    inte2 = inte2 + wi*wj*(-potential(xxi,xxj,v0r,kr)+potential(xxi,xxj,v0s,ks))*lag1*lag2
+    !inte2 = inte2 + wi*wj*(potential(xxi,xxj,v0r,kr)-potential(xxi,xxj,v0s,ks))*lag1*lag2
+    inte2 = inte2 + wi*wj*(mine(xxi,xxj))*lag1*lag2
         enddo
 enddo
-orth = orth*nosc1*nosc2*nosc3*nosc3/4.d0
+orth = orth*nosc1*nosc2*nosc3*nosc4/4.d0
 resu = inte2
-resu = resu*nosc1*nosc2*nosc3*nosc3/4.d0
+resu = resu*nosc1*nosc2*nosc3*nosc4/4.d0
 !endif
 if (pr .and. orth .gt. 0.001d0) then
-write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,orth
+!write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,orth
+!write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,resu
 endif
 end
