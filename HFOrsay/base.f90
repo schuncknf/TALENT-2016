@@ -72,23 +72,6 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
         endif
 end subroutine sphbasis
 
-!subroutine external_basis()
-!implicit none
-!integer::na,nb,la,lb,ja,jb,a,b
-!integer::i
-!integer::n_lines
-!allocate(resua(0:na_max-1,0:la_max-1,0:ja_max-1))
-!allocate(resub(0:nb_max-1,0:lb_max-1,0:jb_max-1))
-!open(124,file='base_config')
-!resua=0
-!resub=0
-!do i=1,n_lines
-!read(124,'(8i4)') na,la,ja,a,nb,lb,jb,b
-!resua(na,la,ja) = a
-!resub(nb,lb,jb) = b
-!enddo
-!end subroutine
-
 
 
 
