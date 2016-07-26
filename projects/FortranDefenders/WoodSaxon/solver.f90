@@ -81,86 +81,11 @@ contains
 
                   if (abs(Eupper - Elower) < conv) then
                     if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
-                      !do ir=0,3
-                        !wfr(ir,n,l,is,iq) = ir*h**(l+1)
-                      !end do
-                      !do ir=0,nbox
-                      !  write(13,*) ir*h, wfl(ir,1,0,1,1), wfl(ir,1,0,1,1)
-                      !end do
-                      !if (abs(wfr(30,n,l,is,iq) - wfl(30,n,l,is,iq)) < 1.) then
-                        !if (l==0) then
-                          !if(mod(n-1,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
-                          !coefmin = 0.
-                          !coefmax = 1E10
-                          !do k=1,10000000
-                          !  coef = (coefmin+coefmax)/2
-                          !  diff = wfr(njoin,n,l,is,iq)-coef*wfl(njoin,n,l,is,iq)
-                          !  if (diff > 0) then
-                          !    coefmin=coef
-                          !  else
-                          !    coefmax=coef
-                          !  end if
-                          !  if (abs(diff) < conv) then
-                          !    wfl(0:njoin,n,l,is,iq) = coef*wfl(0:njoin,n,l,is,iq)
-                          !    exit
-                          !  end if
-                          !end do
-                          !wfr(0:njoin,n,l,is,iq) = wfl(0:njoin,n,l,is,iq)
                           vocc(n,l,is,iq) = 2*l+1
                           energies(n,l,is,iq) = etrial
-                          norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
+                          norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
                           wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                          write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)*meshpoints(:)**2))
-                        !else if (l<=3) then
-                        !  if(mod(n-2,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
-                        !  coefmin = 0.
-                        !  coefmax = 1E10
-                        !  do k=1,10000000
-                        !    coef = (coefmin+coefmax)/2
-                        !    diff = wfr(100,n,l,is,iq)-coef*wfl(100,n-1,l,is,iq)
-                        !    if (diff > 0) then
-                        !      coefmin=coef
-                        !    else
-                        !      coefmax=coef
-                        !    end if
-                        !    if (abs(diff) < conv) then
-                        !      wfl(:,n-1,l,is,iq) = coef*wfl(:,n-1,l,is,iq)
-                        !      exit
-                        !    end if
-                        !  end do
-                        !  wfr(0:100,n,l,is,iq) = wfl(0:100,n-1,l,is,iq)
-                        !  vocc(n-1,l,is,iq) = 2*l+1
-                        !  energies(n-1,l,is,iq) = etrial
-                        !  norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        !  wfr(:,n-1,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                        !  write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n-1,l,is,iq)*wfr(:,n-1,l,is,iq)*meshpoints(:)**2))
-                        !else
-                        !  if(mod(n-3,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
-                        !  coefmin = 0.
-                        !  coefmax = 1E10
-                        !  do k=1,10000000
-                        !    coef = (coefmin+coefmax)/2
-                        !    diff = wfr(100,n,l,is,iq)-coef*wfl(100,n-2,l,is,iq)
-                        !    if (diff > 0) then
-                        !      coefmin=coef
-                        !    else
-                        !      coefmax=coef
-                        !    end if
-                        !    if (abs(diff) < conv) then
-                        !      wfl(:,n-2,l,is,iq) = coef*wfl(:,n-2,l,is,iq)
-                        !      exit
-                        !    end if
-                        !  end do
-                        !  wfr(0:100,n,l,is,iq) = wfl(0:100,n-2,l,is,iq)
-                        !  vocc(n-2,l,is,iq) = 2*l+1
-                        !  energies(n-2,l,is,iq) = etrial
-                        !  norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        !  wfr(:,n-2,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                        !  write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n-2,l,is,iq)*wfr(:,n-2,l,is,iq)*meshpoints(:)**2))
-                        !end if
-
-                      !end if
-                    end if
+                       end if
 
                     exit
                   end if
@@ -359,15 +284,20 @@ contains
   end subroutine solvelr
 
   subroutine energy_sort
-    integer :: n, l, iq, is, n1,k,i
-    real(wp) :: temp
+    integer :: n, l, iq, is, n1,k,i,nfill,nfull
+    real(wp) :: temp,j
     integer, dimension(1:3) :: state
 
-
+    
     allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
+    sortenergies = small
+    sortstates = small
     do iq =1,2
-         k = 1
-     do n1 = 1,nmax
+     nfull = nn
+     if (iq == 2) nfull = np
+     k = 1
+     nfill = 0
+     do while(nfill.lt.nfull)
       temp = 0._wp
       state = 1
      do n = 1,lmax
@@ -388,12 +318,51 @@ contains
      end do
      energies(state(1),state(2),state(3),iq) = 0.0_wp
      if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
+     j = state(2) + spin(state(3))
+     if (state(2)==0) j = 0
+     nfill = nfill + 2*j+1
      k = k+1
         end do
+      print *, nfill
       end do
 
   end subroutine energy_sort
 
+  subroutine build_densities
+  real(wp), dimension(0:nbox,4) :: rho
+  integer :: npr,iq,ir,i
+  real(wp) :: j
+  
+  do iq =1,2
+
+      if (iq == 1) then
+      npr = nn
+      else
+      npr = np
+      end if
+      rho(:,iq)=0.
+      do i = 1, npr
+         if (sortenergies(i,iq) < - small) then
+          j = sortstates(i,2,iq) + spin(sortstates(i,3,iq))
+          if (sortstates(i,2,iq) == 0) j = 0
+           do ir=1,nbox
+             rho(ir,iq) = rho(ir,iq) + (2*j+1)*wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)&
+             *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq) / (4*pi*meshpoints(ir)**2)
+            end do
+          end if
+      end do
+   end do
+   rho(:,3)=rho(:,1) + rho(:,2)
+   rho(:,4)=rho(:,1) - rho(:,2)
+    
+   write(6,*) sum(h*4*pi*meshpoints(:)**2*rho(:,1)), &
+            & sum(h*4*pi*meshpoints(:)**2*rho(:,2)), &
+            & sum(h*4*pi*meshpoints(:)**2*rho(:,3)), &
+            & sum(h*4*pi*meshpoints(:)**2*rho(:,4))
+    do ir = 0,nbox
+    write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),rho(ir,4)
+    end do 
+  end subroutine build_densities
 
   function infwell_exact() result(energy)
     real(wp) :: energy
