@@ -15,25 +15,12 @@ using namespace std;	// no need to put std:: before any cout, etc.
 // Main code
 int main()
 {
-	char filename[512];
-	sprintf(filename,"pot.dat");
-	ofstream opFile;
-	opFile.open(filename);
-
-	for(int i=0; i<wBox/h; i++){
-		double r = h*i;	
-		int    l = 4;
-		opFile << r << "\t" << woodsSaxon(r) << "\t" << centrifugal(r,l) << "\t" << spinOrbit(r,l,0.5) << "\t" << coulomb(r) << "\t" << V(r) << "\n";
-	}
-
-	opFile.close();
-
 	// Open input file
 	string line;
 	ifstream ipFile;
 	ipFile.open("input.dat");
 
-	// Read in data from file unless commented out (lines starting with '#' are comments
+	// Read in variables from file and store in vecot unless line is commented (starting with '#')
 	while( getline( ipFile, line) )
 	{
 		if( line[0] != '#' )
@@ -71,81 +58,91 @@ int main()
 
 	int nSteps = (eMax-eMin)/eStep;
 
-	// Loop for the calculation
-	for(int jj=0; jj<nSteps; jj++) // (eMax+eMin)
+	for(int L=0; L<6; L++)
 	{
-		
-		wf_val.push_back(wfStep1);	// Initiate step 0 and step 1 WF values, if don't do this will not get past first calc.
-		wf_val.push_back(wfStep2);	// NOTE: amplitude of calculated wavefunctions are arbitrary but defined by magnitude of
-						//	 of this step, this is important when defining if calc. has converged.
-
-		// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
-		for(int i=0; i<wBox/h; i++)
+		for(int isoSpin=0; isoSpin<2; isoSpin++)
 		{
-			wf_val.push_back(numerovAlgorithm(eMin, wf_val.at(i+1), wf_val.at(i), i*h));
-		}
+			eMin = variable.at(5);
 
-		// Assign value to wfLast
-		wfLast = wf_val.at(-1+wf_val.size());
-
-		// This is where will converge the calculation
-		// Need if jj>0 condition otherwise will have no previous value for wavefunction
-		if(jj>0)
-		{
-			wfTmp = wf_val.at(-1+wf_val.size());
-
-			// Check if there is a change in sign of wavefunction values at the limit of the box for
-			// the most recent two different energies (wfPrev/wfLast negative if this is the case)
-			if(wfPrev/wfLast < 0)
+			// Loop for the calculation
+			for(int jj=0; jj<nSteps; jj++) // (eMax+eMin)
 			{
-				double eigenEng;	// initiate variable for energy eigenvalue
+		
+				wf_val.push_back(wfStep1);	// Initiate step 0 and step 1 WF values, if don't do this will not get past first calc.
+				wf_val.push_back(wfStep2);	// NOTE: amplitude of calculated wavefunctions are arbitrary but defined by magnitude of
+								//	 of this step, this is important when defining if calc. has converged.
 
-				// Check whether wavefunction at limit has pos. or neg. gradient at limit of box,
-				// then calls the convergence function to calculate an energy eigenvalue
-				if(wfPrev<wfLast)
+				// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
+				for(int i=0; i<wBox/h; i++)
 				{
-						eigenEng = converge(eMin-eStep,eMin,wfPrev,wfLast);
+					wf_val.push_back(numerovAlgorithm(eMin, wf_val.at(i+1), wf_val.at(i), i*h, isoSpin, L));
 				}
-				else
+
+				// Assign value to wfLast
+				wfLast = wf_val.at(-1+wf_val.size());
+
+				// This is where will converge the calculation
+				// Need if jj>0 condition otherwise will have no previous value for wavefunction
+				if(jj>0)
 				{
-						eigenEng = converge(eMin,eMin-eStep,wfLast,wfPrev);
-				}
+					wfTmp = wf_val.at(-1+wf_val.size());
+
+					// Check if there is a change in sign of wavefunction values at the limit of the box for
+					// the most recent two different energies (wfPrev/wfLast negative if this is the case)
+					if(wfPrev/wfLast < 0)
+					{
+						double eigenEng;	// initiate variable for energy eigenvalue
+
+						// Check whether wavefunction at limit has pos. or neg. gradient at limit of box,
+						// then calls the convergence function to calculate an energy eigenvalue
+						if(wfPrev<wfLast)
+						{
+								eigenEng = converge(eMin-eStep,eMin,wfPrev,wfLast,isoSpin, L);
+						}
+						else
+						{
+								eigenEng = converge(eMin,eMin-eStep,wfLast,wfPrev,isoSpin, L);
+						}
 			
-				// Clear previous wafefunction vector and initiate first two steps
-				wf_val.clear();
-				wf_val.push_back(wfStep1);
-				wf_val.push_back(wfStep2);
+						// Clear previous wafefunction vector and initiate first two steps
+						wf_val.clear();
+						wf_val.push_back(wfStep1);
+						wf_val.push_back(wfStep2);
 
-				// Calculate eigenfunction using Numerov
-				for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
+						// Calculate eigenfunction using Numerov
+						for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h, isoSpin, L));
 
-				double normFac = normalise(eigenEng);
+						// Calculate normalisation factor
+						double normFac = normalise(eigenEng, isoSpin, L);
 
-				// Write results to file with filename including energy eigenvalue
-				char filename[512], eigEng[512];
-				sprintf(filename,"output_%1.4f.dat",eigenEng);
-				sprintf(eigEng,"%1.4f",eigenEng);
-				ofstream opFile;
-				opFile.open(filename);
-				for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << 20*sqrt(normFac)*wf_val.at(k) << "\t" << V(k*h) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,0) << "\t" << spinOrbit(k*h,0,0.5) << "\t" << coulomb(k*h) << endl;
-				opFile.close();
+						// Write results to file with filename including energy eigenvalue
+						char filename[512], eigEng[512];
+						if(isoSpin==0) sprintf(filename,"proton_%i_%1.4f.dat",L,eigenEng);
+						else sprintf(filename,"neutron_%i_%1.4f.dat",L,eigenEng);
+						sprintf(eigEng,"%1.4f",eigenEng);
+						ofstream opFile;
+						opFile.open(filename);
+						for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << eigenEng << "\t" << V(k*h, isoSpin, L) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
+						opFile.close();
 
-				// Output energy eigenvalue and the name of the file results are saved to
-				cout << "*\t" << setprecision(10) << eigEng << "\t\t" << filename << "\t*"  << endl;
-			}
-		}
+						// Output energy eigenvalue and the name of the file results are saved to
+						cout << "*\t" << setprecision(10) << eigEng << "\t\t" << filename << "\t*"  << endl;
+					}
+				}
 
-		// Store the last value of the Numerov calculation 
-		// so as to check whether change in sign in next iteration
-		wfPrev = wfTmp;
+				// Store the last value of the Numerov calculation 
+				// so as to check whether change in sign in next iteration
+				wfPrev = wfTmp;
 
-		wf_val.clear(); // clear wf_val vector for next calculation with different trial energy
-		eMin += eStep;	// increase energy.....will get rid of this
-	}
+				wf_val.clear(); // clear wf_val vector for next calculation with different trial energy
+				eMin += eStep;	// increase energy.....will get rid of this
+
+			}	// Close loop over Energy mesh
+		}		// Close looping over isospin
+	}			// Close looping over L values
+
 	cout << "*************************************************\n" << endl;	// nice stuff for terminal output
 }
-
-
 
 
 // Numerov algorithm function.
@@ -154,10 +151,10 @@ int main()
 //     E = trial energy
 //   f_x = Wavefunction value from previous step ( f(x)   from TALENT school notes)
 // f_x_h = Wavefunction value from two steps ago ( f(x-h) from TALENT scrool notes)
-double numerovAlgorithm(double E, double f_x, double f_x_h, double r)
+double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L)
 {
 	double a[3];		// Array for Numerov coefficients
-	double Vr = (E-V(r+h)) / hm_fac;	// Numerov potential
+	double Vr = (E-V(r+h, isoSpin, L)) / hm_fac;	// Numerov potential
 
 	a[0] = 2. * (1. - 5./12. * Vr * h * h);	// Coeff. for f(x)
 	a[1] = 1. * (1. + 1./12. * Vr * h * h);	// Coeff. for f(x-h)
@@ -175,13 +172,13 @@ double numerovAlgorithm(double E, double f_x, double f_x_h, double r)
 //  eHi = the energy of the step with the highest wavefunction value
 // wfLo = lower wavefunction value of the two energy steps
 // wfHi = higher wavefunction value of the two energy steps
-double converge(double eLo, double eHi, double wfLo, double wfHi)
+double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, int L)
 {
+	// Initiate variables that will be used to decide convergence
 	long double trialE = (eHi+eLo)/2;
 	vector<long double> wf_val;
 	long double wfBarr=0, wfEnd = 10;
 
-//	cout << grad << "\t" << wfHi << "\t" << wfLo << endl;
 	long double diffE=eStep;
 	// While condition to carry on bisection convergence energy difference between
 	// trial energy and previous energies is small enough
@@ -194,7 +191,7 @@ double converge(double eLo, double eHi, double wfLo, double wfHi)
 		// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
 		for(int i=0; i<wBox/h; i++)
 		{
-			wf_val.push_back(numerovAlgorithm(trialE, wf_val.at(i+1), wf_val.at(i), i*h));
+			wf_val.push_back(numerovAlgorithm(trialE, wf_val.at(i+1), wf_val.at(i), i*h, isoSpin, L));
 		}
 
 		// Work out which wavefunction is......I think this is where the convergence function is messing up.
@@ -218,12 +215,10 @@ double converge(double eLo, double eHi, double wfLo, double wfHi)
 
 	if ( wfBarr/wfLo < 0 ) return eLo;
 	else return eHi;
-
-//	return eHi;	// return the trial energy value that meets the tolerance condition
 }
 
 // Find factor for normalising wavefunction
-double normalise(double eigenEng)
+double normalise(double eigenEng, int isoSpin, int L)
 {
 	vector<double> wfWork;
 	wfWork.push_back(wfStep1);
@@ -231,7 +226,7 @@ double normalise(double eigenEng)
 
 	double sum = 0;
 
-	for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
+	for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h, isoSpin, L));
 	for(int i=0; i<(wBox/h)-1; i++) sum += h*pow(wfWork.at(i),2);
 
 	double normFac = 1/sum;
@@ -240,35 +235,20 @@ double normalise(double eigenEng)
 	return normFac;
 }
 
-double V(double r)
+// Total potential
+double V(double r, int isoSpin, int L)
 {
-	int l = 0;
-//	return woodsSaxon(r) + centrifugal(r,l) + spinOrbit(r,l,0.5) + coulomb(r);
-	return woodsSaxon(r) + centrifugal(r,l) + spinOrbit(r,l,0.5);
-}
-
-double testPot()
-{
-	char filename[512];
-	sprintf(filename,"pot.dat");
-	ofstream opFile;
-	opFile.open(filename);
-
-	for(int i=0; i<wBox/h; i++){
-		double r = h*i;	
-		int    l = 4;
-		opFile << r << "\t" << woodsSaxon(r) << "\t" << centrifugal(r,l) << "\t" << spinOrbit(r,l,0.5) << "\t" << coulomb(r) << "\t" << V(r) << "\n";
-	}
-
-	opFile.close();
-	return 0;
+	if (isoSpin == 0)
+		return woodsSaxon(r) + centrifugal(r,L) + spinOrbit(r,L,0.5) + coulomb(r);
+	else
+		return woodsSaxon(r) + centrifugal(r,L) + spinOrbit(r,L,0.5);
 }
 
 // Woods-Saxon potential
 double woodsSaxon(double r)
 {
 	double WS;
-	int         A = nProton + nNeutron;
+	double         A = nProton + nNeutron;
 	double      R = r0 * pow(A,1./3);
 	double coeffV = -51 + 33*((nNeutron-nProton)/A);
 
@@ -308,4 +288,3 @@ double coulomb(double r)
 
 	return V_c;
 }
-

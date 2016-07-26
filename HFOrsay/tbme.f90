@@ -15,7 +15,9 @@ double precision::a1,a2,a3,a4
 double precision::norm_lag,norm_lag1
 double precision::testw,ri,rj
 double precision::nosc1,nosc2,nosc3,nosc4
-logical::pr
+integer :: stat
+character(len=100) :: buf
+logical::pr,fex
 if (iflag == 0) then
 l1=0;l2=0;l3=0;l4=0
 a1=dble(l1)+0.5d0
@@ -47,7 +49,13 @@ if (pr .and. orth .gt. 0.001d0) then
 write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,orth
 endif
 elseif (iflag == 1) then
+inquire(file='VM-scheme.dat', exist=fex)
+if (fex) then
 
 
+else
+write(*,*) "File VM-scheme.dat not found !"
+stop
+endif
 endif
 end

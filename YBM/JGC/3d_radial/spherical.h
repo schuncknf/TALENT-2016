@@ -16,8 +16,8 @@ double  eMin;	// Min limit  [MeV]
 double  eMax;	// Max limit  [MeV]
 double eStep;	// Step between different energies in brute force approach, needs getting rid of
 
-int nProton;	// no. of protons for calculating Woods-Saxon
-int nNeutron;	// no. of neutrons for calculating Woods-Saxon
+double nProton;	// no. of protons for calculating Woods-Saxon
+double nNeutron;	// no. of neutrons for calculating Woods-Saxon
 
 double wfStep1;
 double wfStep2;
@@ -33,11 +33,10 @@ vector<double> variable;
 double var;
 
 // Function declarations
-double numerovAlgorithm(double E, double f_x, double f_x_h, double r);
-double converge(double eLo, double eHi, double wfLo, double wfHi);
-double normalise(double eigenEng);
-double testPot();
-double V(double r);
+double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L);
+double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, int L);
+double normalise(double eigenEng, int isoSpin, int L);
+double V(double r, int isoSpin, int L);
 double woodsSaxon(double r);
 double spinOrbit(double r, int l, double s);
 double centrifugal(double r, double l);
