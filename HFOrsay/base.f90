@@ -1,4 +1,4 @@
-subroutine sphbasis(n,nr,nl,nj,lpr)
+subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
       use constants
       implicit none
       integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt 

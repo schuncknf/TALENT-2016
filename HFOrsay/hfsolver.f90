@@ -41,7 +41,7 @@
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 
 
-        call sphbasis(ntx,nr,nl,nj,.true.)
+        call sphbasis(ntx,nr,nl,nj,nocc,.true.)
       !  call external_basis(resua,resub) 
         call kinetic(n,nr,nl,kin)
 vpot=0.d0
