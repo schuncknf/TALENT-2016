@@ -30,7 +30,7 @@ read(1,'(10x,i5)') ngauss
 read(1,'(10x,i5)') npart
 read(1,'(10x,i5)') maxit
 read(1,'(10x,f10.4)') homega
-nbase = nbase + 1
+nbase = nbase
 ntx = (nbase + 2)*(nbase +3)
 ntx = ntx/2-1
 bosc = dsqrt(2.d0*ama/homega)
