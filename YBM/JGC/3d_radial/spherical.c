@@ -136,7 +136,6 @@ int main()
 							double j=Spin+L;
 
 							char orbital[16];
-							char orb[20];
 							if(L==0) sprintf(orbital,"s_%1.0f/2",fabs(2*j));
 							if(L==1) sprintf(orbital,"p_%1.0f/2",2*j);
 							if(L==2) sprintf(orbital,"d_%1.0f/2",2*j);
@@ -284,17 +283,21 @@ double woodsSaxon(double r)
 double spinOrbit(double r, int l, double spin)
 {
 	double s;
-	if(spin==0) s = -0.5;
-	else        s = 0.5;
-	double    Vso = 0;
-	int         A = nProton + nNeutron;
-	double      R = r0 * pow(A,1./3);
-	double      j = l+s;
-	double   V_ls = Vls * j*(j+1) - l*(l+1) - 3./4;
+	if(l==0) return 0;
+	else
+	{
+		if(spin==0) s = -0.5;
+		else        s = 0.5;
+		double    Vso = 0;
+		int         A = nProton + nNeutron;
+		double      R = r0 * pow(A,1./3);
+		double      j = l+s;
+		double   V_ls = Vls * (j*(j+1) - l*(l+1) - 3./4);
 
-	Vso = V_ls * r0 * r0 * (-1/r) * ((exp((r+R)/a0))/(a0*pow((exp(R/a0)+exp(r/a0)),2)));
+		Vso = V_ls * r0 * r0 * (-1/r) * ((exp((r+R)/a0))/(a0*pow((exp(R/a0)+exp(r/a0)),2)));
 
-	return Vso;
+		return Vso;
+	}
 }
 
 // Centrifugal term
