@@ -8,7 +8,7 @@ implicit none
      real(wp), allocatable,dimension(:) :: meshpoints
      real(wp), allocatable, dimension(:,:) :: density
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
-     integer :: nbox, nodes, radius, lmax, welltype,nmax
+     integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin
      integer :: nn,np,nt
 contains
      subroutine init_params
@@ -28,7 +28,9 @@ contains
           vpb(2) = -51.-33.*(nn-np)/nt
           spin(1) = -0.5
           spin(2) = 0.5
+          njoin = 200
           nmax = nn - np
+
           if (nmax.ge.0) then
           nmax = nn
           else
