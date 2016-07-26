@@ -319,11 +319,11 @@ contains
      energies(state(1),state(2),state(3),iq) = 0.0_wp
      if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
      j = state(2) + spin(state(3))
-     if (state(2)==0) j = 0
+     if (state(2)==0) j = 0.5
      nfill = nfill + 2*j+1
      k = k+1
         end do
-      print *, nfill
+     print *, nfill
       end do
 
   end subroutine energy_sort
@@ -344,7 +344,7 @@ contains
       do i = 1, npr
          if (sortenergies(i,iq) < - small) then
           j = sortstates(i,2,iq) + spin(sortstates(i,3,iq))
-          if (sortstates(i,2,iq) == 0) j = 0
+          if (sortstates(i,2,iq) == 0) j = 0.5
            do ir=1,nbox
              rho(ir,iq) = rho(ir,iq) + (2*j+1)*wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)&
              *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq) / (4*pi*meshpoints(ir)**2)
