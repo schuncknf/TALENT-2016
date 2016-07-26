@@ -144,9 +144,9 @@ double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, dou
 	
 	gsl_poly_complex_workspace_free (dummy);
 	
-	for (i=0; i<n; i++)
+	for (i=0; i<n; i+=1)
 		
-		for (j=0; j<2*n; j+=2)
+		for (j=0; j<n; j+=1)
 		
 			{
 				{
@@ -170,4 +170,4 @@ double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, dou
 	
 	return res;
 	
-	}
+}
