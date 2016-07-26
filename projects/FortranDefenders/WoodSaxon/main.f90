@@ -6,6 +6,7 @@ program main
     open(unit=5,file='in',status='old',form='formatted')
     open(unit=6,file='out',form='formatted')
     open(unit=13,file='plt',form='formatted')
+    open(unit=14,file='densities',form='formatted')
 
     call init_params
     call init_grids
@@ -51,6 +52,7 @@ program main
     end do
   end do
   call energy_sort
+  call build_densities
   write(6,*) "Single Particle States | "
     do iq =1,2
 
@@ -87,5 +89,6 @@ program main
     close(13)
     close(6)
     close(5)
+    close(14)
 
 end program main

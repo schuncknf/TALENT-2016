@@ -1,0 +1,13 @@
+&Nucleus
+NN=126, ZZ=82/
+&parameters
+epsi=1e-6, h2m=20.73553 /
+&sizebox
+R_box= 10., h= 0.1,  /
+&energy
+E_minus=-100., E_plus=100/
+&max_quantum_number
+n_max=4, l_max=4 /
+&WoodSaxon
+r0=1.27, a=0.67/
+
