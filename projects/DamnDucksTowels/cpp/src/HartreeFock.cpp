@@ -1,3 +1,4 @@
+#include "Exception.h"
 #include "HartreeFock.h"
 
 HartreeFock::HartreeFock(System & _system) : Solver(_system, (unsigned int)1), D(_system.particleNumbers.n_rows), occ(_system.particleNumbers.n_rows)
@@ -50,5 +51,17 @@ void HartreeFock::run()
 
 void HartreeFock::calcH()
 {
-  
+  Basis &basis = *system->basis;
+  if(basis.type == "SpBasis" || basis.type == "ReducedSpBasis")
+  {
+    // Calculation of the kinetic part
+    // TODO
+
+    // Calculation of the harmonic part
+    // TODO
+  }
+  else
+  {
+    throw std::runtime_error("Unknown basis.");
+  }
 }

@@ -4,6 +4,7 @@
        use pot
        use maths
        use ho
+       use mscheme
       implicit none   
       integer, parameter :: lwmax=1000
       double precision,parameter::lambda=1.d-8
@@ -11,7 +12,9 @@
       double precision, allocatable :: hf(:,:), eigvecr(:,:), eigvecl(:,:)
       double precision, allocatable :: eigvalr(:), eigvall(:), eigvalold(:), work(:)
       double precision, allocatable :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:),trho(:,:),hrho(:,:)
-      double precision, allocatable :: vpotm(:,:,:,:),vpotp(:,:,:,:),vpotas(:,:,:,:)
+      double precision, allocatable :: vpotp(:,:,:,:),vpotas(:,:,:,:)
+      double precision, allocatable :: vpotpr(:,:,:,:),vpotasr(:,:,:,:),vpotr(:,:,:,:)
+      integer,allocatable::nl(:),nr(:),nj(:)
       double precision esum, rhosum, gamasum, vnorm,tr
       double precision::x,ri,rj,hfenergy,hf2body,kin_energy,tbme1,tbme2
       integer::n1,n2,n3,n4
@@ -22,6 +25,7 @@
 ! --------------------------------------------------
 !
       n=nbase
+      !n=ntx
       lda = n
       ldvr = n
       ldvl = n
@@ -29,38 +33,46 @@
 ! 
       allocate(hf(n,n),eigvecr(n,n),eigvecl(n,n))
       allocate(eigvalr(n),eigvall(n),eigvalold(n),work(lwmax))
+      allocate(nr(n),nl(n),nj(n))
 !
       allocate(trho(n,n),hrho(n,n),rho(n,n),vpot(n,n,n,n),kin(n,n),gama(n,n))
-      allocate(vpotm(n,n,n,n),vpotp(n,n,n,n),vpotas(n,n,n,n))
+      allocate(vpotp(n,n,n,n),vpotas(n,n,n,n))
+      allocate(vpotr(nbase,nbase,nbase,nbase),vpotpr(nbase,nbase,nbase,nbase),vpotasr(nbase,nbase,nbase,nbase))
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 
 
-        call kinetic(kin,n)
+      !  call sphbasis(size(nr),nr,nl,nj,.true.)
+      !  call external_basis(resua,resub) 
+       write(*,*) exttag(2,1,1)
+       read(*,*)
+        call kinetic(n,nr,nl,kin)
 vpot=0.d0
 vpotas=0.d0
-write(*,*) "computing TBME"
-!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(n,vpotas,vpotp) SCHEDULE(DYNAMIC)
-     do i = 1,n
+write(*,*) "computing TBME",nbase
+!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(nbase,vpotas) SCHEDULE(DYNAMIC)
+     do i = 1,nbase
       n1=i-1
-      do j = 1,n
+      do j = 1,nbase
        n2=j-1
-       do k = 1,n
+       do k = 1,nbase
         n3=k-1
-        do l = 1,n
+        do l = 1,nbase
          n4=l-1
-           call tbme(n1,n2,n3,n4,vpot(i,j,k,l),.true.)
-           call tbme(n1,n2,n4,n3,vpotp(i,j,k,l),.false.)
-           vpotas(i,j,k,l) = (vpot(i,j,k,l) + vpotp(i,j,k,l))
+           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.,0)
+           call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.,0)
+           vpotas(i,j,k,l) = (vpotr(i,j,k,l) + vpotpr(i,j,k,l))
         enddo !l
        enddo !k
       enddo !j
      enddo !i
 !$OMP END PARALLEL DO
+!vpotas(1:nbase,1:nbase,1:nbase,1:nbase) = vpotasr(1:nbase,1:nbase,1:nbase,1:nbase)
 !           vpotas = 0.d0
 write(*,*) "TBME's computed and antisymetrized"
 
 ! ---------- start of iteration loop
 
+      eigvecr = 0.d0
       do it = 1, maxit
 
          if(it .eq. 1) then ! initializing eigenfunctions and eigenvalues
@@ -149,13 +161,13 @@ write(*,*) "TBME's computed and antisymetrized"
         enddo
        hfenergy = hfenergy  + hf2body*half
        !write(*,*) 'hartree-fock energy',hfenergy 
-       !write(*,*) "kinetic energy",kin_energy
+       write(*,*) "kinetic energy",kin_energy
        hfenergy = 0.d0
-       do i=1,n
+       do i=1,nbase
          hfenergy = hfenergy + trho(i,i) + hrho(i,i)
        enddo
        tr=0.d0
-       do i=1,n
+       do i=1,nbase
         tr = tr + 2.d0*rho(i,i)
        enddo
        write(*,*) "Part Num",tr
