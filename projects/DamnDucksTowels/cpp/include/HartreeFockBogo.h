@@ -18,7 +18,8 @@ public:
 public:
   HartreeFockBogo (System & system);
   ~HartreeFockBogo ();
-  void calc ();
+  void run ();
+  void calcH ();
 };
 
 #endif

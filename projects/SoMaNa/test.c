@@ -3,14 +3,19 @@
 #include "gauss-laguerre.h"
 // #include "potential.h"
 #include "harmon.h"
-// #include "tbme.h"
+#include "tbmeoutput.h"
+#include "read_file.h"
 
-void main (void)
+#define MAX_PAR 21
+
+int main (void)
 
 	{
-		double res;
+		double res, *coefficients,kappar,kappat,kappas,m,w,Vr,Vt,Vs,l;
 		
-		int i,j;
+		int i,j,n;
+		
+		coefficients = (double*) malloc (MAX_PAR*sizeof(double));
 		
 		/* res = int1(fun1, 1,2,3,4,1.2,3.4,0.3,0.1);
 		
@@ -22,6 +27,28 @@ void main (void)
 		
 		printf("Res2 = %f \n\n\n", res); */
 		
+		coefficients=read_file();
+		
+		kappar = coefficients[7]; printf("\n kappa_r= %lf", kappar);
+		
+		Vr = coefficients[4]; printf("\n V_r= %lf", Vr);
+		
+		kappas = coefficients[8]; printf("\n kappa_s= %lf", kappas);
+		
+		Vs = coefficients[6]; printf("\n V_s= %lf", Vs);
+		
+		kappat = coefficients[8]; printf("\n kappa_t= %lf", kappat);
+		
+		Vt = coefficients[5]; printf("\n V_t= %lf", Vt);		
+		
+		m = coefficients[3]; printf("\n m= %lf", m);
+		
+		w = coefficients[2]; printf("\n omega= %lf", w);
+		
+		l = coefficients[1]; printf("\n l= %lf", l);
+		
+		n = coefficients[0]; printf("\n n= %d", n);	
+		
 		for (i=0; i<30; i++)
 		
 			{
@@ -31,6 +58,8 @@ void main (void)
 		
 		printf("\n\n STOP");		
 		
-		tbmeprint(9.39565,10.0, 3);
+		 tbmeprint(m,w/197.3269788, kappar,kappas,kappat,Vr,Vs,Vt,n,0);
+		
+		free(coefficients);
 	
 	}

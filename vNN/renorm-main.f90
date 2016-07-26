@@ -953,7 +953,7 @@ SUBROUTINE print_mscheme(gna,mscheme_configs)
         WRITE(14,1001) ia, ib, ic, id, gna(j,i)
      ENDDO
   ENDDO
-1001 FORMAT(1X,I2,1X,I2,1X,I2,1x,I2,5X,(E12.6,1X))
+1001 FORMAT(1X,I3,1X,I3,1X,I3,1x,I3,5X,(E12.6,1X))
 
 END SUBROUTINE print_mscheme
 !

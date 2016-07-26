@@ -2,17 +2,17 @@ SHELL= /bin/bash
 cc=ifort
 OPTS = -autodouble
 
-exec=test
-SRC= leftright1.f90
+exec=exe
+SRC= radial.f90
 OBJ=$(SRC:.f90=.o)
 
-all : $(exec)
+file : $(exec)
 
 $(exec): $(OBJ)
 	$(cc) -o $(exec) $(OBJ) 
 
-leftright1.o:  
-	$(cc) -o leftright1.o  -c leftright1.f90
+radial.o:  
+	$(cc) -o radial.o variables.f90 -c radial.f90
 clean : 
 	rm -rf *.o
 

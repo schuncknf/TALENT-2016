@@ -2,7 +2,9 @@ module solver
   use grid
   implicit none
 
-  real(wp), allocatable :: vocc(:,:,:,:), energies(:,:,:,:)
+  real(wp), allocatable :: vocc(:,:,:,:), energies(:,:,:,:), &
+                         &  sortenergies(:,:)
+  integer, allocatable :: sortstates(:,:,:)
 
 contains
 
@@ -11,67 +13,75 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes, j, l, m, is, iq, n
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm
-    real(wp), allocatable :: potential(:), test(:), test2(:),test3(:)
-    logical :: sign
-    density(:) = 0.0
+    integer :: i, ir, nnodes, nnodesl, l, is, iq, n, k
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j,coefmin,coefmax,coef, diff, ddiff
+    real(wp), allocatable :: potential(:)
+
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
-    wfr(:,:,:,:) = 0.0
+    wfr(:,:,:,:,:) = 0.0
     do iq =1,2
       do n =1,lmax-2
         do l =0,lmax
             do is = 1,2
+                j = l + spin(is)
+                if (l==0) j=1
                 Eupper = 100_wp
-
                 Elower = vpb(iq)
-
-                do i=1,100000
+                do i=1,1000000
                   Etrial = (Eupper+Elower)/2.0
                   ! Attempting to set the potential before hand, if this does not work, we
                   ! can do it "on the fly"
                   do ir=0,nbox
-    								if (iq .EQ. 1) then
-                    	potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
+                    if (iq .EQ. 1) then
+                       potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
                       -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m
-    								else
-    									potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
+                    else
+                       potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
                       -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial-coulomb(ir))/hbar22m
-    								end if
+                    end if
                   end do
 
-
-                  wfr(nbox,l,is,iq) = 0.0
-                  wfr(nbox-1,l,is,iq) = 1.0
+                  !
+                  wfr(nbox,n,l,is,iq) = 0.
+                  wfr(nbox-1,n,l,is,iq) = 1.
+                  wfl(0,n,l,is,iq) = 0.
+                  wfl(1,n,l,is,iq) = meshpoints(1)**(l+1)
 
                   nnodes = 0
+                  !
                   do ir=nbox-1,1,-1
                     a1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(ir))
                     a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
                     a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
 
-                    wfr(ir-1,l,is,iq) = (a1*wfr(ir,l,is,iq) - a2*wfr(ir+1,l,is,iq))/a3
-                    if(wfr(ir,l,is,iq)*wfr(ir-1,l,is,iq) < small) nnodes = nnodes + 1
-                  end do
+                    b1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(nbox-ir))
+                    b2 = (1.0 + (1.0/12.0) * h**2 * potential(nbox - ir-1))
+                    b3 = (1.0 + (1.0/12.0) * h**2 * potential(nbox - ir+1))
 
+                    wfr(ir-1,n,l,is,iq) = (a1*wfr(ir,n,l,is,iq) - a2*wfr(ir+1,n,l,is,iq))/a3
+                    wfl(nbox - ir+1,n,l,is,iq) = (b1*wfl(nbox - ir,n,l,is,iq) - b2*wfl(nbox - ir-1,n,l,is,iq))/b3
+                    if (ir == njoin) diff = wfr(ir,n,l,is,iq) / wfl(ir,n,l,is,iq)
+                    if (ir <= njoin) then
+                      wfl(ir,n,l,is,iq) = diff * wfl(ir,n,l,is,iq)
+                    end if
+
+                    if((wfr(ir,n,l,is,iq)*wfr(ir-1,n,l,is,iq) < 0) .AND. (ir > 5)) nnodes = nnodes+1
+                  end do
+                  wfr(0:njoin,n,l,is,iq) = wfl(0:njoin,n,l,is,iq)
                   if (nnodes > n-1) then
                     Eupper = Etrial
                   else if (nnodes <= n-1) then
                     Elower = Etrial
                   end if
 
-
                   if (abs(Eupper - Elower) < conv) then
                     if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
+                          vocc(n,l,is,iq) = 2*l+1
+                          energies(n,l,is,iq) = etrial
+                          norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
+                          wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                       end if
 
-                      vocc(n,l,is,iq) = 2*l+1
-                      energies(n,l,is,iq) = etrial
-                      norm = sqrt(sum(h*wfr(:,l,is,iq)*wfr(:,l,is,iq)))
-                      wfr(:,l,is,iq) = wfr(:,l,is,iq)/norm
-                      do ir=0,nbox
-                        If (n==1 .AND. l==1) write (13,*) ir*h, wfr(ir,l,is,iq)
-                      end do
-                    end if
                     exit
                   end if
                 end do
@@ -92,27 +102,78 @@ contains
   end subroutine solve_r
 
   subroutine energy_sort
-    integer :: n, l, iq, is, ni
-    real(wp) :: tempe
+    integer :: n, l, iq, is, n1,k,i,nfill,nfull
+    real(wp) :: temp,j
+    integer, dimension(1:3) :: state
+
+    allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
+    sortenergies = small
+    sortstates = small
     do iq =1,2
-      do l=0,lmax
+     nfull = nn
+     if (iq == 2) nfull = np
+     k = 1
+     nfill = 0
+     do while(nfill.lt.nfull)
+      temp = 0._wp
+      state = 1
+     do n = 1,lmax
+      do l = 0,lmax
         do is=1,2
-          do ni = 1, lmax-2
-            tempe = 0.
-            do n=1,lmax-2
-              if(tempe > energies(n,l,is,iq)) tempe = energies(n,l,is,iq)
-            end do
-            energies(ni,l,is,iq) = tempe
-          end do
+              if(temp > energies(n,l,is,iq)) then
+              temp = energies(n,l,is,iq)
+              state(1) = n
+              state(2) = l
+              state(3) = is
+              end if
         end do
       end do
-    end do
-
-
-
+     end do
+     sortenergies(k,iq) = energies(state(1),state(2),state(3),iq)
+     do i = 1,3
+     sortstates(k,i,iq) = state(i)
+     end do
+     energies(state(1),state(2),state(3),iq) = 0.0_wp
+     if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
+     j = state(2) + spin(state(3))
+     if (state(2)==0) j = 0.5
+     nfill = nfill + 2*j+1
+     k = k+1
+        end do
+      end do
 
   end subroutine energy_sort
 
+  subroutine build_densities
+  integer :: npr,iq,ir,i
+  real(wp) :: j
+
+  do iq =1,2
+
+      if (iq == 1) then
+      npr = nn
+      else
+      npr = np
+      end if
+      rho(:,iq)=0.
+      do i = 1, npr
+         if (sortenergies(i,iq) < - small) then
+          j = sortstates(i,2,iq) + spin(sortstates(i,3,iq))
+          if (sortstates(i,2,iq) == 0) j = 0.5
+           do ir=1,nbox
+             rho(ir,iq) = rho(ir,iq) + (2*j+1)*wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)&
+             *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq) / (4*pi*meshpoints(ir)**2)
+            end do
+          end if
+      end do
+   end do
+   rho(:,3)=rho(:,1) + rho(:,2)
+   rho(:,4)=rho(:,1) - rho(:,2)
+
+    do ir = 0,nbox
+      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),rho(ir,4)
+    end do
+  end subroutine build_densities
 
   function infwell_exact() result(energy)
     real(wp) :: energy
@@ -213,12 +274,12 @@ function dfullwoodsaxon(ir) result(pot)
 
   end function
 
-	function coulomb(ir)	result(pot)
-		integer,intent(in) :: ir
-		real(wp) ::pot
-		if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
-		if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
+  function coulomb(ir) result(pot)
+    integer,intent(in) :: ir
+    real(wp) ::pot
+        if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
+        if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
 
-	end function
+  end function
 
 end module solver

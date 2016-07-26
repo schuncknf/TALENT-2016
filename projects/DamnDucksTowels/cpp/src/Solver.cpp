@@ -24,6 +24,19 @@ Solver::Solver(System & _system, unsigned int _dNumber) : system(&_system),
 
 Solver::~Solver(){}
 
+void Solver::initH (int type)
+{
+  (void) type;
+  int pNum = system->H.n_cols;
+
+  for(int pType = 0; pType < pNum; pType++)
+  {
+    system->H(0, pType).eye();
+  }
+}
+
+
+
 std::string Solver::info()
 {
   std::stringstream info;

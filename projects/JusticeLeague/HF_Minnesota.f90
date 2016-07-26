@@ -10,6 +10,126 @@ module Minnesota
   real(dp), private, parameter :: b_ho=sqrt(2*h2_2m/hw)
 contains
 
+  subroutine read_orbitals
+    implicit none
+    integer :: i,j
+!    character(11) :: text
+    character(20) :: text
+    integer :: ni,li,ji,mi,tzi
+    allocate(HO_inverse(1:n_orbitals))
+    allocate(ho_flag(1:n_orbitals))
+    allocate(n_ho(1:n_orbitals))
+    allocate(m_ho(1:n_orbitals))
+    allocate(l_ho(1:n_orbitals))
+    allocate(j_ho(1:n_orbitals))
+    allocate(tz_ho(1:n_orbitals))
+    allocate(n_hf(1:n_orbitals))
+    allocate(l_hf(1:n_orbitals))
+    allocate(j_hf(1:n_orbitals))
+!    open(100,file='spJ.dat')
+!    open(100,file='spM.dat')
+    open(100,file='spM_n5l2.dat')
+!    do i = 1,10
+    do i = 1,1
+       read(100,*)
+    enddo
+    n_hf = 0
+    l_hf = 0
+    j_hf = 0
+    HO_inverse = 0
+    ho_flag = 0
+    j = 0
+    do i = 1,n_orbitals
+!       read(100,'(a11,4i6)') text, ni,li,ji,tzi
+       read(100,'(a20,6i4)') text, ni,li,ji,mi,tzi
+       n_ho(i) = ni
+       l_ho(i) = li
+       j_ho(i) = ji
+       m_ho(i) = mi
+       tz_ho(i) = tzi
+       if(tzi.eq.1) then
+          ho_flag(i) = 1
+          if(ni.ne.n_ho(i-1).or.li.ne.l_ho(i-1).or.ji.ne.j_ho(i-1)&
+               .or.tzi.ne.tz_ho(i-1)) then
+             j = j + 1
+             n_hf(j) = ni
+             l_hf(j) = li
+             j_hf(j) = ji
+           endif
+           HO_inverse(i) = j
+      endif
+    enddo
+    close(100)
+!    nsize = j
+    nsize = 30!j!/2
+!    stop
+  end subroutine read_orbitals
+
+  subroutine read_TBME
+    implicit none
+    integer :: i1,i2,i3,i4,tz,P,J
+    integer :: j1,j2,j3,j4
+    integer :: k1,k2,k3,k4
+    real(dp) :: TBME
+    allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
+    v_mat = 0
+!    open(100,file='VJ-scheme.dat')
+!    open(100,file='VM-scheme.dat')
+    open(100,file='VM-scheme_n5l2.dat')
+    read(100,*)
+    read(100,*)
+    do
+!       read(100,*) tz,P,J,i1,i2,i3,i4,TBME
+       read(100,*) i1,i2,i3,i4,TBME
+       
+!       if(tz.eq.9) exit
+       if(i1.eq.0) exit 
+       if(ho_flag(i1).eq.1.and.ho_flag(i2).eq.1.and.&
+            ho_flag(i3).eq.1.and.ho_flag(i4).eq.1) then
+          ! k1 = HO_inverse(i1)
+          ! k2 = HO_inverse(i2)
+          ! k3 = HO_inverse(i3)
+          ! k4 = HO_inverse(i4)
+          if(m_ho(i1).ne.m_ho(i3).or.m_ho(i2).ne.m_ho(i4)) cycle
+          j1 = HO_inverse(i1)!+1)/2
+          j2 = HO_inverse(i2)!+1)/2
+          j3 = HO_inverse(i3)!+1)/2
+          j4 = HO_inverse(i4)!+1)/2
+          ! if(j1.eq.1.and.j2.eq.1.and.j3.eq.1.and.j4.eq.2) &
+          !      write(*,*) m_ho(k1),m_ho(k2),m_ho(k3),m_ho(k4),TBME
+!          v_mat(j1,j2,j3,j4) = v_mat(j1,j2,j3,j4) + &
+!               (J+1)/((j_ho(i1)+1._dp)*(j_ho(i2)+1._dp))*TBME
+!          if(j1.eq.4.and.j2.eq.4.and.j3.eq.4.and.j4.eq.4) &
+!               write(*,*) TBME
+          v_mat(j1,j2,j3,j4) = v_mat(j1,j2,j3,j4) + &
+               1/((j_ho(i1)+1._dp)*(j_ho(i2)+1._dp))*TBME
+       endif
+    enddo
+    close(100)
+    !v_mat = 2*v_mat
+    ! do j1 = 1,nsize
+    !    do j2 = j1,nsize
+    !       do j3 = 1,nsize
+    !          do j4 = j3,nsize
+    !             v_mat(j1,j2,j4,j3) = v_mat(j1,j2,j3,j4)
+    !             v_mat(j2,j1,j3,j4) = v_mat(j1,j2,j3,j4)
+    !             v_mat(j2,j1,j4,j3) = v_mat(j1,j2,j3,j4)
+    !          enddo
+    !       enddo
+    !    enddo
+    ! enddo
+   !  do j1 = 1,nsize
+   !     do j2 = 1,nsize
+   !        do j3 = 1,nsize
+   !           do j4 = 1,nsize
+   !              write(*,'(4i4,1f15.8)') j1,j2,j3,j4,v_mat(j1,j2,j3,j4)
+   !           enddo
+   !        enddo
+   !     enddo
+   !  enddo
+   ! stop
+  end subroutine read_TBME
+
   subroutine Initialize_Minnseota
     implicit none
     integer :: i,n,np,l
@@ -17,17 +137,22 @@ contains
     integer, parameter :: Ngauss = 95
     real(dp), dimension(1:Ngauss) :: w,x
     allocate(t_mat(1:Nsize,1:Nsize))
-    allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
-    allocate(n_ho(1:Nsize))
-    allocate(l_ho(1:Nsize))
+!    allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
+!    allocate(n_ho(1:Nsize))
+!    allocate(l_ho(1:Nsize))
     t_mat = 0
-    v_mat = 0
-    l_ho = 0
+!    v_mat = 0
+!    n_ho = 0
+!    l_ho = 0
     do i = 1,nsize
-       n_ho(i) = i-1
-       t_mat(i,i) = hw*(2*n_ho(i) + l_ho(i) + 1.5_dp)
+!       n_ho(i) = i-1
+       t_mat(i,i) = hw*(2*n_hf(i) + l_hf(i) + 1.5_dp)
+!       write(*,*) i,n_hf(i), l_hf(i), j_hf(i)
+!       t_mat(i,i) = hw*(2*n_ho(i) + l_ho(i) + 1.5_dp)
+!       t_mat(i,i) = hw*(2*n_ho(2*i) + l_ho(2*i) + 1.5_dp)
     enddo
-    call calculate_TBME
+!    stop 
+!    call calculate_TBME
   end subroutine Initialize_Minnseota
 
   subroutine calculate_TBME
@@ -48,6 +173,7 @@ contains
                 else
                    M43 = Minnesota_TBME(n1,n2,n4,n3)
                 endif
+!                write(*,*) i1,i2,i3,i4,M34+M43
                 v_mat(i1,i2,i3,i4) = M34+M43
                 v_mat(i1,i2,i4,i3) = M34+M43
                 v_mat(i2,i1,i3,i4) = M34+M43
@@ -56,6 +182,16 @@ contains
           enddo
        enddo
     enddo
+    ! do i1 = 1,Nsize
+    !    do i2 = 1,Nsize
+    !       do i3 = 1,Nsize
+    !          do i4 = 1,Nsize
+    !             write(*,'(4i4,f15.8)') i1,i2,i3,i4,v_mat(i1,i2,i3,i4)
+    !          enddo
+    !       enddo
+    !    enddo
+    ! enddo
+    ! stop
   end subroutine calculate_TBME
 
   function Minnesota_TBME(n1,n2,n3,n4) result(TBME)

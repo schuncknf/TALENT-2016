@@ -16,7 +16,8 @@ public:
 public:
   HartreeFock (System & system);
   ~HartreeFock ();
-  void calc ();
+  void run ();
+  void calcH ();
 };
 
 #endif

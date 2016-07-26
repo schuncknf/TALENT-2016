@@ -1,5 +1,5 @@
-CC	= gfortran
-CFLAGS	= -fbounds-check -Wall
+CC	= ifort
+CFLAGS	= -Ofast #-fbounds-check -Wall
 
 LDFLAGS	=
 EXEC	= main

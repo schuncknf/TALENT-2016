@@ -9,6 +9,11 @@ HartreeFockBogo::~HartreeFockBogo()
 {
 }
 
-void HartreeFockBogo::calc()
+void HartreeFockBogo::run()
 {
+}
+
+void HartreeFockBogo::calcH()
+{
+
 }

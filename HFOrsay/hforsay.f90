@@ -9,12 +9,15 @@ use ho
 implicit none
 double precision::ml,x
 double precision::test
-integer::i,nl,n1,n2
 double precision::test11(4)
 double precision::start,finish
 
 
 call reader()
+!call tbme_lines()
+!call read_ext_basis()
+!call ext_tbme()
+!write(*,*) "tbme",tbme_ext(17,18,89,18)
 !call cpu_time(start)
 start = omp_get_wtime()
 call lag_roots(ngauss,0.5d0,.true.)

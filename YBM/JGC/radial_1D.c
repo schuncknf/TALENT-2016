@@ -104,12 +104,14 @@ int main()
 				wf_val.push_back(wfStep2);
 
 				// Calculate eigenfunction using Numerov
-				for(int i=0; i<wBox/h; i++) 
+
+				if(selectFunc==2) for(int i=0; i<wBox/h; i++)
 				{
 					if (i < (wBox+wWell)/(2*h)) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
 					else if ( (numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h))/wf_val.at((wBox+wWell)/(2*h))>0) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
 					else wf_val.push_back(0);
 				}
+				else for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h));
 
 				double normFac = normalise(eigenEng);
 
@@ -222,12 +224,12 @@ double normalise(double eigenEng)
 
 //	for(int i=0; i<wBox/h; i++) wfWork.push_back(fabs((numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h))));
 
-	for(int i=0; i<wBox/h; i++) 
-	{
+	if(selectFunc == 2) for(int i=0; i<wBox/h; i++){
 		if (i < (wBox+wWell)/(2*h)) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
 		else if ( (numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h))/wfWork.at((wBox+wWell)/(2*h))>0) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
 		else wfWork.push_back(0);
 	}
+	else for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
 
 	for(int i=0; i<(wBox/h)-1; i++) sum += h*pow(wfWork.at(i),2);
 
@@ -289,4 +291,9 @@ double woodsSaxon(double x)
 		WS = coeffV * (1 / ( 1 + exp( ((-x+(wBox/2))-R)/a_comp )));
 	}
 	return WS;
+}
+
+double spinOrbit()
+{
+
 }
