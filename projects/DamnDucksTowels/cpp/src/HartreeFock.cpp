@@ -1,4 +1,3 @@
-//#include "Exception.h"
 #include "HartreeFock.h"
 #include "quadrature.h"
 #include "SpBasis.h"
@@ -104,6 +103,6 @@ void HartreeFock::calcH()
   }
   else
   {
-    //throw std::runtime_error("Unknown basis.");
+    throw std::runtime_error("Unknown basis.");
   }
 }

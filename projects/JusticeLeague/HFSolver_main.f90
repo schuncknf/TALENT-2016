@@ -7,23 +7,25 @@ program HFSolver
   integer :: i,j,k
   real(dp) :: EHF,tr_rho
   Nparticles = 2
-  n_orbitals = 24
+  n_orbitals = 64
 !  Nsize = n_orbitals/2!
   call read_orbitals
-  ! write(*,*) nsize
-  ! write(*,*) n_ho
-  ! write(*,*) l_ho
-  ! write(*,*) j_ho
-  ! write(*,*) ho_flag
-  ! stop
+!  write(*,*) nsize
+!  write(*,*) n_ho(1:2*nsize)
+!  write(*,*) ho_flag
+!  write(*,*) l_ho(1:nsize)
+!  write(*,*) j_ho(1:nsize)
+  !write(*,*) ho_flag
+!  stop
 ! write(*,*) ho_index(1:nsize)
   call read_TBME
 !  stop
 ! write(*,*) v_mat
 !  stop
-!  do Nsize = 6,6,2
+!  do Nsize = 4,4,2
      call initialize_HF
      call Initialize_Minnseota
+!     stop
 !     v_mat = 0
 !     write(*,*) t_mat 
 !     stop
@@ -46,7 +48,7 @@ program HFSolver
      call Construct_gamma
      h_mat = t_mat + gamma_mat
      write(*,*) (E_values(i),i=1,12)
-     EHF = (Trace_product(t_mat,rho_mat) + Trace_product(h_mat,rho_mat))*0.5_dp
+     EHF = (Trace_product(t_mat,rho_mat) + Trace_product(h_mat,rho_mat))
      write(*,*) EHF
 !  enddo
   

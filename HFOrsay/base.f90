@@ -3,17 +3,14 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
       implicit none
       integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt 
       logical:: lpr
-      integer::nr(n),nl(n),nj(n)
+      integer::nr(n),nl(n),nj(n),ms(n),nocc(n)
 
       nr(1) = 0
       nl(1) = 0
-      nj(1) = 0
+      nj(1) = 1
+      ms(1) = 1
 !
-      nr(2) = 0
-      nl(2) = 0
-      nj(2) = 1
-!
-      il = 2
+      il = 1
 !
       do nnsph = 1, nbase
          if(mod(nnsph,2) .eq. 0) then
@@ -25,6 +22,8 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
                  nr(il)=nrsph
                  nl(il)=nlsph
                  nj(il)=nlsph+mssph
+	         ms(il)=mssph	
+                 nocc(il)= 2*(nlsph+mssph)
                endif
             enddo ! mssph
          enddo !nlsph
@@ -35,9 +34,11 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
               do mssph = 0,1
                  if(nlsph+mssph .gt. 0) then
                     il = il+1
-                        nr(il) = nrsph
-                        nl(il) = nlsph
-                        nj(il) = nlsph+mssph
+                    nr(il) = nrsph
+                    nl(il) = nlsph
+                    nj(il) = nlsph+mssph
+	            ms(il)=mssph
+	            nocc(il) = 2*(nlsph+mssph)
                 endif
              enddo !nlsph
           enddo !mssph
@@ -59,11 +60,13 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
         nlsph = nl(il)
         njsph = nj(il)
         nnsph = 2*nrsph + nlsph
+	mspin = 2*(njsph-nlsph)-1
+	noc = nocc(il)
 
         !write(*,110)'NN = ',nnsph,'nr = ',nrsph,'ml = ',nlsph,'(2*nj-1)/2 = ',2*njsph-1,'/2'
-        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'nl = ',nlsph,'ms = ', 2*(njsph-nlsph)-1, '/2'
+        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'nl = ',nlsph,'ms = ', mspin, '/2', 'nocc = ', noc
 
-  110   format(5x,a,i2,3x,a,i2,3x,a,i2,3x,a,i2,a)
+  110   format(5x,a,i2,3x,a,i2,3x,a,i2,3x,a,i2,a,3x,a,i2)
 
         enddo
 
