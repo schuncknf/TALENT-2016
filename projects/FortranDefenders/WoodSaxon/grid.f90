@@ -4,6 +4,8 @@ implicit none
      real(wp), parameter :: pi = 3.14159265358979_wp
      real(wp), parameter :: e2 = 1.439646_wp
      real(wp), parameter :: hbar = 6.582119E-22_wp
+     real(wp), parameter :: a = 0.67_wp
+     real(wp), parameter :: vso = 23_wp
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2)
      real(wp), allocatable,dimension(:) :: meshpoints
      real(wp), allocatable, dimension(:,:) :: rho

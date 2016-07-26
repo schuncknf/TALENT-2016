@@ -11,11 +11,10 @@ program main
     call init_params
     call init_grids
     call init_wavefunctions
-
     call solve_r
-
     call energy_sort
     call build_densities
+    ! Wriing the single particle states to 'out'
     write(6,*) "Single Particle States | "
     do iq =1,2
 
@@ -34,11 +33,13 @@ program main
                           &"l=",sortstates(i,2,iq),&
                           &"is=",sortstates(i,3,iq),&
                           &"Energy=", sortenergies(i,iq)
-
             end if
       end do
     end do
-
+    do ir=0,nbox
+      write (13,*) ir*h, vpb(1)*fullwoodsaxon(ir), vpb(2)*fullwoodsaxon(ir)+coulomb(ir)
+    end do
+    ! Particle by way of density integration
     write(6,*) "Total Neutrons =", sum(4*pi*h*meshpoints(:)**2*rho(:,1)), &
     "Total Protons =", sum(4*pi*h*meshpoints(:)**2 *rho(:,2))
 

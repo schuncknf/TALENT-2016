@@ -1,7 +1,7 @@
-CC	= ifort
+CC	= gfortran
 CFLAGS	= -Ofast #-fbounds-check -Wall
 
-LDFLAGS	=
+LDFLAGS	= -Ofast
 EXEC	= main
 
 OBJS = main.o grid.o solver.o
