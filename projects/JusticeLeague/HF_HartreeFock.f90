@@ -28,11 +28,13 @@ contains
     implicit none
     integer :: i,j,k
     real(dp) :: D
+    rho_mat = 0._dp
     do i = 1,Nsize
        do j = i,Nsize
+          if(l_ho(2*i).ne.l_ho(2*j).or.j_ho(2*i).ne.j_ho(2*j)) cycle
           D = 0
-          do k = 1,Nparticles/2
-             D = D + D_mat(i,k)*D_mat(j,k)
+          do k = 1,Nparticles
+             D = D + (j_ho(2*k)+1)*D_mat(i,k)*D_mat(j,k)
           enddo
           rho_mat(i,j) = D
           rho_mat(j,i) = D
@@ -44,11 +46,14 @@ contains
     implicit none
     integer :: i,j,k,l
     real(dp) :: gamma 
+    gamma_mat = 0
     do i = 1,Nsize
        do j = i,Nsize
+          if(l_ho(2*i).ne.l_ho(2*j).or.j_ho(2*i).ne.j_ho(2*j)) cycle
           gamma = 0
           do k = 1,Nsize
              do l = 1,Nsize
+!                if(l_ho(2*k).ne.l_ho(2*l).or.j_ho(2*k).ne.j_ho(2*l)) cycle
                 gamma = gamma + v_mat(i,l,j,k)*rho_mat(k,l)
              enddo
           enddo
