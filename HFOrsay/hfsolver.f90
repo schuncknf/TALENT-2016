@@ -4,6 +4,7 @@
        use pot
        use maths
        use ho
+       use mscheme
       implicit none   
       integer, parameter :: lwmax=1000
       double precision,parameter::lambda=1.d-8
@@ -41,6 +42,9 @@
 
 
       !  call sphbasis(size(nr),nr,nl,nj,.true.)
+      !  call external_basis(resua,resub) 
+       write(*,*) exttag(2,1,1)
+       read(*,*)
         call kinetic(n,nr,nl,kin)
 vpot=0.d0
 vpotas=0.d0
@@ -54,8 +58,8 @@ write(*,*) "computing TBME",nbase
         n3=k-1
         do l = 1,nbase
          n4=l-1
-           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.)
-           call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.)
+           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.,0)
+           call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.,0)
            vpotas(i,j,k,l) = (vpotr(i,j,k,l) + vpotpr(i,j,k,l))
         enddo !l
        enddo !k

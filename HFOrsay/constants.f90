@@ -13,17 +13,16 @@ double precision,parameter::ks=0.465d0 !in fm -2
 double precision,parameter::v0r=200.00d0 !in MeV
 double precision,parameter::v0t=178.00d0 !in MeV
 double precision,parameter::v0s=91.85d0 !in MeV
-
 double precision,parameter::ama = 20.736209412d0 !in (fm**2)
 double precision,parameter::mc2 = 938.90590d0 !in MeV
 integer::nbase,npart,maxit,ngauss,n_lines,ntx
 integer::na_max,la_max,ja_max,nb_max,lb_max,jb_max
 double precision::homega,bosc
+integer,allocatable::exttag(:,:,:)
 contains
 subroutine reader()
 implicit none
 integer,allocatable:: nr(:),nl(:),nj(:)
-integer,allocatable::resua(:,:,:),resub(:,:,:)
 open(1,file='hforsay.dat',status='old')
 read(1,'(10x,i5)') nbase
 read(1,'(10x,i5)') ngauss
@@ -52,15 +51,28 @@ logical::file_exists
 inquire(file='base_config', exist=file_exists)
 if (file_exists) then
 call system("cat base_config|wc -l >> base_nconf.temp")
-call system("awk 'a<$1{a=$1}b<$2{b=$2}c<$3{c=$3}d<$5{d=$5}e<$6{e=$6}f<$7{f=$7} end{print a,b,c,d,e,f}' base_config >> base_nconf.temp")
+call system("awk 'a<$1{a=$1}b<$2{b=$2}c<$3{c=$3} END{print a,b,c}' base_config >> base_nconf.temp")
 open(123,file='base_nconf.temp')
 read(123,*) n_lines
-read(123,*) na_max,la_max,ja_max,nb_max,lb_max,jb_max
+read(123,*) na_max,la_max,ja_max!,nb_max,lb_max,jb_max
 close(123,status="delete")
 else
 write(*,*) 'file base_config not found !'
 stop
 endif
+end subroutine
+subroutine read_ext_basis()
+implicit none
+integer::i
+integer::na,nb,la,lb,ja,jb,a,b
+allocate(exttag(0:na_max,-la_max:la_max,-ja_max:ja_max))
+open(124,file='base_config')
+exttag=0
+do i=1,n_lines
+read(124,'(8i4)') na,la,ja,a,nb,lb,jb,b
+exttag(na,la,ja) = a
+enddo
+close(124)
 end subroutine
 
 

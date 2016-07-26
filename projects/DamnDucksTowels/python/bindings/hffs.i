@@ -40,6 +40,7 @@ namespace std
 #include "HartreeFockBogo.h"
 #include "Interaction.h"
 #include "RawInteraction.h"
+#include "MinnesotaS0.h"
 %}
 
 %include "armanpy.i"
@@ -56,3 +57,4 @@ namespace std
 %include "HartreeFockBogo.h"
 %include "Interaction.h"
 %include "RawInteraction.h"
+%include "MinnesotaS0.h"
