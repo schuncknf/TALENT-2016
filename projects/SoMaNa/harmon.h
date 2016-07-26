@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <math.h>
-#include "gauss-laguerre.h"
 
+
+int factorial (int);
+
+int binomial (int, int);
+
+double laguerre (int, double);
 int doublefac (int);
 
 double Anl (int, double);

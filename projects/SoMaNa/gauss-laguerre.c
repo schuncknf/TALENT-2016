@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "harmon.h"
 #include <gsl/gsl_poly.h>
 
 
@@ -18,7 +19,7 @@
 
 double galag (int n, int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double V);
 
-double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, double V);
+double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, double V,double kappa, double l);
 
 double fun1 (double kappa, double V,double r1, double r2)
 
@@ -36,78 +37,22 @@ double fun2 (double kappa, double V, double m, double w,double r1, double r2,int
 	
 	{
 	
-		double res, dummy1;
+		double res,res1, res2, dummy1;
 		
 		dummy1 = galag(5,n1,n2,n3,n4,m,w,r1,r2,V);
 		
 		printf ("AAaaaa! \n\n\n n1 = %d  n2 = %d  n3 = %d  n4 = %d",n1,n2,n3,n4);
 		
-		res = dummy1*r1*r1*r2*r2*Rnl(n1,0.0,m,w,r1)*Rnl(n2,0.0,m,w,r2)*Rnl(n3,0.0,m,w,r1)*Rnl(n4,0.0,m,w,r2)*exp(r1)*exp(r2);
+		res1 = dummy1*r1*r1*r2*r2*Rnl(n1,0.0,m,w,r1)*Rnl(n2,0.0,m,w,r2)*Rnl(n3,0.0,m,w,r1)*Rnl(n4,0.0,m,w,r2)*exp(r1)*exp(r2);
 		
-		printf("\n\n\n R = %lf R = %lf R = %lf R = %lf",Rnl(n1,0.0,m,w,r1),Rnl(n2,0.0,m,w,r2),Rnl(n3,0.0,m,w,r1),Rnl(n4,0.0,m,w,r2));
+		res2 = dummy1*r1*r1*r2*r2*Rnl(n1,0.0,m,w,r1)*Rnl(n2,0.0,m,w,r2)*Rnl(n3,0.0,m,w,r2)*Rnl(n4,0.0,m,w,r1)*exp(r1)*exp(r2);
+				
+		
+		printf("\n\n\n R = %lf R = %lf R = %lf R = %lf",Rnl(n1,0,m,w,r1),Rnl(n2,0.0,m,w,r2),Rnl(n2,0.0,m,w,r1),Rnl(n4,0.0,m,w,r2));
+		
+		res = res1-res2;
 		
 		return res;
-	
-	}
-
-double laguerre (int n, double x)
-	
-	{
-	
-		/* if (n==0)
-		
-			return 1;
-		
-		else if (n==1)
-			
-			return (-x+1.);
-		
-		else
-		
-			return ( (2*n-1-x)*laguerre(n-1,x) - (n-1)*laguerre(n-1,x) )/n; */
-	
-		int i;
-		
-		double result = 0;		
-		
-		for (i=0; i<=n; i++)
-			
-			result+= binomial(n, i)*pow((-1),i)/factorial(i)*pow(x,i);
-		
-		return result;
-	}
-
-// Factorial function.
-
-int factorial (int n)
-	
-	{
-	
-		if (n==0)
-			return 1;
-		else if (n==1)
-			return n;
-		else return n*factorial(n-1);
-	
-	}
-
-// For test purposes.
-
-double function (double x)
-	
-	{
-	
-		return pow(x,2);
-	
-	}
-
-// Binomial coefficients.
-
-int binomial (int n, int k)
-	
-	{
-	
-		return factorial(n)/factorial(n-k)/factorial(k);
 	
 	}
 
@@ -171,7 +116,7 @@ double galag (int n, int n1, int n2, int n3, int n4, double m, double w,double r
 
 /* double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,double,double,double), int n1, int n2, int n3, int n4, double m, double w, double V) */
 
-double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, double V)
+double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, double V,double kappa, double l)
 
 	{
 	
@@ -212,7 +157,7 @@ double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, dou
 			 
 	// printf("wj = %f \n", wj);
 		
-			res+= wi*wj*fun2(1.487,200.01,m,w,solutions[2*i], solutions[2*j], n1, n2, n3, n4);
+			res+= wi*wj*fun2(kappa,V,m,w,solutions[2*i], solutions[2*j], n1, n2, n3, n4);
 			
 			printf ("\n\n\n 2DGALAG \t sol1 = %lf sol2 = %lf wi=%lf wi=%lf res =%lf",solutions[2*i],solutions[2*j],wi,wj,res);
 			}
