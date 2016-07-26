@@ -1,7 +1,15 @@
 %module hffs
+
+%include "typemaps.i"
 %include "std_string.i"
 %include "std_vector.i"
 %include "std_vectora.i"
+namespace std
+{
+  %template(IntVector) vector<int>;
+  %template(StrVector) vector<string>;
+}
+
 %include "exception.i"
 %exception
 {
