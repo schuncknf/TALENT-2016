@@ -1,10 +1,3 @@
-subroutine tmbe_spherical(n1,n2,n3,n4,resu)
-
-
-
-end subroutine
-
-
 subroutine tbme(n1,n2,n3,n4,resu,pr)
 use ho
 use lag_pol
@@ -12,7 +5,7 @@ use constants
 use pot
 use maths
 implicit none
-integer::i,n1,n2,n3,n4,n,j,l1,l2,l3,l4
+integer::i,n1,n2,n3,n4,j,l1,l2,l3,l4
 double precision::inte1,inte2,resu
 double precision::coeffi,coeffj
 double precision::xxi,xi,xxj,xj

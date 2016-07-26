@@ -8,18 +8,18 @@ ri=dsqrt(r1)*bosc
 rj=dsqrt(r2)*bosc
 v1 =v0r/kr*(exp(-kr*(ri**2+rj**2-2*ri*rj))-exp(-kr*(ri**2+rj**2+2*ri*rj)))/(4.d0*ri*rj) 
 v2=-v0s/ks*(exp(-ks*(ri**2+rj**2-2*ri*rj))-exp(-ks*(ri**2+rj**2+2*ri*rj)))/(4.d0*ri*rj)
-!v1 =v0r/kr*(exp(-kr*(ri-rj)**2)-exp(-kr*(ri+rj)**2))/(4.d0*ri*rj) 
-!v2 =v0s/ks*(exp(-ks*(ri-rj)**2)-exp(-ks*(ri+rj)**2))/(4.d0*ri*rj) 
 v=(v1+v2)*half
 end function
 
-subroutine kinetic(kin,n)
+subroutine kinetic(n,nr,nl,kin)
  use constants
  implicit none
  double precision::kin(n,n)
+ integer::nr(n),nl(n)
  integer::n,i
  kin=0.d0
  do i=1,n
+!   kin(i,i) = (2.d0*nr(i)+nl(i)+1.5d0)*ama*2.d0/(bosc**2)
    kin(i,i) = (2.d0*(i-1)+1.5d0)*ama*2.d0/(bosc**2)
  enddo
  end subroutine
