@@ -1,16 +1,20 @@
 subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
       use constants
       implicit none
-      integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt 
+      integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt,
       logical:: lpr
-      integer::nr(n),nl(n),nj(n),ms(n),nocc(n)
+      integer::nr(n),nl(n),nj(n),ms(n),nfull(n),nocc(n) 
       integer::mspin,noc
+      integer::i,nf,ic
+
+! nfull - maximal number of particles in specific state
+! nocc  - true number of particles in specific state
 
       nr(1) = 0
       nl(1) = 0
       nj(1) = 1
       ms(1) = 1
-      nocc(1) = 2
+      nfull(1) = 2
 !
       il = 1
 !
@@ -25,7 +29,7 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
                  nl(il)=nlsph
                  nj(il)=nlsph+mssph
 	         ms(il)=mssph	
-                 nocc(il)= 2*(nlsph+mssph)
+                 nfull(il)= 2*(nlsph+mssph)
                endif
             enddo ! mssph
          enddo !nlsph
@@ -40,7 +44,7 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
                     nl(il) = nlsph
                     nj(il) = nlsph+mssph
 	            ms(il)=mssph
-	            nocc(il) = 2*(nlsph+mssph)
+	            nfull(il) = 2*(nlsph+mssph) ! possible number of particles in a state
                 endif
              enddo !nlsph
           enddo !mssph
@@ -49,7 +53,6 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
         endif
 
         if(nnsph .eq. nbase) nt = il
-
 
         enddo
 
@@ -64,10 +67,10 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
         njsph = nj(il)
         nnsph = 2*nrsph + nlsph
 	mspin = 2*(njsph-nlsph)-1
-	noc = nocc(il)
+	noc = nfull(il)
 
         !write(*,110)'NN = ',nnsph,'nr = ',nrsph,'ml = ',nlsph,'(2*nj-1)/2 = ',2*njsph-1,'/2'
-        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'nl = ',nlsph,'ms = ', mspin, '/2', 'nocc = ', noc
+        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'nl = ',nlsph,'ms = ', mspin, '/2', 'npart = ', noc
 
   110   format(5x,a,i2,3x,a,i2,3x,a,i2,3x,a,i2,a,3x,a,i2)
 
@@ -76,6 +79,31 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
         write(*,*) '****** END SPHERICAL BASIS ***********'
 
         endif
+
+
+! determinaton of occupation number of each state
+	
+	nf = 0
+	ic = 1
+        do il = 1, nt
+	   nf = nf + nfull(il)
+	   if (nf .le. npart) then
+	      nocc(il)=nfull(il)
+	   elseif(nf .gt. npart .and. ic .eq. 1) then 
+	      nocc(il)=nfull(il)+npart-nf
+	      ic = 2
+	   else 
+	      nocc(il)=0
+	   endif
+        enddo
+
+	if(lpr) then
+	do il = 1, nt
+	  write(*,*) il, nocc(il),nfull(il)
+        enddo
+	endif
+
+!
 end subroutine sphbasis
 
 !subroutine external_basis()
@@ -95,6 +123,5 @@ end subroutine sphbasis
 !enddo
 !end subroutine
 
-
-
+       
 
