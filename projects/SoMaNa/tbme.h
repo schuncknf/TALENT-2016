@@ -4,12 +4,12 @@
 // #include "potential.h"
 #include "harmon.h"
 
-double fun1 (double, int, int, int, int);
+double fun1 (double, int, int, int, int, double, double, double);
 
-double int1 (double(*pot)(double, int, int, int, int,double,double), int, int, int, int, double, double, double, double);
+double int1 (int, int, int, int, double, double, double, double,double);
 
-double fun2 (double, double, int, int, int, int, double, double);
+double fun2 (double, double, int, int, int, int, double, double,double);
 
-double int2 (double(*int1v)(double(*pot)(double, int, int, int, int),int, int, int, int, double, double, double, double), int, int, int, int, double, double);
+double int2 (int, int, int, int, double, double,double);
 
-double tbme (double(*pot)(double, double), int, int, int, int, double, double);
+double tbme (int, int, int, int, double, double);

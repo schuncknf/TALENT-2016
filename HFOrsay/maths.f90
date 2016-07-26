@@ -26,36 +26,53 @@ if (mod(n,2) == 0) then
   ffak = fac(2*k)/(2**(dble(k))*fac(k))
 endif
 end function ffac
-
 integer function delta(i,j)
   integer :: i, j
   delta=0; if(i==j) delta=1
 end function delta
+ subroutine sort(n,a)
+  implicit none
+  integer n,i,j
+        double precision a(n),x
+        do 30 i=2,n
+        x=a(i)
+        j=i
+   10   j=j-1
+        if(j.eq.0 .or. a(j).le.x) go to 20
+        a(j+1)=a(j)
+        go to 10
+   20   a(j+1)=x
+   30   continue
+        end subroutine
 
-!recursive function ffac(n) result (ffak)
-!implicit none
-!integer::n,ffak
-!if (n .gt. -2 .and. n .le. 0) then
-!    ffak = 1
-!else
-!    ffak = n*ffac(n-2)
-!endif
-!end function ffac
+subroutine sorteigv(n,indexarray,arraytosort)
+implicit none
+integer::n,i,j,k,l
+double precision::val1,val2
+double precision::indexarray(n),arraytosort(n,n),tempar(n),te(n,n)
+integer::sorted(n)
 
-!function gausslag(n,func) result(inte)
-!use lag_pol
-!use constants
-!implicit none
-!double precision,external::func
-!double precision::inte,wi,xxi,xi
-!integer::i,n
-!inte=0.d0
-!do i=1,n
-!wi=lag_w(i)
-!xxi=(lag_zeros(i))
-!inte = inte + wi*func(xxi)
-!enddo
-!end function gausslag
+tempar=indexarray
+sorted =0
+call sort(n,tempar)
+do i=1,n
+ val1=indexarray(i)
+ do j=1,n
+         val2=tempar(j)
+ if (val1 .eq. val2) sorted(j)=i
+ enddo
+enddo
+do i=1,n
+ do j=1,n
+  te(i,j) = arraytosort(sorted(i),j)
+ enddo
+enddo
+arraytosort= 0.d0
+arraytosort=te
+call sort(n,indexarray)
+
+
+end subroutine
 
 
 

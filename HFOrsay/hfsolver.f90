@@ -1,176 +1,205 @@
-      subroutine hfsolver()
+      subroutine hfsolver(pr)
        use constants
        use lag_pol
        use pot
        use maths
        use ho
-!
-      IMPLICIT NONE   
-!
-!      USE constants  
-!
-      INTEGER, PARAMETER :: lwmax=1000
+      implicit none   
+      integer, parameter :: lwmax=1000
       double precision,parameter::lambda=1.d-8
-      INTEGER :: it, N , LDA, LDVL, LDVR, INFO, i, j, k, l, LWORK
-      DOUBLE PRECISION, ALLOCATABLE :: hf(:,:), eigvecR(:,:), eigvecL(:,:)
-      DOUBLE PRECISION, ALLOCATABLE :: eigvalR(:), eigvalL(:), eigvalOLD(:), WORK(:)
-      DOUBLE PRECISION, ALLOCATABLE :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:)
-      DOUBLE PRECISION, ALLOCATABLE :: vpotm(:,:,:,:),vpotp(:,:,:,:),vpotas(:,:,:,:)
-      DOUBLE PRECISION esum, rhosum, gamasum, vnorm
-      double precision::x,ri,rj
-      double precision,allocatable::temp2(:,:)
-!      external::compute_rho,compute_h,compute_gamma
-!
-      EXTERNAL dgeev
+      integer :: it, n , lda, ldvl, ldvr, info, i, j, k, l, lwork
+      double precision, allocatable :: hf(:,:), eigvecr(:,:), eigvecl(:,:)
+      double precision, allocatable :: eigvalr(:), eigvall(:), eigvalold(:), work(:)
+      double precision, allocatable :: rho(:,:), vpot(:,:,:,:), kin(:,:), gama(:,:),trho(:,:),hrho(:,:)
+      double precision, allocatable :: vpotp(:,:,:,:),vpotas(:,:,:,:)
+      double precision, allocatable :: vpotpr(:,:,:,:),vpotasr(:,:,:,:),vpotr(:,:,:,:)
+      integer,allocatable::nl(:),nr(:),nj(:)
+      double precision esum, rhosum, gamasum, vnorm,tr
+      double precision::x,ri,rj,hfenergy,hf2body,kin_energy,tbme1,tbme2
+      integer::n1,n2,n3,n4
+      integer::i1,i2,i3,i4
+      external dgeev
+      logical::pr
 !
 ! --------------------------------------------------
 !
-      !write(*,*) 'Type in dimension of basis:'
-!
-      !read(*,*) N
-      !call reader()
-      !write(*,*) "Basis size",nbase
       n=nbase
-      !write(*,*) "Npart",npart
-      !write(*,*) "Iteration",maxit
-      
-!
-!
-!
-      LDA = N
-      LDVR = N
-      LDVL = N
-!
+      !n=ntx
+      lda = n
+      ldvr = n
+      ldvl = n
 ! ----- allocation of memory
 ! 
-      ALLOCATE(hf(1:N,1:N),eigvecR(1:N,1:N),eigvecL(1:N,1:N))
-      ALLOCATE(eigvalR(N),eigvalL(N),eigvalOLD(N),WORK(LWMAX))
+      allocate(hf(n,n),eigvecr(n,n),eigvecl(n,n))
+      allocate(eigvalr(n),eigvall(n),eigvalold(n),work(lwmax))
+      allocate(nr(n),nl(n),nj(n))
 !
-      ALLOCATE(rho(1:N,1:N),vpot(1:N,1:N,1:N,1:N),kin(1:N,1:N),gama(1:N,1:N))
-      allocate(vpotm(n,n,n,n),vpotp(n,n,n,n),vpotas(n,n,n,n))
-      allocate(temp2(1,n+1))
-!----  Laguerre Mesh
-    ! call lag_roots(n,0.5d0,.true.)
-     !call gausslag(n,1,2,x)
+      allocate(trho(n,n),hrho(n,n),rho(n,n),vpot(n,n,n,n),kin(n,n),gama(n,n))
+      allocate(vpotp(n,n,n,n),vpotas(n,n,n,n))
+      allocate(vpotr(nbase,nbase,nbase,nbase),vpotpr(nbase,nbase,nbase,nbase),vpotasr(nbase,nbase,nbase,nbase))
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
-!
-!
-      do i = 1, N ! Npart?
-	 do j = 1, N
-	    kin(i,j) = 0.0
-	 enddo
-	 kin(i,i) = (2.d0*i+1.5d0)*ama*2.d0/(bosc**2)
-      enddo
-
-do i=0,400
-ri = 0.1*i
- do j=0,400
- rj = 0.1*j
-write(11,*) ri,rj,potential(ri,rj,v0r,kr)
-write(12,*) ri,rj,minnesota(ri,rj,v0r,kr)
-enddo
-write(11,*)
-enddo
 
 
-write(*,*) "Computing TBMEs"
-     do i = 1,n
-      do j = 1,n
-       do k = 1,n
-        do l = 1,n
-           call tbme((n+1)/2,i,j,k,l,vpot(i,j,k,l))
-           vpotp(i,j,k,l)=vpot(i,j,k,l)
-           vpotm(i,j,k,l)=vpot(i,j,l,k)
-           write(14,*) i,j,k,l,vpot(i,j,k,l)
+      !  call sphbasis(size(nr),nr,nl,nj,.true.)
+        call kinetic(n,nr,nl,kin)
+vpot=0.d0
+vpotas=0.d0
+write(*,*) "computing TBME",nbase
+!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(nbase,vpotas) SCHEDULE(DYNAMIC)
+     do i = 1,nbase
+      n1=i-1
+      do j = 1,nbase
+       n2=j-1
+       do k = 1,nbase
+        n3=k-1
+        do l = 1,nbase
+         n4=l-1
+           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.)
+           call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.)
+           vpotas(i,j,k,l) = (vpotr(i,j,k,l) + vpotpr(i,j,k,l))
         enddo !l
-           write(14,*) 
        enddo !k
-           write(14,*) 
       enddo !j
-           write(14,*) 
      enddo !i
-     vpotas = vpotp + vpotm
-write(*,*) "TBMEs computed and antisymetrized"
+!$OMP END PARALLEL DO
+!vpotas(1:nbase,1:nbase,1:nbase,1:nbase) = vpotasr(1:nbase,1:nbase,1:nbase,1:nbase)
+!           vpotas = 0.d0
+write(*,*) "TBME's computed and antisymetrized"
 
 ! ---------- start of iteration loop
-	
+
+      eigvecr = 0.d0
       do it = 1, maxit
 
-	 if(it .eq. 1) then ! initializing eigenfunctions and eigenvalues
-	    do i = 1, N
-	       do j = 1, N
-	          eigvecR(i,j) = 0.0
-	       enddo
-	       if(i .le. Npart) eigvecR(i,i) = 1.0 ! first Npart states occupied with Npart particles
-	       eigvalOLD(i) = 0.0 
-	    enddo
+         if(it .eq. 1) then ! initializing eigenfunctions and eigenvalues
+            do i = 1, n
+               do j = 1, n
+               if(i .le. n) eigvecr(i,i) = 1.d0 ! first npart states occupied with npart particles
+                  eigvecr(i,j) = 0.d0
+               enddo
+               eigvalold(i) = 0.d0 
+            enddo
          endif
 
-! --------- subroutines: (re)calculate rho and HF hamiltonian
+! --------- subroutines: (re)calculate rho and hf hamiltonian
+       
 
-         call compute_rho(rho,eigvecR,N)
-
-         call compute_gamma(gama,vpotas,rho,N)
-
-         call compute_h(hf,kin,gama,N)
-
+         call compute_rho(rho,eigvecr,n)
+         call compute_gamma(gama,vpotas,rho,n)
+         hf = kin + gama
 ! --------- diagonalization of hamiltonian
-	       
-	 LWORK = -1
-         call DGEEV('N','V',N, hf, LDA, eigvalR, eigvalL, eigvecL, LDVL, &
-                  eigvecR, LDVR, WORK, LWORK, INFO ) 
-         LWORK = MIN( LWMAX, INT( WORK( 1 ) ) )
-         call DGEEV('N','V',N, hf, LDA, eigvalR, eigvalL, eigvecL, LDVL, &
-                  eigvecR, LDVR, WORK, LWORK, INFO ) 
+               
+         lwork = -1
+         call dgeev('n','v',n, hf, lda, eigvalr, eigvall, eigvecl, ldvl, &
+                  eigvecr, ldvr, work, lwork, info ) 
+         lwork = min( lwmax, int( work( 1 ) ) )
+         call dgeev('n','v',n, hf, lda, eigvalr, eigvall, eigvecl, ldvl, &
+                  eigvecr, ldvr, work, lwork, info ) 
 
-	 if(info .ne. 0 ) stop 'problem in diagonalization'
+         if(info .ne. 0 ) stop 'problem in diagonalization'
 
 ! --------- check for convergence
 
-	 esum = 0.0 
-	 do i = 1,N 
-	    esum = esum + abs(eigvalR(i) - eigvalOLD(i))
-	 enddo
-	 esum = esum/N
-         write(*,*) "Iteration: ",it,"ediffi= ",esum
+         esum = 0.d0 
+         do i = 1,n 
+            esum = esum + abs(eigvalr(i) - eigvalold(i))
+         enddo
+         esum = esum/n
+         write(*,*) "iteration: ",it,"ediffi= ",esum
 
-	 if(esum .lt. lambda) exit ! calculation converged
+         if(esum .lt. lambda) exit ! calculation converged
 
 ! -------- save old eigenvalues
 
-         do i = 1, N
-	    eigvalOLD(i) = eigvalR(i)
-	 enddo
+         do i = 1, n
+            eigvalold(i) = eigvalr(i)
+         enddo
 
       enddo !it
 
 ! ------- check out normalization of states
 
-      do j = 1, N
-	 vnorm= 0
-	 do i = 1, N
-	    vnorm = vnorm + eigvecR(i,j)*eigvecR(i,j)
+      do j = 1, n
+         vnorm= 0.d0
+         do i = 1, n
+            vnorm = vnorm + eigvecr(i,j)*eigvecr(i,j)
          enddo 
-	 if(abs(vnorm-1.0) .gt. 0.0001) stop 'problem in normalization'
+         if(abs(vnorm-1.d0) .gt. 0.0001d0) stop 'problem in normalization'
       enddo
 
-! -------- print out eigenfunctions and eigenvalues
 
-      do j = 1, N
-	 write(*,*) 'state number = ', j
-         write(*,*) 'energy = ', eigvalR(j)
-	 write(*,*) 'wave function:'
-         do i = 1, N
-	    write(*,*) eigvecR(i,j)
-	 enddo
-	 write(*,*) '------------------'
+!-------- hf energy
+
+
+       call compute_rho(rho,eigvecr,n)
+       call compute_gamma(gama,vpotas,rho,n)
+       hf = kin + gama
+       call sorteigv(n,eigvalr,eigvecr)
+       hrho=0.d0
+       hrho = matmul(hf,rho)
+       trho=0.d0
+       trho = matmul(kin,rho)
+       hfenergy = 0.d0
+       do i=1,n
+         write(*,'(a,i3,a,f16.8)') 'e(',i,')= ',eigvalr(i)
+       enddo
+       hfenergy = 0.d0
+       hf2body = 0.d0
+       kin_energy = 0.d0
+       do i=1,npart/2
+        hfenergy = hfenergy  + 2.d0*eigvalr(i)
+        kin_energy = kin_energy + kin(i,i)
+       enddo
+       do i=1,npart/2
+        do j=1,npart/2
+           hf2body = hf2body + 2.d0*vpotas(i,j,i,j)
+         enddo
+        enddo
+       hfenergy = hfenergy  + hf2body*half
+       !write(*,*) 'hartree-fock energy',hfenergy 
+       write(*,*) "kinetic energy",kin_energy
+       hfenergy = 0.d0
+       do i=1,nbase
+         hfenergy = hfenergy + trho(i,i) + hrho(i,i)
+       enddo
+       tr=0.d0
+       do i=1,nbase
+        tr = tr + 2.d0*rho(i,i)
+       enddo
+       write(*,*) "Part Num",tr
+
+       write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',hfenergy,' MeV'
+! -------- Writing Outputs
+open(22,file='hforsay.out')
+write(22,*) "------ System ------"
+write(22,'(a,i5)') 'Number of particles......',Npart
+write(22,'(a,i5)') 'Oscillator Shell.........',n
+write(22,*) "---- RESULTS ------"
+write(22,'(a,f16.9,a)') 'Kinetic Energy..........',kin_energy,' MeV'
+write(22,'(a,f16.9,a)') "Hartree-Fock Energy ....",hfenergy,' MeV'
+write(22,'(a,f16.9)') "Particles Number ....",tr
+write(22,*)
+if (pr) then
+write(22,*) "---- Spectrum and Wave-Function ----"
+do j = 1, n
+   write(22,*) 'state number = ', j
+   write(22,*) 'energy = ', eigvalr(j),' MeV'
+   write(22,*) 'Wave-function:'
+do i = 1, n
+      write(22,*) eigvecr(i,j)
+   enddo
+write(22,*) '------------------'
       enddo
+endif
+
+close(22)
+
 
 ! -------- deallocate memory
 
-      DEALLOCATE(hf,eigvecR,eigvecL)
-      DEALLOCATE(eigvalR,eigvalL,eigvalOLD,WORK)
-      DEALLOCATE(rho,vpot,kin,gama)
+      deallocate(hf,eigvecr,eigvecl)
+      deallocate(eigvalr,eigvall,eigvalold,work)
+      deallocate(rho,vpot,kin,gama)
 
       end subroutine
 !

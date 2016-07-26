@@ -987,13 +987,14 @@ subroutine lf_function ( m, n, alpha, x, cx )
   end if
 
   cx(1:m,1) = 1.0D+00 + alpha - x(1:m)
-
+!!!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(n,alpha,x,cx) SCHEDULE(DYNAMIC)
   do i = 2, n
     cx(1:m,i) = ( &
       ( real ( 2 * i - 1, kind = 8 ) + alpha - x(1:m) ) * cx(1:m,i-1)   &
     + ( real (   - i + 1, kind = 8 ) - alpha          ) * cx(1:m,i-2) ) &
       / real (     i,     kind = 8 )
   end do
+!!!!$OMP END PARALLEL DO
 
   return
 end
