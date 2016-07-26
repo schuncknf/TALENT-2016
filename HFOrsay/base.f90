@@ -4,11 +4,13 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
       integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt 
       logical:: lpr
       integer::nr(n),nl(n),nj(n),ms(n),nocc(n)
+      integer::mspin,noc
 
       nr(1) = 0
       nl(1) = 0
       nj(1) = 1
       ms(1) = 1
+      nocc(1) = 2
 !
       il = 1
 !
@@ -47,6 +49,7 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
         endif
 
         if(nnsph .eq. nbase) nt = il
+
 
         enddo
 

@@ -24,8 +24,8 @@
 !
 ! --------------------------------------------------
 !
-      n=nbase
-      !n=ntx
+      !n=nbase
+      n=ntx
       lda = n
       ldvr = n
       ldvl = n
@@ -33,7 +33,7 @@
 ! 
       allocate(hf(n,n),eigvecr(n,n),eigvecl(n,n))
       allocate(eigvalr(n),eigvall(n),eigvalold(n),work(lwmax))
-      allocate(nr(n),nl(n),nj(n))
+      allocate(nr(ntx),nl(ntx),nj(ntx))
 !
       allocate(trho(n,n),hrho(n,n),rho(n,n),vpot(n,n,n,n),kin(n,n),gama(n,n))
       allocate(vpotp(n,n,n,n),vpotas(n,n,n,n))
@@ -41,10 +41,8 @@
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 
 
-      !  call sphbasis(size(nr),nr,nl,nj,.true.)
+        call sphbasis(ntx,nr,nl,nj,.true.)
       !  call external_basis(resua,resub) 
-       write(*,*) exttag(2,1,1)
-       read(*,*)
         call kinetic(n,nr,nl,kin)
 vpot=0.d0
 vpotas=0.d0
