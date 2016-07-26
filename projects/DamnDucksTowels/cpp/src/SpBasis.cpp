@@ -99,3 +99,18 @@ void SpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec & r)
     wfMatrix.col(i) = N(i) * arma::pow(r,l) % arma::exp(-nu * arma::pow(r,2)) % laguerre;
   }
 }
+
+void SpBasis::evalRadialWaveFunctionNoExp(arma::mat &wfMatrix, arma::vec & r)
+{
+  //Calculating wave function values for each basis state and each r point provided
+  wfMatrix = arma::zeros(r.n_elem, size);
+  for (int i = 0; i < size; i++)
+  {
+    int n = qNumbers(i,0);
+    int l = qNumbers(i,1);
+    arma::vec laguerre(r.n_elem);
+    for (unsigned int j = 0; j < r.n_elem; j++)
+      laguerre(j) = gsl_sf_laguerre_n(n,l+0.5,2*nu*r(j)*r(j));
+    wfMatrix.col(i) = N(i) * arma::pow(r,l) % laguerre;
+  }
+}

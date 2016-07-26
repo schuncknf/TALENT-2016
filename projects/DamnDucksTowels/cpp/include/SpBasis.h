@@ -17,9 +17,9 @@ public:
   arma::ivec lMax;
   /// Maximum allowed value for the quantum number m
   arma::imat mMax;
-private:
   /// Auxiliary parameter
   double nu;
+private:
   arma::vec N;
   // Operations
 public:
@@ -28,6 +28,7 @@ public:
   ~SpBasis ();
   /// Calculating radial wave function
   void evalRadialWaveFunction (arma::mat & wfMatrix, arma::vec & r);
+  void evalRadialWaveFunctionNoExp (arma::mat & wfMatrix, arma::vec & r);
   int deltaSpin (int idx1, int idx2);
 private:
   /// Calculating normalization coefficient
