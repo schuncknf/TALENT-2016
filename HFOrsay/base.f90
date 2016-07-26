@@ -4,7 +4,17 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
       integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt 
       logical:: lpr
       integer::nr(n),nl(n),nj(n)
-      il = 1
+
+      nr_sph(1) = 0
+      nl_sph(1) = 0
+      nj_sph(1) = 0
+!
+      nr_sph(2) = 0
+      nl_sph(2) = 0
+      nj_sph(2) = 1
+!
+      il = 2
+!
       do nnsph = 1, nbase
          if(mod(nnsph,2) .eq. 0) then
             do nlsph = 0,nnsph,2
@@ -37,11 +47,7 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
 
         if(nnsph .eq. nbase) nt = il
 
-        nr(1) = 0
-        nl(1) = 0
-        nj(1) = 1
         enddo
-        write(*,*) "EDELWEISS",nt
 
 ! printout
         if(lpr) then
@@ -55,9 +61,9 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
         nnsph = 2*nrsph + nlsph
 
         !write(*,110)'NN = ',nnsph,'nr = ',nrsph,'ml = ',nlsph,'(2*nj-1)/2 = ',2*njsph-1,'/2'
-        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'ml = ',nlsph,'mj = ',njsph
+        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'nl = ',nlsph,'ms = ', 2*(njsph-nlsph)-1, '/2'
 
-  110   format(5x,a,i2,3x,a,i2,3x,a,i2,3x,a,i2)
+  110   format(5x,a,i2,3x,a,i2,3x,a,i2,3x,a,i2,a)
 
         enddo
 
