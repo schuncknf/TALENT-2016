@@ -1,4 +1,3 @@
-#include "Exception.h"
 #include "HartreeFock.h"
 
 HartreeFock::HartreeFock(System & _system) : Solver(_system, (unsigned int)1), D(_system.particleNumbers.n_rows), occ(_system.particleNumbers.n_rows)
