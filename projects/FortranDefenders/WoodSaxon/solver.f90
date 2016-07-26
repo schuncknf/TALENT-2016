@@ -16,7 +16,6 @@ contains
     integer :: i, ir, nnodes, nnodesl, l, is, iq, n, k
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j,coefmin,coefmax,coef, diff, ddiff
     real(wp), allocatable :: potential(:)
-    density(:,:) = 0.0
 
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
     wfr(:,:,:,:,:) = 0.0
@@ -27,9 +26,7 @@ contains
                 j = l + spin(is)
                 if (l==0) j=1
                 Eupper = 100_wp
-
                 Elower = vpb(iq)
-                density(:,iq) = 0.
                 do i=1,1000000
                   Etrial = (Eupper+Elower)/2.0
                   ! Attempting to set the potential before hand, if this does not work, we
@@ -44,13 +41,14 @@ contains
                     end if
                   end do
 
-
+                  !
                   wfr(nbox,n,l,is,iq) = 0.
                   wfr(nbox-1,n,l,is,iq) = 1.
                   wfl(0,n,l,is,iq) = 0.
                   wfl(1,n,l,is,iq) = meshpoints(1)**(l+1)
 
                   nnodes = 0
+                  !
                   do ir=nbox-1,1,-1
                     a1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(ir))
                     a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
@@ -65,12 +63,9 @@ contains
                     if (ir == njoin) diff = wfr(ir,n,l,is,iq) / wfl(ir,n,l,is,iq)
                     if (ir <= njoin) then
                       wfl(ir,n,l,is,iq) = diff * wfl(ir,n,l,is,iq)
-
                     end if
 
                     if((wfr(ir,n,l,is,iq)*wfr(ir-1,n,l,is,iq) < 0) .AND. (ir > 5)) nnodes = nnodes+1
-                    !(abs(wfr(ir-1,n,l,is,iq)-wfr(ir,n,l,is,iq)) < 2*abs(wfr(ir,n,l,is,iq)-wfr(ir+1,n,l,is,iq)))) nnodes = nnodes + 1
-                    !if(wfl(ir,n,l,is,iq)*wfl(ir+1,n,l,is,iq) < 0) nnodes = nnodes + 1
                   end do
                   wfr(0:njoin,n,l,is,iq) = wfl(0:njoin,n,l,is,iq)
                   if (nnodes > n-1) then
@@ -106,189 +101,11 @@ contains
 
   end subroutine solve_r
 
-  subroutine solvelr
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ! This subroutine is closely based on the notes provided by the organizers
-    ! of the 2016 Density Functional Theory TALENT Course.
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodesr, nnodesl, l, is, iq, n, k, g
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm,&
-     j,coefmin,coefmax,coef, diff, ddiff,coefmind,coefmaxd,coefd
-    real(wp), allocatable :: potential(:)
-    density(:,:) = 0.0
-
-    allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
-    wfr(:,:,:,:,:) = 0.0
-    wfl(:,:,:,:,:) = 0.0
-    do iq =1,2
-      do n =1,lmax-2
-        do l =0,lmax
-            do is = 1,2
-                j = l + spin(is)
-                if (l==0) j=0
-                Eupper = 100_wp
-                Elower = vpb(iq)
-                density(:,iq) = 0.
-                do i=1,1000000
-                  Etrial = (Eupper+Elower)/2.0
-                  ! Attempting to set the potential before hand, if this does not work, we
-                  ! can do it "on the fly"
-                  do ir=0,nbox
-                    if (iq .EQ. 1) then
-                       potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
-                      -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m
-                    else
-                       potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
-                      -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial-coulomb(ir))/hbar22m
-                    end if
-                  end do
-
-
-                  wfr(nbox,n,l,is,iq) = 0.
-                  wfr(nbox-1,n,l,is,iq) = 1.
-                  wfl(0,n,l,is,iq) = 0.
-                  wfl(1,n,l,is,iq) = 1.
-
-                  nnodesr = 0
-                  do ir=nbox-1,njoin+1,-1
-                    a1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(ir))
-                    a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
-                    a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
-
-                    wfr(ir-1,n,l,is,iq) = (a1*wfr(ir,n,l,is,iq) - a2*wfr(ir+1,n,l,is,iq))/a3
-                    if((wfr(ir,n,l,is,iq)*wfr(ir-1,n,l,is,iq) < 0)) nnodesr = nnodesr + 1 !.AND. &
-                    !(ir > 5)) nnodes = nnodes+1
-                    !(abs(wfr(ir-1,n,l,is,iq)-wfr(ir,n,l,is,iq)) < 2*abs(wfr(ir,n,l,is,iq)-wfr(ir+1,n,l,is,iq)))) nnodes = nnodes + 1
-                    !if(wfl(ir,n,l,is,iq)*wfl(ir+1,n,l,is,iq) < 0) nnodes = nnodes + 1
-                  end do
-                  nnodesl=0
-                  do ir=1,njoin-1
-                    a1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(ir))
-                    a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
-                    a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
-
-                    wfr(ir+1,n,l,is,iq) = (a1*wfr(ir,n,l,is,iq) - a2*wfr(ir-1,n,l,is,iq))/a3
-                    if(wfr(ir,n,l,is,iq)*wfr(ir+1,n,l,is,iq) < 0) nnodesl = nnodesl + 1
-                  end do
-
-                  wfr(0:njoin,n,l,is,iq) = wfl(0:njoin,n,l,is,iq)
-
-                  if (nnodesr+nnodesl > n-1) then
-                    Eupper = Etrial
-                  else if (nnodesl+nnodesr <= n-1) then
-                    Elower = Etrial
-                  end if
-
-                  if (abs(Eupper - Elower) < conv) then
-                    if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
-
-                      !do ir=0,3
-                        !wfr(ir,n,l,is,iq) = ir*h**(l+1)
-                      !end do
-                      !do ir=0,nbox
-                      !  write(13,*) ir*h, wfl(ir,1,0,1,1), wfl(ir,1,0,1,1)
-                      !end do
-                      !if (abs(wfr(30,n,l,is,iq) - wfl(30,n,l,is,iq)) < 1.) then
-                        !if (l==0) then
-                        if(mod(n-1,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
-                        coefmin = 0.
-                        coefmax = 1E10
-                        do k=1,10000000
-                          coef = (coefmin+coefmax)/2
-                          diff = wfr(njoin,n,l,is,iq)-coef*wfl(njoin,n,l,is,iq)
-                          if (diff > 0) then
-                            coefmin=coef
-                          else
-                            coefmax=coef
-                          end if
-                          if (abs(diff) < conv) then
-                            wfl(:,n,l,is,iq) = coef*wfl(:,n,l,is,iq)
-                            exit
-                          end if
-                        end do
-
-                          wfr(0:njoin,n,l,is,iq) = wfl(0:njoin,n,l,is,iq)
-                          vocc(n,l,is,iq) = 2*l+1
-                          energies(n,l,is,iq) = etrial
-                          norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                          wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                          write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)*meshpoints(:)**2))
-                        !else if (l<=3) then
-                        !  if(mod(n-2,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
-                        !  coefmin = 0.
-                        !  coefmax = 1E10
-                        !  do k=1,10000000
-                        !    coef = (coefmin+coefmax)/2
-                        !    diff = wfr(100,n,l,is,iq)-coef*wfl(100,n-1,l,is,iq)
-                        !    if (diff > 0) then
-                        !      coefmin=coef
-                        !    else
-                        !      coefmax=coef
-                        !    end if
-                        !    if (abs(diff) < conv) then
-                        !      wfl(:,n-1,l,is,iq) = coef*wfl(:,n-1,l,is,iq)
-                        !      exit
-                        !    end if
-                        !  end do
-                        !  wfr(0:100,n,l,is,iq) = wfl(0:100,n-1,l,is,iq)
-                        !  vocc(n-1,l,is,iq) = 2*l+1
-                        !  energies(n-1,l,is,iq) = etrial
-                        !  norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        !  wfr(:,n-1,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                        !  write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n-1,l,is,iq)*wfr(:,n-1,l,is,iq)*meshpoints(:)**2))
-                        !else
-                        !  if(mod(n-3,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
-                        !  coefmin = 0.
-                        !  coefmax = 1E10
-                        !  do k=1,10000000
-                        !    coef = (coefmin+coefmax)/2
-                        !    diff = wfr(100,n,l,is,iq)-coef*wfl(100,n-2,l,is,iq)
-                        !    if (diff > 0) then
-                        !      coefmin=coef
-                        !    else
-                        !      coefmax=coef
-                        !    end if
-                        !    if (abs(diff) < conv) then
-                        !      wfl(:,n-2,l,is,iq) = coef*wfl(:,n-2,l,is,iq)
-                        !      exit
-                        !    end if
-                        !  end do
-                        !  wfr(0:100,n,l,is,iq) = wfl(0:100,n-2,l,is,iq)
-                        !  vocc(n-2,l,is,iq) = 2*l+1
-                        !  energies(n-2,l,is,iq) = etrial
-                        !  norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        !  wfr(:,n-2,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                        !  write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n-2,l,is,iq)*wfr(:,n-2,l,is,iq)*meshpoints(:)**2))
-                        !end if
-
-                      !end if
-                    end if
-
-                    exit
-                  end if
-                end do
-              end do
-          end do
-        end do
-      end do
-
-    if (abs(Eupper - Elower) > conv) then
-      write (6,*) "Program did not converge!"
-      write (*,*) abs(Eupper - Elower)
-    end if
-
-    ! Printing points for plotting. I run $ xmgrace plt
-
-
-
-  end subroutine solvelr
-
   subroutine energy_sort
     integer :: n, l, iq, is, n1,k,i,nfill,nfull
     real(wp) :: temp,j
     integer, dimension(1:3) :: state
 
-    
     allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
     sortenergies = small
     sortstates = small
@@ -323,16 +140,14 @@ contains
      nfill = nfill + 2*j+1
      k = k+1
         end do
-     print *, nfill
       end do
 
   end subroutine energy_sort
 
   subroutine build_densities
-  real(wp), dimension(0:nbox,4) :: rho
   integer :: npr,iq,ir,i
   real(wp) :: j
-  
+
   do iq =1,2
 
       if (iq == 1) then
@@ -354,14 +169,10 @@ contains
    end do
    rho(:,3)=rho(:,1) + rho(:,2)
    rho(:,4)=rho(:,1) - rho(:,2)
-    
-   write(6,*) sum(h*4*pi*meshpoints(:)**2*rho(:,1)), &
-            & sum(h*4*pi*meshpoints(:)**2*rho(:,2)), &
-            & sum(h*4*pi*meshpoints(:)**2*rho(:,3)), &
-            & sum(h*4*pi*meshpoints(:)**2*rho(:,4))
+
     do ir = 0,nbox
-    write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),rho(ir,4)
-    end do 
+      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),rho(ir,4)
+    end do
   end subroutine build_densities
 
   function infwell_exact() result(energy)

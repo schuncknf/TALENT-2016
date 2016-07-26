@@ -6,7 +6,7 @@ implicit none
      real(wp), parameter :: hbar = 6.582119E-22_wp
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2)
      real(wp), allocatable,dimension(:) :: meshpoints
-     real(wp), allocatable, dimension(:,:) :: density
+     real(wp), allocatable, dimension(:,:) :: rho
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
      integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin
      integer :: nn,np,nt
@@ -51,7 +51,7 @@ contains
 
      subroutine init_wavefunctions
 
-          allocate(wavefunctions(0:nbox,lmax,0:lmax,2,2),wfr(0:nbox,lmax,0:lmax,2,2),wfl(0:nbox,lmax,0:lmax,2,2),density(0:nbox,2))
+          allocate(wavefunctions(0:nbox,lmax,0:lmax,2,2),wfr(0:nbox,lmax,0:lmax,2,2),wfl(0:nbox,lmax,0:lmax,2,2),rho(0:nbox,4))
 
      end subroutine
 
