@@ -33,11 +33,11 @@ vector<double> variable;
 double var;
 
 // Function declarations
-double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L);
-double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, int L);
-double normalise(double eigenEng, int isoSpin, int L);
-double V(double r, int isoSpin, int L);
+double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L, int spin);
+double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, int L, int spin);
+double normalise(double eigenEng, int isoSpin, int L, int spin);
+double V(double r, int isoSpin, int L, int spin);
 double woodsSaxon(double r);
-double spinOrbit(double r, int l, double s);
+double spinOrbit(double r, int l, double spin);
 double centrifugal(double r, double l);
 double coulomb(double r);
