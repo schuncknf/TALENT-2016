@@ -58,7 +58,7 @@ int main (void)
 		
 		printf("\n\n STOP");		
 		
-		tbmeprint(m,w/197.3269788, kappar,Vr,n,l);
+		 tbmeprint(m,w/197.3269788, kappar,kappas,kappat,Vr,Vs,Vt,n,0);
 		
 		free(coefficients);
 	

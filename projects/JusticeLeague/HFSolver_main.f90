@@ -6,10 +6,12 @@ program HFSolver
   implicit none 
   integer :: i,j,k
   real(dp) :: EHF,tr_rho
-  Nparticles = 2
-  n_orbitals = 64
+  Nparticles = 8
+  n_orbitals = 216
 !  Nsize = n_orbitals/2!
   call read_orbitals
+!  write(*,*) nsize
+!  stop
 !  write(*,*) nsize
 !  write(*,*) n_ho(1:2*nsize)
 !  write(*,*) ho_flag
@@ -29,8 +31,9 @@ program HFSolver
 !     v_mat = 0
 !     write(*,*) t_mat 
 !     stop
-     do i = 1,20
+     do i = 1,50
         call Construct_rho
+!        write(*,*) Trace(rho_mat)
         call Construct_gamma
         h_mat = t_mat + gamma_mat
 !        write(*,*) h_mat
@@ -47,9 +50,10 @@ program HFSolver
      call Construct_rho
      call Construct_gamma
      h_mat = t_mat + gamma_mat
-     write(*,*) (E_values(i),i=1,12)
-     EHF = (Trace_product(t_mat,rho_mat) + Trace_product(h_mat,rho_mat))
+!     write(*,*) (E_values(i),i=1,12)
+     EHF = (Trace_product(t_mat,rho_mat) + Trace_product(h_mat,rho_mat))/2._dp
      write(*,*) EHF
+!     write(*,*) Trace(rho_mat)
 !  enddo
   
 end program HFSolver
