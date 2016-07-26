@@ -13,12 +13,11 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes, l, is, iq, n
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, norm, spin(2),j
+    integer :: i, ir, nnodes, nnodesl, l, is, iq, n, k
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j,coefmin,coefmax,coef, diff, ddiff
     real(wp), allocatable :: potential(:)
     density(:,:) = 0.0
-    spin(1) = -0.5
-    spin(2) = 0.5
+
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
     wfr(:,:,:,:,:) = 0.0
     do iq =1,2
@@ -30,24 +29,26 @@ contains
                 Eupper = 100_wp
 
                 Elower = vpb(iq)
-
-                do i=1,100000
+                density(:,iq) = 0.
+                do i=1,1000000
                   Etrial = (Eupper+Elower)/2.0
                   ! Attempting to set the potential before hand, if this does not work, we
                   ! can do it "on the fly"
                   do ir=0,nbox
-    								if (iq .EQ. 1) then
-                    	potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
+                    if (iq .EQ. 1) then
+                       potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
                       -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m
-    								else
-    									potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
+                    else
+                       potential(ir) = (-vpb(iq)*fullwoodsaxon(ir)-23._wp*spinorbit(ir,l,is) &
                       -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial-coulomb(ir))/hbar22m
-    								end if
+                    end if
                   end do
 
 
-                  wfr(nbox,n,l,is,iq) = 0.0
-                  wfr(nbox-1,n,l,is,iq) = 1.0
+                  wfr(nbox,n,l,is,iq) = 0.
+                  wfr(nbox-1,n,l,is,iq) = 1.
+                  wfl(0,n,l,is,iq) = 0.
+                  wfl(1,n,l,is,iq) = 1.
 
                   nnodes = 0
                   do ir=nbox-1,1,-1
@@ -55,8 +56,14 @@ contains
                     a2 = (1.0 + (1.0/12.0) * h**2 * potential(ir+1))
                     a3 = (1.0 + (1.0/12.0) * h**2 * potential(ir-1))
 
+                    b1 = 2.0 * (1.0 - (5.0/12.0) * h**2 * potential(nbox-ir))
+                    b2 = (1.0 + (1.0/12.0) * h**2 * potential(nbox - ir-1))
+                    b3 = (1.0 + (1.0/12.0) * h**2 * potential(nbox - ir+1))
+
                     wfr(ir-1,n,l,is,iq) = (a1*wfr(ir,n,l,is,iq) - a2*wfr(ir+1,n,l,is,iq))/a3
+                    wfl(nbox - ir+1,n,l,is,iq) = (b1*wfl(nbox - ir,n,l,is,iq) - b2*wfl(nbox - ir-1,n,l,is,iq))/b3
                     if(wfr(ir,n,l,is,iq)*wfr(ir-1,n,l,is,iq) < 0) nnodes = nnodes + 1
+                    !if(wfl(ir,n,l,is,iq)*wfl(ir+1,n,l,is,iq) < 0) nnodes = nnodes + 1
                   end do
 
                   if (nnodes > n-1) then
@@ -65,32 +72,89 @@ contains
                     Elower = Etrial
                   end if
 
-
                   if (abs(Eupper - Elower) < conv) then
                     if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
-                      if (l==0) then
-                        vocc(n,l,is,iq) = 2*l+1
-                        energies(n,l,is,iq) = etrial
-                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                      else if (l<=3) then
-                        vocc(n-1,l,is,iq) = 2*l+1
-                        energies(n-1,l,is,iq) = etrial
-                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        wfr(:,n-1,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                      else
-                        vocc(n-2,l,is,iq) = 2*l+1
-                        energies(n-2,l,is,iq) = etrial
-                        norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
-                        wfr(:,n-2,l,is,iq) = wfr(:,n,l,is,iq)/norm
-                      end if
+                      !do ir=0,3
+                        !wfr(ir,n,l,is,iq) = ir*h**(l+1)
+                      !end do
+                      !do ir=0,nbox
+                      !  write(13,*) ir*h, wfl(ir,1,0,1,1), wfl(ir,1,0,1,1)
+                      !end do
+                      !if (abs(wfr(30,n,l,is,iq) - wfl(30,n,l,is,iq)) < 1.) then
+                        if (l==0) then
+                          if(mod(n-1,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
+                          coefmin = 0.
+                          coefmax = 1E10
+                          do k=1,10000000
+                            coef = (coefmin+coefmax)/2
+                            diff = wfr(100,n,l,is,iq)-coef*wfl(100,n,l,is,iq)
+                            if (diff > 0) then
+                              coefmin=coef
+                            else
+                              coefmax=coef
+                            end if
+                            if (abs(diff) < conv) then
+                              wfl(:,n,l,is,iq) = coef*wfl(:,n,l,is,iq)
+                              exit
+                            end if
+                          end do
+                          wfr(0:100,n,l,is,iq) = wfl(0:100,n,l,is,iq)
+                          vocc(n,l,is,iq) = 2*l+1
+                          energies(n,l,is,iq) = etrial
+                          norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
+                          wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                          write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)*meshpoints(:)**2))
+                        else if (l<=3) then
+                          if(mod(n-2,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
+                          coefmin = 0.
+                          coefmax = 1E10
+                          do k=1,10000000
+                            coef = (coefmin+coefmax)/2
+                            diff = wfr(100,n,l,is,iq)-coef*wfl(100,n-1,l,is,iq)
+                            if (diff > 0) then
+                              coefmin=coef
+                            else
+                              coefmax=coef
+                            end if
+                            if (abs(diff) < conv) then
+                              wfl(:,n-1,l,is,iq) = coef*wfl(:,n-1,l,is,iq)
+                              exit
+                            end if
+                          end do
+                          wfr(0:100,n,l,is,iq) = wfl(0:100,n-1,l,is,iq)
+                          vocc(n-1,l,is,iq) = 2*l+1
+                          energies(n-1,l,is,iq) = etrial
+                          norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
+                          wfr(:,n-1,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                          write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n-1,l,is,iq)*wfr(:,n-1,l,is,iq)*meshpoints(:)**2))
+                        else
+                          if(mod(n-3,2) /= 0) wfr(:,n,l,is,iq) = -wfr(:,n,l,is,iq)
+                          coefmin = 0.
+                          coefmax = 1E10
+                          do k=1,10000000
+                            coef = (coefmin+coefmax)/2
+                            diff = wfr(100,n,l,is,iq)-coef*wfl(100,n-2,l,is,iq)
+                            if (diff > 0) then
+                              coefmin=coef
+                            else
+                              coefmax=coef
+                            end if
+                            if (abs(diff) < conv) then
+                              wfl(:,n-2,l,is,iq) = coef*wfl(:,n-2,l,is,iq)
+                              exit
+                            end if
+                          end do
+                          wfr(0:100,n,l,is,iq) = wfl(0:100,n-2,l,is,iq)
+                          vocc(n-2,l,is,iq) = 2*l+1
+                          energies(n-2,l,is,iq) = etrial
+                          norm = sqrt(sum(4*pi*h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
+                          wfr(:,n-2,l,is,iq) = wfr(:,n,l,is,iq)/norm
+                          write(6,*) "Norm = ", sqrt(sum(4*pi*h*wfr(:,n-2,l,is,iq)*wfr(:,n-2,l,is,iq)*meshpoints(:)**2))
+                        end if
 
-                      do ir=0,nbox
-                        density(ir,iq) = density(ir,iq) + ((2.*j+1)/(4.*pi*meshpoints(ir)**2)) &
-                        * h*wfr(ir,n,l,is,iq)*wfr(ir,n,l,is,iq)
-                      end do
-
+                      !end if
                     end if
+
                     exit
                   end if
                 end do
@@ -246,12 +310,12 @@ function dfullwoodsaxon(ir) result(pot)
 
   end function
 
-	function coulomb(ir)	result(pot)
-		integer,intent(in) :: ir
-		real(wp) ::pot
-		if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
-		if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
+  function coulomb(ir) result(pot)
+    integer,intent(in) :: ir
+    real(wp) ::pot
+        if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
+        if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
 
-	end function
+  end function
 
 end module solver

@@ -4,7 +4,7 @@ implicit none
      real(wp), parameter :: pi = 3.14159265358979_wp
      real(wp), parameter :: e2 = 1.439646_wp
      real(wp), parameter :: hbar = 6.582119E-22_wp
-     real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small
+     real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2)
      real(wp), allocatable,dimension(:) :: meshpoints
      real(wp), allocatable, dimension(:,:) :: density
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
@@ -26,7 +26,8 @@ contains
           nrad = r0 * (nt)**(1._wp/3._wp)
           vpb(1) = -51.+33.*(nn-np)/nt
           vpb(2) = -51.-33.*(nn-np)/nt
-
+          spin(1) = -0.5
+          spin(2) = 0.5
           nmax = nn - np
           if (nmax.ge.0) then
           nmax = nn

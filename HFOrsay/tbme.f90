@@ -1,18 +1,11 @@
-subroutine tmbe_spherical(n1,n2,n3,n4,resu)
-
-
-
-end subroutine
-
-
-subroutine tbme(n1,n2,n3,n4,resu,pr)
+subroutine tbme(n1,n2,n3,n4,resu,pr,iflag)
 use ho
 use lag_pol
 use constants
 use pot
 use maths
 implicit none
-integer::i,n1,n2,n3,n4,n,j,l1,l2,l3,l4
+integer::i,n1,n2,n3,n4,j,l1,l2,l3,l4,iflag
 double precision::inte1,inte2,resu
 double precision::coeffi,coeffj
 double precision::xxi,xi,xxj,xj
@@ -23,6 +16,7 @@ double precision::norm_lag,norm_lag1
 double precision::testw,ri,rj
 double precision::nosc1,nosc2,nosc3,nosc4
 logical::pr
+if (iflag == 0) then
 l1=0;l2=0;l3=0;l4=0
 a1=dble(l1)+0.5d0
 a2=dble(l2)+0.5d0
@@ -51,5 +45,9 @@ resu = inte2
 resu = resu*nosc1*nosc2*nosc3*nosc4/4.d0
 if (pr .and. orth .gt. 0.001d0) then
 write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,orth
+endif
+elseif (iflag == 1) then
+
+
 endif
 end

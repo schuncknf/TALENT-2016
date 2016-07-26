@@ -14,7 +14,7 @@ LK = ifort -O2 -openmp
 # FFLAGS=-O4 -align dcommons
 # FFLAGS=-O5 -align dcommons -tune host
 
-OBJ =  time.o constants.o maths.o laguerre_polynomial.o lag_pol.o ho.o pot.o matrices.o \
+OBJ =  time.o constants.o maths.o base.o laguerre_polynomial.o lag_pol.o ho.o pot.o matrices.o \
 	 hfsolver.o gausslag.o tbme.o hforsay.o\
 	
        

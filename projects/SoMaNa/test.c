@@ -11,7 +11,7 @@
 int main (void)
 
 	{
-		double res, *coefficients,kappa,m,w,V,l;
+		double res, *coefficients,kappar,kappat,kappas,m,w,Vr,Vt,Vs,l;
 		
 		int i,j,n;
 		
@@ -29,9 +29,17 @@ int main (void)
 		
 		coefficients=read_file();
 		
-		kappa = coefficients[7]; printf("\n kappa= %lf", kappa);
+		kappar = coefficients[7]; printf("\n kappa_r= %lf", kappar);
 		
-		V = coefficients[4]; printf("\n V= %lf", V);
+		Vr = coefficients[4]; printf("\n V_r= %lf", Vr);
+		
+		kappas = coefficients[8]; printf("\n kappa_s= %lf", kappas);
+		
+		Vs = coefficients[6]; printf("\n V_s= %lf", Vs);
+		
+		kappat = coefficients[8]; printf("\n kappa_t= %lf", kappat);
+		
+		Vt = coefficients[5]; printf("\n V_t= %lf", Vt);		
 		
 		m = coefficients[3]; printf("\n m= %lf", m);
 		
@@ -50,7 +58,7 @@ int main (void)
 		
 		printf("\n\n STOP");		
 		
-		tbmeprint(m,w/197.3269788, kappa,V,n,l);
+		tbmeprint(m,w/197.3269788, kappar,Vr,n,l);
 		
 		free(coefficients);
 	
