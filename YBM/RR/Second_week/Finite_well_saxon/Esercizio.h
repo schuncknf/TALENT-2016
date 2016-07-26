@@ -21,10 +21,10 @@
 
 	using namespace std;
 
-	double numerov_algorithm_woods(double energy, double f0, double f_,double r,double S, double L);
+	double numerov_algorithm_woods(double energy, double f0, double f_,double r,double S, double L, double J);
 	double centrifug_term(double r, double L);
 	double potential_woods(double r);
-	double potential_spin_orbit(double r, double S, double L);
+	double potential_spin_orbit(double r, double S, double L, double J);
 	double potential_coulomb(double r);
 
 #endif
