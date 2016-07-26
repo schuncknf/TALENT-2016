@@ -50,5 +50,17 @@ void HartreeFock::run()
 
 void HartreeFock::calcH()
 {
-  
+  Basis &basis = *system->basis;
+  if(basis.type == "SpBasis" || basis.type == "ReducedSpBasis")
+  {
+    // Calculation of the kinetic part
+    // TODO
+
+    // Calculation of the harmonic part
+    // TODO
+  }
+  else
+  {
+    throw std::runtime_error("Unknown basis.");
+  }
 }
