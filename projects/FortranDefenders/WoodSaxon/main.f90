@@ -82,8 +82,7 @@ program main
   write(6,*) "Total Neutrons =", sum(4*pi*h*meshpoints(:)**2 * density(:,1)), &
   "Total Protons =", sum(4*pi*h*meshpoints(:)**2 *density(:,2))
     do ir=0,nbox
-      write (13,*) ir*h, wfr(ir,3,0,1,1), wfr(ir,3,1,1,1), wfr(ir,3,2,1,1)
-      !wfr(ir,1,3,1,1), wfr(ir,1,4,1,1), wfr(ir,1,5,1,1), wfr(ir,1,6,1,1)
+      write (13,*) ir*h, density(ir,1),density(ir,2)
     end do
     close(13)
     close(6)
