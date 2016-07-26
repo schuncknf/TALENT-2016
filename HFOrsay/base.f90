@@ -5,13 +5,13 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
       logical:: lpr
       integer::nr(n),nl(n),nj(n)
 
-      nr_sph(1) = 0
-      nl_sph(1) = 0
-      nj_sph(1) = 0
+      nr(1) = 0
+      nl(1) = 0
+      nj(1) = 0
 !
-      nr_sph(2) = 0
-      nl_sph(2) = 0
-      nj_sph(2) = 1
+      nr(2) = 0
+      nl(2) = 0
+      nj(2) = 1
 !
       il = 2
 !
