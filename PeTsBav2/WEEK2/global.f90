@@ -14,7 +14,8 @@
       integer(kind=dm) :: n, l, orbital
       integer(kind=dm) :: n_max, l_max,nl2j
       real(kind=dm)    :: sm, j
-      real(kind=dm),allocatable :: k_sq(:), Enl2j(:,:)
+      real(kind=dm),allocatable :: k_sq(:), Enl2j(:,:)   
+      character(99),allocatable :: filename_wave_func(:)
       real(kind=dm) :: x 
       end module globals
 
