@@ -122,7 +122,7 @@ int main()
 						sprintf(eigEng,"%1.4f",eigenEng);
 						ofstream opFile;
 						opFile.open(filename);
-						for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << eigenEng << "\t" << V(k*h, isoSpin, L) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
+						for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" eigenEng << "\t" << V(k*h, isoSpin, L) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
 						opFile.close();
 
 						// Output energy eigenvalue and the name of the file results are saved to
