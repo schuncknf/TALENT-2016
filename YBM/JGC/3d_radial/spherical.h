@@ -4,7 +4,7 @@ using namespace std;
 #define hm_fac 20.75	// MeV
 #define     a0 0.67	// 
 #define     r0 1.27	// fm
-#define    Vls 0.44	//
+#define    Vls 23	//
 #define      q 1	//
 
 // Variables

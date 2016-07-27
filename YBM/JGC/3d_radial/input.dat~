@@ -10,11 +10,11 @@
 # Well depth [MeV]
 50.
 # Min limit  [MeV]
--55.
+-73.89.
 # Max limit  [MeV]
 0.
 # Energy mesh [MeV]
-0.05
+0.5
 # First step wavefunction value [a.u]
 0.00001
 # Convergence energy condition
