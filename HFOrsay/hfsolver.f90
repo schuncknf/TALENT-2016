@@ -124,6 +124,17 @@ write(*,*) "TBME's computed and antisymetrized"
          esum = esum/n
          write(*,*) "iteration: ",it,"ediffi= ",esum
 
+! --------- Petar
+
+!         esum = 0.d0 
+!         do i = 1,nt
+!	    occup = occ(i) ! read occupational number
+!           esum = esum + occup*abs(eigvalr(i) - eigvalold(i))
+!         enddo
+!         esum = esum/nt ! maybe not nt but needs to be renormalized? can be fixed by lambda anyway
+
+! --------- Petar
+
          if(esum .lt. lambda) exit ! calculation converged
 
 ! -------- save old eigenvalues
@@ -184,6 +195,21 @@ write(*,*) "TBME's computed and antisymetrized"
         tr = tr + 2.d0*rho(i,i)
        enddo
        write(*,*) "Part Num",tr
+
+! ---- Petar
+!
+!       hrho=0.d0
+!       hrho = matmul(hf,rho)
+!       trho=0.d0
+!       trho = matmul(kin,rho)
+!       hfenergy = 0.d
+!       do i=1,nt
+!         hfenergy = hfenergy + trho(i,i) + hrho(i,i)
+!       enddo
+!
+!       hfenergy=0.5*hfenergy (?)
+!
+! ---- Petar
 
        write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',hfenergy,' MeV'
 ! -------- Writing Outputs
