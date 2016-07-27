@@ -8,3 +8,8 @@ Nucleus::Nucleus (Basis & basis, Interaction & _inter, int nbNeut, int nbProt, i
 Nucleus::~Nucleus()
 {
 }
+
+void Neutron::calcH()
+{
+
+}
