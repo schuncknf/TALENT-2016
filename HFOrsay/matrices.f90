@@ -20,6 +20,22 @@ rho_temp =0.d0
     rho(i,j) = rho_temp
   enddo
 enddo
+
+
+! --- Petar
+
+!   do i = 1, nt
+!      do j = 1, nt
+!	 rho_temp=0.d0
+!	 do k = 1, nt (sum over all states, when the state is not occupied it will not contribute, occupation numbers calculated in basis)
+!	      rho_temp = rho_temp + occ(i)*D(i,k)*D(j,k)
+!	 enddo
+!         rho(i,j)=rho_temp
+!       enddo
+!   enddo
+! --- Petar
+
+
 end subroutine compute_rho
 
 
@@ -36,7 +52,7 @@ integer :: n1,n2,n3,n4
 gamma_matrix = 0.d0
 
 !Compute the gamma matrix out of the TBMEs and the rho matrix
-do n1=1,di
+do n1=1,di 
  do n2=1,di
 gammatemp = 0.d0
   do n3=1,di
@@ -48,7 +64,33 @@ gammatemp = 0.d0
   !  gamma_matrix(n2,n1) = gammatemp
   enddo
 enddo
-!Petar idea change order and introduce gamma_temp
+
+
+!---- Petar 
+
+!do i=1,nt
+! do k=1,nt
+!gammatemp = 0.d0
+!  do j=1,nt ! sum over all states, the unoccupied states will not contribute
+! read quantum numbers n2,l2,j2 that corresponds to j state
+!   do l=1,nt ! sum over all states, the unoccupied states will not contribute
+! read quantum numbers n4,l4,j4 that corresponds to l state
+!	 if(occj .eq. 0 .or. occl .eq. 0) then	 
+!            matel=0
+!	 elseif(l2 .ne. l4 .or. j2 .ne. j4) then
+!	    matel = 0
+!	 else
+!	    matel = mtrxel(n1,n4,n2,n3)*rho(n3,n4)
+!	 endif
+!         gammatemp = gammatemp + mtrxel(n1,n2,n3,n4)*rho(n4,n2)
+!      enddo
+!    enddo
+!    gamma_matrix(i,k) = gammatemp
+!  enddo
+! enddo
+
+!---- Petar 
+
 
 end subroutine compute_gamma
 
@@ -68,6 +110,19 @@ do i=1,di
     h(i,j) = t(i,j) + gamma_matrix(i,j)
   enddo
 enddo
+
+
+!--- Petar
+
+!do i=1,nt
+!  do j=1,nt
+!    h(i,j) = t(i,j) + gamma_matrix(i,j)
+!  enddo
+!enddo
+
+!--- Petar
+
+
 
 end subroutine
 
