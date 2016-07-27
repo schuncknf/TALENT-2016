@@ -105,31 +105,107 @@ end subroutine sphbasis
 module basis
 
 integer,allocatable::n_ext(:),m_ext(:),l_ext(:),j_ext(:),t_ext(:)
-
+integer,allocatable::n_red(:),l_red(:),j_red(:)
+integer,allocatable::repick_base(:)
+integer::size_red,size_full
+double precision,allocatable::tbme_ext(:,:,:,:)
 contains 
 subroutine external_basis()
 implicit none
 integer::tag,nn,nl,nm,nj,niso
-integer::i,stat
-integer::n_lines
+integer::iho,stat,ifil
+integer::n_lines,j,red_size
+logical::fex
+inquire(file='spM.dat', exist=fex)
+if (fex) then
 open(124,file='spM.dat')
 read(124,*) n_lines
+size_full = n_lines
 allocate(n_ext(n_lines),m_ext(n_lines),l_ext(n_lines),j_ext(n_lines),t_ext(n_lines))
 n_ext=0;m_ext=0;l_ext=0;l_ext=0;j_ext=0;t_ext=0
-do i=1,n_lines
-   read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nm,nj,niso 
-   n_ext(i) = nn
-   l_ext(i) = nl
-   m_ext(i) = nm
-   j_ext(i) = nj
-   t_ext(i) = niso
+j=0
+do iho=1,n_lines
+!    ifil = iho-1
+   read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso 
+   n_ext(iho) = nn
+   l_ext(iho) = nl
+   j_ext(iho) = nj
+   m_ext(iho) = nm
+   t_ext(iho) = niso
+   if (niso == 1 .and. nm .eq. nj) then    
+     j = j + 1
+   endif
+enddo
+close(124)
+   red_size = j
+   write(*,*) "Reduced Basis Size: ",red_size
+   allocate(n_red(red_size),l_red(red_size),j_red(red_size))
+   allocate(repick_base(red_size))
+   j= 0
+open(124,file='spM.dat')
+read(124,*) n_lines
+do iho=1,n_lines
+   read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso 
+   if (niso == 1 .and. nm .eq. nj) then    
+     j = j + 1
+     n_red(j) = nn
+     l_red(j) = nl 
+     j_red(j) = nj
+     repick_base(j) = iho 
+   endif
    if (stat /= 0) then
    write(*,*) "Problem while reading spM.dat"
    exit
    endif
 enddo
 close(124)
+else
+write(*,*) "File spM.dat not found !"
+stop
+endif
 end subroutine
+
+subroutine external_tbme()
+implicit none
+integer::q1,q2,q3,q4
+integer::n1,n2,n3,n4
+double precision::tbme
+logical::fex
+integer::stat
+inquire(file='VM-scheme.dat', exist=fex)
+open(125,file='VM-scheme.dat')
+if (fex) then
+allocate(tbme_ext(size_full,size_full,size_full,size_full))
+tbme_ext = 0.d0
+!-------- Removing Legend
+read(125,*)
+read(125,*)
+!-------
+do
+  read(125,iostat=stat) n1,n2,n3,n4,tbme
+  if (t_ext(n1) .eq. 1 .and. t_ext(n2) .eq. 1 .and.t_ext(n3) .eq. 1 .and.t_ext(n4) .eq. 1) then !Keeping only neutrons elements
+   if (m_ext(n1) .eq. j_ext(n1) .and. m_ext(n2) .eq. j_ext(n2) .and. m_ext(n3) .eq. j_ext(n3) .and. m_ext(n4) .eq. j_ext(n4)) then
+   !Keeping only one projection of J
+        q1 = repick_base(n1)
+        q2 = repick_base(n2)
+        q3 = repick_base(n3)
+        q4 = repick_base(n4)
+        tbme_ext(q1,q2,q3,q4) = tbme_ext(q1,q2,q3,q4) + 1.d0/dble((1+j_ext(n1))*(1+j_ext(n2)))*tbme 
+    endif ! Filtering over m
+   endif !Filtering Isospin
+   if (stat /= 0) exit
+enddo ! End of the tbme file 
+
+else
+write(*,*) "File VM-Scheme.dat not found !"
+stop
+endif
+
+
+
+
+end subroutine
+
 end
 
        
