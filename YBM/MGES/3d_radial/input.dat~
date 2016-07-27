@@ -1,0 +1,25 @@
+# Iput variables
+# Potential? 1. Infinite square well, 2. Finite square well, 3. Woods-Saxon potential 4. Woods-Saxon + spin-orbit
+4
+# Box width [fm]
+15.
+# Well width  [fm]
+6.
+# Mesh width [fm]
+0.01
+# Well depth [MeV]
+50.
+# Min limit  [MeV]
+-73.89.
+# Max limit  [MeV]
+0.
+# Energy mesh [MeV]
+0.5
+# First step wavefunction value [a.u]
+0.00001
+# Convergence energy condition
+1e-5
+# no. of protons?
+82
+# no. of neutrons?
+126

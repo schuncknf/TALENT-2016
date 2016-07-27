@@ -1,9 +1,9 @@
 &Nucleus
 NN=126, ZZ=82/
 &parameters
-epsi=1e-6, h2m=20.73553, e=1. /
+epsi=1e-10, h2m=20.73553, e=1. /
 &sizebox
-R_box= 20., h= 0.1,  /
+R_box= 20., h= 0.01,  /
 &energy
 E_minus=-80., E_plus=10/
 &max_quantum_number

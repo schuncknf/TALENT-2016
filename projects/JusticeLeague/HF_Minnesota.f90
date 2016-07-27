@@ -155,6 +155,22 @@ contains
 !    call calculate_TBME
   end subroutine Initialize_Minnseota
 
+  function fermi_level() result(Noccupied)
+    integer :: i,j,k,Noccupied
+    k=1
+    do i = 1,n_orbitals
+        j = HO_inverse(i)
+
+        if (j.ne.0.and.k.le.Nparticles) then
+         Noccupied = j
+         k=k+1
+     elseif (k.gt.Nparticles) then
+         write (*,*) "nOccupied = ", Noccupied
+         exit
+     endif
+    end do
+  end function fermi_level
+
   subroutine calculate_TBME
     implicit none
     integer :: n1,n2,n3,n4,i1,i2,i3,i4

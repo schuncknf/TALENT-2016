@@ -11,8 +11,9 @@ implicit none
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2)
      real(wp) :: a0r0,a1r1,a0s0,a1s1,a0tau0,a1tau1,a0t0,a1t1,a0r0p,a1r1p,& 
                 & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
-     real(wp), allocatable,dimension(:) :: meshpoints
-     real(wp), allocatable, dimension(:,:) :: rho
+     real(wp), allocatable,dimension(:) :: meshpoints,ucoul
+     real(wp), allocatable, dimension(:,:) :: rho,tau,jsc,drho,dtau,djsc,ddrho
+     real(wp), allocatable, dimension(:,:) ::uc,umr,udd,uso
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
      integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin
      integer :: nn,np,nt,icoul,icm
@@ -79,9 +80,6 @@ contains
           cso0 = - 3._wp/4._wp * w0
           cso1 = - 1._wp/4._wp * w0
 
-         ! print *, a0r0,a1r1,a0s0,a1s1,a0tau0,a1tau1,a0t0,a1t1,a0r0p,a1r1p,& 
-         !       & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
-
      end subroutine init_params
 
 
@@ -99,7 +97,12 @@ contains
 
           allocate(wavefunctions(0:nbox,lmax,0:lmax,2,2),wfr(0:nbox,lmax,0:lmax,2,2),wfl(0:nbox,lmax,0:lmax,2,2),rho(0:nbox,4))
 
-     end subroutine
+     end subroutine init_wavefunctions
 
+    subroutine init_fields
+
+          allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox))
+
+    end subroutine init_fields
 
 end module grid
