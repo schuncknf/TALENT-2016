@@ -1,7 +1,7 @@
 module variables
   use :: types
   implicit none
-  integer :: Nsize, Nparticles,n_orbitals,N_n_orbitals
+  integer :: Nsize, Nparticles,n_orbitals,N_n_orbitals,Noccupied
   real(dp), allocatable, dimension(:,:) :: D_mat,rho_mat,h_mat,t_mat,Gamma_mat
   real(dp), allocatable, dimension(:,:,:,:) :: v_mat
   real(dp), allocatable, dimension(:) :: E_values, E_prev
