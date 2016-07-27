@@ -78,7 +78,7 @@ contains
                       wfl(ir,n,l,is,iq) = diff * wfl(ir,n,l,is,iq)
                     end if
                     ! Count the nodes (Except those spurious ones near the boundary)
-                    if((wfr(ir,n,l,is,iq)*wfr(ir-1,n,l,is,iq) < 0) .AND. (ir > 5)) nnodes = nnodes+1
+                    if((wfl(nbox-ir,n,l,is,iq)*wfl(nbox-ir+1,n,l,is,iq) < 0)) nnodes = nnodes+1
                   end do
                   ! Unite the left and right
                   wfr(0:njoin,n,l,is,iq) = wfl(0:njoin,n,l,is,iq)
@@ -150,9 +150,60 @@ contains
   end subroutine energy_sort
 
   subroutine build_fields
+  integer :: ir, iq, ir2
+  real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew
+  real(wp), dimension(0:nbox) :: ucoulnew
+  real :: tot1=0.0d0,tot2=0.0d0
+  real :: xmix, ymix
 
+  xmix = 0.4
+  ymix = 1.-xmix
 
+  do iq = 1,2
+   do ir = 0,nbox
+  !!Central Field U(r)
+           ucnew(ir,iq) = ucnew(ir,iq) + &
+                & 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
+               	& + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
+               	& + 2*( a0r0p-a1r1p )*ddrho(ir,3) + 4 *a1r1p * ddrho(ir,iq)
+  !! Part of U(r) coming from d(M(r))
+           umrnew(ir,iq) = umrnew(ir,iq)  &
+                & + (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/meshpoints(ir) ) &
+                & + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / meshpoints(ir) )
+  !! t3 part of U(r)
+           uddnew(ir,iq) = uddnew(ir,iq) &
+                & + ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
+                & + 2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
+                & + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
+   !!spin-orbit part
+           usonew(ir,iq) = usonew(ir,iq) &
+                & - (cso0-cso1 )*drho(ir,3)/meshpoints(ir) &
+                & - 2 *cso1 * drho(ir,iq) / meshpoints(ir)
+           if (j2terms) then
+           usonew(ir,iq) = usonew(ir,iq)&
+                & -(a0t0-a1t1) *jsc(ir,3) / meshpoints(ir) &
+               	& - 2 *a1t1 * jsc(ir,iq) / meshpoints(ir) 
+           end if
+   !!coulomb
+    if (iq==2) then     
+      do ir2=0,ir
+       tot1=tot1+rho(ir2,2)*(meshpoints(ir)**2)
+      end do
+      do ir2=ir,nbox
+       tot2=tot2+rho(ir2,2)*meshpoints(ir)
+      end do
+      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)
+    end if
+   end do
+  end do
+  
+  uc = ucnew(:,:)*xmix + uc(:,:)*ymix
+  umr = umrnew(:,:)*xmix + umr(:,:)*ymix
+  udd = uddnew(:,:)*xmix + udd(:,:)*ymix
+  uso = usonew(:,:)*xmix + uso(:,:)*ymix
+  ucoul = ucoulnew(:)*xmix + ucoul(:)*ymix
 
+  
   end subroutine build_fields
 
   subroutine build_densities
@@ -242,27 +293,6 @@ contains
 
   end function
 
-  function dwavefunction(ir,n,l,is,iq) result(derv)
-    integer, intent(in) :: ir
-    real(wp), intent(out) :: derv
-
-    if(ir < 1) then
-      derv = 0.
-    else if (ir < 2) then
-      derv = (-wfr(ir+2,n,l,is,iq) + 6*wfr(ir+1,n,l,is,iq) &
-             -3*wfr(ir,n,l,is,iq) - 2*wfr(ir-1,n,l,is,iq))/(6*h)
-    else if ((ir >= 2) .AND. (ir <= nbox-2)) then
-      derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
-             -8*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(12*h)
-    else if ((ir > nbox-2) .AND. (ir/=nbox)) then
-      derv = (2*wfr(ir+1,n,l,is,iq) + 3*wfr(ir,n,l,is,iq) &
-             -6*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(6*h)
-    else
-      derv = 0.
-    end if
-
-  end function
-
   function woodsaxon(ir, Etrial) result(pot)
     real(wp) :: pot
     integer, intent(in) :: ir
@@ -275,21 +305,6 @@ contains
     end if
   end function
 
-!!!Must be multiplied by (positive) vpb in calculations
- function fullwoodsaxon(ir) result(pot)
-    real(wp) :: pot
-    integer, intent(in) :: ir
-      pot = 1 / (1 + exp((meshpoints(ir)-nrad)/a))
-  end function
-
-!!!Must be multiplied by (positive) vpb in calculations
-function dfullwoodsaxon(ir) result(pot)
-    real(wp) :: pot
-    integer, intent(in) :: ir
-      !pot = -1 / (1 + exp((meshpoints(ir)-nrad)/a))*(1/a)*(1 / (1 + exp((-meshpoints(ir)+nrad)/a)))
-      !pot = -1 / (2*a*(cosh((nrad - meshpoints(ir))/a) + 1))
-      pot = -(1/a)*(1 / (1 + exp((-meshpoints(ir)+nrad)/a)))
-  end function
 
   function spinorbit(ir,l,is) result(pot)
     integer, intent(in) :: ir,l, is
@@ -313,12 +328,12 @@ function dfullwoodsaxon(ir) result(pot)
     real(wp) ::pot
     real :: tot1=0.0d0,tot2=0.0d0
         DO ir2=0,ir
-	tot1=tot1+rho(ir2,2)*(meshpoints(ir)**2)
+	tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
 	ENDDO
 	DO ir2=ir,nbox
-	tot2=tot2+rho(ir2,2)*meshpoints(ir)
+	tot2=tot2+rho(ir2,2)*meshpoints(ir2)
 	ENDDO
-	pot=4.0d0*pi*e2*(tot1/meshpoint(ir) + tot2)
+	pot=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)
   end function
 
 end module solver

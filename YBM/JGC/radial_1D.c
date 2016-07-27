@@ -12,6 +12,61 @@
 
 using namespace std;	// no need to put std:: before any cout, etc.
 
+
+/*
+int main()
+{
+	ofstream tFile;
+	tFile.open("oops_pot.dat");
+	int t=4;
+
+	// Open input file
+	string line;
+	ifstream ipFile;
+	ipFile.open("input.dat");
+
+	// Read in data from file unless commented out (lines starting with '#' are comments
+	while( getline( ipFile, line) )
+	{
+		if( line[0] != '#' )
+		{
+			istringstream iss(line);
+			while(iss >> var)
+			{
+				variable.push_back(var);
+			}
+		}
+	}
+
+	// Set variables equal to those read in from input file
+	selectFunc = variable.at(0);	// Selected potential
+	      wBox = variable.at(1);	// Box width  [fm]
+	     wWell = variable.at(2);	// Well width [fm] (don't use yet)
+	         h = variable.at(3);	// Mesh width [fm]
+	        V0 = variable.at(4);	// Well depth [MeV] (don't use yet)
+	      eMin = variable.at(5);	// Min limit  [MeV]
+	      eMax = variable.at(6);	// Max limit  [MeV]
+	     eStep = variable.at(7);	// Step between different energies in brute force approach, needs getting rid of
+
+	   wfStep1 = 0;			// First value for wavefunction, always set to 0
+	   wfStep2 = variable.at(8);	// Second step along wavefunction
+	   convEng = variable.at(9);	// Energy condition for convergence
+
+	   nProton = variable.at(10);	// no. of protons for calculating Woods-Saxon
+	  nNeutron = variable.at(11);	// no. of neutrons for calculating Woods-Saxon
+
+
+
+
+	if (t == 2) for(int i=0; i<wBox/h; i++) tFile << h*i << "\t" << finSW(h*i) << endl;
+	if (t == 3) for(int i=0; i<wBox/h; i++) tFile << h*i << "\t" << woodsSaxon(h*i) << endl;
+	if (t == 4) for(int i=0; i<wBox/h; i++) tFile << h*i << "\t" << woodsSaxon(h*i) + centrifugal(h*i,0) << endl;
+
+	tFile.close();
+}
+*/
+
+
 // Main code
 int main()
 {
@@ -121,11 +176,11 @@ int main()
 				sprintf(eigEng,"%1.4f",eigenEng);
 				ofstream opFile;
 				opFile.open(filename);
-				for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << endl;
+				for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << 20*sqrt(normFac)*wf_val.at(k) << endl;
 				opFile.close();
 
 				// Output energy eigenvalue and the name of the file results are saved to
-				//cout << "*\t" << setprecision(10) << eigEng << "\t\t" << filename << "\t*"  << endl;
+				cout << "*\t" << setprecision(10) << eigEng << "\t\t" << filename << "\t*"  << endl;
 			}
 		}
 
@@ -139,6 +194,9 @@ int main()
 	cout << "*************************************************\n" << endl;	// nice stuff for terminal output
 }
 
+
+
+
 // Numerov algorithm function.
 //
 // INPUT ARGUMENTS:
@@ -148,7 +206,7 @@ int main()
 double numerovAlgorithm(double E, double f_x, double f_x_h, double x)
 {
 	double a[3];		// Array for Numerov coefficients
-	double vx = (E-V(x)) / hm_fac;	// Numerov potential
+	double vx = (E-V(x+h)) / hm_fac;	// Numerov potential
 
 	a[0] = 2. * (1. - 5./12. * vx * h * h);	// Coeff. for f(x)
 	a[1] = 1. * (1. + 1./12. * vx * h * h);	// Coeff. for f(x-h)
@@ -224,7 +282,7 @@ double normalise(double eigenEng)
 
 //	for(int i=0; i<wBox/h; i++) wfWork.push_back(fabs((numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h))));
 
-	if(selectFunc == 2) for(int i=0; i<wBox/h; i++){
+	if(selectFunc == 2) for(int i=0; i<wBox/h; i++	){
 		if (i < (wBox+wWell)/(2*h)) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
 		else if ( (numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h))/wfWork.at((wBox+wWell)/(2*h))>0) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h));
 		else wfWork.push_back(0);
@@ -244,6 +302,14 @@ double V(double x)
 	if (selectFunc == 1) return infSW();
 	if (selectFunc == 2) return finSW(x);
 	if (selectFunc == 3) return woodsSaxon(x);
+	if (selectFunc == 4) return woodsSaxon(x) + centrifugal(x,4);
+	/*{
+		double WS = woodsSaxon(x);
+		double SO = spinOrbit(x,1,-0.5);
+		double tot = WS + SO;
+		//cout << tot << endl;
+		return tot;
+	}*/
 }
 
 double testPot(int t)
@@ -253,6 +319,7 @@ double testPot(int t)
 
 	if (t == 2) for(int i=0; i<wBox/h; i++) tFile << h*i << "\t" << finSW(h*i) << endl;
 	if (t == 3) for(int i=0; i<wBox/h; i++) tFile << h*i << "\t" << woodsSaxon(h*i) << endl;
+	if (t == 4) for(int i=0; i<wBox/h; i++) tFile << h*i << "\t" << woodsSaxon(h*i) << "\t" << spinOrbit(h*i,1,-0.5) << endl;
 
 	tFile.close();
 }
@@ -281,7 +348,7 @@ double woodsSaxon(double x)
 	double      R = r0 * pow(A,1./3);
 	double a_comp = 0.67;
 	double coeffV = -51 + 33*((nNeutron-nProton)/A);
-
+/*
 	if(x>wBox/2)
 	{
 		WS = coeffV * (1 / ( 1 + exp( ((x-(wBox/2))-R)/a_comp )));
@@ -290,10 +357,63 @@ double woodsSaxon(double x)
 	{
 		WS = coeffV * (1 / ( 1 + exp( ((-x+(wBox/2))-R)/a_comp )));
 	}
+*/
+	WS = coeffV * (1 / ( 1 + exp( (x-R)/a_comp )));
+
+
+
+//	cout << "WS = " << WS << "\t";
 	return WS;
 }
 
-double spinOrbit()
+double spinOrbit(double r, int l, double s)
 {
+	double Vso = 0;
+	double r0 = 1.27;
+	int A = nProton + nNeutron;
+	double R = r0 * pow(A,1./3);
+	double a_comp = 0.67;
+	double j = l+s;
+	double V_ls = 1000 * j*(j+1) - l*(l+1) - s*(s+1);
 
+	if(r>wBox/2 && fabs(r)>1 )
+	{
+		double x = r-(wBox/2);
+		Vso = V_ls * r0 * r0 * (-1/1) * ((exp((x+R)/a_comp))/(a_comp*pow((exp(R/a_comp)+exp(x/a_comp)),2)));
+
+//		Vso = V_ls * r0 * r0 * (-1/x) * pow(( -2*a_comp*cosh((R-x)/A)-2*a_comp ),-1);
+
+//		Vso = V_ls * r0 * r0 * (-1/x) * pow( 1+exp((x-R)/a_comp),-2 ) * exp((x-R)/a_comp);
+	return Vso;
+	}
+	else if (fabs(r)>1 )
+	{
+		double x = -r+(wBox/2);
+		Vso = V_ls * r0 * r0 * (-1/1) * ((exp((x+R)/a_comp))/(a_comp*pow((exp(R/a_comp)+exp(x/a_comp)),2)));
+
+//		Vso = V_ls * r0 * r0 * (-1/x) * pow(( -2*a_comp*cosh((R-x)/A)-2*a_comp ),-1);
+
+//		Vso = V_ls * r0 * r0 * (-1/1) * pow( 1+exp((x-R)/a_comp),-2 ) * exp((x-R)/a_comp);
+	return Vso;
+	}
+//	cout << "Vso = " << Vso << endl;
+	//return Vso;
+	else return 0;
 }
+
+double centrifugal(double x, double l)
+{
+	double Vc = (hm_fac*l*(l+1)) / (x*x);
+	return Vc;
+}
+/*
+double coulomb(double x)
+{
+	double V_c;
+	Rp = ;
+	if() V_c = (nProton * q * q / (2*Rp)) * (3 - pow(x/Rp,2));
+	else V_c = nProton * q * q / x;
+
+	return V_c;
+}
+*/

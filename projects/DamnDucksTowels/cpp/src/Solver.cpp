@@ -13,11 +13,11 @@ Solver::Solver(System & _system, unsigned int _dNumber) : system(&_system),
   for (unsigned int pType = 0; pType < _system.particleNumbers.n_rows; pType++)
   for (unsigned int dType = 0; dType < _dNumber; dType++)
   {
-    R(pType, dType) = arma::zeros(_system.basis->size, _system.basis->size);
-    H(pType, dType) = arma::zeros(_system.basis->size, _system.basis->size);
+    R(dType, pType) = arma::zeros(_system.basis->size, _system.basis->size);
+    H(dType, pType) = arma::zeros(_system.basis->size, _system.basis->size);
     for (unsigned int state = 0; state < _system.particleNumbers(pType); state++)
     {
-      R(pType, dType) = 1;
+      R(dType, pType) = 1;
     }
   }
 }
@@ -47,7 +47,7 @@ std::string Solver::info()
     info << "tr(" << system->particleNames[pType] << "): ( ";
     for (unsigned int dType = 0; dType < R.n_cols; dType++)
     {
-      info << arma::trace(R(pType, dType)) << " ";
+      info << arma::trace(R(dType, pType)) << " ";
     }
     info << " ), ";
   }

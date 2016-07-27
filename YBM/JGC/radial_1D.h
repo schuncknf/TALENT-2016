@@ -40,3 +40,6 @@ double V(double x);
 double infSW();
 double finSW(double x);
 double woodsSaxon(double x);
+double spinOrbit(double r, int l, double s);
+double centrifugal(double x, double l);
+double coulomb(double x);
