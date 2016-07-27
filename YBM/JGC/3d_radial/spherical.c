@@ -7,6 +7,7 @@
 #include <stdlib.h>	// abs
 #include <math.h>	// sin
 #include <vector>	// vectors
+#include <algorithm>	// min_element
 #include <numeric>	// accumulate
 #include "spherical.h"	// header file
 
@@ -66,6 +67,9 @@ int main()
 		if (isoSpin==0) cout << "*\tProtons \t\t\t\t\t\t\t*" << endl;
 		else cout << "*\t\t\t\t\t\t\t\t\t*\n*\tNeutrons \t\t\t\t\t\t\t*" << endl;
 		cout << "*\tEigen E [MeV]\tOrbital\t\tFilename\t\t\t*" << endl;
+
+//		vector<double> pot;
+//		for(int i=0; i<wBox/h; i++) pot.push_back(V(i*h+h,isoSpin,0,0));
 
 		for(int L=0; L<8; L++) // Loop up to L=7 ( i.e. j_15/2) orbitals
 		{
@@ -135,30 +139,29 @@ int main()
 							double j=Spin+L;
 
 							char orbital[16];
-							if(L==0) sprintf(orbital,"%is_%1.0f/2",n,fabs(2*j));
-							if(L==1) sprintf(orbital,"%ip_%1.0f/2",n,2*j);
-							if(L==2) sprintf(orbital,"%id_%1.0f/2",n,2*j);
-							if(L==3) sprintf(orbital,"%if_%1.0f/2",n,2*j);
-							if(L==4) sprintf(orbital,"%ig_%1.0f/2",n,2*j);
-							if(L==5) sprintf(orbital,"%ih_%1.0f/2",n,2*j);
-							if(L==6) sprintf(orbital,"%ii_%1.0f/2",n,2*j);
-							if(L==7) sprintf(orbital,"%ij_%1.0f/2",n,2*j);
+							if(L==0) sprintf(orbital,"%is_%1.0f.2",n,fabs(2*j));
+							if(L==1) sprintf(orbital,"%ip_%1.0f.2",n,2*j);
+							if(L==2) sprintf(orbital,"%id_%1.0f.2",n,2*j);
+							if(L==3) sprintf(orbital,"%if_%1.0f.2",n,2*j);
+							if(L==4) sprintf(orbital,"%ig_%1.0f.2",n,2*j);
+							if(L==5) sprintf(orbital,"%ih_%1.0f.2",n,2*j);
+							if(L==6) sprintf(orbital,"%ii_%1.0f.2",n,2*j);
+							if(L==7) sprintf(orbital,"%ij_%1.0f.2",n,2*j);
 
 							// Write results to file with filename including energy eigenvalue
-							char file[512], filename[512], eigEng[512];
+							char filename[512], eigEng[512];
 
-							if(isoSpin==0) sprintf(file,"proton_%s_%1.4f.dat",orbital,eigenEng);
-							else sprintf(file,"neutron_%s_%1.4f.dat",orbital,eigenEng);
 							if(isoSpin==0) sprintf(filename,"results/proton_%s_%1.4f.dat",orbital,eigenEng);
 							else sprintf(filename,"results/neutron_%s_%1.4f.dat",orbital,eigenEng);
 							sprintf(eigEng,"%1.4f",eigenEng);
+
 							ofstream opFile;
 							opFile.open(filename);
 							for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << V(k*h, isoSpin, L, spin) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
 							opFile.close();
 
 							// Output energy eigenvalue and the name of the file results are saved to
-							cout << "*\t " << setprecision(10) << eigEng << "\t" << orbital << "\t\t" << file << "\t*"  << endl;
+							cout << "*\t " << setprecision(10) << eigEng << "\t" << orbital << "\t\t" << filename << "\t*"  << endl;
 							n++;
 						}
 					}
