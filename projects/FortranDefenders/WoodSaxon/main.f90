@@ -37,7 +37,7 @@ program main
       end do
     end do
     do ir=0,nbox
-      write (13,*) ir*h, vpb(1)*fullwoodsaxon(ir), vpb(2)*fullwoodsaxon(ir)+coulomb(ir)
+      write (13,*) ir*h, vpb(1)*fullwoodsaxon(ir), vpb(2)*fullwoodsaxon(ir)+coulomb(ir), wfr(ir,2,3,1,1), wfr(ir,3,1,1,1)
     end do
     ! Particle by way of density integration
     write(6,*) "Total Neutrons =", sum(4*pi*h*meshpoints(:)**2*rho(:,1)), &
