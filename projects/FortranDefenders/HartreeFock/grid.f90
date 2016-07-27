@@ -6,12 +6,15 @@ implicit none
      real(wp), parameter :: hbar = 6.582119E-22_wp
      real(wp), parameter :: a = 0.67_wp
      real(wp), parameter :: vso = 23_wp
+     real(wp) :: t0,x0,t1,x1,t2,x2,t3,x3,sig,w0
+     real(wp) :: cmcorr
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2)
      real(wp), allocatable,dimension(:) :: meshpoints
      real(wp), allocatable, dimension(:,:) :: rho
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
      integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin
-     integer :: nn,np,nt
+     integer :: nn,np,nt,icoul,icm
+     logical :: j2terms
 contains
      subroutine init_params
 
@@ -19,15 +22,19 @@ contains
           namelist /squarewell/ welltype,nodes,v0,radius
           namelist /params/ r0,conv,hbar22m
           namelist /nucleus/ nn,np,lmax
+          namelist /interaction/ t0,x0,t1,x1,t2,x2,t3,x3,sig,w0, &
+                   j2terms,icoul,icm
           read(5,box)
           read(5,squarewell)
           read(5,params)
           read(5,nucleus)
+          read(5,interaction)
           if ((welltype /= 1) .AND. (welltype /= 2)) write (*,*) "Put in a proper welltype!"
           nt = np+nn
           nrad = r0 * (nt)**(1._wp/3._wp)
           vpb(1) = -51.+33.*(nn-np)/nt
           vpb(2) = -51.-33.*(nn-np)/nt
+          cmcorr = 1 - (1/nt)
           spin(1) = -0.5
           spin(2) = 0.5
           njoin = 200
@@ -40,6 +47,7 @@ contains
           end if
 
      end subroutine init_params
+
 
      subroutine init_grids
 
