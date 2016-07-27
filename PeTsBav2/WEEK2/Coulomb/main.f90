@@ -14,7 +14,7 @@
 
       !------------------Read parameters from input---------------------
       NAMELIST / Nucleus / NN, ZZ
-      NAMELIST / parameters / epsi, h2m
+      NAMELIST / parameters / epsi, h2m, e
       NAMELIST / sizebox /  R_box, h 
       NAMELIST / energy / E_minus, E_plus
       NAMELIST / max_quantum_number / n_max, l_max
@@ -30,7 +30,7 @@
       close(30)
       !-----------------------------------------------------------------
       write(*,'(3a20)') 'nodes', 'eigenvalue', 'filename eigvec'
-
+      
       Nmesh=nint((R_box)/h)
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
       orbital = 0
@@ -43,10 +43,10 @@
             end do
       end do 
       write(*,*) 'number of calculated orbitals',orbital
-      allocate(Enl2j(1:orbital,1:4),filorbital_tmpename_wave_func(1:orbital))
+      allocate(Enl2j(1:orbital,1:4),filename_wave_func(1:orbital))
       allocate(all_wavefunction(1:orbital,0:Nmesh))
-      allocate(dens_n(0:Nmesh))
-
+      allocate(dens_n(0:Nmesh),dens_t(0:Nmesh) )
+      dens_t(:)=0.
 do ipart=1, 2 !1=neutrons, 2=protons
       Em=E_minus
       uu=1
@@ -179,16 +179,24 @@ do iorb=1,orbital
       orbital_tmp = iorb-1
       exit
    end if
-   dens_n(:) = dens_n(:) + (2d0*j+1) * abs(all_wavefunction(iord,:))**2/(4d0*pi)
+   dens_n(:) = dens_n(:) + (2d0*j+1) * abs(all_wavefunction(iorb,:))**2/(4d0*pi)
 end do
-dens_n(:) = dens_n(:) + Nn_l*abs(all_wavefunction(iord+1,:))**2/(4d0*pi)
+dens_n(:) = dens_n(:) + Nn_l*abs(all_wavefunction(orbital_tmp+1,:))**2/(4d0*pi)
 
+   dens_t(:) = dens_t(:) + dens_n(:)
 do i=1,Nmesh-1
    x = i*h
-   write(12,'(2f15.8)') x, dens_n(i)/x**2
+   write(12,'(2f15.8)') x, dens_n(i)/x**2 
 end do
 close(12)
-enddo
+
+enddo !do particles
+open(13,file='density_T.dat')
+do i=1,Nmesh-1
+   x = i*h
+   write(13,'(2f15.8)') x, dens_t(i)/x**2 
+end do
+close(13)
 
 100   format(1f15.8, 2I5.2, 1f15.3)
 
@@ -228,11 +236,12 @@ enddo
             endif
       !Coulomb
                   if (ip.eq.2) then 
-                  Rp= r0*ZZ**(1./3.)
+          !        Rp= r0*ZZ**(1./3.)
+                  Rp=R
                         if (xy.le.Rp) then
-                              VCO= ZZ/2./Rp*(3.-((xy/Rp)**2))
+                              VCO= e**2*ZZ/2./Rp*(3.-((xy/Rp)**2))
                         else
-                              VCO= ZZ/xy
+                              VCO= e**2*ZZ/xy
                         endif
                   Vpot=Vpot +VCO
                   endif
