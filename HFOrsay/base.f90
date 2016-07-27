@@ -114,7 +114,7 @@ subroutine external_basis()
 implicit none
 integer::tag,nn,nl,nm,nj,niso
 integer::iho,stat,ifil
-integer::n_lines,j
+integer::n_lines,i,j
 logical::fex
 inquire(file='spM.dat', exist=fex)
 if (fex) then
@@ -123,7 +123,9 @@ read(124,*) n_lines
 size_full = n_lines
 allocate(n_ext(n_lines),m_ext(n_lines),l_ext(n_lines),j_ext(n_lines),t_ext(n_lines))
 allocate(repick_base(n_lines))
-n_ext=0;m_ext=0;l_ext=0;l_ext=0;j_ext=0;t_ext=0
+n_ext=0;m_ext=0;l_ext=0;j_ext=0;t_ext=0
+n_red=0;l_red=0;j_red=0;occ=0
+repick_base=0
 j=0
 do iho=1,n_lines
 !    ifil = iho-1
@@ -151,14 +153,19 @@ do iho=1,n_lines
      n_red(j) = nn
      l_red(j) = nl 
      j_red(j) = nj
-     repick_base(iho) = j 
      occ(j) = nj + 1
    endif
+     repick_base(iho) = j
+ !    write(*,*) "End Basis"
    if (stat /= 0) then
    write(*,*) "Problem while reading spM.dat"
    exit
    endif
 enddo
+!do i=1,n_lines
+!write(*,*) "repick base",i,repick_base(i)
+!enddo
+!read(*,*)
 close(124)
 else
 write(*,*) "File spM.dat not found !"
@@ -191,7 +198,8 @@ do
         q2 = repick_base(n2)
         q3 = repick_base(n3)
         q4 = repick_base(n4)
-        tbme_ext(q1,q2,q3,q4) = tbme_ext(q1,q2,q3,q4) + 1.d0/dble((1+j_ext(n1))*(1+j_ext(n2)))*tbme 
+        write(12345,*) q1,q2,q3,q4,tbme
+        tbme_ext(q1,q2,q3,q4) = tbme_ext(q1,q2,q3,q4) + 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme 
         !tbme_ext(q1,q2,q3,q4) = tbme 
     endif ! Filtering over m
    endif !Filtering Isospin
@@ -215,6 +223,7 @@ implicit none
 integer::il,nf,ic
 allocate(nocc(red_size))
 nf = 0
+nocc=0
 ic = 1
  do il = 1, red_size
    nf = nf + occ(il)
