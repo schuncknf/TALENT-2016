@@ -29,6 +29,7 @@ public:
 public:
   System (std::string _name, Basis & _basis, arma::ivec _particleNumbers, std::vector<std::string> _particleNames, Interaction & _inter, int _nPoints = 50);
   virtual ~System () = 0;
+  virtual void calcH () = 0;
   arma::mat & getH (int dType, int pType);
   arma::mat & getR (int dType, int pType);
   std::string info ();

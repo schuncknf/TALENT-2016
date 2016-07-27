@@ -83,33 +83,56 @@ void HartreeFock::calcH()
     {
       arma::mat gamma(spBasis.size, spBasis.size, arma::fill::zeros);
       for (int bra = 0; bra < spBasis.size; bra++)
-      for (int ket = 0; ket < spBasis.size; ket++)
-      {
-        int lBra = spBasis.qNumbers(bra,1);
-        int lKet = spBasis.qNumbers(ket,1);
-        int mBra = spBasis.qNumbers(bra,2);
-        int mKet = spBasis.qNumbers(ket,2);
-        int sBra = spBasis.qNumbers(bra,3);
-        int sKet = spBasis.qNumbers(ket,3);
-        if ((lBra == lKet) && (mBra == mKet) && (sBra == sKet))
-        {
-          // Calculation of the kinetic part
-          double kinetic, potential;
-          fun = ( arma::pow(pi_p,2) % wfDerMatrix.col(bra) % wfDerMatrix.col(ket) + lBra*(lBra+1) * wfMatrix.col(bra) % wfMatrix.col(ket)) % arma::exp(pi_p);
-          kinetic = HBAR*HBAR/2.0/NUCLEON_MASS * arma::accu(wi_p % fun);
+	for (int ket = 0; ket < spBasis.size; ket++)
+	{
+	  int lBra = spBasis.qNumbers(bra,1);
+	  int lKet = spBasis.qNumbers(ket,1);
+	  int mBra = spBasis.qNumbers(bra,2);
+	  int mKet = spBasis.qNumbers(ket,2);
+	  int sBra = spBasis.qNumbers(bra,3);
+	  int sKet = spBasis.qNumbers(ket,3);
+	  if ((lBra == lKet) && (mBra == mKet) && (sBra == sKet))
+	  {
+	    // Calculation of the kinetic part
+	    double kinetic, potential;
+	    fun = ( arma::pow(pi_p,2) % wfDerMatrix.col(bra) % wfDerMatrix.col(ket) + lBra*(lBra+1) * wfMatrix.col(bra) % wfMatrix.col(ket)) % arma::exp(pi_p);
+	    kinetic = HBAR*HBAR/2.0/NUCLEON_MASS * arma::accu(wi_p % fun);
+      
+	      // Calculation of the harmonic part
+	      fun = arma::pow(pi_p,4) % wfMatrix.col(bra) % wfMatrix.col(ket) % arma::exp(pi_p);
+	      potential = 0.5 * NUCLEON_MASS * pow(spBasis.omega,2) * arma::accu(wi_p % fun);
+	      
+	      H(0,pTyp)(bra,ket) = kinetic + potential;
+	  }
+	  else
+	  {
+	    H(0,pTyp)(bra,ket) = 0.0;
+	  }
+	}
+    }
+  }
+  else
+  {
+    for (int pTyp = 0; pTyp < pNum; pTyp++)
+      for (int bra = 0; bra < spBasis.size; bra++)
+	for (int ket = 0; ket < spBasis.size; ket++)
+	  H(0,pTyp)(bra,ket) = 0.0;
+  }
     
-
-          // Calculation of the harmonic part
-          fun = arma::pow(pi_p,4) % wfMatrix.col(bra) % wfMatrix.col(ket) % arma::exp(pi_p);
-          potential = 0.5 * NUCLEON_MASS * spBasis.omega * spBasis.omega * arma::accu(wi_p % fun);
-          
-          H(0,pTyp)(bra,ket) = kinetic + potential;
-        }
-        else
-        {
-          H(0,pTyp)(bra,ket) = 0.0;
-        }
+  for (int pTyp = 0; pTyp < pNum; pTyp++)
+  {
+    arma::field<arma::mat> TBME;
+    for (int i = 0; i < basis.size; i++)
+      for (int j = 0; j < basis.size; j++)
+      {
+	TBME(i,j) = arma::zeros(basis.size,basis.size);
+	for (int k = 0; k < basis.size; k++)
+	  for (int l = 0; l < basis.size; l++)
+	    TBME(i,j)(k,l) = old_TBME(i,l)(j,k);//TODO
       }
+    for (int bra = 0; bra < spBasis.size; bra++)
+      for (int ket = 0; ket < spBasis.size; ket++)
+	H(0,pTyp)(bra,ket) += arma::accu(TBME(bra,ket)%system->R(0,pTyp));
     }
   }
   else
@@ -117,3 +140,7 @@ void HartreeFock::calcH()
     throw std::runtime_error("Unknown basis.");
   }
 }
+
+
+    
+

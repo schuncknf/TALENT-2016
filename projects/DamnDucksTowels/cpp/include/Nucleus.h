@@ -7,12 +7,11 @@
 
 /// class Nucleus - 
 class Nucleus : public System {
-public:
-  int nPoints;
   // Operations
 public:
   Nucleus (Basis & _basis, Interaction & _inter, int _nbNeut, int _nbProt, int _nPoints = 50);
   ~Nucleus ();
+  void calcH ();
 };
 
 #endif
