@@ -149,6 +149,12 @@ contains
 
   end subroutine energy_sort
 
+  subroutine build_fields
+
+
+
+  end subroutine build_fields
+
   subroutine build_densities
   integer :: npr,iq,ir,i
   real(wp) :: j
@@ -236,6 +242,27 @@ contains
 
   end function
 
+  function dwavefunction(ir,n,l,is,iq) result(derv)
+    integer, intent(in) :: ir
+    real(wp), intent(out) :: derv
+
+    if(ir < 1) then
+      derv = 0.
+    else if (ir < 2) then
+      derv = (-wfr(ir+2,n,l,is,iq) + 6*wfr(ir+1,n,l,is,iq) &
+             -3*wfr(ir,n,l,is,iq) - 2*wfr(ir-1,n,l,is,iq))/(6*h)
+    else if ((ir >= 2) .AND. (ir <= nbox-2)) then
+      derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
+             -8*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(12*h)
+    else if ((ir > nbox-2) .AND. (ir/=nbox)) then
+      derv = (2*wfr(ir+1,n,l,is,iq) + 3*wfr(ir,n,l,is,iq) &
+             -6*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(6*h)
+    else
+      derv = 0.
+    end if
+
+  end function
+
   function woodsaxon(ir, Etrial) result(pot)
     real(wp) :: pot
     integer, intent(in) :: ir
@@ -282,10 +309,16 @@ function dfullwoodsaxon(ir) result(pot)
 
   function coulomb(ir) result(pot)
     integer,intent(in) :: ir
+    integer :: ir2
     real(wp) ::pot
-        if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
-        if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
-
+    real :: tot1=0.0d0,tot2=0.0d0
+        DO ir2=0,ir
+	tot1=tot1+rho(ir2,2)*(meshpoints(ir)**2)
+	ENDDO
+	DO ir2=ir,nbox
+	tot2=tot2+rho(ir2,2)*meshpoints(ir)
+	ENDDO
+	pot=4.0d0*pi*e2*(tot1/meshpoint(ir) + tot2)
   end function
 
 end module solver

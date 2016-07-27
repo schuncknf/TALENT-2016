@@ -8,12 +8,12 @@
 #include <math.h>	// sin
 #include <vector>	// vectors
 #include <algorithm>	// min_element
+#include <functional>	// 
 #include <numeric>	// accumulate
 #include "spherical.h"	// header file
 
 using namespace std;	// no need to put std:: before any cout, etc.
 
-vector<double> totPot;
 
 // Main code
 int main()
@@ -22,6 +22,15 @@ int main()
 	string line;
 	ifstream ipFile;
 	ipFile.open("input.dat");
+
+/*	for(int i=0; i<wBox/h; i++)
+	{
+		totPot.push_back(0.0);
+		totProton.push_back(0.0);
+		totNeutron.push_back(0.0);
+	}
+*/
+
 
 	// Read in variables from file and store in vecot unless line is commented (starting with '#')
 	while( getline( ipFile, line) )
@@ -55,12 +64,22 @@ int main()
 
 	vector<double> wf_val;		// Vector for wave function values
 
+	int length = wBox/h;
+
+	cout << "LENGTH: " << length << endl;
+
+	vector<double> totPot(length,0.0);
+	vector<double> totProton(length,0.0);
+	vector<double> totNeutron(length,0.0);
+
 	// Nice stuff for terminal output
 	cout << "\n*************************************************************************" << endl;
 
 	int nSteps = (eMax-eMin)/eStep;
 
 //	totPot
+
+	vector<double> wfTot;
 
 	for(int isoSpin=0; isoSpin<2; isoSpin++)
 	{
@@ -134,7 +153,7 @@ int main()
 							for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h, isoSpin, L, spin));
 
 							// Calculate normalisation factor
-							double normFac = normalise(eigenEng, isoSpin, L, spin);
+							normFac = normalise(eigenEng, isoSpin, L, spin);
 
 							double j=Spin+L;
 
@@ -172,8 +191,7 @@ int main()
 
 					wf_val.clear(); // clear wf_val vector for next calculation with different trial energy
 					eMin += eStep;	// increase energy.....will get rid of this
-
-				
+		
 				}// Close loop over Energy mesh
 				wfTmp =0;
 				wfPrev=0;

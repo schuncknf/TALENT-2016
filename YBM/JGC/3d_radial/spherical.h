@@ -24,6 +24,8 @@ double wfStep2;
 
 double convEng;	// Convergence energy
 
+double normFac;
+
 // Variable used to check if the wavefunction has crossed x axis
 // between different energies
 double wfPrev, wfLast, wfTmp;
