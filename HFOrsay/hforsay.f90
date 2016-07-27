@@ -18,6 +18,7 @@ call reader()
 !write(*,*) "tbme",tbme_ext(17,18,89,18)
 !call cpu_time(start)
 call external_basis()
+call external_tbme()
 write(*,*) n_ext
 read(*,*)
 start = omp_get_wtime()
