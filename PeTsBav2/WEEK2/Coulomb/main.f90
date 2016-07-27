@@ -51,8 +51,7 @@ do ipart=1, 2 !1=neutrons, 2=protons
       Em=E_minus
       uu=1
 
- 
-      do n=0, n_max !loop n
+      do n=0, n_max-1 !loop n
             do l=0, l_max  !loop l   
                   do ii=1,-1, -2 !loop sm--->j
                   sm=1./2.*ii
@@ -226,7 +225,7 @@ close(13)
             if (l.eq.0) then
             Vpot= VWS
             else
-                  if (ii.eq. +1) then
+                  if (mm.eq. +1) then
                         ls = 0.5*l      ! j=l+1/2
                   else 
                         ls = -0.5*(l+1) ! j=l-1/2
