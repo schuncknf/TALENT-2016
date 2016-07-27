@@ -31,10 +31,9 @@ contains
     rho_mat = 0._dp
     do i = 1,Nsize
        do j = i,Nsize
-!          if(l_ho(2*i).ne.l_ho(2*j).or.j_ho(2*i).ne.j_ho(2*j)) cycle
+          if(l_hf(i).ne.l_hf(j).or.j_hf(i).ne.j_hf(j)) cycle
           D = 0
-          do k = 1,3!Nparticles
-!             D = D + (j_ho(2*k)+1)*D_mat(i,k)*D_mat(j,k)
+          do k = 1,3 !3 is the number of occupied states for 8 particles
              D = D + (j_hf(k)+1)*D_mat(i,k)*D_mat(j,k)
           enddo
           rho_mat(i,j) = D
@@ -70,9 +69,7 @@ contains
     integer :: lwork,info
     lwork = 30*nsize-1
     D_mat = h_mat
-!    write(*,*) D_mat
     call dsyev('V','U',Nsize,D_mat,Nsize,E_Values,Work,lwork,info)
-!    write(*,*) E_values
   end subroutine Diagonalize_h
 
   function Trace_product(A,B) result(TrAB)

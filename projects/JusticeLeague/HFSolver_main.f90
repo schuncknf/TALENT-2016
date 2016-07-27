@@ -5,15 +5,16 @@ program HFSolver
   use :: Minnesota
   implicit none 
 !  integer :: i,j,k
-    integer :: i,j,k,Noccupied
-  real(dp) :: EHF,tr_rho
+  integer :: i,j,k!,Noccupied
+!  real(dp) :: EHF,tr_rho
+!  integer :: i,j,k
+  real(dp) :: EHF,tr_rho,r,dr
   Nparticles = 8
   n_orbitals = 216
-!  Nsize = n_orbitals/2!
   call read_orbitals
   Noccupied=fermi_level()
-  write(*,*) Norbitals
-!  stop
+  write(*,*) Noccupied
+  stop
 !  write(*,*) nsize
 !  write(*,*) n_ho(1:2*nsize)
 !  write(*,*) ho_flag
@@ -21,40 +22,28 @@ program HFSolver
 !  write(*,*) j_ho(1:nsize)
 
 ! write(*,*) ho_index(1:nsize)
+  call initialize_HF
+  call Initialize_Minnseota
+  stop
   call read_TBME
-!  stop
-! write(*,*) v_mat
-!  stop
-!  do Nsize = 4,4,2
-     call initialize_HF
-     call Initialize_Minnseota
-!     stop
-!     v_mat = 0
-!     write(*,*) t_mat 
-!     stop
-     do i = 1,50
-        call Construct_rho
-!        write(*,*) Trace(rho_mat)
-        call Construct_gamma
-        h_mat = t_mat + gamma_mat
-!        write(*,*) h_mat
-!        stop
-        call Diagonalize_h 
-        write(*,*) (E_values(j),j=1,4)
-        delta_E = sum(abs(E_values - E_prev))/real(Nsize,kind=dp)
-        if(delta_E.lt.small) then
-           write(*,*) 'Eigenvalues converged'
-           exit 
-        endif
-        E_prev = E_values
-     enddo
+  do i = 1,50
      call Construct_rho
      call Construct_gamma
      h_mat = t_mat + gamma_mat
-!     write(*,*) (E_values(i),i=1,12)
-     EHF = (Trace_product(t_mat,rho_mat) + Trace_product(h_mat,rho_mat))/2._dp
-     write(*,*) EHF
-!     write(*,*) Trace(rho_mat)
-!  enddo
+     call Diagonalize_h 
+     write(*,'(10f11.4)') (E_values(j),j=1,10)
+     delta_E = sum(abs(E_values - E_prev))/real(Nsize,kind=dp)
+     if(delta_E.lt.small) then
+        write(*,*) '  Eigenvalues converged'
+        exit 
+     endif
+     E_prev = E_values
+  enddo
+  call Construct_rho
+  call Construct_gamma
+  h_mat = t_mat + gamma_mat
+  EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
+  write(*,*) '  Hartree-Fock energy in MeV'
+  write(*,*) EHF
   
 end program HFSolver
