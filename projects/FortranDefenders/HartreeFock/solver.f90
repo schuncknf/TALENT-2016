@@ -149,6 +149,36 @@ contains
 
   end subroutine energy_sort
 
+  subroutine build_fields
+  integer :: ir, iq
+  !!Central Field U(r)
+           unew(ir,iq) = unew(ir,iq) + &
+                & 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
+               	& + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
+               	& + 2*( a0r0p-a1r1p )*ddrho(ir,3) + 4 *a1r1p * ddrho(ir,iq)
+  !! Part of U(r) coming from d(M(r))
+           umrnew(ir,iq) = umrnew(ir,iq)  &
+                & + (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/meshpoints(ir) ) &
+                & + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / meshpoints(ir) )
+  !! t3 part of U(r)
+           uddnew(ir,iq) = uddnew(ir,iq) &
+                & + ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
+                & + 2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
+                & + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
+   !!spin-orbit part
+           usonew(ir,iq) = usonew(ir,iq) &
+                & - (cso0-cso1 )*drho(ir,3)/meshpoints(ir) &
+                & - 2 *cso1 * drho(ir,q) / meshpoints(ir)
+           if (j2terms) then
+           usonew(i1,q) = usonew(i1,q)&
+                & -(a0t0-a1t1) *jsc(ir,3) / meshpoints(i1) &
+               	& - 2 *a1t1 * jsc(ir,iq) / meshpoints(i1) 
+           end if
+   !!coulomb
+
+
+  end subroutine build_fields
+
   subroutine build_densities
   integer :: npr,iq,ir,i
   real(wp) :: j
@@ -236,6 +266,27 @@ contains
 
   end function
 
+  function dwavefunction(ir,n,l,is,iq) result(derv)
+    integer, intent(in) :: ir
+    real(wp), intent(out) :: derv
+
+    if(ir < 1) then
+      derv = 0.
+    else if (ir < 2) then
+      derv = (-wfr(ir+2,n,l,is,iq) + 6*wfr(ir+1,n,l,is,iq) &
+             -3*wfr(ir,n,l,is,iq) - 2*wfr(ir-1,n,l,is,iq))/(6*h)
+    else if ((ir >= 2) .AND. (ir <= nbox-2)) then
+      derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
+             -8*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(12*h)
+    else if ((ir > nbox-2) .AND. (ir/=nbox)) then
+      derv = (2*wfr(ir+1,n,l,is,iq) + 3*wfr(ir,n,l,is,iq) &
+             -6*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(6*h)
+    else
+      derv = 0.
+    end if
+
+  end function
+
   function woodsaxon(ir, Etrial) result(pot)
     real(wp) :: pot
     integer, intent(in) :: ir
@@ -282,10 +333,16 @@ function dfullwoodsaxon(ir) result(pot)
 
   function coulomb(ir) result(pot)
     integer,intent(in) :: ir
+    integer :: ir2
     real(wp) ::pot
-        if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
-        if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
-
+    real :: tot1=0.0d0,tot2=0.0d0
+        DO ir2=0,ir
+	tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
+	ENDDO
+	DO ir2=ir,nbox
+	tot2=tot2+rho(ir2,2)*meshpoints(ir2)
+	ENDDO
+	pot=4.0d0*pi*e2*(tot1/meshpoint(ir) + tot2)
   end function
 
 end module solver

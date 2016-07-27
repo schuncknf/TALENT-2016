@@ -2,3 +2,4 @@
 &squarewell welltype=2,nodes=42,v0=50,radius=500 / ! Type 1 = Infinite Well, 2 = Finite of depth v0 and width radius
 &params r0=1.27,conv=1E-6,hbar22m=20.73553 /
 &nucleus np=82,nn=126,lmax=6 /
+&interaction t0= -1132.4,x0=0.0,t1=0.0,x1=0.0,t2=0.0,x2=0.0,t3=23610.40,x3=0.0,w0=0.0,sig=1.0,icoul=1,icm=1,j2terms=.true. /

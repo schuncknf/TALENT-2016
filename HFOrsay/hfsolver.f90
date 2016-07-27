@@ -4,7 +4,7 @@
        use pot
        use maths
        use ho
-       use mscheme
+       use basis
       implicit none   
       integer, parameter :: lwmax=1000
       double precision,parameter::lambda=1.d-8
@@ -28,7 +28,8 @@
 ! --------------------------------------------------
 !
       !n=nbase
-      n=ntx
+      n=red_size
+      !n=ntx
       lda = n
       ldvr = n
       ldvl = n
@@ -40,7 +41,8 @@
 !
       allocate(trho(n,n),hrho(n,n),rho(n,n),vpot(n,n,n,n),kin(n,n),gama(n,n))
       allocate(vpotp(n,n,n,n),vpotas(n,n,n,n))
-      allocate(vpotr(nbase,nbase,nbase,nbase),vpotpr(nbase,nbase,nbase,nbase),vpotasr(nbase,nbase,nbase,nbase))
+      !allocate(vpotr(nbase,nbase,nbase,nbase),vpotpr(nbase,nbase,nbase,nbase),vpotasr(nbase,nbase,nbase,nbase))
+      allocate(vpotr(n,n,n,n))
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 
 
@@ -49,26 +51,26 @@
         call kinetic(n,nr,nl,kin)
 vpot=0.d0
 vpotas=0.d0
-write(*,*) "computing TBME",nbase
-!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(nbase,vpotas) SCHEDULE(DYNAMIC)
-     do i = 1,nbase
-      n1=i-1
-      do j = 1,nbase
-       n2=j-1
-       do k = 1,nbase
-        n3=k-1
-        do l = 1,nbase
-         n4=l-1
-           call tbme(n1,n2,n3,n4,l1,l2,l3,l4,m1,m2,m3,m4,j1,j2,j3,j4,vpotr(i,j,k,l),.false.,0)
-           call tbme(n1,n2,n4,n3,l1,l2,l3,l4,m1,m2,m3,m4,j1,j2,j3,j4,vpotpr(i,j,k,l),.false.,0)
-           vpotas(i,j,k,l) = (vpotr(i,j,k,l) + vpotpr(i,j,k,l))
+write(*,*) "computing TBME"
+!!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(nbase,vpotas) SCHEDULE(DYNAMIC)
+     do i = 1,n
+      n1=i!-1
+      do j = 1,n
+       n2=j!-1
+       do k = 1,n
+        n3=k!-1
+        do l = 1,n
+         n4=l!-1
+           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.,1)
+           !call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.,1)
+           vpotas(i,j,k,l) = (vpotr(i,j,k,l))! + vpotpr(i,j,k,l))
         enddo !l
        enddo !k
       enddo !j
      enddo !i
-!$OMP END PARALLEL DO
+!!$OMP END PARALLEL DO
 !vpotas(1:nbase,1:nbase,1:nbase,1:nbase) = vpotasr(1:nbase,1:nbase,1:nbase,1:nbase)
-!           vpotas = 0.d0
+           !vpotas = 0.d0
 write(*,*) "TBME's computed and antisymetrized"
 
 ! ---------- start of iteration loop
@@ -76,15 +78,17 @@ write(*,*) "TBME's computed and antisymetrized"
       eigvecr = 0.d0
       do it = 1, maxit
 
+         write(*,*) "Rho initizalition"
          if(it .eq. 1) then ! initializing eigenfunctions and eigenvalues
+            eigvecr = 0.d0
             do i = 1, n
-               do j = 1, n
-               if(i .le. n) eigvecr(i,i) = 1.d0 ! first npart states occupied with npart particles
-                  eigvecr(i,j) = 0.d0
-               enddo
-               eigvalold(i) = 0.d0 
+               if(nocc(i) .gt. 0) then 
+               eigvecr(i,i) = 1.d0 ! first npart states occupied with npart particles
+               endif
+               write(*,*) i,eigvecr(i,i)
             enddo
          endif
+
 
 ! --------- subroutines: (re)calculate rho and hf hamiltonian
        
@@ -107,11 +111,10 @@ write(*,*) "TBME's computed and antisymetrized"
 
          esum = 0.d0 
          do i = 1,n 
-            esum = esum + abs(eigvalr(i) - eigvalold(i))
+            esum = esum + nocc(i)*abs(eigvalr(i) - eigvalold(i))
          enddo
          esum = esum/n
          write(*,*) "iteration: ",it,"ediffi= ",esum
-
          if(esum .lt. lambda) exit ! calculation converged
 
 ! -------- save old eigenvalues
@@ -145,35 +148,37 @@ write(*,*) "TBME's computed and antisymetrized"
        trho=0.d0
        trho = matmul(kin,rho)
        hfenergy = 0.d0
+       kin_energy= 0.d0
        do i=1,n
+         kin_energy = kin_energy + kin(i,i)*nocc(i)
          write(*,'(a,i3,a,f16.8)') 'e(',i,')= ',eigvalr(i)
-       enddo
-       hfenergy = 0.d0
-       hf2body = 0.d0
-       kin_energy = 0.d0
-       do i=1,npart/2
-        hfenergy = hfenergy  + 2.d0*eigvalr(i)
-        kin_energy = kin_energy + kin(i,i)
        enddo
        do i=1,npart/2
         do j=1,npart/2
            hf2body = hf2body + 2.d0*vpotas(i,j,i,j)
          enddo
         enddo
-       hfenergy = hfenergy  + hf2body*half
-       !write(*,*) 'hartree-fock energy',hfenergy 
-       write(*,*) "kinetic energy",kin_energy
-       hfenergy = 0.d0
-       do i=1,nbase
-         hfenergy = hfenergy + trho(i,i) + hrho(i,i)
-       enddo
-       tr=0.d0
-       do i=1,nbase
-        tr = tr + 2.d0*rho(i,i)
-       enddo
-       write(*,*) "Part Num",tr
+        write(*,*) "2-Body Interaction Energy",hf2body
+       write(*,*) "Kinetic energy",kin_energy
+       hfenergy = trace(trho,n) + trace(hrho,n)
+       write(*,*) "Part Num",trace(rho,n)
 
-       write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',hfenergy,' MeV'
+! ---- Petar
+!
+!       hrho=0.d0
+!       hrho = matmul(hf,rho)
+!       trho=0.d0
+!       trho = matmul(kin,rho)
+!       hfenergy = 0.d
+!       do i=1,nt
+!         hfenergy = hfenergy + trho(i,i) + hrho(i,i)
+!       enddo
+!
+!       hfenergy=0.5*hfenergy (?)
+!
+! ---- Petar
+
+       write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',half*hfenergy,' MeV'
 ! -------- Writing Outputs
 open(22,file='hforsay.out')
 write(22,*) "------ System ------"

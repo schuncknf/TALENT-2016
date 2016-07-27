@@ -86,7 +86,7 @@ int main(){
 */
 
 //Plot the proton and neutron central potential
-
+/*
 	ofstream myfileN, myfileP;
 	myfileN.open("EigenN.txt");
 	myfileP.open("EigenP.txt");
@@ -103,7 +103,7 @@ int main(){
 
 	myfileN.close();
 	myfileP.close();
-
+*/
 
 return 0;
 }
