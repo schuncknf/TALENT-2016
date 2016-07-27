@@ -3,7 +3,6 @@
 
 	#include <iostream>
 	#include <cmath>
-	//#include <armadillo>
 	#include <vector>
 	#include <fstream>
 

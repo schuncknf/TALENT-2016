@@ -31,9 +31,9 @@
 	double potential_spin_orbit(double r, double S, double L, double J){
 		if(L!=0){
 			double R = r0*pow(A,1./3.);
-			double S_L = 1./2.*(J*(J+1)-L*(L-1)-3./4.);
+			double S_L = J*(J+1)-L*(L-1)-3./4.;
 			double df = -1./pow(1+exp((r-R)/0.67),2)*1./0.67*exp((r-R)/0.67);
-			return 0.44*S_L*pow(r0,2)*1/r*df;
+			return 0.44*S_L*pow(r0,2)*1./r*df;
 		}
 		else
 			return 0;
