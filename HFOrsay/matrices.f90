@@ -1,5 +1,6 @@
 subroutine compute_rho(rho,Dt,di)
 use constants
+use basis
 implicit none
 integer, intent(in):: di
 double precision, dimension (di,di), intent(out) :: rho
@@ -14,84 +15,53 @@ D=Dt
 do i=1,di
   do j=1,di
 rho_temp =0.d0
-    do k=1,npart/2
-      rho_temp = rho_temp+ 1.d0*D(i,k)*D(j,k)
+    do k=1,di
+      rho_temp = rho_temp+ nocc(k)*D(i,k)*D(j,k)
     enddo
     rho(i,j) = rho_temp
   enddo
 enddo
-
-
-! --- Petar
-
-!   do i = 1, nt
-!      do j = 1, nt
-!	 rho_temp=0.d0
-!	 do k = 1, nt (sum over all states, when the state is not occupied it will not contribute, occupation numbers calculated in basis)
-!	      rho_temp = rho_temp + occ(i)*D(i,k)*D(j,k)
-!	 enddo
-!         rho(i,j)=rho_temp
-!       enddo
-!   enddo
-! --- Petar
-
-
 end subroutine compute_rho
 
 
 subroutine compute_gamma(gamma_matrix,mtrxel,rho,di)
+use basis
 implicit none
 integer, intent(in) :: di
 double precision, dimension (di,di,di,di), intent(in) :: mtrxel
 double precision, dimension (di,di), intent(in) :: rho
 double precision, dimension (di,di), intent(out) :: gamma_matrix
 double precision::gammatemp
-integer :: n1,n2,n3,n4
+integer :: i1,i2,i3,i4
+integer::n3,n4,l3,l4,j3,j4,nocc3,nocc4
 
 !subroutine local variables
 gamma_matrix = 0.d0
 
 !Compute the gamma matrix out of the TBMEs and the rho matrix
-do n1=1,di 
- do n2=1,di
+do i1=1,di 
+ do i2=1,di
 gammatemp = 0.d0
-  do n3=1,di
-   do n4=1,di
-        gammatemp = gammatemp + mtrxel(n1,n4,n2,n3)*rho(n3,n4)
+  do i3=1,di
+     n3 = n_red(i3)
+     l3 = l_red(i3)
+     j3 = j_red(i3)
+     nocc3=nocc(i3)
+   do i4=1,di
+     n4 = n_red(i4)
+     l4 = l_red(i4)
+     j4 = j_red(i4)
+     nocc4=nocc(i4)
+     !if (nocc4 .ne. 0 .and. nocc3 .ne. 0) then
+     !  if (j3 .eq. j4 .and. l3 .eq. l4) then
+        gammatemp = gammatemp + mtrxel(i1,i4,i2,i3)*rho(i3,i4)
+    ! endif ! J3=J4;L3=L4
+   ! endif !Occupied states only
       enddo
     enddo
-    gamma_matrix(n1,n2) = gammatemp
-  !  gamma_matrix(n2,n1) = gammatemp
+    gamma_matrix(i1,i2) = gammatemp
   enddo
 enddo
-
-
-!---- Petar 
-
-!do i=1,nt
-! do k=1,nt
-!gammatemp = 0.d0
-!  do j=1,nt ! sum over all states, the unoccupied states will not contribute
-! read quantum numbers n2,l2,j2 that corresponds to j state
-!   do l=1,nt ! sum over all states, the unoccupied states will not contribute
-! read quantum numbers n4,l4,j4 that corresponds to l state
-!	 if(occj .eq. 0 .or. occl .eq. 0) then	 
-!            matel=0
-!	 elseif(l2 .ne. l4 .or. j2 .ne. j4) then
-!	    matel = 0
-!	 else
-!	    matel = mtrxel(n1,n4,n2,n3)*rho(n3,n4)
-!	 endif
-!         gammatemp = gammatemp + mtrxel(n1,n2,n3,n4)*rho(n4,n2)
-!      enddo
-!    enddo
-!    gamma_matrix(i,k) = gammatemp
-!  enddo
-! enddo
-
-!---- Petar 
-
-
 end subroutine compute_gamma
 
 

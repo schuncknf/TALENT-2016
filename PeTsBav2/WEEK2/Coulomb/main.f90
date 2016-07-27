@@ -29,6 +29,7 @@
       read(30, NML=WoodSaxon)   
       close(30)
       !-----------------------------------------------------------------
+      E_minus=-(-51. + 33.*(NN-ZZ)/NN+ZZ)
       Nmesh=nint((R_box)/h)
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
       orbital = 0
@@ -127,8 +128,7 @@ do ipart=1, 2 !1=neutrons, 2=protons
                  !endif                
                  !open(10,file=filename_wave_func(uu))
                  !write(10,'(a5,3i5)') '#nl2j=', n+1, l, nint(2*j)
-           
-                 !do i=1,Nmesh-1
+                 !           do i=1,Nmesh-1
                  !       x = i*h
                  !       write(10,'(3f15.8)') x, psi(i), vpot(x, ii, ipart)
                  !end do

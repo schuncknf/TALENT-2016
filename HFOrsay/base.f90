@@ -103,18 +103,18 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
 end subroutine sphbasis
 
 module basis
-
+use constants
 integer,allocatable::n_ext(:),m_ext(:),l_ext(:),j_ext(:),t_ext(:)
-integer,allocatable::n_red(:),l_red(:),j_red(:)
+integer,allocatable::n_red(:),l_red(:),j_red(:),occ(:),nocc(:)
 integer,allocatable::repick_base(:)
-integer::size_red,size_full
+integer::red_size,size_full
 double precision,allocatable::tbme_ext(:,:,:,:)
 contains 
 subroutine external_basis()
 implicit none
 integer::tag,nn,nl,nm,nj,niso
 integer::iho,stat,ifil
-integer::n_lines,j,red_size
+integer::n_lines,j
 logical::fex
 inquire(file='spM.dat', exist=fex)
 if (fex) then
@@ -122,6 +122,7 @@ open(124,file='spM.dat')
 read(124,*) n_lines
 size_full = n_lines
 allocate(n_ext(n_lines),m_ext(n_lines),l_ext(n_lines),j_ext(n_lines),t_ext(n_lines))
+allocate(repick_base(n_lines))
 n_ext=0;m_ext=0;l_ext=0;l_ext=0;j_ext=0;t_ext=0
 j=0
 do iho=1,n_lines
@@ -139,8 +140,7 @@ enddo
 close(124)
    red_size = j
    write(*,*) "Reduced Basis Size: ",red_size
-   allocate(n_red(red_size),l_red(red_size),j_red(red_size))
-   allocate(repick_base(red_size))
+   allocate(n_red(red_size),l_red(red_size),j_red(red_size),occ(red_size))
    j= 0
 open(124,file='spM.dat')
 read(124,*) n_lines
@@ -151,7 +151,8 @@ do iho=1,n_lines
      n_red(j) = nn
      l_red(j) = nl 
      j_red(j) = nj
-     repick_base(j) = iho 
+     repick_base(iho) = j 
+     occ(j) = nj + 1
    endif
    if (stat /= 0) then
    write(*,*) "Problem while reading spM.dat"
@@ -182,7 +183,7 @@ read(125,*)
 read(125,*)
 !-------
 do
-  read(125,iostat=stat) n1,n2,n3,n4,tbme
+  read(125,*,iostat=stat) n1,n2,n3,n4,tbme
   if (t_ext(n1) .eq. 1 .and. t_ext(n2) .eq. 1 .and.t_ext(n3) .eq. 1 .and.t_ext(n4) .eq. 1) then !Keeping only neutrons elements
    if (m_ext(n1) .eq. j_ext(n1) .and. m_ext(n2) .eq. j_ext(n2) .and. m_ext(n3) .eq. j_ext(n3) .and. m_ext(n4) .eq. j_ext(n4)) then
    !Keeping only one projection of J
@@ -191,10 +192,12 @@ do
         q3 = repick_base(n3)
         q4 = repick_base(n4)
         tbme_ext(q1,q2,q3,q4) = tbme_ext(q1,q2,q3,q4) + 1.d0/dble((1+j_ext(n1))*(1+j_ext(n2)))*tbme 
+        !tbme_ext(q1,q2,q3,q4) = tbme 
     endif ! Filtering over m
    endif !Filtering Isospin
    if (stat /= 0) exit
 enddo ! End of the tbme file 
+write(*,*) "End of VM-Scheme.dat"
 
 else
 write(*,*) "File VM-Scheme.dat not found !"
@@ -205,6 +208,27 @@ endif
 
 
 end subroutine
+
+
+subroutine filled_number()
+implicit none
+integer::il,nf,ic
+allocate(nocc(red_size))
+nf = 0
+ic = 1
+ do il = 1, red_size
+   nf = nf + occ(il)
+   if (nf .le. npart) then
+      nocc(il)=occ(il)
+   elseif(nf .gt. npart .and. ic .eq. 1) then
+      nocc(il)=occ(il)+npart-nf
+      ic = 2
+   else
+      nocc(il)=0
+   endif
+ enddo
+end subroutine
+
 
 end
 
