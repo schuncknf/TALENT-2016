@@ -78,7 +78,7 @@ contains
                       wfl(ir,n,l,is,iq) = diff * wfl(ir,n,l,is,iq)
                     end if
                     ! Count the nodes (Except those spurious ones near the boundary)
-                    if((wfr(ir,n,l,is,iq)*wfr(ir-1,n,l,is,iq) < 0) .AND. (ir > 5)) nnodes = nnodes+1
+                    if((wfl(nbox - ir,n,l,is,iq)*wfl(nbox - ir-1,n,l,is,iq) < 0) .AND. (ir > 0)) nnodes = nnodes+1
                   end do
                   ! Unite the left and right
                   wfr(0:njoin,n,l,is,iq) = wfl(0:njoin,n,l,is,iq)
