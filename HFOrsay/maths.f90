@@ -70,9 +70,17 @@ enddo
 arraytosort= 0.d0
 arraytosort=te
 call sort(n,indexarray)
-
-
 end subroutine
+
+function trace(M,n) result(tr)
+implicit none
+integer::n,i
+double precision::M(n,n),tr
+tr = 0.d0
+do i = 1,n
+tr = tr + M(i,i)
+enddo
+end function
 
 
 

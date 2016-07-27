@@ -19,7 +19,6 @@ integer::nbase,npart,maxit,ngauss,n_lines,ntx
 integer::na_max,la_max,ja_max,nb_max,lb_max,jb_max
 double precision::homega,bosc
 integer,allocatable::exttag(:,:,:)
-double precision,allocatable::tbme_ext(:,:,:,:,:,:,:,:,:,:,:,:,:,:,:,:)
 contains
 subroutine reader()
 implicit none
