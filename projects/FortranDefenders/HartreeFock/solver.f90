@@ -305,21 +305,6 @@ contains
     end if
   end function
 
-!!!Must be multiplied by (positive) vpb in calculations
- function fullwoodsaxon(ir) result(pot)
-    real(wp) :: pot
-    integer, intent(in) :: ir
-      pot = 1 / (1 + exp((meshpoints(ir)-nrad)/a))
-  end function
-
-!!!Must be multiplied by (positive) vpb in calculations
-function dfullwoodsaxon(ir) result(pot)
-    real(wp) :: pot
-    integer, intent(in) :: ir
-      !pot = -1 / (1 + exp((meshpoints(ir)-nrad)/a))*(1/a)*(1 / (1 + exp((-meshpoints(ir)+nrad)/a)))
-      !pot = -1 / (2*a*(cosh((nrad - meshpoints(ir))/a) + 1))
-      pot = -(1/a)*(1 / (1 + exp((-meshpoints(ir)+nrad)/a)))
-  end function
 
   function spinorbit(ir,l,is) result(pot)
     integer, intent(in) :: ir,l, is
