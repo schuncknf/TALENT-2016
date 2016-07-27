@@ -86,6 +86,19 @@ write(*,*) "TBME's computed and antisymetrized"
             enddo
          endif
 
+! ----- Petar
+	 
+!	 if(it .eq. 1) then
+!	    eigvecr=0.d0
+!	    do i = 1,nt (number of states)	
+!	         occ=real(occ(i)) ! occupational number of a state, calculated in basis?
+!	         if(occ .gt. 0) eigvec(i) = one ! since formula for rho matrix contains occupational number
+!                                                 i think here should be either            
+!	    enddo
+!          endif
+!
+! ----- Petar
+
 ! --------- subroutines: (re)calculate rho and hf hamiltonian
        
 
