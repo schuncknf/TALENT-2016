@@ -13,15 +13,19 @@ end function
 
 subroutine kinetic(n,nr,nl,kin)
  use constants
+ use basis
  implicit none
  double precision::kin(n,n)
  integer::nr(n),nl(n)
  integer::n,i
- integer::n1,n3
+ integer::n1,l1
  kin=0.d0
  do i=1,n
 !   kin(i,i) = (2.d0*nr(i)+nl(i)+1.5d0)*ama*2.d0/(bosc**2)
-   kin(i,i) = (2.d0*(i-1)+1.5d0)*ama*2.d0/(bosc**2)
+   !kin(i,i) = (2.d0*(i-1)+1.5d0)*ama*2.d0/(bosc**2)
+    n1 = n_red(i)
+    l1 =l_red(i)
+     kin(i,i) = nocc(i)*(2.d0*n1+l1+1.5d0)*ama*2.d0/(bosc**2)
  enddo
 
 ! ---- Petar
