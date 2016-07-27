@@ -9,6 +9,8 @@ implicit none
      real(wp) :: t0,x0,t1,x1,t2,x2,t3,x3,sig,w0
      real(wp) :: cmcorr
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2)
+     real(wp) :: a0r0,a1r1,a0s0,a1s1,a0tau0,a1tau1,a0t0,a1t1,a0r0p,a1r1p,& 
+                & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
      real(wp), allocatable,dimension(:) :: meshpoints
      real(wp), allocatable, dimension(:,:) :: rho
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
@@ -45,6 +47,40 @@ contains
           else
           nmax = np
           end if
+          !!
+          !setting the coupling constants
+          !!
+          a0r0 = 3._wp/8._wp * t0 
+          a1r1 = - 1._wp/4._wp * t0 * ( 1._wp/2._wp + x0 )
+          a0s0 = - 1._wp/4._wp * t0 * ( 1._wp/2._wp - x0 )
+          a1s1 = - 1._wp/8._wp * t0 
+          !
+          a0tau0 = 3._wp/16._wp * t1 + 1._wp/4._wp * t2 * ( 5._wp/4._wp + x2 ) 
+          a1tau1 = - 1._wp/8._wp * t1 * ( 1._wp/2._wp + x1 ) + &
+                 & 1._wp/8._wp * t2 * ( 1._wp/2._wp + x2 )
+          !          
+          a0t0 = - 1._wp/8._wp *t1* ( 1._wp/2._wp - x1 ) + &
+                 & 1._wp/8._wp * t2 * ( 1._wp/2._wp + x2 )
+          a1t1 =  1._wp/16._wp * (t2-t1) 
+          !
+          a0r0p = - 9._wp/64._wp * t1 + 1._wp/16._wp * t2 *( 5._wp/4._wp + x2 )
+          a1r1p = 3._wp/32._wp * t1 * ( 1._wp/2._wp + x1 ) + &
+                 & 1._wp/32._wp * t2 * ( 1._wp/2._wp + x2 )
+            
+          a0s0p = 3._wp/32._wp * t1 * ( 1._wp/2._wp - x1 ) + &
+                 & 1._wp/32._wp * t2 * ( 1._wp/2._wp + x2 )
+          a1s1p = 3._wp/64._wp * t1 + 1._wp/64._wp * t2
+    	  !
+          cddr0 =  t3 / 16.0_wp
+          cddr1 = - 1._wp/24._wp * t3 * ( 1._wp/2._wp + x3 )
+          cdds0 = - 1._wp/24._wp * t3 * ( 1._wp/2._wp - x3 )
+          cdds1 = - 1._wp/48._wp * t3
+          !
+          cso0 = - 3._wp/4._wp * w0
+          cso1 = - 1._wp/4._wp * w0
+
+         ! print *, a0r0,a1r1,a0s0,a1s1,a0tau0,a1tau1,a0t0,a1t1,a0r0p,a1r1p,& 
+         !       & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
 
      end subroutine init_params
 

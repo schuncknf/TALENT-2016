@@ -149,6 +149,12 @@ contains
 
   end subroutine energy_sort
 
+  subroutine build_fields
+
+
+
+  end subroutine build_fields
+
   subroutine build_densities
   integer :: npr,iq,ir,i
   real(wp) :: j
