@@ -337,10 +337,10 @@ function dfullwoodsaxon(ir) result(pot)
     real(wp) ::pot
     real :: tot1=0.0d0,tot2=0.0d0
         DO ir2=0,ir
-	tot1=tot1+rho(ir2,2)*(meshpoints(ir)**2)
+	tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
 	ENDDO
 	DO ir2=ir,nbox
-	tot2=tot2+rho(ir2,2)*meshpoints(ir)
+	tot2=tot2+rho(ir2,2)*meshpoints(ir2)
 	ENDDO
 	pot=4.0d0*pi*e2*(tot1/meshpoint(ir) + tot2)
   end function

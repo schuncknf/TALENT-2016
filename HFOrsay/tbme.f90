@@ -4,6 +4,7 @@ use lag_pol
 use constants
 use pot
 use maths
+use basis
 implicit none
 integer::i,n1,n2,n3,n4,j,iflag
 integer::l1,l2,l3,l4
@@ -53,12 +54,6 @@ if (pr .and. orth .gt. 0.001d0) then
 write(*,'(a,4i3,f20.14)') "n1,n2,n3,n4",n1,n2,n3,n4,orth
 endif
 elseif (iflag == 1) then
-inquire(file='VM-scheme.dat', exist=fex)
-if (fex) then
-
-else
-write(*,*) "File VM-scheme.dat not found !"
-stop
-endif
+resu = tbme_ext(n1,n2,n3,n4)
 endif
 end
