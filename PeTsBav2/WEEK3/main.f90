@@ -1,7 +1,3 @@
-      ! Program to calculate the eigenvalues and 
-      ! eigenvectors in a woods saxon potential 3D
-      ! Parts: main.f90, globals.f90, Simpson.f90, WS.input
-      !      
       ! Authors: Fang Ni, Kai Wang, Claudia Gonzalez Boquera
       ! TALENT COURSE 4 2016 
       program WoodsSaxon3D
@@ -118,21 +114,21 @@ do ipart=1, 2 !1=neutrons, 2=protons
                  call simpson(Nmesh, h, rho, nmfactor)       
                  psi(:) = psi(:)/sqrt(nmfactor)    !wave func
                  
-                 !if (ipart.eq.1) then 
-                 !write(filename_wave_func(uu),'(a8,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
-                 ! 'Neutron_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
-                 !else
-                 ! write(filename_wave_func(uu),'(a7,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
-                 ! 'Proton_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
-                 !endif                
-                 !open(10,file=filename_wave_func(uu))
-                 !write(10,'(a5,3i5)') '#nl2j=', n+1, l, nint(2*j)
+                 if (ipart.eq.1) then 
+                 write(filename_wave_func(uu),'(a8,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
+                  'Neutron_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
+                 else
+                  write(filename_wave_func(uu),'(a7,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
+                  'Proton_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
+                 endif                
+                 open(10,file=filename_wave_func(uu))
+                 write(10,'(a5,3i5)') '#nl2j=', n+1, l, nint(2*j)
            
-                 !do i=1,Nmesh-1
-                 !       x = i*h
-                 !       write(10,'(3f15.8)') x, psi(i), vpot(x, ii, ipart)
-                 !end do
-                 !close(10)
+                 do i=1,Nmesh-1
+                        x = i*h
+                        write(10,'(3f15.8)') x, psi(i), vpot(x, ii, ipart)
+                 end do
+                 close(10)
                  all_wavefunction(uu,:) = psi(:)
                  uu=uu+1
                  enddo!loop sm--->j
@@ -200,8 +196,6 @@ close(13)
 
 
 !=========================== potential function ===============================
-
-
       ! Woods-Saxon +SO potential
       real (8) function Vpot(xy, mm, ip)
       use globals
@@ -244,5 +238,16 @@ close(13)
       endif
       end function
 
+
+
+      real (8) function Vpot(xy, mm, ip)
+      use globals
+      implicit none
+      real(kind=dm)::
+      INTEGER(8) :: mm, ip
+
+
+      endif
+      end function
 
 
