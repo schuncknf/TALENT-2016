@@ -266,6 +266,27 @@ contains
 
   end function
 
+  function dwavefunction(ir,n,l,is,iq) result(derv)
+    integer, intent(in) :: ir
+    real(wp), intent(out) :: derv
+
+    if(ir < 1) then
+      derv = 0.
+    else if (ir < 2) then
+      derv = (-wfr(ir+2,n,l,is,iq) + 6*wfr(ir+1,n,l,is,iq) &
+             -3*wfr(ir,n,l,is,iq) - 2*wfr(ir-1,n,l,is,iq))/(6*h)
+    else if ((ir >= 2) .AND. (ir <= nbox-2)) then
+      derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
+             -8*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(12*h)
+    else if ((ir > nbox-2) .AND. (ir/=nbox)) then
+      derv = (2*wfr(ir+1,n,l,is,iq) + 3*wfr(ir,n,l,is,iq) &
+             -6*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(6*h)
+    else
+      derv = 0.
+    end if
+
+  end function
+
   function woodsaxon(ir, Etrial) result(pot)
     real(wp) :: pot
     integer, intent(in) :: ir

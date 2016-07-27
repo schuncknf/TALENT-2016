@@ -2,30 +2,26 @@
 #define MINNESOTAS0_H
 
 #include <armadillo>
-#include "ReducedSpBasis.h"
 
 #include "Interaction.h"
+#include "ReducedSpBasis.h"
 
 /// class MinnesotaS0 - 
 class MinnesotaS0 : public Interaction {
   // Attributes
 public:
   arma::field<arma::mat> TBME;
+  int nPoints;
+private:
+  ReducedSpBasis & basis;
   // Operations
 public:
-  MinnesotaS0 (ReducedSpBasis &_basis);
+  MinnesotaS0 (ReducedSpBasis & _basis, int _nPoints = 120);
   ~MinnesotaS0 ();
   double get (arma::field<arma::mat> & R, arma::ivec & bType, arma::ivec & bId, arma::ivec & kType, arma::ivec & kId);
-private:
-  ReducedSpBasis &basis;
-  void calculateTBME(int quadratureOrder);
-  void printTBME();
-  double V0R;
-  double V0t;
-  double V0s;
-  double kR;
-  double kt;
-  double ks;
+  void calc ();
+  std::string info ();
+  std::string toString ();
 };
 
 #endif

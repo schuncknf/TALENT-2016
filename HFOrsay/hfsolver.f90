@@ -4,7 +4,6 @@
        use pot
        use maths
        use ho
-       use mscheme
       implicit none   
       integer, parameter :: lwmax=1000
       double precision,parameter::lambda=1.d-8
@@ -27,8 +26,8 @@
 !
 ! --------------------------------------------------
 !
-      !n=nbase
-      n=ntx
+      n=nbase
+      !n=ntx
       lda = n
       ldvr = n
       ldvl = n
@@ -59,8 +58,8 @@ write(*,*) "computing TBME",nbase
         n3=k-1
         do l = 1,nbase
          n4=l-1
-           call tbme(n1,n2,n3,n4,l1,l2,l3,l4,m1,m2,m3,m4,j1,j2,j3,j4,vpotr(i,j,k,l),.false.,0)
-           call tbme(n1,n2,n4,n3,l1,l2,l3,l4,m1,m2,m3,m4,j1,j2,j3,j4,vpotpr(i,j,k,l),.false.,0)
+           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.,0)
+           call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.,0)
            vpotas(i,j,k,l) = (vpotr(i,j,k,l) + vpotpr(i,j,k,l))
         enddo !l
        enddo !k
@@ -125,6 +124,17 @@ write(*,*) "TBME's computed and antisymetrized"
          esum = esum/n
          write(*,*) "iteration: ",it,"ediffi= ",esum
 
+! --------- Petar
+
+!         esum = 0.d0 
+!         do i = 1,nt
+!	    occup = occ(i) ! read occupational number
+!           esum = esum + occup*abs(eigvalr(i) - eigvalold(i))
+!         enddo
+!         esum = esum/nt ! maybe not nt but needs to be renormalized? can be fixed by lambda anyway
+
+! --------- Petar
+
          if(esum .lt. lambda) exit ! calculation converged
 
 ! -------- save old eigenvalues
@@ -185,6 +195,21 @@ write(*,*) "TBME's computed and antisymetrized"
         tr = tr + 2.d0*rho(i,i)
        enddo
        write(*,*) "Part Num",tr
+
+! ---- Petar
+!
+!       hrho=0.d0
+!       hrho = matmul(hf,rho)
+!       trho=0.d0
+!       trho = matmul(kin,rho)
+!       hfenergy = 0.d
+!       do i=1,nt
+!         hfenergy = hfenergy + trho(i,i) + hrho(i,i)
+!       enddo
+!
+!       hfenergy=0.5*hfenergy (?)
+!
+! ---- Petar
 
        write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',hfenergy,' MeV'
 ! -------- Writing Outputs

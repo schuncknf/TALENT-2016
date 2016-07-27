@@ -105,9 +105,9 @@ double Rnl (int n, double l, double m, double w, double r)
 		rnlres = Anl(n,l)/pow(bred(m,w),1.5)*pow(r/bred(m,w),l)*exp(-1.0*pow((r/bred(m,w)),2)/2.0)*gsl_sf_laguerre_n(n,(l+0.5), pow(r/bred(m,w),2));
 		
 		
-		printf("\n\n\n n = %d l = %lf m = %lf w = %lf r = %lf \n\n\n", n,l,m,w,r);
+		// printf("\n\n\n n = %d l = %lf m = %lf w = %lf r = %lf \n\n\n", n,l,m,w,r);
 		
-		printf("\n\n\n Anl = %lf bred = %lf laguerre = %lf \t\t %lf", Anl(n,l),bred(m,w),gsl_sf_laguerre_n(n,(l+0.5), pow(r/bred(m,w),2)),rnlres);
+		// printf("\n\n\n Anl = %lf bred = %lf laguerre = %lf \t\t %lf", Anl(n,l),bred(m,w),gsl_sf_laguerre_n(n,(l+0.5), pow(r/bred(m,w),2)),rnlres);
 		
 		/* printf ("%lf %lf %lf %lf \n", Anl(n,l), pow(r/bred(m,w),l), exp(-0.5*pow(bred(m,w),2)), laguerre((int)(l+0.5), pow(r/bred(m,w),2)) ); */ // Used to check elements of the radial wavefunction.
 		
