@@ -11,7 +11,7 @@
 class NeutronDrop : public System {
   // Operations
 public:
-  NeutronDrop (Basis & _basis, Interaction & _inter, int _nbNeut);
+  NeutronDrop (Basis & _basis, Interaction & _inter, int _nbNeut, int _nPoints = 50);
   /// Destructor of the NeutronDrop class
   ~NeutronDrop ();
 };
