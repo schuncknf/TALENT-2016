@@ -7,10 +7,13 @@
 #include <stdlib.h>	// abs
 #include <math.h>	// sin
 #include <vector>	// vectors
+#include <algorithm>	// min_element
 #include <numeric>	// accumulate
 #include "spherical.h"	// header file
 
 using namespace std;	// no need to put std:: before any cout, etc.
+
+vector<double> totPot;
 
 // Main code
 int main()
@@ -57,20 +60,31 @@ int main()
 
 	int nSteps = (eMax-eMin)/eStep;
 
+//	totPot
+
 	for(int isoSpin=0; isoSpin<2; isoSpin++)
 	{
 		if (isoSpin==0) cout << "*\tProtons \t\t\t\t\t\t\t*" << endl;
 		else cout << "*\t\t\t\t\t\t\t\t\t*\n*\tNeutrons \t\t\t\t\t\t\t*" << endl;
 		cout << "*\tEigen E [MeV]\tOrbital\t\tFilename\t\t\t*" << endl;
 
-		for(int L=0; L<8; L++) // Loop up to L=7 ( i.e. i_13/2) orbitals
+//		vector<double> pot;
+//		for(int i=0; i<wBox/h; i++) pot.push_back(V(i*h+h,isoSpin,0,0));
+
+		for(int L=0; L<8; L++) // Loop up to L=7 ( i.e. j_15/2) orbitals
 		{
-			for(int spin=0; spin<2; spin++)
+			int orbCheck;
+			if(L==0) orbCheck =1;
+			else orbCheck=2;
+			for(int spin=0; spin<orbCheck; spin++)
 			{
 				eMin = variable.at(5);
 				double Spin;
 				if(spin==0) Spin = -0.5;
 				else Spin = 0.5;
+
+				int n = 1;
+
 				// Loop for the calculation
 				for(int jj=0; jj<nSteps; jj++) // (eMax+eMin)
 				{
@@ -110,8 +124,7 @@ int main()
 							{
 									eigenEng = converge(eMin,eMin-eStep,wfLast,wfPrev,isoSpin,L,spin);
 							}
-							
-
+		
 							// Clear previous wafefunction vector and initiate first two steps
 							wf_val.clear();
 							wf_val.push_back(wfStep1);
@@ -123,30 +136,33 @@ int main()
 							// Calculate normalisation factor
 							double normFac = normalise(eigenEng, isoSpin, L, spin);
 
+							double j=Spin+L;
+
+							char orbital[16];
+							if(L==0) sprintf(orbital,"%is_%1.0f/2",n,fabs(2*j));
+							if(L==1) sprintf(orbital,"%ip_%1.0f/2",n,2*j);
+							if(L==2) sprintf(orbital,"%id_%1.0f/2",n,2*j);
+							if(L==3) sprintf(orbital,"%if_%1.0f/2",n,2*j);
+							if(L==4) sprintf(orbital,"%ig_%1.0f/2",n,2*j);
+							if(L==5) sprintf(orbital,"%ih_%1.0f/2",n,2*j);
+							if(L==6) sprintf(orbital,"%ii_%1.0f/2",n,2*j);
+							if(L==7) sprintf(orbital,"%ij_%1.0f/2",n,2*j);
+
 							// Write results to file with filename including energy eigenvalue
 							char filename[512], eigEng[512];
-							if(isoSpin==0) sprintf(filename,"results/proton_%i_%1.4f.dat",L,eigenEng);
-							else sprintf(filename,"results/neutron_%i_%1.4f.dat",L,eigenEng);
+
+							if(isoSpin==0) sprintf(filename,"results/proton_%s_%1.4f.dat",orbital,eigenEng);
+							else sprintf(filename,"results/neutron_%s_%1.4f.dat",orbital,eigenEng);
 							sprintf(eigEng,"%1.4f",eigenEng);
+
 							ofstream opFile;
 							opFile.open(filename);
 							for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << V(k*h, isoSpin, L, spin) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
 							opFile.close();
 
-							double j=Spin+L;
-
-							char orbital[16];
-							if(L==0) sprintf(orbital,"s_%1.0f/2",fabs(2*j));
-							if(L==1) sprintf(orbital,"p_%1.0f/2",2*j);
-							if(L==2) sprintf(orbital,"d_%1.0f/2",2*j);
-							if(L==3) sprintf(orbital,"f_%1.0f/2",2*j);
-							if(L==4) sprintf(orbital,"g_%1.0f/2",2*j);
-							if(L==5) sprintf(orbital,"h_%1.0f/2",2*j);
-							if(L==6) sprintf(orbital,"i_%1.0f/2",2*j);
-
 							// Output energy eigenvalue and the name of the file results are saved to
 							cout << "*\t " << setprecision(10) << eigEng << "\t" << orbital << "\t\t" << filename << "\t*"  << endl;
-
+							n++;
 						}
 					}
 
@@ -159,6 +175,8 @@ int main()
 
 				
 				}// Close loop over Energy mesh
+				wfTmp =0;
+				wfPrev=0;
 			}	 // Close loop over +/- 1/2 spin
 		}		 // Close looping over L values
 	}			 // Close looping over isospin
@@ -204,7 +222,7 @@ double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, i
 	long double diffE=eStep;
 	// While condition to carry on bisection convergence energy difference between
 	// trial energy and previous energies is small enough
-	while (fabs(wfEnd)>1e-7 && diffE>1e-14)
+	while (fabs(wfEnd)>1e-5 && diffE>1e-6)
 	{
 		trialE = (eHi+eLo)/2;		// Trial energy based on average of two previous energies
 		wf_val.push_back(wfStep1);	// Initiate Step 0 wavefunction value
@@ -283,17 +301,23 @@ double woodsSaxon(double r)
 double spinOrbit(double r, int l, double spin)
 {
 	double s;
-	if(spin==0) s = -0.5;
-	else        s = 0.5;
-	double    Vso = 0;
-	int         A = nProton + nNeutron;
-	double      R = r0 * pow(A,1./3);
-	double      j = l+s;
-	double   V_ls = Vls * (j*(j+1) - l*(l+1) - 3./4);
+	if(l==0) return 0;
+	else
+	{
+		if(spin==0) s = -0.5;
+		else        s = 0.5;
+		double    Vso = 0;
+		int         A = nProton + nNeutron;
+		double      R = r0 * pow(A,1./3);
+		double      j = l+s;
+		double   V_ls = Vls * 0.5 * ( j*(j+1) - l*(l+1) - 3./4 );
 
-	Vso = V_ls * r0 * r0 * (-1/r) * ((exp((r+R)/a0))/(a0*pow((exp(R/a0)+exp(r/a0)),2)));
+		Vso = V_ls * r0 * r0 * (-1/r) * ( (exp((r+R)/a0)) / (a0*pow((exp(R/a0)+exp(r/a0)),2)) );
 
-	return Vso;
+//		Vso = V_ls * r0 * r0 * (-1/r) * ( (exp((r-R)/a0)) / (a0*pow((1+exp((r-R)/a0)),2)) );
+
+		return Vso;
+	}
 }
 
 // Centrifugal term

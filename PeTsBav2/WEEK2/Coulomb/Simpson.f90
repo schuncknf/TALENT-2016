@@ -7,7 +7,7 @@
 !***************************************************
       subroutine simpson(N, dx, f, res)
       implicit none
-      real(8) :: res, even, odd, x, dx
+      real(8) :: res, even, odd, dx
       integer :: N
       real(8) :: f(0:N)
       integer :: i
