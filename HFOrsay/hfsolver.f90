@@ -18,6 +18,9 @@
       double precision esum, rhosum, gamasum, vnorm,tr
       double precision::x,ri,rj,hfenergy,hf2body,kin_energy,tbme1,tbme2
       integer::n1,n2,n3,n4
+      integer::l1,l2,l3,l4
+      integer::m1,m2,m3,m4
+      integer::j1,j2,j3,j4
       integer::i1,i2,i3,i4
       external dgeev
       logical::pr
@@ -41,7 +44,7 @@
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 
 
-        call sphbasis(ntx,nr,nl,nj,nocc,.true.)
+!        call sphbasis(ntx,nr,nl,nj,nocc,.true.)
       !  call external_basis(resua,resub) 
         call kinetic(n,nr,nl,kin)
 vpot=0.d0
@@ -56,8 +59,8 @@ write(*,*) "computing TBME",nbase
         n3=k-1
         do l = 1,nbase
          n4=l-1
-           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.,0)
-           call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.,0)
+           call tbme(n1,n2,n3,n4,l1,l2,l3,l4,m1,m2,m3,m4,j1,j2,j3,j4,vpotr(i,j,k,l),.false.,0)
+           call tbme(n1,n2,n4,n3,l1,l2,l3,l4,m1,m2,m3,m4,j1,j2,j3,j4,vpotpr(i,j,k,l),.false.,0)
            vpotas(i,j,k,l) = (vpotr(i,j,k,l) + vpotpr(i,j,k,l))
         enddo !l
        enddo !k

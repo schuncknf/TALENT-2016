@@ -1,11 +1,14 @@
-subroutine tbme(n1,n2,n3,n4,resu,pr,iflag)
+subroutine tbme(n1,n2,n3,n4,l1,l2,l3,l4,m1,m2,m3,m4,j1,j2,j3,j4,resu,pr,iflag)
 use ho
 use lag_pol
 use constants
 use pot
 use maths
 implicit none
-integer::i,n1,n2,n3,n4,j,l1,l2,l3,l4,iflag
+integer::i,n1,n2,n3,n4,j,iflag
+integer::l1,l2,l3,l4
+integer::m1,m2,m3,m4
+integer::j1,j2,j3,j4
 double precision::inte1,inte2,resu
 double precision::coeffi,coeffj
 double precision::xxi,xi,xxj,xj
