@@ -182,6 +182,26 @@ int main()
 							// Output energy eigenvalue and the name of the file results are saved to
 							cout << "*\t " << setprecision(10) << eigEng << "\t" << orbital << "\t\t" << filename << "\t*"  << endl;
 							n++;
+
+                            
+							vector<double> density(length,0.0);
+
+							for(int ii=0;ii<length;++ii)
+							{
+								wf_val[ii] *= sqrt(normFac);
+								density[ii] = (2*j + 1)/(4*M_PI*pow(ii*h,2)) * pow(wf_val[ii],2);
+								totPot[ii] += density[ii];
+
+								if(isoSpin == 0)
+								{
+								    totProton[ii] += density[ii];
+								}
+								else
+								{
+								    totNeutron[ii] += density[ii];
+								}
+							}
+
 						}
 					}
 
@@ -200,6 +220,15 @@ int main()
 	}			 // Close looping over isospin
 
 	cout << "*************************************************************************\n" << endl;	// nice stuff for terminal output
+
+	ofstream opFile;
+	opFile.open("densities.dat");
+	for(int i=0; i<wBox/h; i++) opFile << h*i << "\t" << totPot.at(i) << "\t" << totProton.at(i) << "\t" << totNeutron.at(i) << endl;
+	opFile.close();
+
+	cout << "Total nucleons: " << totalMatterDensity(totPot) << endl;
+	cout << "Total protons: " << totalMatterDensity(totProton) << endl;
+	cout << "Total neutrons: " << totalMatterDensity(totNeutron) << endl;
 }
 
 
@@ -354,4 +383,17 @@ double coulomb(double r)
 	else V_c = nProton * q * q / r;
 
 	return V_c;
+}
+
+double totalMatterDensity(vector<double> density)
+{
+	// Integrate total radial density 'density' to calculate A
+	double A = 0.0;
+
+	for(int i=1;i<density.size();++i)
+	{
+		A += density.at(i);
+	}
+
+	return A;
 }

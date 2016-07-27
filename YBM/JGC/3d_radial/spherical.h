@@ -43,3 +43,4 @@ double woodsSaxon(double r);
 double spinOrbit(double r, int l, double spin);
 double centrifugal(double r, double l);
 double coulomb(double r);
+double totalMatterDensity(vector<double> density);
