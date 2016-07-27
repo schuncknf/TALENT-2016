@@ -29,8 +29,6 @@
       read(30, NML=WoodSaxon)   
       close(30)
       !-----------------------------------------------------------------
-      write(*,'(3a20)') 'nodes', 'eigenvalue', 'filename eigvec'
-      
       Nmesh=nint((R_box)/h)
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
       orbital = 0
@@ -156,8 +154,6 @@ do ipart=1, 2 !1=neutrons, 2=protons
       enddo
       endif
 
-
-
 !DENSITY PROFILE
 
 if(ipart.eq.1) then
@@ -193,7 +189,7 @@ enddo !do particles
 open(13,file='density_T.dat')
 do i=1,Nmesh-1
    x = i*h
-   write(13,'(2f15.8)') x, dens_t(i)/x**2 
+   write(13,'(2f15.8)') x, dens_t(i)/x**2     
 end do
 close(13)
 
