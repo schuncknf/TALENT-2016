@@ -19,6 +19,7 @@ integer::nbase,npart,maxit,ngauss,n_lines,ntx
 integer::na_max,la_max,ja_max,nb_max,lb_max,jb_max
 double precision::homega,bosc
 integer,allocatable::exttag(:,:,:)
+double precision,allocatable::tbme_ext(:,:,:,:,:,:,:,:,:,:,:,:,:,:,:,:)
 contains
 subroutine reader()
 implicit none
@@ -43,36 +44,6 @@ write(*,'(a,f10.4)') " Osc length       ",bosc
 write(*,*) "****** END READER ***********"
 close(1)
 allocate(nr(ntx),nl(ntx),nj(ntx))
-end subroutine
-
-subroutine tbme_lines()
-implicit none
-logical::file_exists
-inquire(file='base_config', exist=file_exists)
-if (file_exists) then
-call system("cat base_config|wc -l >> base_nconf.temp")
-call system("awk 'a<$1{a=$1}b<$2{b=$2}c<$3{c=$3} END{print a,b,c}' base_config >> base_nconf.temp")
-open(123,file='base_nconf.temp')
-read(123,*) n_lines
-read(123,*) na_max,la_max,ja_max!,nb_max,lb_max,jb_max
-close(123,status="delete")
-else
-write(*,*) 'file base_config not found !'
-stop
-endif
-end subroutine
-subroutine read_ext_basis()
-implicit none
-integer::i
-integer::na,nb,la,lb,ja,jb,a,b
-allocate(exttag(0:na_max,-la_max:la_max,-ja_max:ja_max))
-open(124,file='base_config')
-exttag=0
-do i=1,n_lines
-read(124,'(8i4)') na,la,ja,a,nb,lb,jb,b
-exttag(na,la,ja) = a
-enddo
-close(124)
 end subroutine
 
 

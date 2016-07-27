@@ -17,10 +17,22 @@ subroutine kinetic(n,nr,nl,kin)
  double precision::kin(n,n)
  integer::nr(n),nl(n)
  integer::n,i
+ integer::n1,n3
  kin=0.d0
  do i=1,n
 !   kin(i,i) = (2.d0*nr(i)+nl(i)+1.5d0)*ama*2.d0/(bosc**2)
    kin(i,i) = (2.d0*(i-1)+1.5d0)*ama*2.d0/(bosc**2)
  enddo
+
+! ---- Petar
+! kin = 0.d0
+! do n1 = 1, nt (number of states) 
+! read quantum numbers (n1,l1,j1,...) of state i
+!	 kin(i,i) = (2*n1+l1+1.5d0)*ama*2.d0/(bosc**2) ! there is no (i-1) as before because state i=1 can (should) contain n=0 state
+! enddo
+! ---- Petar
+
+
+!
  end subroutine
 end module

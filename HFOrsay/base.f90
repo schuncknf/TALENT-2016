@@ -1,17 +1,19 @@
-subroutine sphbasis(n,nr,nl,nj,lpr)
+subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
       use constants
       implicit none
-      integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt 
+      integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt
       logical:: lpr
-      integer::nr(n),nl(n),nj(n),ms(n),nocc(n)
-
+      integer::nr(n),nl(n),nj(n),ms(n),nfull(n),nocc(n) 
+      integer::mspin,noc
+      integer::i,nf,ic
+! nfull - maximal number of particles in specific state
+! nocc  - true number of particles in specific state
       nr(1) = 0
       nl(1) = 0
       nj(1) = 1
       ms(1) = 1
-!
+      nfull(1) = 2
       il = 1
-!
       do nnsph = 1, nbase
          if(mod(nnsph,2) .eq. 0) then
             do nlsph = 0,nnsph,2
@@ -23,7 +25,7 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
                  nl(il)=nlsph
                  nj(il)=nlsph+mssph
 	         ms(il)=mssph	
-                 nocc(il)= 2*(nlsph+mssph)
+                 nfull(il)= 2*(nlsph+mssph)
                endif
             enddo ! mssph
          enddo !nlsph
@@ -38,7 +40,7 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
                     nl(il) = nlsph
                     nj(il) = nlsph+mssph
 	            ms(il)=mssph
-	            nocc(il) = 2*(nlsph+mssph)
+	            nfull(il) = 2*(nlsph+mssph) ! possible number of particles in a state
                 endif
              enddo !nlsph
           enddo !mssph
@@ -61,10 +63,10 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
         njsph = nj(il)
         nnsph = 2*nrsph + nlsph
 	mspin = 2*(njsph-nlsph)-1
-	noc = nocc(il)
+	noc = nfull(il)
 
         !write(*,110)'NN = ',nnsph,'nr = ',nrsph,'ml = ',nlsph,'(2*nj-1)/2 = ',2*njsph-1,'/2'
-        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'nl = ',nlsph,'ms = ', mspin, '/2', 'nocc = ', noc
+        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'nl = ',nlsph,'ms = ', mspin, '/2', 'npart = ', noc
 
   110   format(5x,a,i2,3x,a,i2,3x,a,i2,3x,a,i2,a,3x,a,i2)
 
@@ -73,25 +75,62 @@ subroutine sphbasis(n,nr,nl,nj,lpr)
         write(*,*) '****** END SPHERICAL BASIS ***********'
 
         endif
+
+
+! determinaton of occupation number of each state
+	
+	nf = 0
+	ic = 1
+        do il = 1, nt
+	   nf = nf + nfull(il)
+	   if (nf .le. npart) then
+	      nocc(il)=nfull(il)
+	   elseif(nf .gt. npart .and. ic .eq. 1) then 
+	      nocc(il)=nfull(il)+npart-nf
+	      ic = 2
+	   else 
+	      nocc(il)=0
+	   endif
+        enddo
+
+	if(lpr) then
+	do il = 1, nt
+	  write(*,*) il, nocc(il),nfull(il)
+        enddo
+	endif
+
+!
 end subroutine sphbasis
 
-!subroutine external_basis()
-!implicit none
-!integer::na,nb,la,lb,ja,jb,a,b
-!integer::i
-!integer::n_lines
-!allocate(resua(0:na_max-1,0:la_max-1,0:ja_max-1))
-!allocate(resub(0:nb_max-1,0:lb_max-1,0:jb_max-1))
-!open(124,file='base_config')
-!resua=0
-!resub=0
-!do i=1,n_lines
-!read(124,'(8i4)') na,la,ja,a,nb,lb,jb,b
-!resua(na,la,ja) = a
-!resub(nb,lb,jb) = b
-!enddo
-!end subroutine
+module basis
 
+integer,allocatable::n_ext(:),m_ext(:),l_ext(:),j_ext(:),t_ext(:)
 
+contains 
+subroutine external_basis()
+implicit none
+integer::tag,nn,nl,nm,nj,niso
+integer::i,stat
+integer::n_lines
+open(124,file='spM.dat')
+read(124,*) n_lines
+allocate(n_ext(n_lines),m_ext(n_lines),l_ext(n_lines),j_ext(n_lines),t_ext(n_lines))
+n_ext=0;m_ext=0;l_ext=0;l_ext=0;j_ext=0;t_ext=0
+do i=1,n_lines
+   read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nm,nj,niso 
+   n_ext(i) = nn
+   l_ext(i) = nl
+   m_ext(i) = nm
+   j_ext(i) = nj
+   t_ext(i) = niso
+   if (stat /= 0) then
+   write(*,*) "Problem while reading spM.dat"
+   exit
+   endif
+enddo
+close(124)
+end subroutine
+end
 
+       
 

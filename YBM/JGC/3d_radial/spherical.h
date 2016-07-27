@@ -4,7 +4,7 @@ using namespace std;
 #define hm_fac 20.75	// MeV
 #define     a0 0.67	// 
 #define     r0 1.27	// fm
-#define    Vls 0.44	//
+#define    Vls 23	//
 #define      q 1	//
 
 // Variables
@@ -16,8 +16,8 @@ double  eMin;	// Min limit  [MeV]
 double  eMax;	// Max limit  [MeV]
 double eStep;	// Step between different energies in brute force approach, needs getting rid of
 
-int nProton;	// no. of protons for calculating Woods-Saxon
-int nNeutron;	// no. of neutrons for calculating Woods-Saxon
+double nProton;	// no. of protons for calculating Woods-Saxon
+double nNeutron;	// no. of neutrons for calculating Woods-Saxon
 
 double wfStep1;
 double wfStep2;
@@ -33,12 +33,11 @@ vector<double> variable;
 double var;
 
 // Function declarations
-double numerovAlgorithm(double E, double f_x, double f_x_h, double r);
-double converge(double eLo, double eHi, double wfLo, double wfHi);
-double normalise(double eigenEng);
-double testPot();
-double V(double r);
+double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L, int spin);
+double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, int L, int spin);
+double normalise(double eigenEng, int isoSpin, int L, int spin);
+double V(double r, int isoSpin, int L, int spin);
 double woodsSaxon(double r);
-double spinOrbit(double r, int l, double s);
+double spinOrbit(double r, int l, double spin);
 double centrifugal(double r, double l);
 double coulomb(double r);
