@@ -5,6 +5,7 @@ use lag_pol
 use maths
 use pot
 use ho
+use basis
 
 implicit none
 double precision::ml,x
@@ -14,11 +15,12 @@ double precision::start,finish
 
 
 call reader()
-!call tbme_lines()
-!call read_ext_basis()
-!call ext_tbme()
 !write(*,*) "tbme",tbme_ext(17,18,89,18)
 !call cpu_time(start)
+call external_basis()
+call external_tbme()
+write(*,*) n_ext
+read(*,*)
 start = omp_get_wtime()
 call lag_roots(ngauss,0.5d0,.true.)
 call hfsolver(.true.)

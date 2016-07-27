@@ -6,6 +6,7 @@
 HartreeFock::HartreeFock(System & _system) : Solver(_system, (unsigned int)1), D(_system.particleNumbers.n_rows), occ(_system.particleNumbers.n_rows)
 {
   int basisSize = _system.basis->size;
+  Basis &basis = *system->basis;
   for (unsigned int pType = 0; pType < _system.particleNumbers.n_rows; pType++)
   {
     D(pType).eye(basisSize, basisSize);
@@ -14,6 +15,13 @@ HartreeFock::HartreeFock(System & _system) : Solver(_system, (unsigned int)1), D
     {
       occ(pType)(state) = 1;
     }
+  }
+  for (int bra = 0; bra < basis.size; bra++)
+  for (int ket = 0; ket < basis.size; ket++)
+  for (int bra2 = 0; bra2 < basis.size; bra2++)
+  for (int ket2 = 0; ket2 < basis.size; ket2++)
+  {
+//    V(bra, ket)(bra2, ket2) = system->inter->get()
   }
 }
 
@@ -55,6 +63,7 @@ void HartreeFock::calcH()
 {
   Basis &basis = *system->basis;
   arma::field<arma::mat> &H = system->H;
+  Interaction &inter = *system->inter;
   int pNum = system->particleNumbers.n_elem;
   if(basis.type == "SpBasis" || basis.type == "ReducedSpBasis")
   {
@@ -72,6 +81,7 @@ void HartreeFock::calcH()
     spBasis.evalDerivativeRadialWaveFunction(wfDerMatrix, pi_p);
     for (int pTyp = 0; pTyp < pNum; pTyp++)
     {
+      arma::mat gamma(spBasis.size, spBasis.size, arma::fill::zeros);
       for (int bra = 0; bra < spBasis.size; bra++)
 	for (int ket = 0; ket < spBasis.size; ket++)
 	{
@@ -87,12 +97,12 @@ void HartreeFock::calcH()
 	    double kinetic, potential;
 	    fun = ( arma::pow(pi_p,2) % wfDerMatrix.col(bra) % wfDerMatrix.col(ket) + lBra*(lBra+1) * wfMatrix.col(bra) % wfMatrix.col(ket)) % arma::exp(pi_p);
 	    kinetic = HBAR*HBAR/2.0/NUCLEON_MASS * arma::accu(wi_p % fun);
-
-	    // Calculation of the harmonic part
-	    fun = arma::pow(pi_p,4) % wfMatrix.col(bra) % wfMatrix.col(ket) % arma::exp(pi_p);
-	    potential = 0.5 * NUCLEON_MASS * spBasis.omega * arma::accu(wi_p % fun);
-	    
-	    H(0,pTyp)(bra,ket) = kinetic + potential;
+      
+	      // Calculation of the harmonic part
+	      fun = arma::pow(pi_p,4) % wfMatrix.col(bra) % wfMatrix.col(ket) % arma::exp(pi_p);
+	      potential = 0.5 * NUCLEON_MASS * pow(spBasis.omega,2) * arma::accu(wi_p % fun);
+	      
+	      H(0,pTyp)(bra,ket) = kinetic + potential;
 	  }
 	  else
 	  {
@@ -103,6 +113,34 @@ void HartreeFock::calcH()
   }
   else
   {
+    for (int pTyp = 0; pTyp < pNum; pTyp++)
+      for (int bra = 0; bra < spBasis.size; bra++)
+	for (int ket = 0; ket < spBasis.size; ket++)
+	  H(0,pTyp)(bra,ket) = 0.0;
+  }
+    
+  for (int pTyp = 0; pTyp < pNum; pTyp++)
+  {
+    arma::field<arma::mat> TBME;
+    for (int i = 0; i < basis.size; i++)
+      for (int j = 0; j < basis.size; j++)
+      {
+	TBME(i,j) = arma::zeros(basis.size,basis.size);
+	for (int k = 0; k < basis.size; k++)
+	  for (int l = 0; l < basis.size; l++)
+	    TBME(i,j)(k,l) = old_TBME(i,l)(j,k);//TODO
+      }
+    for (int bra = 0; bra < spBasis.size; bra++)
+      for (int ket = 0; ket < spBasis.size; ket++)
+	H(0,pTyp)(bra,ket) += arma::accu(TBME(bra,ket)%system->R(0,pTyp));
+    }
+  }
+  else
+  {
     throw std::runtime_error("Unknown basis.");
   }
 }
+
+
+    
+

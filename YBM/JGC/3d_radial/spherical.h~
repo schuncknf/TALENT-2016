@@ -4,7 +4,7 @@ using namespace std;
 #define hm_fac 20.75	// MeV
 #define     a0 0.67	// 
 #define     r0 1.27	// fm
-#define    Vls 0.44	//
+#define    Vls 23	//
 #define      q 1	//
 
 // Variables
@@ -24,6 +24,8 @@ double wfStep2;
 
 double convEng;	// Convergence energy
 
+double normFac;
+
 // Variable used to check if the wavefunction has crossed x axis
 // between different energies
 double wfPrev, wfLast, wfTmp;
@@ -33,11 +35,12 @@ vector<double> variable;
 double var;
 
 // Function declarations
-double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin);
-double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin);
-double normalise(double eigenEng, int isoSpin);
-double V(double r, int isoSpin);
+double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L, int spin);
+double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, int L, int spin);
+double normalise(double eigenEng, int isoSpin, int L, int spin);
+double V(double r, int isoSpin, int L, int spin);
 double woodsSaxon(double r);
-double spinOrbit(double r, int l, double s);
+double spinOrbit(double r, int l, double spin);
 double centrifugal(double r, double l);
 double coulomb(double r);
+int totalMatterDensity(vector<double> density);

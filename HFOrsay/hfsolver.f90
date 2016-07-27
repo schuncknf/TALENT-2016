@@ -4,7 +4,6 @@
        use pot
        use maths
        use ho
-       use mscheme
       implicit none   
       integer, parameter :: lwmax=1000
       double precision,parameter::lambda=1.d-8
@@ -18,14 +17,17 @@
       double precision esum, rhosum, gamasum, vnorm,tr
       double precision::x,ri,rj,hfenergy,hf2body,kin_energy,tbme1,tbme2
       integer::n1,n2,n3,n4
+      integer::l1,l2,l3,l4
+      integer::m1,m2,m3,m4
+      integer::j1,j2,j3,j4
       integer::i1,i2,i3,i4
       external dgeev
       logical::pr
 !
 ! --------------------------------------------------
 !
-      !n=nbase
-      n=ntx
+      n=nbase
+      !n=ntx
       lda = n
       ldvr = n
       ldvl = n
@@ -41,7 +43,7 @@
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 
 
-        call sphbasis(ntx,nr,nl,nj,nocc,.true.)
+!        call sphbasis(ntx,nr,nl,nj,nocc,.true.)
       !  call external_basis(resua,resub) 
         call kinetic(n,nr,nl,kin)
 vpot=0.d0
@@ -83,6 +85,19 @@ write(*,*) "TBME's computed and antisymetrized"
             enddo
          endif
 
+! ----- Petar
+	 
+!	 if(it .eq. 1) then
+!	    eigvecr=0.d0
+!	    do i = 1,nt (number of states)	
+!	         occ=real(occ(i)) ! occupational number of a state, calculated in basis?
+!	         if(occ .gt. 0) eigvec(i) = one ! since formula for rho matrix contains occupational number
+!                                                 i think here should be either            
+!	    enddo
+!          endif
+!
+! ----- Petar
+
 ! --------- subroutines: (re)calculate rho and hf hamiltonian
        
 
@@ -108,6 +123,17 @@ write(*,*) "TBME's computed and antisymetrized"
          enddo
          esum = esum/n
          write(*,*) "iteration: ",it,"ediffi= ",esum
+
+! --------- Petar
+
+!         esum = 0.d0 
+!         do i = 1,nt
+!	    occup = occ(i) ! read occupational number
+!           esum = esum + occup*abs(eigvalr(i) - eigvalold(i))
+!         enddo
+!         esum = esum/nt ! maybe not nt but needs to be renormalized? can be fixed by lambda anyway
+
+! --------- Petar
 
          if(esum .lt. lambda) exit ! calculation converged
 
@@ -169,6 +195,21 @@ write(*,*) "TBME's computed and antisymetrized"
         tr = tr + 2.d0*rho(i,i)
        enddo
        write(*,*) "Part Num",tr
+
+! ---- Petar
+!
+!       hrho=0.d0
+!       hrho = matmul(hf,rho)
+!       trho=0.d0
+!       trho = matmul(kin,rho)
+!       hfenergy = 0.d
+!       do i=1,nt
+!         hfenergy = hfenergy + trho(i,i) + hrho(i,i)
+!       enddo
+!
+!       hfenergy=0.5*hfenergy (?)
+!
+! ---- Petar
 
        write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',hfenergy,' MeV'
 ! -------- Writing Outputs

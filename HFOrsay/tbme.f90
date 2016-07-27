@@ -5,7 +5,10 @@ use constants
 use pot
 use maths
 implicit none
-integer::i,n1,n2,n3,n4,j,l1,l2,l3,l4,iflag
+integer::i,n1,n2,n3,n4,j,iflag
+integer::l1,l2,l3,l4
+integer::m1,m2,m3,m4
+integer::j1,j2,j3,j4
 double precision::inte1,inte2,resu
 double precision::coeffi,coeffj
 double precision::xxi,xi,xxj,xj
@@ -16,6 +19,7 @@ double precision::norm_lag,norm_lag1
 double precision::testw,ri,rj
 double precision::nosc1,nosc2,nosc3,nosc4
 integer :: stat
+integer :: q1,q2,q3,q4
 character(len=100) :: buf
 logical::pr,fex
 if (iflag == 0) then
@@ -51,7 +55,6 @@ endif
 elseif (iflag == 1) then
 inquire(file='VM-scheme.dat', exist=fex)
 if (fex) then
-
 
 else
 write(*,*) "File VM-scheme.dat not found !"

@@ -19,7 +19,7 @@ integer::nbase,npart,maxit,ngauss,n_lines,ntx
 integer::na_max,la_max,ja_max,nb_max,lb_max,jb_max
 double precision::homega,bosc
 integer,allocatable::exttag(:,:,:)
-double precision,allocatable::tbme_ext(:,:,:,:)
+double precision,allocatable::tbme_ext(:,:,:,:,:,:,:,:,:,:,:,:,:,:,:,:)
 contains
 subroutine reader()
 implicit none
@@ -46,61 +46,6 @@ close(1)
 allocate(nr(ntx),nl(ntx),nj(ntx))
 end subroutine
 
-subroutine tbme_lines()
-!function tbme_lines(nfile) result(nlines)
-implicit none
-character(len=30)::nfile
-logical::file_exists
-inquire(file='base_config', exist=file_exists)
-if (file_exists) then
-call system("cat base_config|wc -l >> temp_file")
-call system("awk 'a<$1{a=$1}b<$2{b=$2}c<$3{c=$3} END{print a,b,c}' base_config >> temp_file")
-open(123,file='temp_file')
-read(123,*) n_lines
-read(123,*) na_max,la_max,ja_max!,nb_max,lb_max,jb_max
-!close(123,status="delete")
-close(123)
-else
-write(*,*) 'File base_config not found !'
-stop
-endif
-end subroutine
-subroutine read_ext_basis()
-implicit none
-integer::i
-integer::na,nb,la,lb,ja,jb,a,b
-allocate(exttag(0:na_max,-la_max:la_max,-ja_max:ja_max))
-open(124,file='base_config')
-exttag=0
-do i=1,n_lines
-read(124,'(8i4)') na,la,ja,a,nb,lb,jb,b
-exttag(na,la,ja) = a
-enddo
-close(124)
-end subroutine
-
-subroutine ext_tbme()
-implicit none
-integer::taga,tagb,tagc,tagd,stat
-integer::dim_ext
-logical::fex
-inquire(file='VM-scheme.dat', exist=fex)
-if (fex) then
-dim_ext = 8+exttag(na_max,la_max,ja_max)
-allocate(tbme_ext(dim_ext,dim_ext,dim_ext,dim_ext))
-open(15, file='VM-scheme.dat')
-do
-   read(15,*, iostat=stat) taga,tagb,tagc,tagd,tbme_ext(taga,tagb,tagc,tagd)
-      if (stat /= 0) exit
-         ! process buf
-       end do
-         close(15)
-else
-write(*,*) "File VM-scheme.dat not found !"
-
-stop
-endif
-end subroutine
 
 
 

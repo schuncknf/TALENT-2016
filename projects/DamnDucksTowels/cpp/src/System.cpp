@@ -1,7 +1,7 @@
 #include "System.h"
 
-System::System (std::string _name, Basis & _basis, arma::ivec _particleNumbers, std::vector<std::string> _particleNames, Interaction & _inter) :
-    name(_name), basis(&_basis), particleNumbers(_particleNumbers), particleNames(_particleNames), inter(&_inter) {}
+System::System (std::string _name, Basis & _basis, arma::ivec _particleNumbers, std::vector<std::string> _particleNames, Interaction & _inter, int _nPoints) :
+    name(_name), basis(&_basis), particleNumbers(_particleNumbers), particleNames(_particleNames), inter(&_inter), nPoints(_nPoints) {}
 
 System::~System(){}
 
