@@ -4,7 +4,7 @@
 
 
 Solver::Solver(System & _system, unsigned int _dNumber) : system(&_system),
-                indivEnergies(_system.particleNumbers.n_rows, _system.basis->size, arma::fill::zeros), cvg(0)
+                indivEnergies(_system.particleNumbers.n_rows, _system.basis->size, arma::fill::zeros), cvg(1000000)
 {
   arma::field<arma::mat> &R = _system.R;
   arma::field<arma::mat> &H = _system.H;

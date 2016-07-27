@@ -1,17 +1,16 @@
 #include "MinnesotaS0.h"
 #include "quadrature.h"
 
-#include <iostream>
-
-MinnesotaS0::MinnesotaS0(ReducedSpBasis &_basis) : Interaction(_basis, 1), TBME(_basis.size,_basis.size), basis(_basis)
+#include <sstream>
+MinnesotaS0::MinnesotaS0(ReducedSpBasis &_basis, int _nPoints) : Interaction(_basis, 1), TBME(_basis.size,_basis.size), nPoints(_nPoints), basis(_basis)
 {   
   basis = _basis;
   for (int i = 0; i < _basis.size; i++)
     for (int j = 0; j < _basis.size; j++)
       TBME(i,j) = arma::zeros(_basis.size,_basis.size);
     
-  calculateTBME(50);
-  printTBME();
+  calc();
+  toString();
 }
 
 MinnesotaS0::~MinnesotaS0()
@@ -20,10 +19,16 @@ MinnesotaS0::~MinnesotaS0()
 
 double MinnesotaS0::get (arma::field<arma::mat> & R, arma::ivec & bType, arma::ivec & bId, arma::ivec & kType, arma::ivec & kId)
 {
-  return 0.0;
+  (void) R;
+  if(bType.n_elem != 2 || kType.n_elem != 2 || bId.n_elem != 2 || kId.n_elem != 2)
+  {
+    return 0.;
+  }
+  
+  return TBME(bId(0), bId(1))(kId(0), kId(1));
 }
 
-void MinnesotaS0::calculateTBME(int quadratureOrder)
+void MinnesotaS0::calc()
 {
   //Parameters of Minnesota potential
   // V0t and kt are not used so they are commented out
@@ -38,7 +43,7 @@ void MinnesotaS0::calculateTBME(int quadratureOrder)
   //Gauss-Lagerre quadrature
   arma::vec wi_p;
   arma::vec pi_p;
-  GET_LAG_ROOTS(quadratureOrder,pi_p,wi_p);
+  GET_LAG_ROOTS(nPoints,pi_p,wi_p);
   
   //Evaluating wave functions
   arma::mat wfMatrix;
@@ -89,21 +94,28 @@ void MinnesotaS0::calculateTBME(int quadratureOrder)
 	}
 }
 
-void MinnesotaS0::printTBME()
+std::string MinnesotaS0::info()
 {
+  return std::string();
+}
+
+std::string MinnesotaS0::toString()
+{
+  std::stringstream ss;
   //Printing the names of quantum numbers
   for (int j = 0; j < basis.qNumSize; j++)
-      std::cout << basis.qNames[j] << "\t";
-  std::cout << "TBME\n";
+      ss << basis.qNames[j] << "\t";
+  ss << "TBME\n";
   for (int idx1 = 0; idx1 < basis.size; idx1++)
     for (int idx2 = 0; idx2 < basis.size; idx2++)
       for (int idx3 = 0; idx3 < basis.size; idx3++)
 	for (int idx4 = 0; idx4 < basis.size; idx4++)
 	{
-	  std::cout << idx1 << "\t";
-	  std::cout << idx2 << "\t";
-	  std::cout << idx3 << "\t";
-	  std::cout << idx4 << "\t";
-	  std::cout << TBME(idx1,idx2)(idx3,idx4) << "\n";
+	  ss << idx1 << "\t";
+	  ss << idx2 << "\t";
+	  ss << idx3 << "\t";
+	  ss << idx4 << "\t";
+	  ss << TBME(idx1,idx2)(idx3,idx4) << "\n";
 	}
+  return ss.str();
 }

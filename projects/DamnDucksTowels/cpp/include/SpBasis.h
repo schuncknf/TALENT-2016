@@ -23,7 +23,6 @@ private:
   arma::vec N;
   // Operations
 public:
-  /// The harmonic oscillator frequency
   SpBasis (double _omega, int _nMax, int _lMax);
   ~SpBasis ();
   /// Calculating radial wave function
