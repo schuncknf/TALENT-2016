@@ -1,4 +1,4 @@
-subroutine tbme(n1,n2,n3,n4,l1,l2,l3,l4,m1,m2,m3,m4,j1,j2,j3,j4,resu,pr,iflag)
+subroutine tbme(n1,n2,n3,n4,resu,pr,iflag)
 use ho
 use lag_pol
 use constants
@@ -19,6 +19,7 @@ double precision::norm_lag,norm_lag1
 double precision::testw,ri,rj
 double precision::nosc1,nosc2,nosc3,nosc4
 integer :: stat
+integer :: q1,q2,q3,q4
 character(len=100) :: buf
 logical::pr,fex
 if (iflag == 0) then
@@ -54,7 +55,6 @@ endif
 elseif (iflag == 1) then
 inquire(file='VM-scheme.dat', exist=fex)
 if (fex) then
-
 
 else
 write(*,*) "File VM-scheme.dat not found !"
