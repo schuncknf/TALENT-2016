@@ -11,3 +11,7 @@ NeutronDrop::NeutronDrop(Basis & _basis, Interaction & _inter, int _nbNeut, int 
 NeutronDrop::~NeutronDrop()
 {
 }
+
+void NeutronDrop::calcH()
+{
+}
