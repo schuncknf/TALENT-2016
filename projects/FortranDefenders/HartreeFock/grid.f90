@@ -37,7 +37,7 @@ contains
           nrad = r0 * (nt)**(1._wp/3._wp)
           vpb(1) = -51.+33.*(nn-np)/nt
           vpb(2) = -51.-33.*(nn-np)/nt
-          cmcorr = 1 - (1/nt)
+          cmcorr = 1._wp - (1._wp/real(nt))
           spin(1) = -0.5
           spin(2) = 0.5
           njoin = 200
@@ -100,9 +100,30 @@ contains
      end subroutine init_wavefunctions
 
     subroutine init_fields
-
+          integer :: ir,iq
           allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox))
-
+           do iq = 1,2
+            do ir = 0,nbox 
+             uc(ir,iq) = -vpb(iq)*fullwoodsaxon(ir)
+             uso(ir,iq) = vso*r0**2 * dfullwoodsaxon(ir)*fullwoodsaxon(ir)/meshpoints(ir)
+            end do
+           end do
     end subroutine init_fields
+
+    !!!Must be multiplied by (positive) vpb in calculations
+ function fullwoodsaxon(ir) result(pot)
+    real(wp) :: pot
+    integer, intent(in) :: ir
+      pot = 1 / (1 + exp((meshpoints(ir)-nrad)/a))
+  end function
+
+!!!Must be multiplied by (positive) vpb in calculations
+function dfullwoodsaxon(ir) result(pot)
+    real(wp) :: pot
+    integer, intent(in) :: ir
+      !pot = -1 / (1 + exp((meshpoints(ir)-nrad)/a))*(1/a)*(1 / (1 + exp((-meshpoints(ir)+nrad)/a)))
+      !pot = -1 / (2*a*(cosh((nrad - meshpoints(ir))/a) + 1))
+      pot = -(1/a)*(1 / (1 + exp((-meshpoints(ir)+nrad)/a)))
+  end function
 
 end module grid
