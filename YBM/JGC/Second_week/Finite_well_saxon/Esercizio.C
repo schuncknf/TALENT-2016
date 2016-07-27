@@ -25,7 +25,7 @@ int main(){
 			wave_val.push_back(0.);
 			wave_val.push_back(0.05);
 			for(int i=1; i<=n_step_width_box; i++){
-				wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width));
+				wave_val.push_back(numerov_algorithm(Etrial, wave_val[i], wave_val[i-1], i*h_width));
 			}
 
 		nodecount = 0;
@@ -56,7 +56,7 @@ int main(){
 	wave_val.push_back(0);
 	wave_val.push_back(1E-5);
 	for(int i=0; i<=n_step_width_box; i++){
-		wave_val.push_back(numerov_algorithm_woods(eigenval[5], wave_val[i+1], wave_val[i], i*h_width));
+		wave_val.push_back(numerov_algorithm(eigenval[5], wave_val[i+1], wave_val[i], i*h_width));
 		if(i*h_width>24.&&wave_val[i]*wave_val[i-1]<0){
 			count = i;
 			break;
