@@ -84,7 +84,7 @@ do ipart=1, 2 !1=neutrons, 2=protons
                       Endif
                   end do! end loop bissection method  
                   Em=E_right !eigenvalue
-      
+                  if (Em.gt.0.) exit
                   Enl2j(uu, 1)= Em
                   Enl2j(uu, 2)= n+1
                   Enl2j(uu, 3)= l

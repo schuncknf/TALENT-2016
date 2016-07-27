@@ -5,7 +5,7 @@ epsi=1e-6, h2m=20.73553, e=1. /
 &sizebox
 R_box= 20., h= 0.1,  /
 &energy
-E_minus=-100., E_plus=100/
+E_minus=-80., E_plus=10/
 &max_quantum_number
 n_max=4, l_max=5/
 &WoodSaxon

@@ -18,6 +18,8 @@ public:
   ~RawInteraction ();
   double & set (int ti0, int i0, int ti1, int i1, int tj0, int j0, int tj1, int j1);
   double get (arma::field<arma::mat> & R, arma::ivec & bType, arma::ivec & bId, arma::ivec & kType, arma::ivec & kId);
+  std::string info ();
+  std::string toString ();
 };
 
 #endif
