@@ -385,10 +385,10 @@ double coulomb(double r)
 	return V_c;
 }
 
-int totalMatterDensity(vector<double> density)
+double totalMatterDensity(vector<double> density)
 {
 	// Integrate total radial density 'density' to calculate A
-	int A = 0.0;
+	double A = 0.0;
 
 	for(int i=1;i<density.size();++i)
 	{

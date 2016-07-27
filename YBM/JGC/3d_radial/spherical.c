@@ -228,7 +228,7 @@ int main()
 
 	cout << "Total nucleons: " << totalMatterDensity(totPot) << endl;
 	cout << "Total protons: " << totalMatterDensity(totProton) << endl;
-	cout << "Total neutrons: " << totalMatterDensity(totNeutron) << endl;
+	cout << "Total neutrons: " << totalMatterDensity(totNeutron) << "\n" << endl;
 }
 
 
