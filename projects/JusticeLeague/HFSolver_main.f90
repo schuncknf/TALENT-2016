@@ -4,21 +4,22 @@ program HFSolver
   use :: HartreeFock
   use :: Minnesota
   implicit none 
-  integer :: i,j,k
+!  integer :: i,j,k
+    integer :: i,j,k,Noccupied
   real(dp) :: EHF,tr_rho
   Nparticles = 8
   n_orbitals = 216
 !  Nsize = n_orbitals/2!
   call read_orbitals
-!  write(*,*) nsize
+  Noccupied=fermi_level()
+  write(*,*) Norbitals
 !  stop
 !  write(*,*) nsize
 !  write(*,*) n_ho(1:2*nsize)
 !  write(*,*) ho_flag
 !  write(*,*) l_ho(1:nsize)
 !  write(*,*) j_ho(1:nsize)
-  !write(*,*) ho_flag
-!  stop
+
 ! write(*,*) ho_index(1:nsize)
   call read_TBME
 !  stop

@@ -191,8 +191,8 @@ int main()
 //Function for one body hamiltoninan (diagonal m.e. only)
 double h_0(int n, int l){
     double h0 = 0;
-    double hbar = 1.0;//1.0545718*pow(10,-34); //plank constant/2*pi in SI unit
-    h0 = (2*n + l + 1.5) * hbar * omega;
+    double hbarOmega = 10.0;//unit in MeV
+    h0 = (2*n + l + 1.5) * hbarOmega
     return h0;
 }
 
