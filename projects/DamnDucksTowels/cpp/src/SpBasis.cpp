@@ -44,10 +44,10 @@ SpBasis::SpBasis(double _omega, int _nMax, int _lMax) :
   //Filling the quantum numbers for each state
   qNumbers = arma::imat(size,qNumSize);
   int i = 0;
-  for (int n = 0; n <= nMax; n++)
-    for (int l = 0; l <= lMax(n); l++)
-      for (int m = -mMax(n,l); m <= mMax(n,l); m++)
-	for (int s = -1; s <= 1; s += 2) 
+  for (int s = -1; s <= 1; s += 2)
+    for (int n = 0; n <= nMax; n++)
+      for (int l = 0; l <= lMax(n); l++)
+	for (int m = -mMax(n,l); m <= mMax(n,l); m++)
 	{
 	  qNumbers(i,0) = n;
 	  qNumbers(i,1) = l;
