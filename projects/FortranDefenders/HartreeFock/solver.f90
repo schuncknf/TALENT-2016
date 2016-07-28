@@ -1,7 +1,6 @@
 module solver
   use grid
   implicit none
-
   real(wp), allocatable :: vocc(:,:,:,:), energies(:,:,:,:), &
                          &  sortenergies(:,:)
   integer, allocatable :: sortstates(:,:,:)
@@ -13,7 +12,7 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes,l, is, iq, n
+    integer :: i, ir, nnodes,l, is, iq, n,iter
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff
     real(wp), allocatable :: potential(:), woodsaxon(:), woodsaxond(:), spinorbitmat(:), coulombmat(:)
 
@@ -28,6 +27,12 @@ contains
     spinorbitmat(0) = 0.0
     wfr(:,:,:,:,:) = 0.0
     !Main loop begins here; be careful
+  allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
+  do iter = 1,10
+    if(iter>1) then
+    call build_fields
+    stop
+    end if
     do iq =1,2
       do n =1,lmax-2
         do l =0,lmax
@@ -36,18 +41,18 @@ contains
                 if (l==0) j=0.5
                 ! Bound States only
                 Eupper = 1_wp
-                Elower = vpb(iq)
+                Elower = -50._wp
                 do i=1,1000000
                   ! Trial Energy for Numerov Algorithm
                   Etrial = (Eupper+Elower)/2.0
                   do ir=0,nbox
                     ! Isospin dependent potential using matrices from before
                     if (iq .EQ. 1) then
-                       potential(ir) = (-vpb(iq)*woodsaxon(ir)-vso*spinorbitmat(ir)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
-                      -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m
+                       potential(ir) = (-uc(ir,1)-umr(ir,1)-udd(ir,1)-uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
+                      -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     else
-                       potential(ir) = (-vpb(iq)*woodsaxon(ir)-vso*spinorbitmat(ir)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
-                      -hbar22m*l*(l+1)/meshpoints(ir)**2+Etrial-coulombmat(ir))/hbar22m
+                       potential(ir) = (-uc(ir,2)-umr(ir,2)-udd(ir,2)-uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
+                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     end if
                   end do
 
@@ -104,6 +109,9 @@ contains
           end do
         end do
       end do
+   call energy_sort
+   call build_densities
+     end do
   end subroutine solve_r
 
   subroutine ddensities
@@ -181,7 +189,6 @@ contains
     integer :: n, l, iq, is,k,i,nfill,nfull
     real(wp) :: temp,j
     integer, dimension(1:3) :: state
-    allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
     ! This sorts the energies
     sortenergies = small
     sortstates = small
@@ -263,16 +270,22 @@ contains
       do ir2=ir,nbox
        tot2=tot2+rho(ir2,2)*meshpoints(ir)
       end do
-      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)
+      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)*h
     end if
    end do
   end do
-
+  
+  
   uc = ucnew(:,:)*xmix + uc(:,:)*ymix
   umr = umrnew(:,:)*xmix + umr(:,:)*ymix
   udd = uddnew(:,:)*xmix + udd(:,:)*ymix
   uso = usonew(:,:)*xmix + uso(:,:)*ymix
   ucoul = ucoulnew(:)*xmix + ucoul(:)*ymix
+  
+  do ir =0,nbox
+  write(15,*) ir,ucnew(ir,1),ucnew(ir,2),umrnew(ir,1),umrnew(ir,2),uddnew(ir,1), &
+            & uddnew(ir,2),usonew(ir,1),usonew(ir,2),ucoul(ir)
+  end do
 
 
   end subroutine build_fields
