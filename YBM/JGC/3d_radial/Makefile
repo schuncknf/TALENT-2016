@@ -1,5 +1,5 @@
 CC	= g++
-CFLAGS	= -O3
+CFLAGS	= -O3 -g -Wall
 LDFLAGS	=
 EXEC	= exe
 SRC	= spherical.c #hello.c

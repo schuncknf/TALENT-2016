@@ -15,7 +15,7 @@ implicit none
      real(wp), allocatable, dimension(:,:) :: rho,tau,jsc,drho,ddrho,dtau,djsc
      real(wp), allocatable, dimension(:,:) ::uc,umr,udd,uso
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
-     integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin
+     integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin,itermax
      integer :: nn,np,nt,icoul,icm
      logical :: j2terms
 contains
@@ -23,7 +23,7 @@ contains
 
           namelist /box/ nbox,h
           namelist /squarewell/ welltype,nodes,v0,radius
-          namelist /params/ r0,conv,hbar22m
+          namelist /params/ r0,conv,hbar22m,itermax
           namelist /nucleus/ nn,np,lmax
           namelist /interaction/ t0,x0,t1,x1,t2,x2,t3,x3,sig,w0, &
                    j2terms,icoul,icm
@@ -98,6 +98,7 @@ contains
           allocate(wavefunctions(0:nbox,lmax,0:lmax,2,2),wfr(0:nbox,lmax,0:lmax,2,2),&
           wfl(0:nbox,lmax,0:lmax,2,2),rho(0:nbox,4),drho(0:nbox,4),ddrho(0:nbox,4),&
           tau(0:nbox,4),jsc(0:nbox,4),djsc(0:nbox,4))
+          
 
      end subroutine init_wavefunctions
 
@@ -106,7 +107,7 @@ contains
           allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox))
            do iq = 1,2
             do ir = 0,nbox
-             uc(ir,iq) = -vpb(iq)*fullwoodsaxon(ir)
+             uc(ir,iq) = vpb(iq)*fullwoodsaxon(ir)
              uso(ir,iq) = vso*r0**2 * dfullwoodsaxon(ir)*fullwoodsaxon(ir)/meshpoints(ir)
              if(ir*h .lt. nrad ) ucoul(ir) = (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
              if(ir*h .ge. nrad ) ucoul(ir) = np*e2/(ir*h)

@@ -21,7 +21,9 @@ public:
   std::vector<std::string> particleNames;
   Interaction * inter;
   /// Hamiltonian of the system used as H(dtype, ptype) -> cf R comment
-  arma::field<arma::mat> H;
+  arma::field<arma::mat> Kinetic;
+  arma::field<arma::mat> Gamma;
+  arma::field<arma::mat> Delta;
   /// densities of the system, used as R(dtype, ptype) where dtype is the density typ
   arma::field<arma::mat> R;
   int nPoints;
@@ -30,7 +32,9 @@ public:
   System (std::string _name, Basis & _basis, arma::ivec _particleNumbers, std::vector<std::string> _particleNames, Interaction & _inter, int _nPoints = 50);
   virtual ~System () = 0;
   virtual void calcH () = 0;
-  arma::mat & getH (int dType, int pType);
+  arma::mat & getKinetic (int pType);
+  arma::mat & getGamma (int pType);
+  arma::mat & getDelta (int pType);
   arma::mat & getR (int dType, int pType);
   std::string info ();
   std::string toString ();

@@ -7,13 +7,15 @@ program main
     open(unit=6,file='out',form='formatted')
     open(unit=13,file='plt',form='formatted')
     open(unit=14,file='densities',form='formatted')
+    open(unit=15,file='fields',form='formatted')
 
     call init_params
     call init_grids
     call init_wavefunctions
+    call init_fields
     call solve_r
-    call energy_sort
-    call build_densities
+    
+    
     ! Writing the single particle states to 'out'
     write(6,*) "Single Particle States | "
     do iq =1,2
@@ -47,5 +49,6 @@ program main
     close(6)
     close(5)
     close(14)
+    close(15)
 
 end program main
