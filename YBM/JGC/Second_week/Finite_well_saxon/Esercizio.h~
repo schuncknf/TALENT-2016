@@ -11,7 +11,7 @@
 	#define nNeutron 126
 
 	#define width_box 34.
-	#define width 4.
+	#define width 3.
 	#define a_comp 0.67
 	#define h_width 0.01
 	#define V0 40.

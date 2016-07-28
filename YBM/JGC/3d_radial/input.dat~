@@ -16,9 +16,9 @@
 # Energy mesh [MeV]
 0.5
 # First step wavefunction value [a.u]
-0.00001
-# Convergence energy condition
 1e-5
+# Converence energy condition
+1e-14
 # no. of protons?
 82
 # no. of neutrons?

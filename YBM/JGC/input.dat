@@ -1,8 +1,8 @@
 # Iput variables
-# Potential? 1. Infinite square well, 2. Finite square well, 3. Woods-Saxon potential
-3
+# Potential? 1. Infinite square well, 2. Finite square well, 3. Woods-Saxon potential 4. Woods-Saxon + spin-orbit
+4
 # Box width [fm]
-45.
+15.
 # Well width  [fm]
 6.
 # Mesh width [fm]

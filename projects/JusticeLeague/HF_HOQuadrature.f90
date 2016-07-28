@@ -72,6 +72,31 @@ contains
     return
   end subroutine LaguerreL
 
+  subroutine LaguerreALL(n_max,l_max,x,Ln)
+    implicit none
+    integer, intent(in) :: n_max
+    integer, intent(in) :: l_max
+    real(dp), intent(in) :: x   
+    real(dp), intent(out), dimension(0:n_max,0:l_max) :: Ln 
+    real(dp) :: alpha
+    real(dp) :: Ljm2, Ljm1, Lj
+    integer :: j,l
+    do l = 0,l_max
+       alpha = l + 0.5_dp
+       Lj = 1._dp
+       Ljm1 = 0._dp
+       Ln(0,l) = Lj
+       do j = 1,n_max
+          Ljm2 = Ljm1
+          Ljm1 = Lj
+          Lj = ((-x+2*j-1+alpha)*Ljm1-(j-1+alpha)*Ljm2)/real(j,dp)
+          Ln(j,l) = Lj
+       end do
+    enddo
+    return
+  end subroutine LaguerreALL
+
+
   function factrl(n) result(fact)
     implicit none
     integer, intent(in) :: n 
