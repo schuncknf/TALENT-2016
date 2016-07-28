@@ -61,8 +61,12 @@ int main()
 	vector<double> totProton(length,0.0);
 	vector<double> totNeutron(length,0.0);
 
+	vector<double> density(length,0.0);
+
 	vector<double> engProton;
 	vector<double> engNeutron;
+
+	int nProt=0, nNeut=0;
 
 	// Nice stuff for terminal output
 	cout << "\n*************************************************************************" << endl;
@@ -100,20 +104,8 @@ int main()
 				for(int jj=0; jj<nSteps; jj++) // (eMax+eMin)
 				{
 
-					if(L==0)
-					{
-						wfStep1 = 0.0005;
-						wfStep2 = 0.0005;
-					}
-					else
-					{
-						wfStep1 = 0;
-						wfStep2 = variable.at(8);
-					}
-
-					wf_val.push_back(wfStep1);	// Initiate step 0 and step 1 WF values, if don't do this will not get past first calc.
-					wf_val.push_back(wfStep2);	// NOTE: amplitude of calculated wavefunctions are arbitrary but defined by magnitude of
-									//	 of this step, this is important when defining if calc. has converged.
+					wf_val.push_back(wfStep1);
+					wf_val.push_back(wfStep2);
 
 					// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
 					for(int i=0; i<wBox/h; i++)
@@ -193,23 +185,23 @@ int main()
 							ofstream opFile;
 							opFile.open(filename);
 							//for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << V(k*h, isoSpin, L, spin) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
-							for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val[k] << "\t" << V(k*h, isoSpin, L, spin) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
+							for(int k=1; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val[k] << "\t" << pow((sqrt(normFac)*wf_val[k]/(k*h)),2) << endl;
 							opFile.close();
 
 							// Output energy eigenvalue and the name of the file results are saved to
 							cout << "*\t " << eigEng << "\t" << orbital << "\t\t" << file << "\t*"  << endl;
 							n++;
 
-							opFile2 << fixed << setprecision(10) << orbital << "\t\t" << eigenEng << endl;
+							opFile2 << fixed << setprecision(15) << orbital << "\t\t" << eigenEng << "\t" << (2*j)+1 << endl;
                             
-							vector<double> density(length,0.0);
+							//vector<double> density(length,0.0);
 
-							for(int ii=0;ii<length;++ii)
+							for(int ii=1;ii<length;++ii)
 							{
-								double tempWF = sqrt(normFac) * wf_val[ii];
-								double rad = (ii+1)*h;
-								density[ii] = ((2*j + 1) * tempWF * tempWF /(4*M_PI));
-
+								double tempWF = sqrt(normFac)*wf_val[ii];
+								double rad = (ii)*h;
+								if(L==0) j=0.5;
+								density[ii] = (2*j + 1) * tempWF * tempWF/(4*M_PI*rad*rad);
 								totPot[ii] += density[ii];
 
 								if(isoSpin == 0)
@@ -221,6 +213,11 @@ int main()
 								    totNeutron[ii] += density[ii];
 								}
 							}
+							
+							if(isoSpin==0) nProt += (2*j)+1;
+							else nNeut += (2*j)+1;
+
+							cout << "no protons: " << nProt << "\nno neutrons: " << nNeut << endl;
 
 						}
 					}
@@ -236,6 +233,7 @@ int main()
 				wfTmp =0;
 				wfPrev=0;
 			}	 // Close loop over +/- 1/2 spin
+		
 		}		 // Close looping over L values
 	}			 // Close looping over isospin
 
@@ -245,11 +243,11 @@ int main()
 	ofstream opFile;
 	opFile.open("densities.dat");
 //	for(int i=0; i<wBox/h; i++) opFile << h*i << "\t" << totPot.at(i) << "\t" << totProton.at(i) << "\t" << totNeutron.at(i) << endl;
-	for(int i=0; i<wBox/h; i++) opFile << h*i << "\t" << totPot[i] << "\t" << totProton[i] << "\t" << totNeutron[i] << endl;
+	for(int i=1; i<wBox/h; i++) opFile << h*i << "\t" << totPot[i] << "\t" << totProton[i] << "\t" << totNeutron[i] << endl;
 	opFile.close();
 
-	cout << "Total nucleons: " << totalMatterDensity(totPot) << endl;
-	cout << "Total protons: " << totalMatterDensity(totProton) << endl;
+	cout << "Total nucleons: " << totalMatterDensity(totPot)     << endl;
+	cout << "Total protons: "  << totalMatterDensity(totProton)  << endl;
 	cout << "Total neutrons: " << totalMatterDensity(totNeutron) << "\n" << endl;
 
 	totPot.clear();
@@ -350,9 +348,10 @@ double normalise(double eigenEng, int isoSpin, int L, int spin)
 	//for(int i=0; i<(wBox/h)-1; i++) sum += h*pow(wfWork.at(i),2);
 
 	for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork[i+1], wfWork[i], i*h, isoSpin, L, spin));
-	for(int i=0; i<(wBox/h)-1; i++) sum += h*pow(wfWork[i],2);
 
-	double normFac = 1/sum;
+	for(int i=1; i<(wBox/h)-1; i++) sum += h*pow((wfWork[i]),2);
+
+	double normFac = 1/(sum);
 	wfWork.clear();
 
 	return normFac;
@@ -373,7 +372,7 @@ double woodsSaxon(double r)
 	double WS;
 	double         A = nProton + nNeutron;
 	double      R = r0 * pow(A,1./3);
-	double coeffV = -51 + 33*((nNeutron-nProton)/A);
+	double coeffV = -51. + 33.*((nNeutron-nProton)/A);
 
 	WS = coeffV * (1 / ( 1 + exp( (r-R)/a0 )));
 
@@ -393,11 +392,12 @@ double spinOrbit(double r, int l, double spin)
 		int         A = nProton + nNeutron;
 		double      R = r0 * pow(A,1./3);
 		double      j = l+s;
-		double   V_ls = Vls * 0.5 * ( j*(j+1) - l*(l+1) - 3./4 );
+		double coeffV = -51. + 33.*((nNeutron-nProton)/A);
+		double   V_ls = Vls * 0.5 * coeffV * ( j*(j+1) - l*(l+1) - 3./4 ); // With underscore is total, without is strength coeff.
 
-		Vso = V_ls * r0 * r0 * (-1/r) * ( (exp((r+R)/a0)) / (a0*pow((exp(R/a0)+exp(r/a0)),2)) );
+		Vso = V_ls * r0 * r0 * (1/r) * ( (exp((r+R)/a0)) / (a0*pow((exp(R/a0)+exp(r/a0)),2)) );
 
-//		Vso = V_ls * r0 * r0 * (-1/r) * ( (exp((r-R)/a0)) / (a0*pow((1+exp((r-R)/a0)),2)) );
+//		Vso = V_ls * r0 * r0 * (1/r) * ( (exp((r-R)/a0)) / (a0*pow((1+exp((r-R)/a0)),2)) );
 
 		return Vso;
 	}
@@ -432,5 +432,5 @@ double totalMatterDensity(vector<double> density)
 		A += density[i];
 	}
 
-	return A;
+	return h*A;
 }
