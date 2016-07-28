@@ -2,7 +2,7 @@
 
 
 	double numerov_algorithm(double energy, double f0, double f_, double x){
-		double v = (energy-V(x+17))/m_factor;
+		double v = (energy-V(x17))/m_factor;
 		double a[3];
 		a[0] = 2. * (1. - 5./12. * v * pow(h_width,2));	// Coeff. for f(x)
 		a[1] = 1. * (1. + 1./12. * v * pow(h_width,2));	// Coeff. for f(x-h)

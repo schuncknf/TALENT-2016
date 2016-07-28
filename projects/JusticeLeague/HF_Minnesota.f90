@@ -13,7 +13,6 @@ contains
   subroutine read_orbitals
     implicit none
     integer :: i,j
-!    character(11) :: text
     character(20) :: text
     integer :: ni,li,ji,mi,tzi
     allocate(HO_inverse(1:n_orbitals))
@@ -26,10 +25,7 @@ contains
     allocate(n_hf(1:n_orbitals))
     allocate(l_hf(1:n_orbitals))
     allocate(j_hf(1:n_orbitals))
-!    open(100,file='spJ.dat')
-!    open(100,file='spM.dat')
     open(100,file='spM_n5l2.dat')
-!    do i = 1,10
     do i = 1,1
        read(100,*)
     enddo
@@ -40,7 +36,6 @@ contains
     ho_flag = 0
     j = 0
     do i = 1,n_orbitals
-!       read(100,'(a11,4i6)') text, ni,li,ji,tzi
        read(100,'(a20,6i4)') text, ni,li,ji,mi,tzi
        n_ho(i) = ni
        l_ho(i) = li
@@ -60,9 +55,7 @@ contains
       endif
     enddo
     close(100)
-!    nsize = j
-    nsize = 30!j!/2
-!    stop
+    nsize = 30
   end subroutine read_orbitals
 
   subroutine read_TBME
@@ -73,61 +66,24 @@ contains
     real(dp) :: TBME
     allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
     v_mat = 0
-!    open(100,file='VJ-scheme.dat')
-!    open(100,file='VM-scheme.dat')
     open(100,file='VM-scheme_n5l2.dat')
     read(100,*)
     read(100,*)
     do
-!       read(100,*) tz,P,J,i1,i2,i3,i4,TBME
        read(100,*) i1,i2,i3,i4,TBME
-       
-!       if(tz.eq.9) exit
        if(i1.eq.0) exit 
        if(ho_flag(i1).eq.1.and.ho_flag(i2).eq.1.and.&
             ho_flag(i3).eq.1.and.ho_flag(i4).eq.1) then
-          ! k1 = HO_inverse(i1)
-          ! k2 = HO_inverse(i2)
-          ! k3 = HO_inverse(i3)
-          ! k4 = HO_inverse(i4)
           if(m_ho(i1).ne.m_ho(i3).or.m_ho(i2).ne.m_ho(i4)) cycle
-          j1 = HO_inverse(i1)!+1)/2
-          j2 = HO_inverse(i2)!+1)/2
-          j3 = HO_inverse(i3)!+1)/2
-          j4 = HO_inverse(i4)!+1)/2
-          ! if(j1.eq.1.and.j2.eq.1.and.j3.eq.1.and.j4.eq.2) &
-          !      write(*,*) m_ho(k1),m_ho(k2),m_ho(k3),m_ho(k4),TBME
-!          v_mat(j1,j2,j3,j4) = v_mat(j1,j2,j3,j4) + &
-!               (J+1)/((j_ho(i1)+1._dp)*(j_ho(i2)+1._dp))*TBME
-!          if(j1.eq.4.and.j2.eq.4.and.j3.eq.4.and.j4.eq.4) &
-!               write(*,*) TBME
+          j1 = HO_inverse(i1)
+          j2 = HO_inverse(i2)
+          j3 = HO_inverse(i3)
+          j4 = HO_inverse(i4)
           v_mat(j1,j2,j3,j4) = v_mat(j1,j2,j3,j4) + &
                1/((j_ho(i1)+1._dp)*(j_ho(i2)+1._dp))*TBME
        endif
     enddo
     close(100)
-    !v_mat = 2*v_mat
-    ! do j1 = 1,nsize
-    !    do j2 = j1,nsize
-    !       do j3 = 1,nsize
-    !          do j4 = j3,nsize
-    !             v_mat(j1,j2,j4,j3) = v_mat(j1,j2,j3,j4)
-    !             v_mat(j2,j1,j3,j4) = v_mat(j1,j2,j3,j4)
-    !             v_mat(j2,j1,j4,j3) = v_mat(j1,j2,j3,j4)
-    !          enddo
-    !       enddo
-    !    enddo
-    ! enddo
-   !  do j1 = 1,nsize
-   !     do j2 = 1,nsize
-   !        do j3 = 1,nsize
-   !           do j4 = 1,nsize
-   !              write(*,'(4i4,1f15.8)') j1,j2,j3,j4,v_mat(j1,j2,j3,j4)
-   !           enddo
-   !        enddo
-   !     enddo
-   !  enddo
-   ! stop
   end subroutine read_TBME
 
   subroutine Initialize_Minnseota
@@ -137,22 +93,10 @@ contains
     integer, parameter :: Ngauss = 95
     real(dp), dimension(1:Ngauss) :: w,x
     allocate(t_mat(1:Nsize,1:Nsize))
-!    allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
-!    allocate(n_ho(1:Nsize))
-!    allocate(l_ho(1:Nsize))
     t_mat = 0
-!    v_mat = 0
-!    n_ho = 0
-!    l_ho = 0
     do i = 1,nsize
-!       n_ho(i) = i-1
        t_mat(i,i) = hw*(2*n_hf(i) + l_hf(i) + 1.5_dp)
-!       write(*,*) i,n_hf(i), l_hf(i), j_hf(i)
-!       t_mat(i,i) = hw*(2*n_ho(i) + l_ho(i) + 1.5_dp)
-!       t_mat(i,i) = hw*(2*n_ho(2*i) + l_ho(2*i) + 1.5_dp)
     enddo
-!    stop 
-!    call calculate_TBME
   end subroutine Initialize_Minnseota
 
   function fermi_level() result(Noccupied)
@@ -189,7 +133,6 @@ contains
                 else
                    M43 = Minnesota_TBME(n1,n2,n4,n3)
                 endif
-!                write(*,*) i1,i2,i3,i4,M34+M43
                 v_mat(i1,i2,i3,i4) = M34+M43
                 v_mat(i1,i2,i4,i3) = M34+M43
                 v_mat(i2,i1,i3,i4) = M34+M43
@@ -198,16 +141,6 @@ contains
           enddo
        enddo
     enddo
-    ! do i1 = 1,Nsize
-    !    do i2 = 1,Nsize
-    !       do i3 = 1,Nsize
-    !          do i4 = 1,Nsize
-    !             write(*,'(4i4,f15.8)') i1,i2,i3,i4,v_mat(i1,i2,i3,i4)
-    !          enddo
-    !       enddo
-    !    enddo
-    ! enddo
-    ! stop
   end subroutine calculate_TBME
 
   function Minnesota_TBME(n1,n2,n3,n4) result(TBME)
@@ -261,5 +194,76 @@ contains
                   -Exp(-mus*(ri**2+rj**2+2*ri*rj))))&
                   *L1*L2*L3*L4/(4*ri*rj)*0.5_dp
   end function Minnesota_Kernel
+
+  function rho_LDA(r) result(rho)
+    implicit none
+    real(dp), intent(in) :: r
+    real(dp) :: rho
+    real(dp) :: phi,xi, Anl
+    real(dp), dimension(0:5,0:2) :: L_nl
+    integer :: i,nj,lj,j,ji
+    xi = r/b_ho
+    call LaguerreALL(5,2,xi**2,L_nl)
+    rho = 0
+    do i = 1,3
+       phi = 0
+       ji = j_hf(i)
+       do j = 1,Nsize
+          nj = n_hf(j)
+          lj = l_hf(j)
+          Anl = HO_Normalization(nj,lj)
+          phi = phi + D_mat(i,j)*xi**lj*exp(-xi**2/2._dp)*L_nl(nj,lj)*Anl/(b_ho**(1.5_dp))
+       enddo
+       rho = rho + (ji+1)*phi**2
+    enddo
+  end function rho_LDA
+
+  subroutine calculate_gamma_LDA 
+    implicit none
+    integer :: i,j, ni,nj,li,lj,ji,jj
+    real(dp) :: gamma
+    gamma_mat = 0
+    do i = 1,nsize
+       ni = n_hf(i)
+       li = l_hf(i)
+       ji = j_hf(i)
+       do j = i,nsize
+          nj = n_hf(j)
+          lj = l_hf(j)
+          jj = j_hf(j)
+          if(li.ne.lj.or.ji.ne.jj) cycle
+          gamma = gamma_LDA(ni,nj,li)
+          gamma_mat(i,j) = gamma
+          gamma_mat(j,i) = gamma
+       enddo
+    enddo
+  end subroutine calculate_gamma_LDA
+
+  function gamma_LDA(n,np,l) result(gamma)
+    implicit none
+    integer, intent(in) :: n,np,l
+    real(dp) :: gamma
+    integer, parameter :: Ngauss = 95
+    real(dp) :: alpha,xi,wi,An,Anp,Ln,Lnp,rho
+    real(dp), dimension(1:Ngauss) :: w,x
+    logical :: first_call = .true.
+    integer :: i
+    save w,x,first_call
+    if(first_call) then
+       alpha = 0.5_dp
+       call GaussLaguerreWX(alpha,w,x)
+       first_call = .false.
+    endif
+    An  = HO_Normalization(n ,l)
+    Anp = HO_Normalization(np,l)
+    gamma = 0
+    do i = 1,Ngauss
+       call LaguerreL( n,l+0.5_dp,x(i),Ln)
+       call LaguerreL(np,l+0.5_dp,x(i),Lnp)
+       rho = rho_LDA(b_ho*x(i)**0.5_dp)
+       gamma = gamma + w(i)*x(i)**l*Ln*Lnp*rho
+    enddo
+    gamma = gamma*An*Anp/2_dp!mutilply by C which is an integral
+  end function gamma_LDA
 
 end module Minnesota
