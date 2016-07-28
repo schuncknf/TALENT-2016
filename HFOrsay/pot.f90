@@ -11,7 +11,7 @@ v2=-v0s/ks*(exp(-ks*(ri**2+rj**2-2*ri*rj))-exp(-ks*(ri**2+rj**2+2*ri*rj)))/(4.d0
 v=(v1+v2)*half
 end function
 
-subroutine kinetic(n,nr,nl,kin)
+subroutine kinetic(n,kin)
  use constants
  use basis
  implicit none
@@ -27,16 +27,17 @@ subroutine kinetic(n,nr,nl,kin)
     l1 =l_red(i)
      kin(i,i) = (2.d0*n1+l1+1.5d0)*ama*2.d0/(bosc**2)
  enddo
+ end subroutine
 
-! ---- Petar
-! kin = 0.d0
-! do n1 = 1, nt (number of states) 
-! read quantum numbers (n1,l1,j1,...) of state i
-!	 kin(i,i) = (2*n1+l1+1.5d0)*ama*2.d0/(bosc**2) ! there is no (i-1) as before because state i=1 can (should) contain n=0 state
-! enddo
-! ---- Petar
-
+subroutine t_bloc(n,l,t_mat)
+ use constants
+ implicit none
+ double precision::t_mat(n,n)
+ integer::l,n,i
+ do i=0,n
+   t_mat(i,i) = (2.d0*(i)+l+1.5d0)*ama*2.d0/(bosc**2)
+ enddo
+ end subroutine
 
 !
- end subroutine
 end module
