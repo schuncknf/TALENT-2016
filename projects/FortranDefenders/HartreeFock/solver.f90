@@ -286,11 +286,13 @@ contains
            end if
    !!coulomb
     if (iq==2) then
+	tot1=0.0d0
+	tot2=0.0d0
       do ir2=0,ir
-       tot1=tot1+rho(ir2,2)*(meshpoints(ir)**2)
+       tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
       end do
       do ir2=ir,nbox
-       tot2=tot2+rho(ir2,2)*meshpoints(ir)
+       tot2=tot2+rho(ir2,2)*meshpoints(ir2)
       end do
       ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)*h
     end if
