@@ -7,10 +7,10 @@
       integer  :: Nmesh, NN=126, ZZ=82
       real (kind=dm),allocatable :: rho(:) ,Psi(:)! psi(grid_index)
       logical :: comparison= .true., bisloop= .true.
-      real (kind=dm) :: E_minus=-150., E_plus=0., E_left, E_right
+      real (kind=dm) :: E_minus=-150., E_plus=0., E_left, E_right,  E_minus_n,  E_minus_p
       integer(kind=dm) :: numnodes ! the number of excited state, that has to be the same as number of nodes in wavefunction
       integer(kind=dm) :: cnodes ! nodes of wavefuntion 
-      integer(kind=dm) :: i,ii, uu, ipart, iord
+      integer(kind=dm) :: i,ii, uu, ipart, iord, counter_n=0, counter_p=0
       integer(kind=dm) :: n, l, orbital
       integer(kind=dm) :: n_max, l_max,nl2j
       real(kind=dm)    :: sm, j, e=1.

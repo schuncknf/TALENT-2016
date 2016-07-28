@@ -1,10 +1,10 @@
 using namespace std;
 // Select the potential you want:
 
-#define hm_fac 20.75	// MeV
+#define hm_fac 20.73553	// MeV
 #define     a0 0.67	// 
 #define     r0 1.27	// fm
-#define    Vls 23	//
+#define    Vls 0.22	//
 #define      q 1	//
 
 // Variables

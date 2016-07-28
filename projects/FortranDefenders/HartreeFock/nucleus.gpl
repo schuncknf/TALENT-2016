@@ -1,0 +1,15 @@
+set terminal png
+set output "density.png"
+set multiplot layout 1,2
+unset key
+set xrange[-10:10]
+set yrange[-10:10]
+set zrange[0:0.1]
+unset ztics
+set cbrange[0:0.1]
+set view 0,0
+set view equal xyz
+splot for [i=0:1600] "densities" u ($1*cos(2*pi*i/1600)):($1*sin(2*pi*i/1600)):2 w l lw 1 lc palette
+splot for [i=0:1600] "densities" u ($1*cos(2*pi*i/1600)):($1*sin(2*pi*i/1600)):3 w l lw 1 lc palette
+unset multiplot
+
