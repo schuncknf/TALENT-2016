@@ -54,7 +54,7 @@
       allocate(vpotp(n,n,n,n),vpotas(n,n,n,n))
       allocate(vpotr(n,n,n,n))
       allocate(nocc_diag(n))
-      allocate(rhob(2*occ_states,n,n),kinb(2*occ_states,n,n),gamab(2*occ_states,n,n))
+      allocate(rhob(0:2*occ_states,n,n),kinb(0:2*occ_states,n,n),gamab(0:2*occ_states,n,n))
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
 
 
@@ -88,9 +88,11 @@ write(*,*) "TBME's computed and antisymetrized"
         do l = minval(l_red),maxval(l_red) 
           call t_bloc(n,l,t_mat)
           do j= 0,1
-          bloc_index = bloc_index + 1
           write(*,*) "# Of block",bloc_index
-          if (bloc_index .gt. occ_states +1 ) exit
+          if (bloc_index .gt. occ_states - 1) then
+          hf = 0.d0 
+          exit
+          endif 
           if (l == 0) then 
           bj = 1
           elseif (j == 0) then 
@@ -170,6 +172,7 @@ write(*,*) "TBME's computed and antisymetrized"
          rhob(bloc_index,1:nbloc,1:nbloc) = rho 
          kinb(bloc_index,1:nbloc,1:nbloc) = t_mat 
          gamab(bloc_index,1:nbloc,1:nbloc) = gama 
+         bloc_index = bloc_index + 1
 
 
          enddo !j
@@ -180,7 +183,7 @@ write(*,*) "TBME's computed and antisymetrized"
 
        hfenergy = 0.d0
        tr = 0.d0
-       do i=1,occ_states+5
+       do i=0,occ_states-1 
           hfenergy = hfenergy + trace(matmul(kinb(i,1:nbloc,1:nbloc),rhob(i,1:nbloc,1:nbloc)),nbloc)& 
  &                      + half*trace(matmul(gamab(i,1:nbloc,1:nbloc),rhob(i,1:nbloc,1:nbloc)),nbloc)
           tr = tr + trace(rhob(i,1:nbloc,1:nbloc),nbloc)
