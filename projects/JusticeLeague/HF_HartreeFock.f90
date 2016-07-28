@@ -11,6 +11,7 @@ contains
        deallocate(D_mat,rho_mat,h_mat,Gamma_mat,E_values,E_prev)
     endif
     allocate(D_mat(1:Nsize,1:Nsize))
+    allocate(D_prev(1:Nsize,1:Nsize))
     allocate(rho_mat(1:Nsize,1:Nsize))
     allocate(h_mat(1:Nsize,1:Nsize))
     allocate(Gamma_mat(1:Nsize,1:Nsize))
@@ -22,6 +23,7 @@ contains
     do i = 1,nsize
        D_mat(i,i) = 1
     enddo
+    D_prev = D_mat
   end subroutine Initialize_HF
 
   subroutine Construct_rho
