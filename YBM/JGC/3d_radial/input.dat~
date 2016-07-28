@@ -2,7 +2,7 @@
 # Potential? 1. Infinite square well, 2. Finite square well, 3. Woods-Saxon potential 4. Woods-Saxon + spin-orbit
 4
 # Box width [fm]
-20.
+25.
 # Well width  [fm]
 6.
 # Mesh width [fm]
@@ -12,13 +12,13 @@
 # Min limit  [MeV]
 -44
 # Max limit  [MeV]
-0.
+-4.
 # Energy mesh [MeV]
 0.5
 # First step wavefunction value [a.u]
 1e-5
 # Converence energy condition
-1e-14
+1e-10
 # no. of protons?
 82
 # no. of neutrons?

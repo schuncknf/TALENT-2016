@@ -8,7 +8,7 @@
       use globals  
       implicit none
 
-      real(kind=dm) :: vpot
+      real(kind=dm) :: vpot, VCO, potential
       integer(kind=dm):: Nn_l, Nn_tmp
       integer(kind=dm):: iorb,orbital_tmp
 
@@ -30,13 +30,13 @@
       close(30)
       !-----------------------------------------------------------------
 
-      E_minus_n=(-51. + 33.*(NN-ZZ)/(NN+ZZ))
-      E_minus_p=(-51. - 33.*(NN-ZZ)/(NN+ZZ))
+      E_minus=(-51. + 33.*(NN-ZZ)/(NN+ZZ))
+      !E_minus_p=(-51. - 33.*(NN-ZZ)/(NN+ZZ))
       Nmesh=nint((R_box)/h)
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
       orbital = 0
       do n=0, l_max-2 !loop n
-            do l=0, l_max !loop l 
+            do l=0, l_max !loop l
                   do ii=1,-1, -2!loop sm--->j
                   if((l.eq.0).and.(ii.eq.-1)) exit 
                         orbital = orbital + 1
@@ -49,15 +49,15 @@
       allocate(dens_n(0:Nmesh),dens_t(0:Nmesh) )
       dens_t(:)=0.
 do ipart=1, 2 !1=neutrons, 2=protons
-      if(ipart.eq.1) then
-      Em=E_minus
-      else
-      Em=E_minus_p
-      endif
-
+      !if(ipart.eq.1) then
+      Em=E_minus_n
+      !else
+      !Em=E_minus_p
+      !endif
+Enl2j(:, :) = 0.d0
       uu=1
 
-      do n=0, l_max-2 !loop n
+      do n=0, n_max-1 !loop n
             do l=0, l_max  !loop l   
                   do ii=1,-1, -2 !loop sm--->j
                   sm=1./2.*ii
@@ -74,11 +74,13 @@ do ipart=1, 2 !1=neutrons, 2=protons
                       cnodes=0
                       !begin numerov method
                       Do i = 0,Nmesh
-                              x=(i)*h
+                              x=(i)*h     
+                              potential= Vpot(x, ii, ipart)
+                              if(ipart.eq.2) potential=potential+VCO(x) 
                               if(i.eq.0) then 
-                              k_sq(i) = (Em-Vpot(x, ii, ipart))/h2m 
+                              k_sq(i) = (Em-potential)/h2m 
                               else
-                              k_sq(i) = (Em-Vpot(x, ii, ipart))/h2m -1.*l*(l+1)/x**2
+                              k_sq(i) = (Em-potential)/h2m -1.*l*(l+1)/x**2
                               endif
                       Enddo
                       Do i = 2,Nmesh
@@ -100,6 +102,7 @@ do ipart=1, 2 !1=neutrons, 2=protons
                   !print*, n, l, sm, Em
                   if ((Em.gt.0.).or.(abs(Em-E_minus).lt.epsi).or.(abs(Em-E_plus).lt.epsi)) exit
 
+                  
                   Enl2j(uu, 1)= Em
                   Enl2j(uu, 2)= n+1
                   Enl2j(uu, 3)= l
@@ -110,11 +113,16 @@ do ipart=1, 2 !1=neutrons, 2=protons
                   ! not go to infinite SHOOTING METHOD WITH RIGHT HAND SIDE EQUAL TO 0
 
                   cnodes = 0
-                  Do i = 1, Nmesh-1
-                        x=(i)*h
-                        k_sq(i) = (Em-Vpot(x, ii, ipart))/h2m - 1.*((l*(l+1))/x**2) 
-                  Enddo
-                 k_sq(0)= (Em-Vpot(0.d0, ii, ipart))/h2m
+                     Do i = 1,Nmesh-1
+                              x=(i)*h     
+                              potential= Vpot(x, ii, ipart)
+                              if(ipart.eq.2) potential=potential+VCO(x) 
+                              if(i.eq.0) then 
+                              k_sq(i) = (Em-potential)/h2m 
+                              else
+                              k_sq(i) = (Em-potential)/h2m -1.*l*(l+1)/x**2
+                              endif
+                      Enddo
               
 
                  psi(0) = 0.
@@ -161,13 +169,17 @@ do ipart=1, 2 !1=neutrons, 2=protons
       open(111,file='energy_level_n.output')
       write(111,*) '      energy      n    l         spin'
       do i=1, orbital
+            if (Enl2j(i,1).lt. 0.d0) then
             write(111,100) Enl2j(i,1),nint(Enl2j(i,2)),nint(Enl2j(i,3)),Enl2j(i,4) 
+            endif
       enddo
       else
       open(111,file='energy_level_p.output')
       write(111,*) '      energy      n    l         spin'
       do i=1, orbital
+      if (Enl2j(i,1).lt. 0.d0) then
             write(111,100) Enl2j(i,1),nint(Enl2j(i,2)),nint(Enl2j(i,3)),Enl2j(i,4) 
+      endif      
       enddo
       endif
 
@@ -217,6 +229,11 @@ close(13)
 
 100   format(1f15.8, 2I5.2, 1f15.3)
 
+
+      do i=1, Nmesh
+      x=i*h
+      write(66, *)x, VCO(x)
+      enddo
       end program WoodsSaxon3D
 
 !=========================== potential function ===============================
@@ -229,11 +246,11 @@ close(13)
       INTEGER(8) :: mm, ip
       !WoodsSaxon
       AA=NN+ZZ
-      if(ip.eq.1)then
+      !if(ip.eq.1)then
       V0 = (-51. + 33.*(NN-ZZ)/AA)
-      else
-      V0 = (-51. - 33.*(NN-ZZ)/AA)
-      endif
+      !else
+      !V0 = (-51. - 33.*(NN-ZZ)/AA)
+      !endif
       
       R= r0*AA**(1./3.)
       fx= 1./(1.+exp((xy-R)/a))
@@ -253,20 +270,23 @@ close(13)
                   VSO=0.44d0*r0**2*V0*exp((xy-R)/a)/(xy*a*(1.+exp((xy-R)/a))**2)*ls
                   Vpot= VWS +VSO
             endif
-      !Coulomb
-                  if (ip.eq.2) then 
-          !        Rp= r0*ZZ**(1./3.)
-                  Rp=R
+
+      endif
+      end function
+
+
+      real(8) function VCO(xy)
+      use globals
+      implicit none
+      real(8) xy, ip, Rp
+      integer(8) AA
+      AA=NN+ZZ
+                        Rp = r0*AA**(1./3.)
                         if (xy.le.Rp) then
                               VCO= e**2*ZZ/2./Rp*(3.-((xy/Rp)**2))
                         else
                               VCO= e**2*ZZ/xy
                         endif
-                  Vpot=Vpot +VCO
-                  endif
-
-      endif
       end function
-
 
 

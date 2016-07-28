@@ -1,13 +1,5 @@
 #include"Esercizio.h"
 
-	double numerov_algorithm_woods(double energy, double f0, double f_,double r, double S, double L, double J){
-		double v = (energy-potential_woods(r)-centrifug_term(r,L)-potential_spin_orbit(r,S,L,J))/m_factor;
-		double a[3];
-		a[0] = 2. * (1. - 5./12. * v * pow(h_width,2));	// Coeff. for f(x)
-		a[1] = 1. * (1. + 1./12. * v * pow(h_width,2));	// Coeff. for f(x-h)
-		a[2] = 1. * (1. + 1./12. * v * pow(h_width,2));	// Coeff. for f(x+h)
-		return (a[0] * f0 - a[1] * f_) / a[2];
-	}
 
 	double numerov_algorithm_woods_proton(double energy, double f0, double f_,double r, double S, double L, double J){
 		double v = (energy-potential_woods(r)-centrifug_term(r,L)-potential_spin_orbit(r,S,L,J)-potential_coulomb(r))/m_factor;
@@ -55,7 +47,7 @@
 	wfWork.push_back(0.15);
 
 	double sum = 0.;
-	for(int i=1; i<n_step_width_box+1; i++) wfWork.push_back(numerov_algorithm_woods(eigen, wfWork[i], wfWork[i-1], i*h_width + 2*h_width, S, L, J));
+	for(int i=1; i<n_step_width_box+1; i++) wfWork.push_back(numerov_algorithm_woods_proton(eigen, wfWork[i], wfWork[i-1], i*h_width + 2*h_width, S, L, J));
 	for(int i=1; i<n_step_width_box+1; i++) sum += 4*M_PI*h_width*pow(wfWork[i],2);
 
 	wfWork.clear();

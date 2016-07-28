@@ -58,6 +58,7 @@ int main(){
 //Density
 	ofstream myfile_density, myfile_wave;
 	char orbital[26];
+	//myfile_density.open("density.txt");
 
 	double * density = new double [n_step_width_box+1];
 	for(int i=1; i<n_step_width_box+1; i++){
@@ -66,6 +67,7 @@ int main(){
 	vector<double> wave_eigen;
 	double S = 1./2.;
 	for(int node=0; node<3; node++){
+	//int node =0;
 		for(int L=0; L<8;L++){
 			for(int h=1; h<3; h++){
 				if(L==0) h=2;
@@ -79,7 +81,7 @@ int main(){
 					wave_val.push_back(0.1);
 					wave_val.push_back(0.15);
 					for(int i=1; i<n_step_width_box; i++){ //the vector has n_step_width_box + 1 boxes
-						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+2.*h_width,S,L,J));
+						wave_val.push_back(numerov_algorithm_woods_proton(Etrial, wave_val[i], wave_val[i-1], i*h_width+2.*h_width,S,L,J));
 					}
 					nodecount = 0;
 					for(int i=1; i<n_step_width_box+1; i++){
@@ -103,7 +105,7 @@ int main(){
 					double norm = normalise(Etrial, n_step_width_box, S, L, J);
 					cout <<norm<<endl;
 					for(int i=1; i<n_step_width_box+1; i++){
-						wave_eigen.push_back(numerov_algorithm_woods(Etrial, wave_eigen[i], wave_eigen[i-1], i*h_width+2.*h_width,S,L,J));
+						wave_eigen.push_back(numerov_algorithm_woods_proton(Etrial, wave_eigen[i], wave_eigen[i-1], i*h_width+2.*h_width,S,L,J));
 						density[i] += (2.*J+1.)/(4.*M_PI*pow(i*h_width+2.*h_width,2))*pow(wave_eigen[i]/sqrt(norm),2);
 						myfile_wave << i*h_width +2.*h_width<< "   " << wave_eigen[i]/(sqrt(norm)*(i*h_width +2.*h_width)) << endl;	//Crea un numero di file pari agli autovalori e guarda nelle f d'onda dove ci sono i problemi ;-)
 					}
@@ -118,6 +120,8 @@ int main(){
 	for(int i=1; i<n_step_width_box+1; i++){
 		myfile_density << i*h_width +2.*h_width<< "   " << density[i] << endl;
 	}
+
+
 	myfile_density.close();
 
 // Write results to file with filename
