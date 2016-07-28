@@ -28,7 +28,7 @@ contains
     wfr(:,:,:,:,:) = 0.0
     !Main loop begins here; be careful
   allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
-  do iter = 1,8
+  do iter = 1,2
     if(iter>1) then
     call build_fields
     !stop
@@ -52,7 +52,7 @@ contains
                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     else
                        potential(ir) = (-uc(ir,2)-umr(ir,2)-udd(ir,2)-uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
-                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
+                       - ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     end if
                   end do
 
@@ -257,7 +257,7 @@ contains
   umrnew(:,:)= 0._wp
   uddnew(:,:)= 0._wp
   usonew(:,:) = 0._wp
-  ucoulnew(:,:) = 0._wp
+  ucoulnew(:) = 0._wp
 
   do iq = 1,2
    do ir = 0,nbox
