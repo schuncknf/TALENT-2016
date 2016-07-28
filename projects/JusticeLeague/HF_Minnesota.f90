@@ -199,9 +199,9 @@ contains
     implicit none
     real(dp), intent(in) :: r
     real(dp) :: rho
-    real(dp) :: phi,xi, Anl
+    real(dp) :: phi,xi, Anl,Anpl
     real(dp), dimension(0:5,0:2) :: L_nl
-    integer :: i,nj,lj,j,ji
+    integer :: i,nj,lj,j,ji,nk,lk,jj,jk,k
     xi = r/b_ho
     call LaguerreALL(5,2,xi**2,L_nl)
     rho = 0
@@ -211,11 +211,23 @@ contains
        do j = 1,Nsize
           nj = n_hf(j)
           lj = l_hf(j)
-          Anl = HO_Normalization(nj,lj)
-          phi = phi + D_mat(i,j)*xi**lj*exp(-xi**2/2._dp)*L_nl(nj,lj)*Anl/(b_ho**(1.5_dp))
+          jj = j_hf(j)
+          do k = 1,Nsize
+             nk = n_hf(k)
+             lk = l_hf(k)
+             jk = j_hf(k)
+             if(lk.ne.lj.or.jj.ne.jk) cycle
+             Anl =  HO_Normalization(nj,lj)
+             Anpl = HO_Normalization(nk,lk)
+             phi = phi + (D_mat( j,i)*D_mat( k,i)*1.0_dp + &
+                          D_prev(j,i)*D_prev(k,i)*0.0_dp)*&
+                          xi**(lj+lk)*exp(-xi**2)*&
+                          L_nl(nj,lj)*L_nl(nk,lk)*Anl*Anpl/(b_ho**3)
+          enddo
        enddo
-       rho = rho + (ji+1)*phi**2
+       rho = rho + (ji+1)*phi
     enddo
+    rho = rho/(4*pi)
   end function rho_LDA
 
   subroutine calculate_gamma_LDA 
@@ -235,8 +247,10 @@ contains
           gamma = gamma_LDA(ni,nj,li)
           gamma_mat(i,j) = gamma
           gamma_mat(j,i) = gamma
+!          if(i.eq.1.and.i.eq.j) write(*,*) 'Gamma 001', gamma
        enddo
     enddo
+    
   end subroutine calculate_gamma_LDA
 
   function gamma_LDA(n,np,l) result(gamma)
@@ -244,12 +258,13 @@ contains
     integer, intent(in) :: n,np,l
     real(dp) :: gamma
     integer, parameter :: Ngauss = 95
-    real(dp) :: alpha,xi,wi,An,Anp,Ln,Lnp,rho
+    real(dp) :: alpha,xi,wi,An,Anp,Ln,Lnp,rho,Ivc
     real(dp), dimension(1:Ngauss) :: w,x
     logical :: first_call = .true.
     integer :: i
-    save w,x,first_call
+    save w,x,first_call,Ivc
     if(first_call) then
+       Ivc = IntegralVc()
        alpha = 0.5_dp
        call GaussLaguerreWX(alpha,w,x)
        first_call = .false.
@@ -263,7 +278,76 @@ contains
        rho = rho_LDA(b_ho*x(i)**0.5_dp)
        gamma = gamma + w(i)*x(i)**l*Ln*Lnp*rho
     enddo
-    gamma = gamma*An*Anp/2_dp!mutilply by C which is an integral
+    gamma = Ivc*gamma*An*Anp/2._dp
   end function gamma_LDA
+
+  function IntegralVc() result(Ivc)
+    real(dp) :: Ivc
+    real(dp) :: alpha,xi,wi,Ir,Is
+    integer, parameter :: Ngauss = 77
+    real(dp), dimension(1:Ngauss) :: w,x
+    logical :: first_call = .true.
+    integer :: i
+    save w,x,first_call
+    if(first_call) then
+       alpha = -0.5_dp
+       call GaussLaguerreWX(alpha,w,x)
+       first_call = .false.
+    endif
+    Ivc = 0
+    Ir = 0
+    Is = 0
+    do i = 1,Ngauss
+       Ir = Ir + w(i)*SphericalBesselJ1(k_Fermi*sqrt(x(i)/muR))**2
+       Is = Is + w(i)*SphericalBesselJ1(k_Fermi*sqrt(x(i)/mus))**2
+    enddo
+    Ir = Ir*V0R/sqrt(muR)
+    Is = Is*V0S/sqrt(mus)
+    IVc = (Ir-Is)*pi*9/(2*k_Fermi**2)
+    Ivc = Ivc + pi**(1.5_dp)*(V0R/(muR**1.5_dp)-V0s/(mus**1.5_dp))/4._dp
+    
+  end function IntegralVc
+
+  function SphericalBesselJ1(x) result(j1)
+    implicit none
+    real(dp), intent(in) :: x
+    real(dp) :: j1
+    j1 = sin(x)/x**2 - cos(x)/x
+  end function SphericalBesselJ1
+
+  subroutine plot_rho_LDA(j)
+    implicit none
+    integer, intent(in) :: j
+    real(dp) :: Trho
+    real(dp), parameter :: dr=0.001_dp
+    real(dp) :: ri
+    integer :: i
+    character(2) :: index
+    Trho = 0
+    write(index,'(i2.2)') j
+    open(100,file='mixed_rho_plot'//index//'.dat')
+    do i = 1,10000
+       ri = i*dr
+       Trho = Trho  + rho_LDA(ri)*ri**2*dr
+       write(100,*) ri, rho_LDA(ri)*ri**2
+    enddo
+    close(100)
+!    stop
+  end subroutine Plot_rho_LDA
+
+  function Trace_rho_LDA() result(Trho)
+    implicit none
+    real(dp) :: Trho
+    real(dp), parameter :: dr=0.001_dp
+    real(dp) :: ri
+    integer :: i
+    character(2) :: index
+    Trho = 0
+    do i = 1,10000
+       ri = i*dr
+       Trho = Trho  + rho_LDA(ri)*ri**2*dr
+    enddo
+    Trho = Trho*4*pi
+  end function Trace_rho_LDA
 
 end module Minnesota
