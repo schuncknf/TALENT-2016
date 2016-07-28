@@ -106,8 +106,8 @@ module basis
 use constants
 integer,allocatable::n_ext(:),m_ext(:),l_ext(:),j_ext(:),t_ext(:)
 integer,allocatable::n_red(:),l_red(:),j_red(:),occ(:),nocc(:)
-integer,allocatable::repick_base(:)
-integer::red_size,size_full
+integer,allocatable::repick_base(:),tag_hf(:,:,:)
+integer::red_size,size_full,occ_states
 double precision,allocatable::tbme_ext(:,:,:,:)
 contains 
 subroutine external_basis()
@@ -162,10 +162,11 @@ do iho=1,n_lines
    exit
    endif
 enddo
-!do i=1,n_lines
-!write(*,*) "repick base",i,repick_base(i)
-!enddo
-!read(*,*)
+allocate(tag_hf(minval(n_red):maxval(n_red),minval(l_red):maxval(l_red),minval(j_red):maxval(j_red)))
+tag_hf = 0
+do j=1,red_size
+ tag_hf(n_red(j),l_red(j),j_red(j))=j
+enddo
 close(124)
 else
 write(*,*) "File spM.dat not found !"
@@ -183,7 +184,7 @@ integer::stat
 inquire(file='VM-scheme.dat', exist=fex)
 open(125,file='VM-scheme.dat')
 if (fex) then
-allocate(tbme_ext(size_full,size_full,size_full,size_full))
+allocate(tbme_ext(red_size,red_size,red_size,red_size))
 tbme_ext = 0.d0
 !-------- Removing Legend
 read(125,*)
@@ -199,8 +200,8 @@ do
         q3 = repick_base(n3)
         q4 = repick_base(n4)
         write(12345,*) q1,q2,q3,q4,tbme
-        tbme_ext(q1,q2,q3,q4) = tbme_ext(q1,q2,q3,q4) + 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme 
-        !tbme_ext(q1,q2,q3,q4) = tbme 
+        tbme_ext(q1,q2,q3,q4) = 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme 
+   !     tbme_ext(q1,q2,q3,q4) = tbme 
     endif ! Filtering over m
    endif !Filtering Isospin
    if (stat /= 0) exit
@@ -225,6 +226,7 @@ allocate(nocc(red_size))
 nf = 0
 nocc=0
 ic = 1
+occ_states = 0
  do il = 1, red_size
    nf = nf + occ(il)
    if (nf .le. npart) then
@@ -236,6 +238,10 @@ ic = 1
       nocc(il)=0
    endif
  enddo
+ do il = 1, red_size
+  if (nocc(il) .ne. 0) occ_states = occ_states +1
+enddo
+
 end subroutine
 
 
