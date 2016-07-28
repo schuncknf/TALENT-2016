@@ -117,30 +117,47 @@ contains
           drho(ir,iq) = (-rho(ir+2,iq) + 8*rho(ir+1,iq) &
                  -8*rho(ir+1,iq) + rho(ir+2,iq))/(12*h)
 
+          ddrho(ir,iq) = (-rho(ir+2,iq)+16*rho(ir+1,iq)-30*rho(ir,iq)&
+                  +16*rho(ir+1,iq)-rho(ir+2,iq))/(12*h**2)
         else if (ir < 2) then
           djsc(ir,iq) = (-jsc(ir+2,iq) + 8*jsc(ir+1,iq) &
                  +8*jsc(ir-1,iq) - jsc(ir,iq))/(12*h)
 
           drho(ir,iq) = (-rho(ir+2,iq) + 8*rho(ir+1,iq) &
                  -8*rho(ir-1,iq) + rho(ir,iq))/(12*h)
+
+          ddrho(ir,iq) = (-rho(ir+2,iq)+16*rho(ir+1,iq)-30*rho(ir,iq)&
+                  +16*rho(ir-1,iq)-rho(ir,iq))/(12*h**2)
         else if ((ir >= 2) .AND. (ir <= nbox-2)) then
           drho(ir,iq) = (-rho(ir+2,iq) + 8*rho(ir+1,iq) &
                  -8*rho(ir-1,iq) + rho(ir-2,iq))/(12*h)
 
           djsc(ir,iq) = (-jsc(ir+2,iq) + 8*jsc(ir+1,iq) &
                  -8*jsc(ir-1,iq) + jsc(ir-2,iq))/(12*h)
+
+          ddrho(ir,iq) = (-rho(ir+2,iq)+16*rho(ir+1,iq)-30*rho(ir,iq)&
+                  +16*rho(ir-1,iq)-rho(ir-2,iq))/(12*h**2)
+
+
         else if ((ir > nbox-2) .AND. (ir/=nbox)) then
           drho(ir,iq) = 0.
+          ddrho(ir,iq) = 0.
+          djsc(ir,iq) = 0.
         else
           drho(ir,iq) = 0.
+          ddrho(ir,iq) = 0.
+          djsc(ir,iq) = 0.
         end if
       end do
+      ddrho(0:3,iq)=ddrho(4,iq)
     end do
 
     drho(:,3) = drho(:,1) + drho(:,2)
     drho(:,4) = drho(:,1) - drho(:,2)
     djsc(:,3) = djsc(:,1) + djsc(:,2)
     djsc(:,4) = djsc(:,1) - djsc(:,2)
+    ddrho(:,3) = ddrho(:,1) + ddrho(:,2)
+    ddrho(:,4) = ddrho(:,1) - ddrho(:,2)
 
   end subroutine ddensities
 
@@ -328,7 +345,7 @@ contains
 
    call ddensities
     do ir = 0,nbox
-      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
+      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
     end do
   end subroutine build_densities
 
