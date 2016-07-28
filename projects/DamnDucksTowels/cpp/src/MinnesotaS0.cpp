@@ -74,10 +74,10 @@ void MinnesotaS0::calc()
 	  int deltas = basis.deltaSpin(idx1,idx3)*basis.deltaSpin(idx2,idx4)-basis.deltaSpin(idx1,idx4)*basis.deltaSpin(idx2,idx3);
 	  if (deltas != 0)
 	    {
-	      fun = (temp(idx1,idx2) * temp(idx3,idx4).t()) % temp_k;
+	      fun = (temp(idx1,idx3) * temp(idx2,idx4).t()) % temp_k;
 	      integral += 0.5 * deltas * arma::accu(fun);
 	      
-	      fun = (temp(idx1,idx2) * temp(idx4,idx3).t()) % temp_k;
+	      fun = (temp(idx1,idx4) * temp(idx2,idx3).t()) % temp_k;
 	      integral += 0.5 * deltas * arma::accu(fun);
 	    }
 	  //else integral is 0.0 as preset;  

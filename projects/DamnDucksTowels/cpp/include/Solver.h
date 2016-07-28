@@ -13,7 +13,7 @@ public:
   double cvg;
   // Operations
 public:
-  Solver (System & _system, unsigned int _dNumber);
+  Solver (System & _system);
   virtual ~Solver () = 0;
   virtual void run () = 0;
   void initH (int type);
