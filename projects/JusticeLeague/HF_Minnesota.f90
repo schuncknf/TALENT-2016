@@ -219,8 +219,8 @@ contains
              if(lk.ne.lj.or.jj.ne.jk) cycle
              Anl =  HO_Normalization(nj,lj)
              Anpl = HO_Normalization(nk,lk)
-             phi = phi + (D_mat( j,i)*D_mat( k,i)*1.0_dp + &
-                          D_prev(j,i)*D_prev(k,i)*0.0_dp)*&
+             phi = phi + (D_mat( i,j)*D_mat( i,k)*0.1_dp + &
+                          D_prev(i,j)*D_prev(i,k)*0.9_dp)*&
                           xi**(lj+lk)*exp(-xi**2)*&
                           L_nl(nj,lj)*L_nl(nk,lk)*Anl*Anpl/(b_ho**3)
           enddo
@@ -347,7 +347,7 @@ contains
        ri = i*dr
        Trho = Trho  + rho_LDA(ri)*ri**2*dr
     enddo
-    Trho = Trho*4*pi
+    Trho = Trho/pi
   end function Trace_rho_LDA
 
 end module Minnesota

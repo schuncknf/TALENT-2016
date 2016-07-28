@@ -24,7 +24,7 @@ program HFSolver
   call initialize_HF
   call Initialize_Minnseota
 !  call read_TBME
-  do i = 1,100
+  do i = 1,50
 !     call Construct_rho
 !     call Construct_gamma
 !     write(*,*) i, gamma_mat(1,1)
@@ -42,12 +42,12 @@ program HFSolver
      endif
      E_prev = E_values
   enddo
-  call Construct_rho
+!  call Construct_rho
 !  call Construct_gamma
-  call calculate_gamma_LDA 
-  h_mat = t_mat + gamma_mat
-  EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
-  write(*,*) '  Hartree-Fock energy in MeV'
-  write(*,*) EHF
+!  call calculate_gamma_LDA 
+!  h_mat = t_mat + gamma_mat
+!  EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
+!  write(*,*) '  Hartree-Fock energy in MeV'
+!  write(*,*) EHF
   
 end program HFSolver
