@@ -18,11 +18,11 @@
 !==========     set initial values     ==============================
       Eup=1000.E0_dp
       Edown=-100.E0_dp
-      epsil=1.E-8_dp
+      epsil=1.E-6_dp
 !      Nodemax=5
-      Rmin=0.01E0_dp
+      Rmin=0.1E0_dp
       Rmax=30.E0_dp !fermi
-      meshsize=0.01E0_dp
+      meshsize=0.1E0_dp
 ! kpot= 0 no potential      
 ! kpot= 1 square well of size a and deepth Vvalue
 ! kpot= 2 Wood-Saxon potential
@@ -82,8 +82,8 @@
            call wavef(points,meshsize, n_rad, l, Eup, Edown, epsil, pott, &
                  trialwf, Etrial) 
 
- !          call parwf(points,meshsize, n_rad, l, numN, numZ, Etrial, &
- !                   epsil, pott, trialwf) 
+!           call parwf(points,meshsize, n_rad, l, numN, numZ, Etrial, &
+!                    epsil, pott, trialwf) 
 !renormalization
 
          normal=0.0E0_dp
@@ -157,14 +157,14 @@
          REAL(kind=dp), INTENT(IN)  :: meshsize
          integer, INTENT(IN)  :: n_rad, points, l
          REAL(kind=dp), INTENT(OUT) :: Etrial
-         integer:: converg
+         integer:: converg, kk
          integer :: Nodecount , ifail, i, idir, imin, imax, kpot
-         REAL(kind=dp) :: a1, a2, a3, normal, Eexp
+         REAL(kind=dp) :: a1, a2, a3, normal, Eexp, rcentr
          REAL(kind=dp), DIMENSION(0:points), INTENT(OUT) :: trialwf
          REAL(kind=dp) :: pot, a, Vvalue
          REAL(kind=dp) , DIMENSION(0:points), INTENT(IN) :: pott
 !
-
+          kk=0
 !         allocate(trialwf(0:points), stat = ifail)
 !         if (ifail .ne. 0) then
 !          print*, "failed allocation"
@@ -174,12 +174,19 @@
            Eup=Eup0
            Edown=Edown0
 !
+           if (l .gt. 5) then
+             rcentr=sqrt(Eup/(l*(l+1))/hb2m)
+             imin=int(rcentr/meshsize)
+           else
+             imin=1
+           end if
+!
            idir=1
-           trialwf(0)=0.1!meshsize**(l+1)
-           trialwf(1)=0.2!(2*meshsize)**(l+1)
-           imin=1
+           do i=0,imin-1
+              trialwf(i)=0.0E0_dp!meshsize**(l+1)
+           end do
+           trialwf(imin)=meshsize**(l+1)
            imax=points-1
-
 !loop until convergence
          converg=0
          do while (converg .ne. 1)
