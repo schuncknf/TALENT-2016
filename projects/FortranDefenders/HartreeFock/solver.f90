@@ -117,7 +117,6 @@ contains
           drho(ir,iq) = (-rho(ir+2,iq) + 8*rho(ir+1,iq) &
                  -8*rho(ir+1,iq) + rho(ir+2,iq))/(12*h)
 
-          drho
         else if (ir < 2) then
           djsc(ir,iq) = (-jsc(ir+2,iq) + 8*jsc(ir+1,iq) &
                  +8*jsc(ir-1,iq) - jsc(ir,iq))/(12*h)
