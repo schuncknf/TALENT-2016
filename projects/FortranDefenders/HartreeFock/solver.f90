@@ -13,8 +13,8 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes, nnodesl, l, is, iq, n, k
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j,coefmin,coefmax,coef, diff, ddiff
+    integer :: i, ir, nnodes,l, is, iq, n
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff
     real(wp), allocatable :: potential(:), woodsaxon(:), woodsaxond(:), spinorbitmat(:), coulombmat(:)
 
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2),&
@@ -106,8 +106,96 @@ contains
       end do
   end subroutine solve_r
 
+  subroutine ddensities
+    integer :: ir,iq
+    do iq=1,2
+      do ir=0,nbox
+        if(ir < 1) then
+          djsc(ir,iq) = (-jsc(ir+2,iq) + 8*jsc(ir+1,iq) &
+                 +8*jsc(ir+1,iq) - jsc(ir+2,iq))/(12*h)
+
+          drho(ir,iq) = (-rho(ir+2,iq) + 8*rho(ir+1,iq) &
+                 -8*rho(ir+1,iq) + rho(ir+2,iq))/(12*h)
+
+          ddrho(ir,iq) = (-rho(ir+2,iq)+16*rho(ir+1,iq)-30*rho(ir,iq)&
+                  +16*rho(ir+1,iq)-rho(ir+2,iq))/(12*h**2)
+        else if (ir < 2) then
+          djsc(ir,iq) = (-jsc(ir+2,iq) + 8*jsc(ir+1,iq) &
+                 +8*jsc(ir-1,iq) - jsc(ir,iq))/(12*h)
+
+          drho(ir,iq) = (-rho(ir+2,iq) + 8*rho(ir+1,iq) &
+                 -8*rho(ir-1,iq) + rho(ir,iq))/(12*h)
+
+          ddrho(ir,iq) = (-rho(ir+2,iq)+16*rho(ir+1,iq)-30*rho(ir,iq)&
+                  +16*rho(ir-1,iq)-rho(ir,iq))/(12*h**2)
+        else if ((ir >= 2) .AND. (ir <= nbox-2)) then
+          drho(ir,iq) = (-rho(ir+2,iq) + 8*rho(ir+1,iq) &
+                 -8*rho(ir-1,iq) + rho(ir-2,iq))/(12*h)
+
+          djsc(ir,iq) = (-jsc(ir+2,iq) + 8*jsc(ir+1,iq) &
+                 -8*jsc(ir-1,iq) + jsc(ir-2,iq))/(12*h)
+
+          ddrho(ir,iq) = (-rho(ir+2,iq)+16*rho(ir+1,iq)-30*rho(ir,iq)&
+                  +16*rho(ir-1,iq)-rho(ir-2,iq))/(12*h**2)
+
+
+        else if ((ir > nbox-2) .AND. (ir/=nbox)) then
+          drho(ir,iq) = 0.
+          ddrho(ir,iq) = 0.
+          djsc(ir,iq) = 0.
+        else
+          drho(ir,iq) = 0.
+          ddrho(ir,iq) = 0.
+          djsc(ir,iq) = 0.
+        end if
+      end do
+      ddrho(0:3,iq)=ddrho(4,iq)
+    end do
+
+    drho(:,3) = drho(:,1) + drho(:,2)
+    drho(:,4) = drho(:,1) - drho(:,2)
+    djsc(:,3) = djsc(:,1) + djsc(:,2)
+    djsc(:,4) = djsc(:,1) - djsc(:,2)
+    ddrho(:,3) = ddrho(:,1) + ddrho(:,2)
+    ddrho(:,4) = ddrho(:,1) - ddrho(:,2)
+
+  end subroutine ddensities
+
+  function dwavefunction(ir,n,l,is,iq) result(derv)
+    integer, intent(in) :: ir,n,l,is,iq
+    real(wp) :: derv
+
+    if(ir == 0) then
+      if(mod(l,2)==1) then
+        derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
+               -8*wfr(ir+1,n,l,is,iq) + wfr(ir+2,n,l,is,iq))/(12*h)
+      else
+        derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
+               +8*wfr(ir+1,n,l,is,iq) - wfr(ir+2,n,l,is,iq))/(12*h)
+      end if
+    else if (ir == 1) then
+      if(mod(l,2)==1) then
+        derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
+               -8*wfr(ir-1,n,l,is,iq) + wfr(ir,n,l,is,iq))/(12*h)
+      else
+        derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
+               +8*wfr(ir-1,n,l,is,iq) - wfr(ir,n,l,is,iq))/(12*h)
+      end if
+    else if ((ir >= 2) .AND. (ir <= nbox-2)) then
+      derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
+             -8*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(12*h)
+    else if ((ir > nbox-2) .AND. (ir/=nbox)) then
+      derv = 0.!(2*wfr(ir+1,n,l,is,iq) + 3*wfr(ir,n,l,is,iq) &
+             !-6*wfr(ir-1,n,l,is,iq) + wfr(ir-2,n,l,is,iq))/(6*h)
+    else
+      derv = 0.
+    end if
+
+  end function
+
+
   subroutine energy_sort
-    integer :: n, l, iq, is, n1,k,i,nfill,nfull
+    integer :: n, l, iq, is,k,i,nfill,nfull
     real(wp) :: temp,j
     integer, dimension(1:3) :: state
     allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
@@ -182,10 +270,10 @@ contains
            if (j2terms) then
            usonew(ir,iq) = usonew(ir,iq)&
                 & -(a0t0-a1t1) *jsc(ir,3) / meshpoints(ir) &
-               	& - 2 *a1t1 * jsc(ir,iq) / meshpoints(ir) 
+               	& - 2 *a1t1 * jsc(ir,iq) / meshpoints(ir)
            end if
    !!coulomb
-    if (iq==2) then     
+    if (iq==2) then
       do ir2=0,ir
        tot1=tot1+rho(ir2,2)*(meshpoints(ir)**2)
       end do
@@ -196,18 +284,18 @@ contains
     end if
    end do
   end do
-  
+
   uc = ucnew(:,:)*xmix + uc(:,:)*ymix
   umr = umrnew(:,:)*xmix + umr(:,:)*ymix
   udd = uddnew(:,:)*xmix + udd(:,:)*ymix
   uso = usonew(:,:)*xmix + uso(:,:)*ymix
   ucoul = ucoulnew(:)*xmix + ucoul(:)*ymix
 
-  
+
   end subroutine build_fields
 
   subroutine build_densities
-  integer :: npr,iq,ir,i
+  integer :: npr,iq,ir,i,l,n,is
   real(wp) :: j
 
   do iq =1,2
@@ -218,22 +306,46 @@ contains
       npr = np
       end if
       rho(:,iq)=0.
+      tau(:,iq)=0.
+      jsc(:,iq)=0.
       do i = 1, npr
          if (sortenergies(i,iq) < - small) then
-          j = sortstates(i,2,iq) + spin(sortstates(i,3,iq))
-          if (sortstates(i,2,iq) == 0) j = 0.5
+           n = sortstates(i,1,iq)
+           l = sortstates(i,2,iq)
+           is= sortstates(i,3,iq)
+           j = sortstates(i,2,iq) + spin(sortstates(i,3,iq))
+           if (sortstates(i,2,iq) == 0) j = 0.5
            do ir=1,nbox
+             tau(ir,iq) = tau(ir,iq) + (2*j+1)*((dwavefunction(ir,n,l,is,iq)&
+             -wfr(ir,n,l,is,iq)/meshpoints(ir))**2+l*(l+1)*(wfr(ir,n,l,is,iq)**2)&
+             /meshpoints(ir)**2)/(4*pi*meshpoints(ir)**2)
+
              rho(ir,iq) = rho(ir,iq) + (2*j+1)*wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)&
              *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq) / (4*pi*meshpoints(ir)**2)
+
+             jsc(ir,iq) = jsc(ir,iq) + (2*j+1)*(j*(j+1)-sortstates(i,2,iq)*(sortstates(i,2,iq)+1)-0.75)&
+             *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)**2&
+             /(4*pi*meshpoints(ir)**3)
             end do
+            rho(0,iq) = rho(1,iq)
+            tau(2,iq) = tau(3,iq)
+            tau(1,iq) = tau(2,iq)
+            tau(0,iq) = tau(1,iq)
+
+
           end if
       end do
    end do
    rho(:,3)=rho(:,1) + rho(:,2)
    rho(:,4)=rho(:,1) - rho(:,2)
+   tau(:,3)=tau(:,1) + tau(:,2)
+   tau(:,4)=tau(:,1) - tau(:,2)
+   jsc(:,3)=jsc(:,1) + jsc(:,2)
+   jsc(:,4)=jsc(:,1) - jsc(:,2)
 
+   call ddensities
     do ir = 0,nbox
-      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3)!,rho(ir,4)
+      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
     end do
   end subroutine build_densities
 
@@ -322,18 +434,24 @@ contains
 
   end function
 
-  function coulomb(ir) result(pot)
+  !function coulomb(ir) result(pot)
+  !  integer,intent(in) :: ir
+  !  integer :: ir2
+  !  real(wp) ::pot
+  !  real :: tot1=0.0d0,tot2=0.0d0
+  !       DO ir2=0,ir
+  !	tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
+  !	ENDDO
+  !	DO ir2=ir,nbox
+  !	tot2=tot2+rho(ir2,2)*meshpoints(ir2)
+  !	ENDDO
+  !	pot=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)
+  !end function
+    function coulomb(ir) result(pot)
     integer,intent(in) :: ir
-    integer :: ir2
     real(wp) ::pot
-    real :: tot1=0.0d0,tot2=0.0d0
-        DO ir2=0,ir
-	tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
-	ENDDO
-	DO ir2=ir,nbox
-	tot2=tot2+rho(ir2,2)*meshpoints(ir2)
-	ENDDO
-	pot=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)
-  end function
+        if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
+        if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
 
+  end function
 end module solver

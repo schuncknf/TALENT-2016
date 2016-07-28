@@ -9,10 +9,10 @@ implicit none
      real(wp) :: t0,x0,t1,x1,t2,x2,t3,x3,sig,w0
      real(wp) :: cmcorr
      real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2)
-     real(wp) :: a0r0,a1r1,a0s0,a1s1,a0tau0,a1tau1,a0t0,a1t1,a0r0p,a1r1p,& 
+     real(wp) :: a0r0,a1r1,a0s0,a1s1,a0tau0,a1tau1,a0t0,a1t1,a0r0p,a1r1p,&
                 & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
      real(wp), allocatable,dimension(:) :: meshpoints,ucoul
-     real(wp), allocatable, dimension(:,:) :: rho,tau,jsc,drho,dtau,djsc,ddrho
+     real(wp), allocatable, dimension(:,:) :: rho,tau,jsc,drho,ddrho,dtau,djsc
      real(wp), allocatable, dimension(:,:) ::uc,umr,udd,uso
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
      integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin
@@ -51,23 +51,23 @@ contains
           !!
           !setting the coupling constants
           !!
-          a0r0 = 3._wp/8._wp * t0 
+          a0r0 = 3._wp/8._wp * t0
           a1r1 = - 1._wp/4._wp * t0 * ( 1._wp/2._wp + x0 )
           a0s0 = - 1._wp/4._wp * t0 * ( 1._wp/2._wp - x0 )
-          a1s1 = - 1._wp/8._wp * t0 
+          a1s1 = - 1._wp/8._wp * t0
           !
-          a0tau0 = 3._wp/16._wp * t1 + 1._wp/4._wp * t2 * ( 5._wp/4._wp + x2 ) 
+          a0tau0 = 3._wp/16._wp * t1 + 1._wp/4._wp * t2 * ( 5._wp/4._wp + x2 )
           a1tau1 = - 1._wp/8._wp * t1 * ( 1._wp/2._wp + x1 ) + &
                  & 1._wp/8._wp * t2 * ( 1._wp/2._wp + x2 )
-          !          
+          !
           a0t0 = - 1._wp/8._wp *t1* ( 1._wp/2._wp - x1 ) + &
                  & 1._wp/8._wp * t2 * ( 1._wp/2._wp + x2 )
-          a1t1 =  1._wp/16._wp * (t2-t1) 
+          a1t1 =  1._wp/16._wp * (t2-t1)
           !
           a0r0p = - 9._wp/64._wp * t1 + 1._wp/16._wp * t2 *( 5._wp/4._wp + x2 )
           a1r1p = 3._wp/32._wp * t1 * ( 1._wp/2._wp + x1 ) + &
                  & 1._wp/32._wp * t2 * ( 1._wp/2._wp + x2 )
-            
+
           a0s0p = 3._wp/32._wp * t1 * ( 1._wp/2._wp - x1 ) + &
                  & 1._wp/32._wp * t2 * ( 1._wp/2._wp + x2 )
           a1s1p = 3._wp/64._wp * t1 + 1._wp/64._wp * t2
@@ -95,7 +95,9 @@ contains
 
      subroutine init_wavefunctions
 
-          allocate(wavefunctions(0:nbox,lmax,0:lmax,2,2),wfr(0:nbox,lmax,0:lmax,2,2),wfl(0:nbox,lmax,0:lmax,2,2),rho(0:nbox,4))
+          allocate(wavefunctions(0:nbox,lmax,0:lmax,2,2),wfr(0:nbox,lmax,0:lmax,2,2),&
+          wfl(0:nbox,lmax,0:lmax,2,2),rho(0:nbox,4),drho(0:nbox,4),ddrho(0:nbox,4),&
+          tau(0:nbox,4),jsc(0:nbox,4),djsc(0:nbox,4))
 
      end subroutine init_wavefunctions
 
@@ -103,9 +105,11 @@ contains
           integer :: ir,iq
           allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox))
            do iq = 1,2
-            do ir = 0,nbox 
+            do ir = 0,nbox
              uc(ir,iq) = -vpb(iq)*fullwoodsaxon(ir)
              uso(ir,iq) = vso*r0**2 * dfullwoodsaxon(ir)*fullwoodsaxon(ir)/meshpoints(ir)
+             if(ir*h .lt. nrad ) ucoul(ir) = (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
+             if(ir*h .ge. nrad ) ucoul(ir) = np*e2/(ir*h)
             end do
            end do
     end subroutine init_fields

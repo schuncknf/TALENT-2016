@@ -1,5 +1,5 @@
 CC	= gfortran
-CFLAGS	= -Ofast #-fbounds-check -Wall
+CFLAGS	=  -g -fbounds-check -Wall
 
 LDFLAGS	= -Ofast
 EXEC	= main
