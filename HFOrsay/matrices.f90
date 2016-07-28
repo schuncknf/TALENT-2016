@@ -34,14 +34,25 @@ double precision, dimension (di,di), intent(out) :: gamma_matrix
 double precision::gammatemp
 integer :: i1,i2,i3,i4
 integer::n3,n4,l3,l4,j3,j4,nocc3,nocc4
+integer::n1,n2,l1,l2,j1,j2,nocc2,nocc1
 
 !subroutine local variables
 gamma_matrix = 0.d0
 
 !Compute the gamma matrix out of the TBMEs and the rho matrix
 do i1=1,di 
+     n1 = n_red(i1)
+     l1 = l_red(i1)
+     j1 = j_red(i1)
+     nocc1=nocc(i1)
  do i2=1,di
-gammatemp = 0.d0
+     n2 = n_red(i2)
+     l2 = l_red(i2)
+     j2 = j_red(i2)
+     nocc2=nocc(i2)
+     gammatemp = 0.d0
+   !  if (l1 .eq. l2 .and. j1 .eq. j2) then
+    ! if (nocc2 .ne. 0 .and. nocc1 .ne. 0) then
   do i3=1,di
      n3 = n_red(i3)
      l3 = l_red(i3)
@@ -52,14 +63,16 @@ gammatemp = 0.d0
      l4 = l_red(i4)
      j4 = j_red(i4)
      nocc4=nocc(i4)
-     !if (nocc4 .ne. 0 .and. nocc3 .ne. 0) then
-     !  if (j3 .eq. j4 .and. l3 .eq. l4) then
+     if (nocc4 .ne. 0 .and. nocc3 .ne. 0) then
+       if (j3 .eq. j4 .or. l3 .eq. l4) then
         gammatemp = gammatemp + mtrxel(i1,i4,i2,i3)*rho(i3,i4)
-    ! endif ! J3=J4;L3=L4
-   ! endif !Occupied states only
+        endif ! J3=J4;L3=L4
+    endif !Occupied states only
       enddo
     enddo
     gamma_matrix(i1,i2) = gammatemp
+!    endif
+   ! endif
   enddo
 enddo
 end subroutine compute_gamma

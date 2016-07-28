@@ -1,20 +1,22 @@
 program main
     use grid
     use solver
-    integer :: iq,i,npr,ir,n,l
+    integer :: iq,i,npr,ir
     real(wp) :: j
     open(unit=5,file='in',status='old',form='formatted')
     open(unit=6,file='out',form='formatted')
     open(unit=13,file='plt',form='formatted')
     open(unit=14,file='densities',form='formatted')
+    open(unit=15,file='fields',form='formatted')
 
     call init_params
     call init_grids
     call init_wavefunctions
+    call init_fields
     call solve_r
-    call energy_sort
-    call build_densities
-    ! Wriing the single particle states to 'out'
+    
+    
+    ! Writing the single particle states to 'out'
     write(6,*) "Single Particle States | "
     do iq =1,2
 
@@ -37,7 +39,7 @@ program main
       end do
     end do
     do ir=0,nbox
-      write (13,*) ir*h, vpb(1)*fullwoodsaxon(ir), vpb(2)*fullwoodsaxon(ir)+coulomb(ir), wfr(ir,2,3,1,1), wfr(ir,3,1,1,1)
+      write (13,*) ir*h, wfr(ir,3,1,1,1), dwavefunction(ir,3,1,1,1)
     end do
     ! Particle by way of density integration
     write(6,*) "Total Neutrons =", sum(4*pi*h*meshpoints(:)**2*rho(:,1)), &
@@ -47,5 +49,6 @@ program main
     close(6)
     close(5)
     close(14)
+    close(15)
 
 end program main

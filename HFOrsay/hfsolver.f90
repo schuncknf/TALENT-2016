@@ -52,7 +52,7 @@
 vpot=0.d0
 vpotas=0.d0
 write(*,*) "computing TBME"
-!!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(nbase,vpotas) SCHEDULE(DYNAMIC)
+!!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(n,vpotas) SCHEDULE(DYNAMIC)
      do i = 1,n
       n1=i!-1
       do j = 1,n
@@ -95,6 +95,15 @@ write(*,*) "TBME's computed and antisymetrized"
 
          call compute_rho(rho,eigvecr,n)
          call compute_gamma(gama,vpotas,rho,n)
+       do i=1,n
+        do j=1,n
+        if (it .eq. 1) write(4444,*) i,j,rho(i,j)
+        if (it .eq. 2) write(3333,*) i,j,rho(i,j)
+       enddo
+       if (it .eq. 1) write(4444,*)
+       if (it .eq. 2) write(3333,*)
+       enddo
+
          hf = kin + gama
 ! --------- diagonalization of hamiltonian
                
@@ -141,8 +150,8 @@ write(*,*) "TBME's computed and antisymetrized"
 
        call compute_rho(rho,eigvecr,n)
        call compute_gamma(gama,vpotas,rho,n)
-       hf = kin + gama
        call sorteigv(n,eigvalr,eigvecr)
+       hf = kin + gama
        hrho=0.d0
        hrho = matmul(hf,rho)
        trho=0.d0
@@ -153,32 +162,31 @@ write(*,*) "TBME's computed and antisymetrized"
          kin_energy = kin_energy + kin(i,i)*nocc(i)
          write(*,'(a,i3,a,f16.8)') 'e(',i,')= ',eigvalr(i)
        enddo
-       do i=1,npart/2
-        do j=1,npart/2
-           hf2body = hf2body + 2.d0*vpotas(i,j,i,j)
+       do i=1,n
+        do j=1,n
+           hf2body = hf2body + dsqrt(dble(nocc(i)*nocc(j)))*vpotas(i,j,i,j)
          enddo
         enddo
         write(*,*) "2-Body Interaction Energy",hf2body
        write(*,*) "Kinetic energy",kin_energy
-       hfenergy = trace(trho,n) + trace(hrho,n)
+!       hfenergy = trace(trho,n) + trace(hrho,n)
        write(*,*) "Part Num",trace(rho,n)
-
-! ---- Petar
-!
-!       hrho=0.d0
-!       hrho = matmul(hf,rho)
-!       trho=0.d0
 !       trho = matmul(kin,rho)
-!       hfenergy = 0.d
-!       do i=1,nt
-!         hfenergy = hfenergy + trho(i,i) + hrho(i,i)
-!       enddo
+       hfenergy = 0.d0
+       do i=1,n
+         hfenergy = hfenergy + nocc(i)*(trho(i,i) + hrho(i,i))
+       enddo
 !
 !       hfenergy=0.5*hfenergy (?)
 !
 ! ---- Petar
 
        write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy',half*hfenergy,' MeV'
+       hfenergy = 0.d0
+       do i=1,n
+         hfenergy = hfenergy + nocc(i)*half*(kin(i,i) + eigvalr(i))
+       enddo
+       write(*,'(a,f16.9,a)') 'True Hartree-Fock Energy2',half*hfenergy,' MeV'
 ! -------- Writing Outputs
 open(22,file='hforsay.out')
 write(22,*) "------ System ------"

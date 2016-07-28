@@ -40,13 +40,13 @@ double RawInteraction::get(arma::field<arma::mat> & R, arma::ivec & bType, arma:
   return potential(bType(0), bId(0))(bType(1), bId(1))(kType(0), kId(0))(kType(1), kId(1));
 }
 
-std::string info ()
+std::string RawInteraction::info ()
 {
   return std::string();
 }
 
 
-std::string toString ()
+std::string RawInteraction::toString ()
 {
   return std::string();
 }

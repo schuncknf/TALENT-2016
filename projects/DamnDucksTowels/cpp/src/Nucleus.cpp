@@ -9,7 +9,8 @@ Nucleus::~Nucleus()
 {
 }
 
-void Neutron::calcH()
+void Nucleus::calcH()
 {
 
 }
+
