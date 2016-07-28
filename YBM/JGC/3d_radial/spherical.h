@@ -44,3 +44,20 @@ double spinOrbit(double r, int l, double spin);
 double centrifugal(double r, double l);
 double coulomb(double r);
 double totalMatterDensity(vector<double> density);
+
+template <class Type>
+class MultValue
+{
+   private:
+      Type Factor;   // The value to multiply by
+   public:
+      // Constructor initializes the value to multiply by
+      MultValue (const Type& _Val ) : Factor(_Val){
+      }
+
+      // The function call for the element to be multiplied
+      Type operator() (Type& elem) const 
+      {
+         return elem*Factor;
+      }
+};
