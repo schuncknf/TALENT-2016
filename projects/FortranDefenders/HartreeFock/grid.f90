@@ -107,6 +107,8 @@ contains
             do ir = 0,nbox
              uc(ir,iq) = -vpb(iq)*fullwoodsaxon(ir)
              uso(ir,iq) = vso*r0**2 * dfullwoodsaxon(ir)*fullwoodsaxon(ir)/meshpoints(ir)
+             if(ir*h .lt. nrad ) ucoul(ir) = (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
+             if(ir*h .ge. nrad ) ucoul(ir) = np*e2/(ir*h)
             end do
            end do
     end subroutine init_fields

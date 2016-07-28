@@ -13,8 +13,8 @@ contains
     ! This subroutine is closely based on the notes provided by the organizers
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    integer :: i, ir, nnodes, nnodesl, l, is, iq, n, k
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j,coefmin,coefmax,coef, diff, ddiff
+    integer :: i, ir, nnodes,l, is, iq, n
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff
     real(wp), allocatable :: potential(:), woodsaxon(:), woodsaxond(:), spinorbitmat(:), coulombmat(:)
 
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2),&
@@ -177,7 +177,7 @@ contains
 
 
   subroutine energy_sort
-    integer :: n, l, iq, is, n1,k,i,nfill,nfull
+    integer :: n, l, iq, is,k,i,nfill,nfull
     real(wp) :: temp,j
     integer, dimension(1:3) :: state
     allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
@@ -411,18 +411,24 @@ contains
 
   end function
 
-  function coulomb(ir) result(pot)
+  !function coulomb(ir) result(pot)
+  !  integer,intent(in) :: ir
+  !  integer :: ir2
+  !  real(wp) ::pot
+  !  real :: tot1=0.0d0,tot2=0.0d0
+  !       DO ir2=0,ir
+  !	tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
+  !	ENDDO
+  !	DO ir2=ir,nbox
+  !	tot2=tot2+rho(ir2,2)*meshpoints(ir2)
+  !	ENDDO
+  !	pot=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)
+  !end function
+    function coulomb(ir) result(pot)
     integer,intent(in) :: ir
-    integer :: ir2
     real(wp) ::pot
-    real :: tot1=0.0d0,tot2=0.0d0
-        DO ir2=0,ir
-	tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
-	ENDDO
-	DO ir2=ir,nbox
-	tot2=tot2+rho(ir2,2)*meshpoints(ir2)
-	ENDDO
-	pot=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)
-  end function
+        if(ir*h .lt. nrad ) pot= (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
+        if(ir*h .ge. nrad ) pot= np*e2/(ir*h)
 
+  end function
 end module solver

@@ -1,7 +1,7 @@
 program main
     use grid
     use solver
-    integer :: iq,i,npr,ir,n,l
+    integer :: iq,i,npr,ir
     real(wp) :: j
     open(unit=5,file='in',status='old',form='formatted')
     open(unit=6,file='out',form='formatted')
@@ -14,7 +14,7 @@ program main
     call solve_r
     call energy_sort
     call build_densities
-    ! Wriing the single particle states to 'out'
+    ! Writing the single particle states to 'out'
     write(6,*) "Single Particle States | "
     do iq =1,2
 
