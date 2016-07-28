@@ -14,7 +14,6 @@ program HFSolver
   call read_orbitals
   Noccupied=fermi_level()
   write(*,*) Noccupied
-  stop
 !  write(*,*) nsize
 !  write(*,*) n_ho(1:2*nsize)
 !  write(*,*) ho_flag
@@ -24,12 +23,16 @@ program HFSolver
 ! write(*,*) ho_index(1:nsize)
   call initialize_HF
   call Initialize_Minnseota
-  stop
-  call read_TBME
+!  call read_TBME
   do i = 1,50
-     call Construct_rho
-     call Construct_gamma
+!     call Construct_rho
+!     call Construct_gamma
+!     write(*,*) i, gamma_mat(1,1)
+!     call  plot_rho_LDA(i)
+!     write(*,*) Trace_rho_LDA()
+     call calculate_gamma_LDA 
      h_mat = t_mat + gamma_mat
+     D_prev = D_mat
      call Diagonalize_h 
      write(*,'(10f11.4)') (E_values(j),j=1,10)
      delta_E = sum(abs(E_values - E_prev))/real(Nsize,kind=dp)
@@ -39,11 +42,12 @@ program HFSolver
      endif
      E_prev = E_values
   enddo
-  call Construct_rho
-  call Construct_gamma
-  h_mat = t_mat + gamma_mat
-  EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
-  write(*,*) '  Hartree-Fock energy in MeV'
-  write(*,*) EHF
+!  call Construct_rho
+!  call Construct_gamma
+!  call calculate_gamma_LDA 
+!  h_mat = t_mat + gamma_mat
+!  EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
+!  write(*,*) '  Hartree-Fock energy in MeV'
+!  write(*,*) EHF
   
 end program HFSolver
