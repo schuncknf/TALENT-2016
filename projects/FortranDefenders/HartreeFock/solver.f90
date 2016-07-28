@@ -28,7 +28,7 @@ contains
     wfr(:,:,:,:,:) = 0.0
     !Main loop begins here; be careful
   allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
-  do iter = 1,2
+  do iter = 1,20
     if(iter>1) then
     call build_fields
     !stop
@@ -40,18 +40,18 @@ contains
                 j = l + spin(is)
                 if (l==0) j=0.5
                 ! Bound States only
-                Eupper = 1_wp
-                Elower = -500._wp
+                Eupper = 100_wp
+                Elower = -100._wp
                 do i=1,1000000
                   ! Trial Energy for Numerov Algorithm
                   Etrial = (Eupper+Elower)/2.0
                   do ir=0,nbox
                     ! Isospin dependent potential using matrices from before
                     if (iq .EQ. 1) then
-                       potential(ir) = (-uc(ir,1)-umr(ir,1)-udd(ir,1)-uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,1)-0*umr(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     else
-                       potential(ir) = (-uc(ir,2)-umr(ir,2)-udd(ir,2)-uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,2)-0*umr(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
                        - ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     end if
                   end do
@@ -95,7 +95,7 @@ contains
                   end if
                   ! If the energies converge on something that is not vpb, select that solution
                   if (abs(Eupper - Elower) < conv) then
-                    if (Etrial < 0 .AND. Etrial > -500.+.01) then
+                    if (Etrial < 0 .AND. Etrial > -100.+.01) then
                           vocc(n,l,is,iq) = 2*l+1
                           energies(n,l,is,iq) = etrial
                           norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
@@ -201,6 +201,31 @@ contains
 
   end function
 
+  subroutine totenergy
+    real(wp) :: kinetic(1:2),val
+    integer :: iq,i,l,is
+
+
+    totalenergy = 0.
+    do iq=1,2
+      kinetic(iq) = cmcorr*hbar22m*sum(4*pi*h*meshpoints(:)**2 * tau(:,iq))
+      do i=1,nn
+        l = sortstates(i,2,iq)
+        is= sortstates(i,3,iq)
+        if (sortenergies(i,iq) < -small) then
+          val = (2*(l+spin(is)+1))
+          if (l==0) val = 2.
+          totalenergy = totalenergy + sortenergies(i,iq)*val
+        end if
+      end do
+    end do
+    totalenergy = totalenergy + kinetic(1) + kinetic(2)&
+                -4*h*pi*t3*0.125*sum(meshpoints(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
+
+
+
+
+  end subroutine totenergy
 
   subroutine energy_sort
     integer :: n, l, iq, is,k,i,nfill,nfull
@@ -298,14 +323,14 @@ contains
     end if
    end do
   end do
-  
-  
+
+
   uc(:,:) = ucnew(:,:)*xmix + uc(:,:)*ymix
   umr(:,:) = umrnew(:,:)*xmix + umr(:,:)*ymix
   udd(:,:) = uddnew(:,:)*xmix + udd(:,:)*ymix
   uso(:,:) = usonew(:,:)*xmix + uso(:,:)*ymix
   ucoul(:) = ucoulnew(:)*xmix + ucoul(:)*ymix
- 
+
   do ir =0,nbox
   write(15,*) ir,ucnew(ir,1),ucnew(ir,2),umrnew(ir,1),umrnew(ir,2),uddnew(ir,1), &
             & uddnew(ir,2),usonew(ir,1),usonew(ir,2),ucoul(ir)
@@ -364,9 +389,7 @@ contains
    jsc(:,4)=jsc(:,1) - jsc(:,2)
 
    call ddensities
-    do ir = 0,nbox
-      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
-    end do
+
   end subroutine build_densities
 
   function infwell_exact() result(energy)
