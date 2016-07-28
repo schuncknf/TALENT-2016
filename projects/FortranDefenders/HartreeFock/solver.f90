@@ -28,10 +28,10 @@ contains
     wfr(:,:,:,:,:) = 0.0
     !Main loop begins here; be careful
   allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
-  do iter = 1,10
+  do iter = 1,8
     if(iter>1) then
     call build_fields
-    stop
+    !stop
     end if
     do iq =1,2
       do n =1,lmax-2
@@ -41,7 +41,7 @@ contains
                 if (l==0) j=0.5
                 ! Bound States only
                 Eupper = 1_wp
-                Elower = -50._wp
+                Elower = -500._wp
                 do i=1,1000000
                   ! Trial Energy for Numerov Algorithm
                   Etrial = (Eupper+Elower)/2.0
@@ -95,7 +95,7 @@ contains
                   end if
                   ! If the energies converge on something that is not vpb, select that solution
                   if (abs(Eupper - Elower) < conv) then
-                    if (Etrial < 0 .AND. Etrial > vpb(iq)+.01) then
+                    if (Etrial < 0 .AND. Etrial > -500.+.01) then
                           vocc(n,l,is,iq) = 2*l+1
                           energies(n,l,is,iq) = etrial
                           norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
@@ -253,6 +253,11 @@ contains
 
   xmix = 0.4
   ymix = 1.-xmix
+  ucnew(:,:) = 0._wp
+  umrnew(:,:)= 0._wp
+  uddnew(:,:)= 0._wp
+  usonew(:,:) = 0._wp
+  ucoulnew(:,:) = 0._wp
 
   do iq = 1,2
    do ir = 0,nbox
@@ -293,12 +298,12 @@ contains
   end do
   
   
-  uc = ucnew(:,:)*xmix + uc(:,:)*ymix
-  umr = umrnew(:,:)*xmix + umr(:,:)*ymix
-  udd = uddnew(:,:)*xmix + udd(:,:)*ymix
-  uso = usonew(:,:)*xmix + uso(:,:)*ymix
-  ucoul = ucoulnew(:)*xmix + ucoul(:)*ymix
-  
+  uc(:,:) = ucnew(:,:)*xmix + uc(:,:)*ymix
+  umr(:,:) = umrnew(:,:)*xmix + umr(:,:)*ymix
+  udd(:,:) = uddnew(:,:)*xmix + udd(:,:)*ymix
+  uso(:,:) = usonew(:,:)*xmix + uso(:,:)*ymix
+  ucoul(:) = ucoulnew(:)*xmix + ucoul(:)*ymix
+ 
   do ir =0,nbox
   write(15,*) ir,ucnew(ir,1),ucnew(ir,2),umrnew(ir,1),umrnew(ir,2),uddnew(ir,1), &
             & uddnew(ir,2),usonew(ir,1),usonew(ir,2),ucoul(ir)
