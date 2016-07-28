@@ -116,6 +116,8 @@ contains
 
           drho(ir,iq) = (-rho(ir+2,iq) + 8*rho(ir+1,iq) &
                  -8*rho(ir+1,iq) + rho(ir+2,iq))/(12*h)
+
+          drho
         else if (ir < 2) then
           djsc(ir,iq) = (-jsc(ir+2,iq) + 8*jsc(ir+1,iq) &
                  +8*jsc(ir-1,iq) - jsc(ir,iq))/(12*h)
@@ -148,7 +150,7 @@ contains
     real(wp) :: derv
 
     if(ir == 0) then
-      if(mod(l,2)==0) then
+      if(mod(l,2)==1) then
         derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
                -8*wfr(ir+1,n,l,is,iq) + wfr(ir+2,n,l,is,iq))/(12*h)
       else
@@ -156,7 +158,7 @@ contains
                +8*wfr(ir+1,n,l,is,iq) - wfr(ir+2,n,l,is,iq))/(12*h)
       end if
     else if (ir == 1) then
-      if(mod(l,2)/=0) then
+      if(mod(l,2)==1) then
         derv = (-wfr(ir+2,n,l,is,iq) + 8*wfr(ir+1,n,l,is,iq) &
                -8*wfr(ir-1,n,l,is,iq) + wfr(ir,n,l,is,iq))/(12*h)
       else
@@ -277,7 +279,7 @@ contains
   end subroutine build_fields
 
   subroutine build_densities
-  integer :: npr,iq,ir,i
+  integer :: npr,iq,ir,i,l,n,is
   real(wp) :: j
 
   do iq =1,2
@@ -292,14 +294,15 @@ contains
       jsc(:,iq)=0.
       do i = 1, npr
          if (sortenergies(i,iq) < - small) then
-          j = sortstates(i,2,iq) + spin(sortstates(i,3,iq))
-          if (sortstates(i,2,iq) == 0) j = 0.5
+           n = sortstates(i,1,iq)
+           l = sortstates(i,2,iq)
+           is= sortstates(i,3,iq)
+           j = sortstates(i,2,iq) + spin(sortstates(i,3,iq))
+           if (sortstates(i,2,iq) == 0) j = 0.5
            do ir=1,nbox
-             tau(ir,iq) = tau(ir,iq) + (2*j+1)*((dwavefunction(ir,sortstates(i,1,iq),&
-             sortstates(i,2,iq),sortstates(i,3,iq),iq)-wfr(ir,sortstates(i,1,iq),&
-             sortstates(i,2,iq),sortstates(i,3,iq),iq)/meshpoints(ir))**2+sortstates(i,2,iq)&
-             *(sortstates(i,2,iq)+1)*(wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),&
-             sortstates(i,3,iq),iq))**2/meshpoints(ir)**2)/(4*pi*meshpoints(ir)**2)
+             tau(ir,iq) = tau(ir,iq) + (2*j+1)*((dwavefunction(ir,n,l,is,iq)&
+             -wfr(ir,n,l,is,iq)/meshpoints(ir))**2+l*(l+1)*(wfr(ir,n,l,is,iq)**2)&
+             /meshpoints(ir)**2)/(4*pi*meshpoints(ir)**2)
 
              rho(ir,iq) = rho(ir,iq) + (2*j+1)*wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)&
              *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq) / (4*pi*meshpoints(ir)**2)
@@ -309,6 +312,10 @@ contains
              /(4*pi*meshpoints(ir)**3)
             end do
             rho(0,iq) = rho(1,iq)
+            tau(2,iq) = tau(3,iq)
+            tau(1,iq) = tau(2,iq)
+            tau(0,iq) = tau(1,iq)
+
 
           end if
       end do
@@ -322,7 +329,7 @@ contains
 
    call ddensities
     do ir = 0,nbox
-      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),tau(ir,1),jsc(ir,1)!,rho(ir,4)
+      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
     end do
   end subroutine build_densities
 
