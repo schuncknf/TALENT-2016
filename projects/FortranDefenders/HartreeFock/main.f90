@@ -45,7 +45,7 @@ program main
     call totenergy
     write(6,*) "Total Neutrons =", sum(4*pi*h*meshpoints(:)**2*rho(:,1)), &
     "Total Protons =", sum(4*pi*h*meshpoints(:)**2 *rho(:,2))
-    write(6,*) "Total Energy =", totalenergy
+    write(6,*) "Total Energy =", totalenergy,"Total Kinetic Energy:",totalkinetic
     do ir = 0,nbox
       write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
     end do
