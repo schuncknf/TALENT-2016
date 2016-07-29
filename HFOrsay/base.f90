@@ -182,40 +182,46 @@ double precision::tbme
 logical::fex,lpr
 integer::stat
 inquire(file='VM-scheme.dat', exist=fex)
+inquire(file='tbme.bin', exist=tbme_exist)
 if (fex) then
 write(*,*) "Reading external TBMEs"
 allocate(tbme_ext(red_size,red_size,red_size,red_size))
 open(125,file='VM-scheme.dat')
 open(unit = 10, file='tbme.bin',form='unformatted')
 tbme_ext = 0.d0
+
 !-------- Removing Legend
 read(125,*)
 read(125,*)
 !-------
 if (lpr) then
-do
-  read(125,*,iostat=stat) n1,n2,n3,n4,tbme
-!  write(*,*) n1,n2,n3,n4,tbme
-  if (t_ext(n1) .eq. 1 .and. t_ext(n2) .eq. 1 .and.t_ext(n3) .eq. 1 .and.t_ext(n4) .eq. 1) then !Keeping only neutrons elements
-   if (m_ext(n1) .eq. j_ext(n1) .and. m_ext(n2) .eq. j_ext(n2) .and. m_ext(n3) .eq. j_ext(n3) .and. m_ext(n4) .eq. j_ext(n4)) then
-   !Keeping only one projection of J
-        q1 = repick_base(n1)
-        q2 = repick_base(n2)
-        q3 = repick_base(n3)
-        q4 = repick_base(n4)
-        write(12345,*) q1,q2,q3,q4,tbme
-        tbme_ext(q1,q2,q3,q4) = 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme
-   !     tbme_ext(q1,q2,q3,q4) = tbme
-        if (tbme .ne. 0.d0) write(127,*) q1,q2,q3,q4,tbme_ext(q1,q2,q3,q4)
-    endif ! Filtering over m
-   endif !Filtering Isospin
-   if (stat /= 0) then
-   write(*,*) "End of VM-Scheme.dat"
-   exit
-   endif
-enddo ! End of the tbme file
-write(10) tbme_ext
-close(10)
+  if (tbme_exist) then
+    read(10) tbme_ext
+  else
+      do
+        read(125,*,iostat=stat) n1,n2,n3,n4,tbme
+        !  write(*,*) n1,n2,n3,n4,tbme
+        if (t_ext(n1) .eq. 1 .and. t_ext(n2) .eq. 1 .and.t_ext(n3) .eq. 1 .and.t_ext(n4) .eq. 1) then !Keeping only neutrons elements
+          if (m_ext(n1) .eq. j_ext(n1) .and. m_ext(n2) .eq. j_ext(n2) .and. m_ext(n3) .eq. j_ext(n3) .and. m_ext(n4) .eq. j_ext(n4)) then
+            !Keeping only one projection of J
+            q1 = repick_base(n1)
+            q2 = repick_base(n2)
+            q3 = repick_base(n3)
+            q4 = repick_base(n4)
+            write(12345,*) q1,q2,q3,q4,tbme
+            tbme_ext(q1,q2,q3,q4) = 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme
+            !     tbme_ext(q1,q2,q3,q4) = tbme
+            if (tbme .ne. 0.d0) write(127,*) q1,q2,q3,q4,tbme_ext(q1,q2,q3,q4)
+          endif ! Filtering over m
+        endif !Filtering Isospin
+        if (stat /= 0) then
+          write(*,*) "End of VM-Scheme.dat"
+          exit
+    endif
+  enddo ! End of the tbme file
+  write(10) tbme_ext
+  close(10)
+  endif
 endif
 
 else
