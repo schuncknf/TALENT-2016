@@ -14,7 +14,6 @@
 
 using namespace std;	// no need to put std:: before any cout, etc.
 
-
 // Main code
 int main()
 {
@@ -154,6 +153,10 @@ int main()
 							// Calculate normalisation factor
 							normFac = normalise(eigenEng, isoSpin, L, spin);
 
+							// Normalise the wavefunction
+							transform(wf_val.begin(),wf_val.end(),wf_val.begin(),MultValue<double>(sqrt(normFac)));
+
+
 							double j=Spin+L;
 
 							char orbital[16];
@@ -176,16 +179,14 @@ int main()
 							}
 							else
 							{
-								sprintf(filename,"results/neutron_%s_%1.4f.dat",orbital,eigenEng);
+								sprintf(filename,"results/2neutron_%s_%1.4f.dat",orbital,eigenEng);
 								sprintf(file,"neutron_%s_%1.4f.dat",orbital,eigenEng);
 							}
 
 							sprintf(eigEng,"%1.4f",eigenEng);
-
 							ofstream opFile;
 							opFile.open(filename);
-							//for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << V(k*h, isoSpin, L, spin) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
-							for(int k=1; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val[k] << "\t" << pow((sqrt(normFac)*wf_val[k]/(k*h)),2) << endl;
+							for(int k=1; k<wBox/h; k++) opFile << h*k << "\t" << wf_val[k] << "\t" << pow(wf_val[k]/(k*h),2) << endl;
 							opFile.close();
 
 							// Output energy eigenvalue and the name of the file results are saved to
@@ -198,7 +199,7 @@ int main()
 
 							for(int ii=1;ii<length;++ii)
 							{
-								double tempWF = sqrt(normFac)*wf_val[ii];
+								double tempWF = wf_val[ii];
 								double rad = (ii)*h;
 								if(L==0) j=0.5;
 								density[ii] = (2*j + 1) * tempWF * tempWF/(4*M_PI*rad*rad);
@@ -421,12 +422,13 @@ double coulomb(double r)
 	return V_c;
 }
 
+// Calculate the density
 double totalMatterDensity(vector<double> density)
 {
 	// Integrate total radial density 'density' to calculate A
 	double A = 0.0;
 
-	for(int i=1;i<density.size();++i)
+	for(int i=1; i<wBox/h; i++)
 	{
 //		A += density.at(i);
 		A += density[i];
@@ -434,3 +436,4 @@ double totalMatterDensity(vector<double> density)
 
 	return h*A;
 }
+

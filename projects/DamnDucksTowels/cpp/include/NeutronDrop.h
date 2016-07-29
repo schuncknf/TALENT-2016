@@ -9,9 +9,10 @@
 
 /// class NeutronDrop - 
 class NeutronDrop : public System {
+  double omega;
   // Operations
 public:
-  NeutronDrop (Basis & _basis, Interaction & _inter, int _nbNeut, int _nPoints = 50);
+  NeutronDrop (Basis & _basis, Interaction & _inter, int _nbNeut, double _omega,  int _nPoints = 50);
   /// Destructor of the NeutronDrop class
   ~NeutronDrop ();
   void calcH ();

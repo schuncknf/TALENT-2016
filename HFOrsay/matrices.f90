@@ -1,4 +1,4 @@
-subroutine compute_rho(rho,Dt,di)
+subroutine compute_rho(rho,Dt,di,nl,nj)
 use constants
 use basis
 implicit none
@@ -7,8 +7,9 @@ double precision, dimension (di,di), intent(out) :: rho
 double precision, dimension (di,di), intent(in) :: Dt
 double precision,dimension(di,di)::D
 double precision::rho_temp
+integer::nl,nj
 ! subroutine local variables
-integer :: i,j,k
+integer :: i,j,k,ibl
 rho= 0.d0
 D=Dt
 ! compute rho from D and D_star
@@ -16,7 +17,10 @@ do i=1,di
   do j=1,di
 rho_temp =0.d0
     do k=1,di
-      rho_temp = rho_temp+ nocc(k)*D(i,k)*D(j,k)
+      ibl=tag_hf(k-1,nl,nj)
+      rho_temp = rho_temp+ nocc(ibl)*D(i,k)*D(j,k)
+!      if (nocc(ibl) .ne. 0) write(*,*) "In rho, nocc",nocc(ibl)
+      !rho_temp = rho_temp+ occ_num(k)*D(i,k)*D(j,k)
     enddo
     rho(i,j) = rho_temp
   enddo
@@ -24,15 +28,16 @@ enddo
 end subroutine compute_rho
 
 
-subroutine compute_gamma(gamma_matrix,mtrxel,rho,di)
+subroutine compute_gamma(gamma_matrix,rho,di,nl,nj)
 use basis
 implicit none
-integer, intent(in) :: di
-double precision, dimension (di,di,di,di), intent(in) :: mtrxel
+integer, intent(in) :: di,nl,nj
+!double precision, dimension (di,di,di,di), intent(in) :: mtrxel
 double precision, dimension (di,di), intent(in) :: rho
 double precision, dimension (di,di), intent(out) :: gamma_matrix
 double precision::gammatemp
 integer :: i1,i2,i3,i4
+integer :: ib1,ib2,ib3,ib4
 integer::n3,n4,l3,l4,j3,j4,nocc3,nocc4
 integer::n1,n2,l1,l2,j1,j2,nocc2,nocc1
 
@@ -41,33 +46,27 @@ gamma_matrix = 0.d0
 
 !Compute the gamma matrix out of the TBMEs and the rho matrix
 do i1=1,di 
-     n1 = n_red(i1)
-     l1 = l_red(i1)
-     j1 = j_red(i1)
-     nocc1=nocc(i1)
+  ib1 = tag_hf(i1-1,nl,nj)
  do i2=1,di
-     n2 = n_red(i2)
-     l2 = l_red(i2)
-     j2 = j_red(i2)
-     nocc2=nocc(i2)
+   ib2 = tag_hf(i2-1,nl,nj)
      gammatemp = 0.d0
-   !  if (l1 .eq. l2 .and. j1 .eq. j2) then
+ !    if (l1 .eq. l2 .and. j1 .eq. j2) then
     ! if (nocc2 .ne. 0 .and. nocc1 .ne. 0) then
   do i3=1,di
-     n3 = n_red(i3)
-     l3 = l_red(i3)
-     j3 = j_red(i3)
-     nocc3=nocc(i3)
+   ib3 = tag_hf(i3-1,nl,nj)
    do i4=1,di
-     n4 = n_red(i4)
-     l4 = l_red(i4)
-     j4 = j_red(i4)
-     nocc4=nocc(i4)
-     if (nocc4 .ne. 0 .and. nocc3 .ne. 0) then
-       if (j3 .eq. j4 .or. l3 .eq. l4) then
-        gammatemp = gammatemp + mtrxel(i1,i4,i2,i3)*rho(i3,i4)
-        endif ! J3=J4;L3=L4
-    endif !Occupied states only
+   ib4 = tag_hf(i4-1,nl,nj)
+     !if (nocc4 .ne. 0 .and. nocc3 .ne. 0) then
+!       if (j3 .eq. j4 .and. l3 .eq. l4) then
+     !  if (n3 .ne. 0) then
+ ! write(6,'(6i3)') n3,n4,l3,l4,j3,j4
+  !endif
+        !gammatemp = gammatemp + mtrxel(ib1,ib4,ib2,ib3)*rho(i3,i4)
+        gammatemp = gammatemp + tbme_ext(ib1,ib4,ib2,ib3)*rho(i3,i4)
+        !write(128,*) ib1,ib2,ib3,ib4,tbme_ext(ib1,ib4,ib2,ib3)
+        !if (gammatemp .ne. 0.d0) write(*,*) ib1,ib2,ib3,ib4,gammatemp
+!        endif ! J3=J4;L3=L4
+    !endif !Occupied states only
       enddo
     enddo
     gamma_matrix(i1,i2) = gammatemp
@@ -93,20 +92,6 @@ do i=1,di
     h(i,j) = t(i,j) + gamma_matrix(i,j)
   enddo
 enddo
-
-
-!--- Petar
-
-!do i=1,nt
-!  do j=1,nt
-!    h(i,j) = t(i,j) + gamma_matrix(i,j)
-!  enddo
-!enddo
-
-!--- Petar
-
-
-
 end subroutine
 
 

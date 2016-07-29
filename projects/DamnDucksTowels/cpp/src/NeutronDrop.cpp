@@ -8,8 +8,8 @@
 #include "SpBasis.h"
 
 
-NeutronDrop::NeutronDrop(Basis & _basis, Interaction & _inter, int _nbNeut, int _nPoints) :
-  System(std::string("NeutronDrop"), _basis, arma::ivec({_nbNeut}), std::vector<std::string>({"neutron"}), _inter, _nPoints)
+NeutronDrop::NeutronDrop(Basis & _basis, Interaction & _inter, int _nbNeut, double _omega, int _nPoints) :
+  System(std::string("NeutronDrop"), _basis, arma::ivec({_nbNeut}), std::vector<std::string>({"neutron"}), _inter, _nPoints), omega(_omega)
 {
 }
 
@@ -28,8 +28,7 @@ void NeutronDrop::calcH()
     arma::vec wi_p;
     arma::vec pi_p;
     arma::vec fun;
-    int nodesNum = 90;
-    GET_LAG_ROOTS(nodesNum,pi_p,wi_p);
+    GET_LAG_ROOTS(nPoints,pi_p,wi_p);
     arma::mat wfMatrix;
     arma::mat wfDerMatrix;
     spBasis.evalRadialWaveFunction(wfMatrix, pi_p);
@@ -51,17 +50,29 @@ void NeutronDrop::calcH()
           // Calculation of the kinetic part
           double kinetic, potential;
           fun = ( arma::pow(pi_p,2) % wfDerMatrix.col(bra) % wfDerMatrix.col(ket) + lBra*(lBra+1) * wfMatrix.col(bra) % wfMatrix.col(ket)) % arma::exp(pi_p);
-          kinetic = HBAR*HBAR/2.0/NUCLEON_MASS * arma::accu(wi_p % fun);
+          kinetic = HBAR2_2M * arma::accu(wi_p % fun);
+          //kinetic = HBAR*HBAR/2.0/NUCLEON_MASS * arma::accu(wi_p % fun);
         
             // Calculation of the harmonic part
             fun = arma::pow(pi_p,4) % wfMatrix.col(bra) % wfMatrix.col(ket) % arma::exp(pi_p);
             potential = 0.5 * NUCLEON_MASS * pow(spBasis.omega,2) * arma::accu(wi_p % fun);
-            
-            H(0,pTyp)(bra,ket) = kinetic + potential;
+           
+            if(abs(omega - spBasis.omega) > 1.0e-7)
+            {
+              Kinetic(pTyp)(bra,ket) = kinetic + potential;
+            }
+            else
+            {
+              Kinetic(pTyp)(bra,ket) = 0;
+              if (bra == ket)
+              {
+                Kinetic(pTyp)(bra,ket) = 10*(2 * basis->qNumbers(bra, 0) + 3./2.);
+              }
+            }
         }
         else
         {
-          H(0,pTyp)(bra,ket) = 0.0;
+          Kinetic(pTyp)(bra,ket) = 0.0;
         }
       }
     }
@@ -84,13 +95,10 @@ void NeutronDrop::calcH()
         TBME(i,j)(k,l) = inter->get(dummyR, pTyp, i, pTyp, l, pTyp, j, pTyp, k);
       }
     }
-    TBME(0,0).print();
     for (int bra = 0; bra < basis->size; bra++)
     for (int ket = 0; ket < basis->size; ket++)
     {
-      H(0,pTyp)(bra,ket) += arma::accu(TBME(bra,ket) % R(0,pTyp));
+      Gamma(pTyp)(bra,ket) = arma::accu(TBME(bra,ket) % R(0,pTyp));
     }
   }
-
-
 }
