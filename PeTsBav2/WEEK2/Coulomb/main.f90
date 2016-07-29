@@ -19,6 +19,8 @@
       NAMELIST / energy / E_minus, E_plus
       NAMELIST / max_quantum_number / n_max, l_max
       NAMELIST / WoodSaxon / r0, a
+      NAMELIST / output / out_wave_func
+      
 
       open(30, file='WS.input', status='old')
       read(30, NML= Nucleus)
@@ -27,6 +29,7 @@
       read(30, NML=energy)
       read(30, NML=max_quantum_number)
       read(30, NML=WoodSaxon)   
+      read(30, NML=output)   
       close(30)
       !-----------------------------------------------------------------
 
@@ -35,7 +38,7 @@
       Nmesh=nint((R_box)/h)
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
       orbital = 0
-      do n=0, l_max-2 !loop n
+      do n=0, n_max-1 !loop n
             do l=0, l_max !loop l
                   do ii=1,-1, -2!loop sm--->j
                   if((l.eq.0).and.(ii.eq.-1)) exit 
@@ -75,12 +78,10 @@ Enl2j(:, :) = 0.d0
                       !begin numerov method
                       Do i = 0,Nmesh
                               x=(i)*h     
-                              potential= Vpot(x, ii, ipart)
-                              if(ipart.eq.2) potential=potential+VCO(x) 
                               if(i.eq.0) then 
-                              k_sq(i) = (Em-potential)/h2m 
+                                 k_sq(i) = (Em-Vpot(x,ii,ipart))/h2m 
                               else
-                              k_sq(i) = (Em-potential)/h2m -1.*l*(l+1)/x**2
+                                 k_sq(i) = (Em-Vpot(x,ii,ipart))/h2m -1.*l*(l+1)/x**2
                               endif
                       Enddo
                       Do i = 2,Nmesh
@@ -115,12 +116,11 @@ Enl2j(:, :) = 0.d0
                   cnodes = 0
                      Do i = 1,Nmesh-1
                               x=(i)*h     
-                              potential= Vpot(x, ii, ipart)
-                              if(ipart.eq.2) potential=potential+VCO(x) 
+!                              potential= Vpot(x, ii)
                               if(i.eq.0) then 
-                              k_sq(i) = (Em-potential)/h2m 
+                                 k_sq(i) = (Em-Vpot(x,ii,ipart))/h2m 
                               else
-                              k_sq(i) = (Em-potential)/h2m -1.*l*(l+1)/x**2
+                                 k_sq(i) = (Em-Vpot(x,ii,ipart))/h2m -1.*l*(l+1)/x**2
                               endif
                       Enddo
               
@@ -142,21 +142,22 @@ Enl2j(:, :) = 0.d0
                  rho(:) = abs(psi(:))**2
                  call simpson(Nmesh, h, rho, nmfactor)       
                  psi(:) = psi(:)/sqrt(nmfactor)    !wave func
-                 if((n.eq.0).and.(l.eq.0))  then 
-                 if (ipart.eq.1) then 
-                 write(filename_wave_func(uu),'(a8,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
-                  'Neutron_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
-                 else
-                  write(filename_wave_func(uu),'(a7,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
-                  'Proton_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
-                 endif                
-                 open(10,file=filename_wave_func(uu))
-                 write(10,'(a5,3i5)') '#nl2j=', n+1, l, nint(2*j)
-                            do i=1,Nmesh-1
-                        x = i*h
-                        write(10,'(3f15.8)') x, x*psi(i), vpot(x, ii, ipart)
-                 end do
-                 close(10)
+!                 if((n.eq.0).and.(l.eq.0))  then 
+                 if (out_wave_func) then
+                    if (ipart.eq.1) then 
+                       write(filename_wave_func(uu),'(a8,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
+                            'Neutron_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
+                    else
+                       write(filename_wave_func(uu),'(a7,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
+                            'Proton_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
+                    endif
+                    open(10,file=filename_wave_func(uu))
+                    write(10,'(a5,3i5)') '#nl2j=', n+1, l, nint(2*j)
+                    do i=1,Nmesh-1
+                       x = i*h
+                       write(10,'(3f15.8)') x, x*psi(i), Vpot(x, ii, ipart)
+                    end do
+                    close(10)
                  endif
                  all_wavefunction(uu,:) = psi(:)
                  uu=uu+1
@@ -166,21 +167,23 @@ Enl2j(:, :) = 0.d0
 
       call arrage_energy(Enl2j, orbital, all_wavefunction)
       if (ipart.eq.1)then
-      open(111,file='energy_level_n.output')
-      write(111,*) '      energy      n    l         spin'
-      do i=1, orbital
+         open(111,file='energy_level_n.output')
+         write(111,*) '      energy      n    l         spin'
+         do i=1, orbital
             if (Enl2j(i,1).lt. 0.d0) then
-            write(111,100) Enl2j(i,1),nint(Enl2j(i,2)),nint(Enl2j(i,3)),Enl2j(i,4) 
+               write(111,100) Enl2j(i,1),nint(Enl2j(i,2)),nint(Enl2j(i,3)),Enl2j(i,4) 
             endif
-      enddo
+         enddo
+         close(111)
       else
-      open(111,file='energy_level_p.output')
-      write(111,*) '      energy      n    l         spin'
-      do i=1, orbital
-      if (Enl2j(i,1).lt. 0.d0) then
-            write(111,100) Enl2j(i,1),nint(Enl2j(i,2)),nint(Enl2j(i,3)),Enl2j(i,4) 
-      endif      
-      enddo
+         open(111,file='energy_level_p.output')
+         write(111,*) '      energy      n    l         spin'
+         do i=1, orbital
+            if (Enl2j(i,1).lt. 0.d0) then
+               write(111,100) Enl2j(i,1),nint(Enl2j(i,2)),nint(Enl2j(i,3)),Enl2j(i,4) 
+            endif
+         enddo
+         close(111)
       endif
 
 
@@ -189,36 +192,37 @@ Enl2j(:, :) = 0.d0
 
 !DENSITY PROFILE
 
-if(ipart.eq.1) then
-open(12,file='density_N.dat')
-Nn_tmp = NN
-else
-open(12,file='density_P.dat')
-Nn_tmp = ZZ
-endif 
+      if(ipart.eq.1) then
+         open(12,file='density_N.dat')
+         Nn_tmp = NN
+      else
+         open(12,file='density_P.dat')
+         Nn_tmp = ZZ
+      endif
      
-dens_n = 0d0
-
-do iorb=1,orbital
-   Nn_l = Nn_tmp
-   j=Enl2j(iorb, 3) + Enl2j(iorb,4) 
-   Nn_tmp = Nn_tmp - nint(2d0*j+1.)
-   if (Nn_tmp<=0) then
-      orbital_tmp = iorb-1
-      exit
-   end if
-   dens_n(:) = dens_n(:) + (2d0*j+1) * abs(all_wavefunction(iorb,:))**2/(4d0*pi)
-end do
-dens_n(:) = dens_n(:) + Nn_l*abs(all_wavefunction(orbital_tmp+1,:))**2/(4d0*pi)
-
-   dens_t(:) = dens_t(:) + dens_n(:)
-do i=1,Nmesh-1
-   x = i*h
-   write(12,'(2f15.8)') x, dens_n(i)/x**2 
-end do
-close(12)
+      dens_n = 0d0
+      
+      do iorb=1,orbital
+         Nn_l = Nn_tmp
+         j=Enl2j(iorb, 3) + Enl2j(iorb,4) 
+         Nn_tmp = Nn_tmp - nint(2d0*j+1.)
+         if (Nn_tmp<=0) then
+            orbital_tmp = iorb-1
+            exit
+         end if
+         dens_n(:) = dens_n(:) + (2d0*j+1) * abs(all_wavefunction(iorb,:))**2/(4d0*pi)
+      end do
+      dens_n(:) = dens_n(:) + Nn_l*abs(all_wavefunction(orbital_tmp+1,:))**2/(4d0*pi)
+      
+      dens_t(:) = dens_t(:) + dens_n(:)
+      do i=1,Nmesh-1
+         x = i*h
+         write(12,'(2f15.8)') x, dens_n(i)/x**2 
+      end do
+      close(12)
 
 enddo !do particles
+
 open(13,file='density_T.dat')
 do i=1,Nmesh-1
    x = i*h
@@ -246,31 +250,38 @@ close(13)
       INTEGER(8) :: mm, ip
       !WoodsSaxon
       AA=NN+ZZ
-      !if(ip.eq.1)then
       V0 = (-51. + 33.*(NN-ZZ)/AA)
-      !else
-      !V0 = (-51. - 33.*(NN-ZZ)/AA)
-      !endif
       
       R= r0*AA**(1./3.)
       fx= 1./(1.+exp((xy-R)/a))
+      !WS
       VWS= V0*fx
       !SO
-      if (xy.eq.0.)then
+      if (mm.eq. +1) then
+         ls = 0.5*l      ! j=l+1/2
+      else 
+         ls = -0.5*(l+1) ! j=l-1/2
+      end if
+      VSO=0.44d0*r0**2*V0*exp((xy-R)/a)/(xy*a*(1.+exp((xy-R)/a))**2)*ls
+      !CO
+      if (xy.le.R) then
+         VCO= e**2*ZZ/2./R*(3.-((xy/R)**2))
+      else
+         VCO= e**2*ZZ/xy
+      endif
+      !total
+      if (ip==1) then
+         if (xy.eq.0.)then
             Vpot= VWS 
-      else  
-            if (l.eq.0) then
-            Vpot= VWS
-            else
-                  if (mm.eq. +1) then
-                        ls = 0.5*l      ! j=l+1/2
-                  else 
-                        ls = -0.5*(l+1) ! j=l-1/2
-                  end if
-                  VSO=0.44d0*r0**2*V0*exp((xy-R)/a)/(xy*a*(1.+exp((xy-R)/a))**2)*ls
-                  Vpot= VWS +VSO
-            endif
-
+         else  
+            Vpot= VWS + VSO
+         end if
+      else if(ip==2) then
+         if (xy.eq.0.)then
+            Vpot= VWS + VCO
+         else  
+            Vpot= VWS + VSO + VCO
+         endif   
       endif
       end function
 
@@ -281,12 +292,11 @@ close(13)
       real(8) xy, ip, Rp
       integer(8) AA
       AA=NN+ZZ
-                        Rp = r0*AA**(1./3.)
-                        if (xy.le.Rp) then
-                              VCO= e**2*ZZ/2./Rp*(3.-((xy/Rp)**2))
-                        else
-                              VCO= e**2*ZZ/xy
-                        endif
+      Rp = r0*AA**(1./3.)
+      if (xy.le.Rp) then
+         VCO= e**2*ZZ/2./Rp*(3.-((xy/Rp)**2))
+      else
+         VCO= e**2*ZZ/xy
+      endif
       end function
-
 
