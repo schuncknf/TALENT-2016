@@ -8,7 +8,7 @@
       use globals  
       implicit none
 
-      real(kind=dm) :: vpot, VCO, potential
+      real(kind=dm) :: vpot
       integer(kind=dm):: Nn_l, Nn_tmp
       integer(kind=dm):: iorb,orbital_tmp
 
@@ -234,10 +234,10 @@ close(13)
 100   format(1f15.8, 2I5.2, 1f15.3)
 
 
-      do i=1, Nmesh
-      x=i*h
-      write(66, *)x, VCO(x)
-      enddo
+     ! do i=1, Nmesh
+     ! x=i*h
+     ! write(66, *)x, VCO(x)
+     ! enddo
       end program WoodsSaxon3D
 
 !=========================== potential function ===============================
@@ -246,7 +246,7 @@ close(13)
       real (8) function Vpot(xy, mm, ip)
       use globals
       implicit none
-      real(kind=dm)::V0, R, fx, xy, ls, AA, VWS, VSO, VCO, Rp
+      real(kind=dm)::V0, R, fx, xy, ls, AA, VWS, VSO, VCO
       INTEGER(8) :: mm, ip
       !WoodsSaxon
       AA=NN+ZZ
@@ -289,7 +289,7 @@ close(13)
       real(8) function VCO(xy)
       use globals
       implicit none
-      real(8) xy, ip, Rp
+      real(8) xy,  Rp
       integer(8) AA
       AA=NN+ZZ
       Rp = r0*AA**(1./3.)
