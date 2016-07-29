@@ -89,20 +89,6 @@ do i=1,di
     h(i,j) = t(i,j) + gamma_matrix(i,j)
   enddo
 enddo
-
-
-!--- Petar
-
-!do i=1,nt
-!  do j=1,nt
-!    h(i,j) = t(i,j) + gamma_matrix(i,j)
-!  enddo
-!enddo
-
-!--- Petar
-
-
-
 end subroutine
 
 

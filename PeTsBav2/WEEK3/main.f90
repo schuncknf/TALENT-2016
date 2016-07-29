@@ -4,6 +4,7 @@
       use globals  
       implicit none
 
+      integer(kind=dm) :: i,ii, uu,
       real(kind=dm) :: vpot
       integer(kind=dm):: Nn_l, Nn_tmp
       integer(kind=dm):: iorb,orbital_tmp
@@ -27,6 +28,37 @@
       !-----------------------------------------------------------------
       Nmesh=nint((R_box)/h)
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
+      allocate(tau(0:Nmesh), taup(0:Nmesh), taun(0:Nmesh), &
+               rho(0:Nmesh), rhon(0:Nmesh), rhop(0:Nmesh))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       orbital = 0
       do n=0, n_max !loop n
             do l=0, l_max !loop l 
@@ -57,7 +89,7 @@ do ipart=1, 2 !1=neutrons, 2=protons
                   psi(1) = 0.1
                   !begin bissection method
                   do while (bisloop) ! begin loop bissection method
-                      if (abs(E_right-E_left)<1e-6) exit
+                      if (abs(E_right-E_left)<epsi) exit
                       Em=(E_right+E_left)/2.                  
                       cnodes=0     
                       !begin numerov method
