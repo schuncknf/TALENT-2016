@@ -233,7 +233,7 @@ contains
     integer, dimension(1:3) :: state
     ! This sorts the energies
     sortenergies = small
-    sortstates = small
+    sortstates = 0
     do iq =1,2
      nfull = nn
      if (iq == 2) nfull = np
