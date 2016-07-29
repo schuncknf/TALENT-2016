@@ -3,7 +3,7 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
       implicit none
       integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt
       logical:: lpr
-      integer::nr(n),nl(n),nj(n),ms(n),nfull(n),nocc(n) 
+      integer::nr(n),nl(n),nj(n),ms(n),nfull(n),nocc(n)
       integer::mspin,noc
       integer::i,nf,ic
 ! nfull - maximal number of particles in specific state
@@ -24,7 +24,7 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
                  nr(il)=nrsph
                  nl(il)=nlsph
                  nj(il)=nlsph+mssph
-	         ms(il)=mssph	
+	         ms(il)=mssph
                  nfull(il)= 2*(nlsph+mssph)
                endif
             enddo ! mssph
@@ -56,7 +56,7 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
         if(lpr) then
 
         write(*,*) ' ****** SPHERICAL BASIS ***************'
-   
+
         do il=1,nt
         nrsph = nr(il)
         nlsph = nl(il)
@@ -78,17 +78,17 @@ subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
 
 
 ! determinaton of occupation number of each state
-	
+
 	nf = 0
 	ic = 1
         do il = 1, nt
 	   nf = nf + nfull(il)
 	   if (nf .le. npart) then
 	      nocc(il)=nfull(il)
-	   elseif(nf .gt. npart .and. ic .eq. 1) then 
+	   elseif(nf .gt. npart .and. ic .eq. 1) then
 	      nocc(il)=nfull(il)+npart-nf
 	      ic = 2
-	   else 
+	   else
 	      nocc(il)=0
 	   endif
         enddo
@@ -109,7 +109,7 @@ integer,allocatable::n_red(:),l_red(:),j_red(:),occ(:),nocc(:)
 integer,allocatable::repick_base(:),tag_hf(:,:,:)
 integer::red_size,size_full,occ_states
 double precision,allocatable::tbme_ext(:,:,:,:)
-contains 
+contains
 subroutine external_basis()
 implicit none
 integer::tag,nn,nl,nm,nj,niso
@@ -129,13 +129,13 @@ repick_base=0
 j=0
 do iho=1,n_lines
 !    ifil = iho-1
-   read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso 
+   read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso
    n_ext(iho) = nn
    l_ext(iho) = nl
    j_ext(iho) = nj
    m_ext(iho) = nm
    t_ext(iho) = niso
-   if (niso == 1 .and. nm .eq. nj) then    
+   if (niso == 1 .and. nm .eq. nj) then
      j = j + 1
    endif
 enddo
@@ -147,11 +147,11 @@ close(124)
 open(124,file='spM.dat')
 read(124,*) n_lines
 do iho=1,n_lines
-   read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso 
-   if (niso == 1 .and. nm .eq. nj) then    
+   read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso
+   if (niso == 1 .and. nm .eq. nj) then
      j = j + 1
      n_red(j) = nn
-     l_red(j) = nl 
+     l_red(j) = nl
      j_red(j) = nj
      occ(j) = nj + 1
    endif
@@ -186,6 +186,7 @@ if (fex) then
 write(*,*) "Reading external TBMEs"
 allocate(tbme_ext(red_size,red_size,red_size,red_size))
 open(125,file='VM-scheme.dat')
+open(unit = 10, file='tbme.bin',form='unformatted')
 tbme_ext = 0.d0
 !-------- Removing Legend
 read(125,*)
@@ -203,8 +204,8 @@ do
         q3 = repick_base(n3)
         q4 = repick_base(n4)
         write(12345,*) q1,q2,q3,q4,tbme
-        tbme_ext(q1,q2,q3,q4) = 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme 
-   !     tbme_ext(q1,q2,q3,q4) = tbme 
+        tbme_ext(q1,q2,q3,q4) = 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme
+   !     tbme_ext(q1,q2,q3,q4) = tbme
         if (tbme .ne. 0.d0) write(127,*) q1,q2,q3,q4,tbme_ext(q1,q2,q3,q4)
     endif ! Filtering over m
    endif !Filtering Isospin
@@ -212,7 +213,9 @@ do
    write(*,*) "End of VM-Scheme.dat"
    exit
    endif
-enddo ! End of the tbme file 
+enddo ! End of the tbme file
+write(10) tbme_ext
+close(10)
 endif
 
 else
@@ -253,6 +256,3 @@ end subroutine
 
 
 end
-
-       
-
