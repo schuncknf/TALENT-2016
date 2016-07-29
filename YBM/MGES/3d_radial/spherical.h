@@ -1,10 +1,10 @@
 using namespace std;
 // Select the potential you want:
 
-#define hm_fac 20.75	// MeV
+#define hm_fac 20.73553	// MeV
 #define     a0 0.67	// 
 #define     r0 1.27	// fm
-#define    Vls 0.44	//
+#define    Vls 0.22	//
 #define      q 1	//
 
 // Variables
@@ -24,6 +24,8 @@ double wfStep2;
 
 double convEng;	// Convergence energy
 
+double normFac;
+
 // Variable used to check if the wavefunction has crossed x axis
 // between different energies
 double wfPrev, wfLast, wfTmp;
@@ -33,13 +35,12 @@ vector<double> variable;
 double var;
 
 // Function declarations
-double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L);
-double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, int L);
-double normalise(double eigenEng, int isoSpin, int L);
-double V(double r, int isoSpin, int L);
+double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L, int spin);
+double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, int L, int spin);
+double normalise(double eigenEng, int isoSpin, int L, int spin);
+double V(double r, int isoSpin, int L, int spin);
 double woodsSaxon(double r);
-double spinOrbit(double r, int l, double s);
+double spinOrbit(double r, int l, double spin);
 double centrifugal(double r, double l);
 double coulomb(double r);
-vector<double> singleOrbitDensity(double j, vector<double> efn);
 double totalMatterDensity(vector<double> density);
