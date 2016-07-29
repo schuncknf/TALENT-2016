@@ -7,16 +7,19 @@
       integer  :: Nmesh, NN=126, ZZ=82
       real (kind=dm),allocatable :: rho(:) ,Psi(:)! psi(grid_index)
       logical :: comparison= .true., bisloop= .true.
-      real (kind=dm) :: E_minus=-150., E_plus=0., E_left, E_right
-      integer(kind=dm) :: numnodes ! the number of excited state, that has to be the same as number of nodes in wavefunction
+      real (kind=dm) :: E_minus=-150., E_plus=0., E_left, E_right, 
       integer(kind=dm) :: cnodes ! nodes of wavefuntion 
-      integer(kind=dm) :: i,ii, uu, ipart, iord
+      integer(kind=dm) ::ipart, iord
       integer(kind=dm) :: n, l, orbital
       integer(kind=dm) :: n_max, l_max,nl2j
       real(kind=dm)    :: sm, j, e=1.
       real(kind=dm),allocatable :: k_sq(:), Enl2j(:,:),dens_n(:), dens_t(:)
       real(kind=dm),allocatable :: all_wavefunction(:,:)   
       character(99),allocatable :: filename_wave_func(:)
+      !real(kind=dm) :: Kinetic, VSkyrme
+
+      real(kind=dm) :: t0, t1, t2, t3, x0, x1, x2, x3, W0, alpha
+      real(kind=dm), allocatable :: tau, taup, taun, rho, rhon, rhop
 
       real(kind=dm) :: x 
       end module globals
