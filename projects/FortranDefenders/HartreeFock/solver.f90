@@ -213,7 +213,7 @@ contains
         l = sortstates(i,2,iq)
         is= sortstates(i,3,iq)
         if (sortenergies(i,iq) < -small) then
-          val = (2*(l+spin(is)+1))
+          val = (2*l+1)
           if (l==0) val = 2.
           totalenergy = totalenergy + sortenergies(i,iq)*val
         end if
@@ -233,7 +233,7 @@ contains
     integer, dimension(1:3) :: state
     ! This sorts the energies
     sortenergies = small
-    sortstates = small
+    sortstates = 0
     do iq =1,2
      nfull = nn
      if (iq == 2) nfull = np
@@ -262,7 +262,7 @@ contains
        if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
          j = state(2) + spin(state(3))
        if (state(2)==0) j = 0.5
-       nfill = nfill + 2*j+1
+       nfill = nfill + INT(2*j+1)
        k = k+1
      end do
   end do
@@ -273,8 +273,8 @@ contains
   integer :: ir, iq, ir2
   real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew
   real(wp), dimension(0:nbox) :: ucoulnew
-  real :: tot1=0.0d0,tot2=0.0d0
-  real :: xmix, ymix
+  real(wp) :: tot1=0.0d0,tot2=0.0d0
+  real(wp) :: xmix, ymix
 
   xmix = 0.4
   ymix = 1.-xmix
@@ -311,15 +311,15 @@ contains
            end if
    !!coulomb
     if (iq==2) then
-	tot1=0.0d0
-	tot2=0.0d0
+          tot1=0.0d0
+          tot2=0.0d0
       do ir2=0,ir
        tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
       end do
       do ir2=ir,nbox
        tot2=tot2+rho(ir2,2)*meshpoints(ir2)
       end do
-      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)*h
+      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)*h-e2*(3./pi)**(1./3.)*rho(ir,2)**(1./3.)
     end if
    end do
   end do
