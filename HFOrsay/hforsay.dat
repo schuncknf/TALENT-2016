@@ -1,6 +1,6 @@
 n0base   =   5              ! Number of osc. shells
 ngauss   =  120	            ! Points for the laguerre-Mesh
-npart   =   8                ! Number of particules 
+npart   =   6                ! Number of particules 
 maxit    =   10	            ! Maximum iterations number
 homega   =    10.00
 

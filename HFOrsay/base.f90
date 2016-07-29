@@ -135,7 +135,7 @@ do iho=1,n_lines
    j_ext(iho) = nj
    m_ext(iho) = nm
    t_ext(iho) = niso
-   if (niso == 1 .and. nm .eq. nj) then
+   if (niso == 1 .and. nm .eq. -nj) then
      j = j + 1
    endif
 enddo
@@ -179,7 +179,7 @@ implicit none
 integer::q1,q2,q3,q4
 integer::n1,n2,n3,n4
 double precision::tbme
-logical::fex,lpr
+logical::fex,lpr,tbme_exist
 integer::stat
 inquire(file='VM-scheme.dat', exist=fex)
 inquire(file='tbme.bin', exist=tbme_exist)
@@ -195,14 +195,14 @@ read(125,*)
 read(125,*)
 !-------
 if (lpr) then
-  if (tbme_exist) then
-    read(10) tbme_ext
-  else
+ ! if (tbme_exist) then
+ !   read(10) tbme_ext
+ ! else
       do
         read(125,*,iostat=stat) n1,n2,n3,n4,tbme
         !  write(*,*) n1,n2,n3,n4,tbme
         if (t_ext(n1) .eq. 1 .and. t_ext(n2) .eq. 1 .and.t_ext(n3) .eq. 1 .and.t_ext(n4) .eq. 1) then !Keeping only neutrons elements
-          if (m_ext(n1) .eq. j_ext(n1) .and. m_ext(n2) .eq. j_ext(n2) .and. m_ext(n3) .eq. j_ext(n3) .and. m_ext(n4) .eq. j_ext(n4)) then
+          !if (-m_ext(n1) .eq. j_ext(n1) .and. -m_ext(n2) .eq. j_ext(n2) .and. -m_ext(n3) .eq. j_ext(n3) .and. -m_ext(n4) .eq. -j_ext(n4)) then
             !Keeping only one projection of J
             q1 = repick_base(n1)
             q2 = repick_base(n2)
@@ -212,7 +212,7 @@ if (lpr) then
             tbme_ext(q1,q2,q3,q4) = 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme
             !     tbme_ext(q1,q2,q3,q4) = tbme
             if (tbme .ne. 0.d0) write(127,*) q1,q2,q3,q4,tbme_ext(q1,q2,q3,q4)
-          endif ! Filtering over m
+          !endif ! Filtering over m
         endif !Filtering Isospin
         if (stat /= 0) then
           write(*,*) "End of VM-Scheme.dat"
@@ -222,7 +222,7 @@ if (lpr) then
   write(10) tbme_ext
   close(10)
   endif
-endif
+!endif
 
 else
 write(*,*) "File VM-Scheme.dat not found !"
