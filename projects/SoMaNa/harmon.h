@@ -1,16 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 
+double Anl (double*, double*);
 
-int factorial (int);
+double bred (double*);
 
-int binomial (int, int);
-
-double laguerre (int, double);
-int doublefac (int);
-
-double Anl (int, double);
-
-double bred (double, double);
-
-double Rnl (int, double, double, double, double);
+double Rnl (double*, double**, double);
