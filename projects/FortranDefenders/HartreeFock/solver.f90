@@ -291,10 +291,11 @@ contains
                 & 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
                	& + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
                	& + 2*( a0r0p-a1r1p )*ddrho(ir,3) + 4 *a1r1p * ddrho(ir,iq)
-  !! Part of U(r) coming from d(M(r))
+  !!Part of U(r) coming from d(M(r))
            umrnew(ir,iq) = umrnew(ir,iq)  &
                 & + (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/meshpoints(ir) ) &
                 & + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / meshpoints(ir) )
+  !! 
   !! t3 part of U(r)
            uddnew(ir,iq) = uddnew(ir,iq) &
                 & + ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
