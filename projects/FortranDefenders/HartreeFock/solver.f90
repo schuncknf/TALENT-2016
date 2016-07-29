@@ -262,7 +262,7 @@ contains
        if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
          j = state(2) + spin(state(3))
        if (state(2)==0) j = 0.5
-       nfill = nfill + 2*j+1
+       nfill = nfill + INT(2*j+1)
        k = k+1
      end do
   end do
@@ -273,8 +273,8 @@ contains
   integer :: ir, iq, ir2
   real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew
   real(wp), dimension(0:nbox) :: ucoulnew
-  real :: tot1=0.0d0,tot2=0.0d0
-  real :: xmix, ymix
+  real(wp) :: tot1=0.0d0,tot2=0.0d0
+  real(wp) :: xmix, ymix
 
   xmix = 0.4
   ymix = 1.-xmix
@@ -311,8 +311,8 @@ contains
            end if
    !!coulomb
     if (iq==2) then
-	tot1=0.0d0
-	tot2=0.0d0
+          tot1=0.0d0
+          tot2=0.0d0
       do ir2=0,ir
        tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
       end do
