@@ -24,7 +24,7 @@ struct state{
 };
 
 struct compare{
-    inline bool operator() (const state struct1, const state struct2)
+    bool operator() (const state struct1, const state struct2)
     {
         return (struct1.eEnergy < struct2.eEnergy);
     }
@@ -33,6 +33,8 @@ struct compare{
 // Main code
 int main()
 {   
+    
+    // Vectors of 'state' structs for proton and neutron states
     vector<state> protonStates;
     vector<state> neutronStates;
     
@@ -202,8 +204,8 @@ int main()
 
 							ofstream opFile;
 							opFile.open(filename);
-							//for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << V(k*h, isoSpin, L, spin) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
-							//for(int k=1; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val[k] << "\t" << pow((sqrt(normFac)*wf_val[k]/(k*h)),2) << endl;
+							for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << V(k*h, isoSpin, L, spin) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
+							for(int k=1; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val[k] << "\t" << pow((sqrt(normFac)*wf_val[k]/(k*h)),2) << endl;
 							opFile.close();
                             
                             // Store state in 'protonStates' or 'neutronStates'
@@ -307,12 +309,12 @@ int main()
     
     cout << "*************************************************************************" << endl;
     cout << "*\tParticle totals from density calculations" << "\t\t\t*" << endl;
-	cout << "*\tTotal nucleons:\t" << totalMatterDensity(totPot) << "\t\t\t\t\t\t*" << endl;
+	cout << "*\tTotal nucleons:\t" << totalMatterDensity(density) << "\t\t\t\t\t\t*" << endl;
 	cout << "*\tTotal protons :\t" << totalMatterDensity(totProton) << " \t\t\t\t\t*" << endl;
 	cout << "*\tTotal neutrons:\t" << totalMatterDensity(totNeutron) << " \t\t\t\t\t*" << endl;
     cout << "*\t\t\t\t\t\t\t\t\t*" << endl;
     
-	totPot.clear();
+	density.clear();
 	totProton.clear();
 	totNeutron.clear();
 	opFile2.close();
@@ -515,7 +517,7 @@ double totalMatterDensity(vector<double> density)
 	for(int i=1; i<wBox/h; i++)
 	{
 //		A += density.at(i);
-		A += density[i];
+		A += density[i]*4.*M_PI*(pow(i*h,2));
 	}
 
 	return h*A;
