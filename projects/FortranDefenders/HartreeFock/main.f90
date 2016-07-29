@@ -39,7 +39,7 @@ program main
       end do
     end do
     do ir=0,nbox
-      write (13,*) ir*h, wfr(ir,3,1,1,1), dwavefunction(ir,3,1,1,1)
+      write (13,*) ir*h, wfr(ir,1,0,1,1), wfr(ir,1,1,1,1)
     end do
     ! Particle by way of density integration
     call totenergy
