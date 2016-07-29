@@ -213,7 +213,7 @@ contains
         l = sortstates(i,2,iq)
         is= sortstates(i,3,iq)
         if (sortenergies(i,iq) < -small) then
-          val = (2*(l+spin(is)+1))
+          val = (2*l+1)
           if (l==0) val = 2.
           totalenergy = totalenergy + sortenergies(i,iq)*val
         end if
@@ -320,7 +320,7 @@ contains
       do ir2=ir,nbox
        tot2=tot2+rho(ir2,2)*meshpoints(ir2)
       end do
-      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)*h
+      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)*h-e2*(3./pi)**(1./3.)*rho(ir,2)**(1./3.)
     end if
    end do
   end do
