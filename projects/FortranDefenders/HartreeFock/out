@@ -1,74 +1,71 @@
- Iteration:           1 Convergence:   465.55401159774618     
- Iteration:           2 Convergence:   105.97724282995546     
- Iteration:           3 Convergence:   15.506914656294498     
- Iteration:           4 Convergence:   1.7414381106700034     
- Iteration:           5 Convergence:   1.6074821403184956     
- Iteration:           6 Convergence:   2.2201793587945531     
- Iteration:           7 Convergence:   1.9726649320429601     
- Iteration:           8 Convergence:   1.5316033704376082     
- Iteration:           9 Convergence:   1.1171751085468600     
- Iteration:          10 Convergence:  0.78727915062665943     
- Iteration:          11 Convergence:  0.54331612435930765     
- Iteration:          12 Convergence:  0.36996048234163936     
- Iteration:          13 Convergence:  0.24969851811385979     
- Iteration:          14 Convergence:  0.16753754526871489     
- Iteration:          15 Convergence:  0.11197110466639515     
- Iteration:          16 Convergence:   7.4644451082292562E-002
- Iteration:          17 Convergence:   4.9683641810077006E-002
- Iteration:          18 Convergence:   3.3041588547121137E-002
- Iteration:          19 Convergence:   2.1966590721945067E-002
- Iteration:          20 Convergence:   1.4604269710844164E-002
- Iteration:          21 Convergence:   9.7124393948320176E-003
- Iteration:          22 Convergence:   6.4623278543081142E-003
- Iteration:          23 Convergence:   4.3024820239452310E-003
- Iteration:          24 Convergence:   2.8665099678164552E-003
- Iteration:          25 Convergence:   1.9112353579657793E-003
- Iteration:          26 Convergence:   1.2752962712738736E-003
- Iteration:          27 Convergence:   8.5162471879129953E-004
- Iteration:          28 Convergence:   5.6913569221705984E-004
- Iteration:          29 Convergence:   3.8063168642565870E-004
- Iteration:          30 Convergence:   2.5475200374103224E-004
- Iteration:          31 Convergence:   1.7061150578001616E-004
- Iteration:          32 Convergence:   1.1433744805344759E-004
- Iteration:          33 Convergence:   7.6671743670431169E-005
- Iteration:          34 Convergence:   5.1447820510475140E-005
- Iteration:          35 Convergence:   3.4526104059295903E-005
- Iteration:          36 Convergence:   2.3198351755127078E-005
- Iteration:          37 Convergence:   1.5583862136736570E-005
- Iteration:          38 Convergence:   1.0475934573150880E-005
- Iteration:          39 Convergence:   7.0409666932391701E-006
- Iteration:          40 Convergence:   4.7376430529766367E-006
- Iteration:          41 Convergence:   3.1922363632475026E-006
- Iteration:          42 Convergence:   2.1481660041899886E-006
- Iteration:          43 Convergence:   1.4436020592256682E-006
- Iteration:          44 Convergence:   9.7280997124471469E-007
- Iteration:          45 Convergence:   6.5511540014995262E-007
- Iteration:          46 Convergence:   4.4225157580513041E-007
- Iteration:          47 Convergence:   3.0065643841226120E-007
- Iteration:          48 Convergence:   1.9884691937477328E-007
- Iteration:          49 Convergence:   1.4122974789643195E-007
- Iteration:          50 Convergence:   8.7656758296361659E-008
- Iteration:          51 Convergence:   5.3654162002203520E-008
- Iteration:          52 Convergence:   4.8031779442681000E-008
- Iteration:          53 Convergence:   2.1300138541846536E-008
- Iteration:          54 Convergence:   1.8400555745756719E-008
- Iteration:          55 Convergence:   1.4817828741797712E-008
- Iteration:          56 Convergence:   1.0416897566756234E-008
- Iteration:          57 Convergence:   2.1634605218423530E-010
+ Iteration:           1 Convergence:   468.05707120174037     
+ Iteration:           2 Convergence:   195.58657785000440     
+ Iteration:           3 Convergence:   3.9261919725641405     
+ Iteration:           4 Convergence:   2.3514204415466224     
+ Iteration:           5 Convergence:   3.2014304323344618     
+ Iteration:           6 Convergence:   2.9096323016199790     
+ Iteration:           7 Convergence:   2.3007083630515694     
+ Iteration:           8 Convergence:   1.7002382399712701     
+ Iteration:           9 Convergence:   1.2103254420769076     
+ Iteration:          10 Convergence:  0.84235109535870833     
+ Iteration:          11 Convergence:  0.57790282182548935     
+ Iteration:          12 Convergence:  0.39277910133432670     
+ Iteration:          13 Convergence:  0.26531968253021887     
+ Iteration:          14 Convergence:  0.17850971217501410     
+ Iteration:          15 Convergence:  0.11980766129460108     
+ Iteration:          16 Convergence:   8.0298302808159860E-002
+ Iteration:          17 Convergence:   5.3785353520993340E-002
+ Iteration:          18 Convergence:   3.6024725236188715E-002
+ Iteration:          19 Convergence:   2.4137311828553720E-002
+ Iteration:          20 Convergence:   1.6182721804739231E-002
+ Iteration:          21 Convergence:   1.0858397098274963E-002
+ Iteration:          22 Convergence:   7.2928355652379651E-003
+ Iteration:          23 Convergence:   4.9029823982777998E-003
+ Iteration:          24 Convergence:   3.2997601574606961E-003
+ Iteration:          25 Convergence:   2.2231067482039180E-003
+ Iteration:          26 Convergence:   1.4992628091476945E-003
+ Iteration:          27 Convergence:   1.0120975062477555E-003
+ Iteration:          28 Convergence:   6.8393710563441346E-004
+ Iteration:          29 Convergence:   4.6254561385694615E-004
+ Iteration:          30 Convergence:   3.1316512843204691E-004
+ Iteration:          31 Convergence:   2.1207570887327165E-004
+ Iteration:          32 Convergence:   1.4381316623257590E-004
+ Iteration:          33 Convergence:   9.7549447275468992E-005
+ Iteration:          34 Convergence:   6.6169908564006619E-005
+ Iteration:          35 Convergence:   4.5044389878512447E-005
+ Iteration:          36 Convergence:   3.0566280997845752E-005
+ Iteration:          37 Convergence:   2.0781711327799712E-005
+ Iteration:          38 Convergence:   1.4132446040093782E-005
+ Iteration:          39 Convergence:   9.6240381139978126E-006
+ Iteration:          40 Convergence:   6.5299330458401528E-006
+ Iteration:          41 Convergence:   4.4429673380363965E-006
+ Iteration:          42 Convergence:   3.0942902640163084E-006
+ Iteration:          43 Convergence:   2.0274572420930781E-006
+ Iteration:          44 Convergence:   1.4344025203172350E-006
+ Iteration:          45 Convergence:   9.5510034725521109E-007
+ Iteration:          46 Convergence:   6.4666369326005224E-007
+ Iteration:          47 Convergence:   4.5454123664967483E-007
+ Iteration:          48 Convergence:   3.0508203963108826E-007
+ Iteration:          49 Convergence:   2.2475586547443527E-007
+ Iteration:          50 Convergence:   1.1450242709543090E-007
+ Iteration:          51 Convergence:   1.1399015420465730E-007
+ Iteration:          52 Convergence:   4.6309196477523074E-008
+ Iteration:          53 Convergence:   8.3316024301893776E-008
+ Iteration:          54 Convergence:   6.2993308347358834E-009
  Single Particle States | 
  Neutrons | 
- n=           1 l=           0 is=           1 Energy=  -31.179044891177909     
- n=           1 l=           1 is=           1 Energy=  -24.095242255862104     
- n=           1 l=           1 is=           2 Energy=  -24.095242255862104     
- n=           1 l=           2 is=           1 Energy=  -15.167508314334555     
- n=           1 l=           2 is=           2 Energy=  -15.167508314334555     
- n=           2 l=           0 is=           1 Energy=  -10.863197276921710     
+ n=           1 l=           0 is=           1 Energy=  -31.388533063000068     
+ n=           1 l=           1 is=           1 Energy=  -24.315508588915691     
+ n=           1 l=           1 is=           2 Energy=  -24.315508588915691     
+ n=           1 l=           2 is=           1 Energy=  -15.425631724065170     
+ n=           1 l=           2 is=           2 Energy=  -15.425631724065170     
+ n=           2 l=           0 is=           1 Energy=  -11.205942608648911     
  Protons  | 
- n=           1 l=           0 is=           1 Energy=  -31.179044891177909     
- n=           1 l=           1 is=           1 Energy=  -24.095242255862104     
- n=           1 l=           1 is=           2 Energy=  -24.095242255862104     
- n=           1 l=           2 is=           1 Energy=  -15.167508314334555     
- n=           1 l=           2 is=           2 Energy=  -15.167508314334555     
- n=           2 l=           0 is=           1 Energy=  -10.863197276921710     
- Total Neutrons =   19.999999999999996      Total Protons =   19.999999999999989     
- Total Energy =  -353.23032919397610      Total Kinetic Energy:   611.14757141996927     
+ n=           1 l=           0 is=           1 Energy=  -24.247837584698573     
+ n=           1 l=           1 is=           1 Energy=  -17.423608509125188     
+ n=           1 l=           1 is=           2 Energy=  -17.423608509125188     
+ n=           1 l=           2 is=           1 Energy=  -8.7554803409148008     
+ n=           1 l=           2 is=           2 Energy=  -8.7554803409148008     
+ n=           2 l=           0 is=           1 Energy=  -4.4025101757142693     
+ Total Neutrons =   20.000000000000014      Total Protons =   20.000000000000025     
+ Total Energy =  -284.83836341632843      Total Kinetic Energy:   599.84865526293959     
