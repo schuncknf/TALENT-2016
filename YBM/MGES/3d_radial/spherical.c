@@ -17,8 +17,10 @@ using namespace std;	// no need to put std:: before any cout, etc.
 
 struct state{
     std::vector<double> EFN;
+    double n;
+    double l;
     double j;
-    double eEnergy;    
+    double eEnergy;
 };
 
 struct compare{
@@ -85,7 +87,7 @@ int main()
 	int nProt=0, nNeut=0;
 
 	// Nice stuff for terminal output
-	cout << "\n*************************************************************************" << endl;
+// 	cout << "\n*************************************************************************" << endl;
 
 	int nSteps = (eMax-eMin)/eStep;
 
@@ -94,9 +96,9 @@ int main()
 
 	for(int isoSpin=0; isoSpin<2; isoSpin++)
 	{
-		if (isoSpin==0) cout << "*\tProtons \t\t\t\t\t\t\t*" << endl;
-		else cout << "*\t\t\t\t\t\t\t\t\t*\n*\tNeutrons \t\t\t\t\t\t\t*" << endl;
-		cout << "*\tEigen E [MeV]\tOrbital\t\tFilename\t\t\t*" << endl;
+// 		if (isoSpin==0) cout << "*\tProtons \t\t\t\t\t\t\t*" << endl;
+// 		else cout << "*\t\t\t\t\t\t\t\t\t*\n*\tNeutrons \t\t\t\t\t\t\t*" << endl;
+// 		cout << "*\tEigen E [MeV]\tOrbital\t\tFilename\t\t\t*" << endl;
 
 		if(isoSpin==0) opFile2 << "Protons:" << endl;
 		if(isoSpin==1) opFile2 << "\nNeutrons:" << endl;
@@ -210,6 +212,8 @@ int main()
                                 
                                 for(int k=1; k<wBox/h; k++) wf_val[k] = sqrt(normFac)*wf_val[k];
                                 newProtonState.EFN = wf_val;
+                                newProtonState.n = n;
+                                newProtonState.l = L;
                                 newProtonState.j = fabs(j);
                                 newProtonState.eEnergy = eigenEng;
                                 
@@ -220,6 +224,8 @@ int main()
                                 
                                 for(int k=1; k<wBox/h; k++) wf_val[k] = sqrt(normFac)*wf_val[k];
                                 newNeutronState.EFN = wf_val;
+                                newNeutronState.n = n;
+                                newNeutronState.l = L;                                
                                 newNeutronState.j = fabs(j);
                                 newNeutronState.eEnergy = eigenEng;
                                 
@@ -255,12 +261,12 @@ int main()
 	}			 // Close looping over isospin
 
 
-	cout << "*************************************************************************\n" << endl;	// nice stuff for terminal output
+// 	cout << "*************************************************************************\n" << endl;	// nice stuff for terminal output
 
 	
     for(int isoSpin=0; isoSpin<2; isoSpin++)
     {
-        for(int i=0; i<protonStates.size(); i++)
+        for(unsigned int i=0; i<protonStates.size(); i++)
         {
             if(isoSpin==0 && nProt<=nProton)
             {
@@ -273,7 +279,7 @@ int main()
             }
         }
         
-        for(int i=0; i<neutronStates.size(); i++)
+        for(unsigned int i=0; i<neutronStates.size(); i++)
         {      
             if(isoSpin==1 && nNeut<=nNeutron)
             {
@@ -286,19 +292,26 @@ int main()
             }
         }
     }
-	
-	cout << "no. of protons: " << nProt << "\t no. of neutrons: " << nNeut << endl;
+    
+	cout << "\n*************************************************************************" << endl;
+	cout << "*\tParticle totals\t\t\t\t\t\t\t*" << endl;
+	cout << "*\tProtons:\t" << nProt << "\t\t\t\t\t\t*" << endl;
+	cout << "*\tNeutrons:\t" << nNeut << "\t\t\t\t\t\t*" << endl;
+    cout << "*\t\t\t\t\t\t\t\t\t*" << endl;
 	
 	ofstream opFile;
 	opFile.open("densities.dat");
 //	for(int i=0; i<wBox/h; i++) opFile << h*i << "\t" << totPot.at(i) << "\t" << totProton.at(i) << "\t" << totNeutron.at(i) << endl;
 	for(int i=1; i<wBox/h; i++) opFile << h*i << "\t" << density[i] << "\t" << totProton[i] << "\t" << totNeutron[i] << endl;
 	opFile.close();
-
-	cout << "Total nucleons: " << totalMatterDensity(totPot)     << endl;
-	cout << "Total protons: "  << totalMatterDensity(totProton)  << endl;
-	cout << "Total neutrons: " << totalMatterDensity(totNeutron) << "\n" << endl;
-
+    
+    cout << "*************************************************************************" << endl;
+    cout << "*\tParticle totals from density calculations" << "\t\t\t*" << endl;
+	cout << "*\tTotal nucleons:\t" << totalMatterDensity(totPot) << "\t\t\t\t\t\t*" << endl;
+	cout << "*\tTotal protons :\t" << totalMatterDensity(totProton) << " \t\t\t\t\t*" << endl;
+	cout << "*\tTotal neutrons:\t" << totalMatterDensity(totNeutron) << " \t\t\t\t\t*" << endl;
+    cout << "*\t\t\t\t\t\t\t\t\t*" << endl;
+    
 	totPot.clear();
 	totProton.clear();
 	totNeutron.clear();
@@ -307,9 +320,26 @@ int main()
     sort(protonStates.begin(), protonStates.end(), compare());
     sort(neutronStates.begin(), neutronStates.end(), compare());
     
-    for(int i=0;i<neutronStates.size();++i){
-        cout << neutronStates[i].eEnergy << "\t" << neutronStates[i].j << endl;
+    string specNames = "spdfghij";
+    
+    cout << "*************************************************************************" << endl;
+    cout << "*\tProton orbitals \t\t\t\t\t\t*" << endl;
+    cout << "*\tEigen E [MeV]\tOrbital\t\tFilename\t\t\t*" << endl;
+    cout << "*************************************************************************" << endl;
+    for(unsigned int i=0;i<protonStates.size();++i){
+        cout << "*\t" << setw(12) << setprecision(8) << fixed << protonStates[i].eEnergy << "\t" << setprecision(0) << neutronStates[i].n << specNames[protonStates[i].l] << " " << protonStates[i].j*2 << "/2\t\t\t\t\t\t*" << endl;
     }
+    cout << "*\t\t\t\t\t\t\t\t\t*" << endl;
+    
+    cout << "*************************************************************************" << endl;
+    cout << "*\tNeutron orbitals\t\t\t\t\t\t*" << endl;
+    cout << "*\tEigen E [MeV]\tOrbital\t\tFilename\t\t\t*" << endl;
+    cout << "*************************************************************************" << endl;
+    for(unsigned int i=0;i<neutronStates.size();++i){
+        cout << "*\t" << setw(12) << setprecision(8) << fixed << neutronStates[i].eEnergy << "\t" << setprecision(0) << neutronStates[i].n << specNames[neutronStates[i].l] << " " << neutronStates[i].j*2 << "/2\t\t\t\t\t\t*" << endl;
+    }
+    cout << "*\t\t\t\t\t\t\t\t\t*" << endl;
+    cout << "*************************************************************************\n" << endl;
 }
 
 
