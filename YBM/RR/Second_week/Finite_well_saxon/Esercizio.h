@@ -7,6 +7,7 @@
 	#include <fstream>
 	#include <iomanip>
 	#include <sstream>
+	#include <algorithm>
 
 
 	#define width_box 22.
@@ -31,6 +32,17 @@
 	double potential_spin_orbit(double r, double S, double L, double J);
 	double potential_coulomb(double r);
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
+
+	struct state{
+    	double n, l, j;
+    	double eig;
+	};
+	
+	struct compare{
+   		bool operator() (const state struct1, const state struct2){
+   	    	return (struct1.eig < struct2.eig);
+   		}
+   	};
 
 
 #endif

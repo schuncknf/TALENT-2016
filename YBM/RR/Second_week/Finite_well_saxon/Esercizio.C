@@ -12,12 +12,11 @@ int main(){
 	vector<double> wave_val;
 	vector<double> eigenval;
 	double S = 1./2.;
+    vector<state> neutronstates;
 
-//Routine to find eigevalues and write result on terminal
+//Routine to find eigevalues and write result ordered on terminal
 
-
-	int n_neutron = 0;
-	cout<<"Level"<<"    	"<<"L value"<<"    	"<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
+    state appoggio;
 	for(int node=0; node<3; node++){
 		for(int L=0; L<8;L++){
 			for(int h=1; h<3; h++){
@@ -48,14 +47,25 @@ int main(){
 					wave_val.clear();
 				}while(abs(Eup-Edown)>prec);
 				if(Etrial<-0.1&&Etrial>-50){
-					n_neutron += (2*J+1);
-					cout<<node+1<<"	  	"<<L<<"    	 	"<<J*2<<"/2"<<"  	 		"<<setprecision(12)<<Etrial<<endl;
+					appoggio.eig = Etrial;
+					appoggio.l = L;
+					appoggio.j = J;
+					neutronstates.push_back(appoggio);
 				}	
 			}
 		}
-		cout<<endl;
 	}
-	cout<<"The number of neutron is:"<<n_neutron<<endl;
+	sort(neutronstates.begin(), neutronstates.end(), compare());
+	int n_neutron = 0;
+	cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
+	for(int i=0; i<neutronstates.size(); i++){
+		if(n_neutron<126){
+			cout<<neutronstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<neutronstates[i].eig<<endl;
+			n_neutron += (2*neutronstates[i].j+1);
+		}
+	}
+	cout<<"Il numero di neutroni calcolato è:"<<n_neutron<<endl;
+
 
 
 
