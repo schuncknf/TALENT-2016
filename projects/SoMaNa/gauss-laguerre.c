@@ -3,117 +3,69 @@
 #include <math.h>
 #include "harmon.h"
 #include <gsl/gsl_poly.h>
-#include <gsl/gsl_sf_legendre.h>
+#include <gsl/gsl_sf_laguerre.h>
 
-
-// Module to calculate two-body matrix elements; currently it is specifically adapted to the simple V outlined in the manuals for the course. Later we will of course modify it for the more complex case, inevitably breaking everything in the process.
-
-// The calculation proceeds in four steps, really; first the function to be integrated in the 1D integral is calculated, then it is integrated, then it is all repeated for the 2D integral (r1, r2).
-
-// There is a lot of passing functions as arguments. Even I don't believe it's all correct.
-
-// 1D function.
-
-// Gauss-Laguerre integration program.
-
-// Laguerre polynomials.
-
-double galag1 (int n, int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double Vr, double Vs, double Vt,double kappar, double kappas, double kappat, double l, double s1, double s2, double s3, double s4,double **coeff);
-
-double galag2 (int n, int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double Vr, double Vs, double Vt,double kappar, double kappas, double kappat, double l, double s1, double s2, double s3, double s4,double **coeff);
-
-double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, double Vr, double Vs, double Vt,double kappar, double kappas, double kappat, double l, double s1, double s2, double s3, double s4,double **coeff);
-
-int delta (double one, double two)
+double** fac_bin_mat (int n)
 
 	{
 	
-		if (one-two)
-			return 1;
-		else
-			return 0;
-	}
-
-double fun1 (double kappar, double kappas, double kappat, double Vr, double Vs, double Vt,double r1, double r2,double l)
-
-	{
-	
-		double res;
+		double **res;
+		int i,j;
+		res = (double**)malloc((n+2)*sizeof(double));
+		for (i=0;i<n+2;i++) {
+			res[i]=(double*)malloc((n+2)*sizeof(double));
+		}
 		
-		res = 0.5*(Vr*exp(-1*kappar*(r1*r1+r2*r2))/(-2*kappar*(r1+0.01)*(r2+0.01))/4+Vs*exp(-1*kappas*(r1*r1+r2*r2))/(-2*kappas*(r1+0.01)*(r2+0.01))/4);	// The integral	 of the spatial form-factor next to (1-P_sigma).	
+		res[0][0] = 1.; // Initialisation of factorial array.
+		res[1][0] = 1.; res[1][1] = 1.; res[1][2] = 2.;// Initialisation for the double factorials.
+		
+		for (i=1;i<=n;i++) {
+			res[0][i]=i*res[0][i-1];
+		}
+		
+		for (i=1;i<=n;i++) {
+			res[1][i]=i*res[1][i-2];
+		}
+		
+		for (i=2;i<n+2;i++){
+		for (j=0;j<n;j++){
+		
+		if (i>=j+2)
+			res[i][j]=res[0][i-2]/res[0][j]/res[0][i-2-j];	
+		else res[i][j]=0;		
+		}}
 		
 		return res;
+		
+		free(res);
 	
 	}
 
-double fun1r (double kappar, double kappas, double kappat, double Vr, double Vs, double Vt ,double r1, double r2,double l)
-
-	{
-	
-		double res;
-		
-		res = 0.5*(Vr*exp(-1*kappar*(r1*r1+r2*r2))/(-2*kappar*(r1+0.01)*(r2+0.01))/4+Vs*exp(-1*kappas*(r1*r1+r2*r2))/(-2*kappas*(r1+0.01)*(r2+0.01))/4);	// The integral of the spatial form-factor next to (1-P_r).
-		
-		return res;
-	
-	}
-
-double fun2 (double Vr, double Vs, double Vt, double m, double w,double r1, double r2,int n1, int n2, int n3, int n4, double l, double s1, double s2, double s3, double s4,double kappar, double kappas, double kappat, double **coeff)
+double* fac_galag_a0 (int n, double** bmcoeff)
 	
 	{
 	
-		double res,res1, res2, dummy1, dummy2;
-		
-		dummy1 = galag1(5,n1,n2,n3,n4,m,w,r1,r2,Vr,Vs,Vt,kappar,kappas,kappar,l,s1,s2,s3,s4,coeff);
-				
-		dummy2 = galag2(5,n1,n2,n3,n4,m,w,r1,r2,Vr,Vs,Vt,kappar,kappas,kappar,l,s1,s2,s3,s4,coeff);		
-		
-		//printf ("AAaaaa! \n\n\n n1 = %d  n2 = %d  n3 = %d  n4 = %d",n1,n2,n3,n4);
-		
-		res1 = dummy1*r1*r1*r2*r2*Rnl(n1,s1,m,w,r1)*Rnl(n2,s2,m,w,r2)*Rnl(n3,s3,m,w,r1)*Rnl(n4,s4,m,w,r2)*exp(r1)*exp(r2)*(1-0.5*(s3*s4));
-		res2 = dummy2*r1*r1*r2*r2*Rnl(n1,s1,m,w,r1)*Rnl(n2,s2,m,w,r2)*Rnl(n3,s3,m,w,r2)*Rnl(n4,s4,m,w,r1)*exp(r1)*exp(r2)*(1-0.5*(s3*s4));
-				
-		//printf("\n\n\n R = %lf R = %lf R = %lf R = %lf",Rnl(n1,0,m,w,r1),Rnl(n2,0.0,m,w,r2),Rnl(n2,0.0,m,w,r1),Rnl(n4,0.0,m,w,r2));
-		
-		res = res1-res2;
-		
-		return res;
+	int i;	
 	
-	}
-
-double** galagcoeff (int n)
-
-	{
+	double *coefficients, *solutions, *ws, **res;
 	
-	int i;
-	
-	double *coefficients;
-	
-	double *solutions; 
-	
-	double *ws;
-	
-	double **res;
-	
-	res = (double**) malloc(2*sizeof(double));
+	res = (double**) malloc((n+1)*sizeof(double));
 		
-		for (i=0; i<n; i++)
-		
-			{ res[i] = (double*) malloc(n*sizeof(double));
-		
-			
-			}
+		for (i=0; i<n+1; i++) { res[i] = (double*) malloc(2*sizeof(double));
+		}
 	
 	coefficients = (double*) malloc ((n+1)*sizeof(double)); 
 	
-	ws = (double*) malloc ((n+1)*sizeof(double)); 
+	ws = (double*) malloc ((n)*sizeof(double)); 
 
-	solutions = (double*) malloc ((2*n)*sizeof(double));
+	solutions = (double*) malloc ((2*(n+1))*sizeof(double));
 	
-	for (i=0; i<=n; i++)
+	for (i=0; i<n+1; i++)
 		
 		{
-		coefficients[i] = binomial(n, i)*pow((-1),i)/factorial(i); // Coefficients for the Laguerre polynomials.
+		coefficients[i] = bmcoeff[n+2][i]*pow((-1),i)/bmcoeff[0][i]; // Coefficients for the Laguerre polynomials.
+		
+		printf("COEFF%d : %lf \n", i, coefficients[i]);
 		}
 	gsl_poly_complex_workspace *dummy = gsl_poly_complex_workspace_alloc (n+1);
 	
@@ -121,13 +73,22 @@ double** galagcoeff (int n)
 	
 	gsl_poly_complex_workspace_free (dummy);
 	
+	for (i=0; i<2*n; i++)
+		
+		{
+			printf("SOL = %lf \n", solutions[i]);	
+		}	
+	
 	for (i=0; i<n; i++)
 		
 		{
-			ws[i] = solutions[2*i]/(pow(n+1, 2)*pow(laguerre(n+1,solutions[2*i]),2)); // Calculation of weights.
+			ws[i] = solutions[2*i]
+				/(pow(n+1,2)
+				*pow( gsl_sf_laguerre_n(n+1,0.,solutions[2*i]),2. )  
+				); // Calculation of weights.
 			
-			res[0][i] = solutions[2*i];
-			res[1][i] = ws[i];		
+			res[0][i] = solutions[2*i]; printf ("RES 0 %lf \n", res[0][i]);
+			res[1][i] = ws[i]; printf ("RES 1 %lf %lf \n", res[1][i],gsl_sf_laguerre_n(0.,n+1,(double)solutions[2*i]));		
 		}
 	
 	free(ws);
@@ -142,11 +103,129 @@ double** galagcoeff (int n)
 	
 	}
 
-// 1D Gauss-Laguerre quadrature. The function is sadly not general; since a lot of arguments need to be passed to the function it is specifically tailored to the problem at hand.
+double* fac_galag_a (int n, int a, double** bmcoeff)
+	
+	{
+	
+	int i;	
+	
+	double *coefficients, *solutions, *ws, **res;
+	
+	res = (double**) malloc((n+1)*sizeof(double));
+		
+		for (i=0; i<n+1; i++) { res[i] = (double*) malloc(2*sizeof(double));
+		}
+	
+	coefficients = (double*) malloc ((n+1)*sizeof(double)); 
+	
+	ws = (double*) malloc ((n)*sizeof(double)); 
 
-/* double galag (int n, double (*funcp)(double, int, int, int, int,double,double,double), int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double V) */
+	solutions = (double*) malloc ((2*(n+1))*sizeof(double));
+	
+	for (i=0; i<n+1; i++)
+		
+		{
+		coefficients[i] = bmcoeff[a+n+2][n-i]*pow((-1),i)*bmcoeff[0][n]/bmcoeff[0][i]; // Coefficients for the Laguerre polynomials.
+		
+		printf("COEFF%d : %lf \n", i, coefficients[i]);
+		}
+	gsl_poly_complex_workspace *dummy = gsl_poly_complex_workspace_alloc (n+1);
+	
+	gsl_poly_complex_solve (coefficients, n+1, dummy, solutions); // Roots of the Laguerre polynomials.
+	
+	gsl_poly_complex_workspace_free (dummy);
+	
+	for (i=0; i<2*n; i++)
+		
+		{
+			printf("SOL = %lf \n", solutions[i]);	
+		}	
+	
+	for (i=0; i<n; i++)
+		
+		{
+			ws[i] = bmcoeff[0][n+a]*solutions[2*i]/(pow(n+1,2)*pow( gsl_sf_laguerre_n(n+1,a,solutions[2*i]),2 ) * bmcoeff[0][n] ); // Calculation of weights.
+			
+			res[0][i] = solutions[2*i]; printf ("RES 0 %lf \n", res[0][i]);
+			res[1][i] = ws[i]; printf ("RES 1 %lf \n", res[1][i]);		
+		}
+	
+	free(ws);
+	
+	free(solutions);
+	
+	free(coefficients);
+	
+	return res;
+	
+	free(res);
+	
+	}
 
-double galag1 (int n, int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double Vr, double Vs, double Vt,double kappar, double kappas, double kappat, double l, double s1, double s2, double s3, double s4, double **coeff)
+double integrand1r (double *coeff,double r1,double r2)
+	
+	{
+	
+		double res;
+		
+		// For the integral	 of the spatial form-factor next to (1-P_sigma).	
+		res = 0.5*
+			( coeff[4]*exp(-1*coeff[7]*(r1*r1+r2*r2)/(2*coeff[7]*(r1+0.01)*(r2+0.01)) ))/4;
+		
+		printf ("DEBUG: fun(%lf , %lf) = %lf \n",r1,r2,res);	
+		
+		return res;
+	
+	}
+
+double integrand1s (double *coeff,double r1,double r2)
+	
+	{
+	
+		double res;
+		
+		// For the integral	 of the spatial form-factor next to (1-P_sigma).	
+		res = 0.5*
+			( coeff[6]*exp(-1*coeff[9]*(r1*r1+r2*r2)/(2*coeff[9]*(r1+0.01)*(r2+0.01)) ))/4;
+		
+		printf ("DEBUG: fun(%lf , %lf) = %lf \n",r1,r2,res);	
+		
+		return res;
+	
+	}
+
+double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, double s1, double s2, double s3, double s4, double **galcoeff, double ** bmcoeff,double d1, double d2)
+	
+	{
+	
+		double res,res1, res2, dummy1, dummy2;	
+		
+		res1 = Rnl(coeff,bmcoeff,galcoeff[0][i])*Rnl(coeff,bmcoeff,galcoeff[0][j])*Rnl(coeff,bmcoeff,galcoeff[0][i])*Rnl(coeff,bmcoeff,galcoeff[0][j]) * (
+		d1*galcoeff[0][i]*galcoeff[0][j]/coeff[7]
+		* exp(-1*coeff[7]* (pow(galcoeff[0][i],2) + pow(galcoeff[0][j],2) - galcoeff[0][i] - galcoeff[0][j] )  )
+		+ d2*galcoeff[0][i]*galcoeff[0][j]/coeff[7]
+		* exp(-1*coeff[7]*(pow(galcoeff[0][i],2) + pow(galcoeff[0][j],2) - galcoeff[0][i] - galcoeff[0][j] )  )
+		);
+		
+		res1 = Rnl(coeff,bmcoeff,galcoeff[0][i])*Rnl(coeff,bmcoeff,galcoeff[0][j])*Rnl(coeff,bmcoeff,galcoeff[0][i])*Rnl(coeff,bmcoeff,galcoeff[0][j]) * (
+		d1*galcoeff[0][i]*galcoeff[0][j]/coeff[7]
+		* exp(-1*coeff[7]* (pow(galcoeff[0][i],2) + pow(galcoeff[0][j],2) - galcoeff[0][i] - galcoeff[0][j] )  )
+		+ d2*galcoeff[0][i]*galcoeff[0][j]/coeff[7]
+		* exp(-1*coeff[7]*(pow(galcoeff[0][i],2) + pow(galcoeff[0][j],2) - galcoeff[0][i] - galcoeff[0][j] )  )
+		);
+		
+		
+		
+		
+		res = res1-res2;
+		
+		printf ("DEBUG: fun2(%lf , %lf) = %lf - %lf = %lf \n",galcoeff[0][i],galcoeff[0][j],res1,res2,res);
+		
+		return res;
+	
+	}
+
+double galag1D (int n, int n1, int n2, int n3, int n4, double *coeff,double r1, double r2, double s1, double s2, double s3, double s4, double **galcoeff,double ** bmcoeff, int p)
 
 	{
 	
@@ -157,45 +236,26 @@ double galag1 (int n, int n1, int n2, int n3, int n4, double m, double w,double 
 	for (i=0; i<n; i++)
 		
 		{
-			
-			res+= coeff[1][i]*fun1(kappar,kappas,kappat,Vr,Vs,Vt,r1,r2,l)/**gsl_sf_legendre_Pl((int)l,solutions[2*i])*/; // Summation of weights with function values at mesh points.
-			// printf("\n\n\n sum = %f \n", res);
-		}
-	
-	return res;
-	
-	}
-
-double galag2 (int n, int n1, int n2, int n3, int n4, double m, double w,double r1, double r2, double Vr, double Vs, double Vt,double kappar, double kappas, double kappat, double l, double s1, double s2, double s3, double s4, double **coeff)
-
-	{
-	
-	int i;
-	
-	double res = 0;
-	
-	for (i=0; i<n; i++)
 		
-		{
-			res+= coeff[1][i]*fun1(kappar,kappas,kappat,Vr,Vs,Vt,r1,r2,l)/**gsl_sf_legendre_Pl((int)l,solutions[2*i])*/; // Summation of weights with function values at mesh points.
-			// printf("\n\n\n sum = %f \n", res);
+			if (p=0) {res+= galcoeff[1][i]*(integrand1r(coeff,r1,r2));
+			}
+			else {res+= galcoeff[1][i]*(integrand1s(coeff,r1,r2));
+			} // Summation of weights with function values at mesh points.
+								// printf("\n\n\n sum = %f \n", res);
 		}
 	
 	return res;
 	
 	}
 
-// 2D G-L quadrature. Analogous to the function above, except the summation over one index is replaced by a double-loop summation.
 
-/* double twodgalag (int n, double (*funcp)(double, double, int, int, int, int,double,double,double), int n1, int n2, int n3, int n4, double m, double w, double V) */
-
-double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, double Vr, double Vs, double Vt,double kappar, double kappas, double kappat, double l, double s1, double s2, double s3, double s4, double **coeff)
+double galag2D (int n, int n1, int n2, int n3, int n4, double m, double *coeff, double s1, double s2, double s3, double s4, double **galcoeff, double**bmcoeff,double **galcoeffa)
 
 	{
 	
 	int i, j;
 	
-	double res = 0;
+	double res = 0, dummy1, dummy2;
 
 	for (i=0; i<n; i++)
 		
@@ -203,8 +263,15 @@ double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, dou
 		
 			{
 				{
+			dummy1 = galag1D(n,n1,n2,n3,n4,coeff,galcoeff[0][i],galcoeff[0][j],s1,s2,s3,s4,galcoeff,bmcoeff,0);
+			dummy2 = galag1D(n,n1,n2,n3,n4,coeff,galcoeff[0][i],galcoeff[0][j],s1,s2,s3,s4,galcoeff,bmcoeff,1);
+			
+			
 		
-			res+= coeff[1][i]*coeff[1][j]*fun2(Vr,Vs,Vt,m,w,coeff[0][i], coeff[0][j], n1, n2, n3, n4,l,s1,s2,s3,s4,kappar,kappas,kappat,coeff);
+			printf("DEBUG: dummy1 = %lf, dummy2 = %lf \n",dummy1,dummy2);			
+			
+			res+= galcoeffa[1][i]*galcoeffa[1][j]*
+			integrand2(coeff,i,j,n1,n2,n3,n4,s1,s2,s3,s4,galcoeff,bmcoeff,dummy1,dummy2);
 			
 			// printf ("\n\n\n 2DGALAG \t sol1 = %lf sol2 = %lf wi=%lf wi=%lf res =%lf",solutions[2*i],solutions[2*j],wi,wj,res);
 			}
@@ -213,3 +280,4 @@ double twodgalag (int n, int n1, int n2, int n3, int n4, double m, double w, dou
 	return res;
 	
 	}
+

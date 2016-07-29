@@ -2,7 +2,7 @@ module grid
 implicit none
      integer, parameter :: wp=kind(1.0d0)
      real(wp), parameter :: pi = 3.14159265358979_wp
-     real(wp), parameter :: e2 = 1.439646_wp
+     real(wp), parameter :: e2 = 1.43989_wp
      real(wp), parameter :: hbar = 6.582119E-22_wp
      real(wp), parameter :: a = 0.67_wp
      real(wp), parameter :: vso = 23_wp

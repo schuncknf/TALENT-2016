@@ -228,7 +228,8 @@ contains
     end do
     totalenergy = (totalenergy + kinetic(1) + kinetic(2))/2.&
                 -4*pi*h*t3*sum(meshpoints(:)**2 * (rho(:,3)**sig &
-                *(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.
+                *(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.&
+                -e2*(3./pi)**(1./3.)*pi*h*sum(meshpoints(:)**2*rho(:,2)**(4./3.))
                 !-4*h*pi*t3*0.125*sum(meshpoints(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
     totalkinetic = sum(kinetic(:))
 
@@ -282,8 +283,8 @@ contains
   integer :: ir, iq, ir2
   real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew
   real(wp), dimension(0:nbox) :: ucoulnew
-  real(wp) :: tot1=0.0d0,tot2=0.0d0
-  real(wp) :: xmix, ymix
+  real(wp) :: tot1=0.0d0,tot2=0.0d0,tot3
+  real(wp) :: xmix, ymix, slater
 
   xmix = 0.4
   ymix = 1.-xmix
@@ -323,13 +324,19 @@ contains
     if (iq==2) then
           tot1=0.0d0
           tot2=0.0d0
+          tot3=0._wp
+          !slater = e2*(3./pi)**(1./3.)*rho(:,2)**(1./3.)
       do ir2=0,ir
        tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
+       !tot3=tot3+rho(ir2,2)*meshpoints(ir2)
       end do
-      do ir2=ir,nbox
+      !do ir2=0,nbox
+      !  tot2 = tot2 + rho(ir2,2)*meshpoints(ir2)
+      !end do
+      do ir2=ir+1,nbox
        tot2=tot2+rho(ir2,2)*meshpoints(ir2)
       end do
-      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)*h-e2*(3./pi)**(1./3.)*rho(ir,2)**(1./3.)
+      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir)  + tot2)*h - e2*(3./pi)**(1./3.)*rho(ir,2)**(1./3.)
     end if
    end do
   end do
