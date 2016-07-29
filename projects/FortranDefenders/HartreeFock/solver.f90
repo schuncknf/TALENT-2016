@@ -54,7 +54,7 @@ contains
                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     else
                        potential(ir) = (-uc(ir,2)-umr(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
-                       - 0*ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
+                       - ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     end if
                   end do
 
@@ -230,7 +230,7 @@ contains
                 -4*pi*h*t3*sum(meshpoints(:)**2 * (rho(:,3)**sig &
                 *(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.
                 !-4*h*pi*t3*0.125*sum(meshpoints(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
-    write(6,*)kinetic(1),kinetic(2)
+    totalkinetic = sum(kinetic(:))
 
 
 
@@ -340,11 +340,12 @@ contains
   udd(:,:) = uddnew(:,:)*xmix + udd(:,:)*ymix
   uso(:,:) = usonew(:,:)*xmix + uso(:,:)*ymix
   ucoul(:) = ucoulnew(:)*xmix + ucoul(:)*ymix
+  if(icoul==0) ucoul(:) = 0.
 
-  do ir =0,nbox
-  write(15,*) ir,ucnew(ir,1),ucnew(ir,2),umrnew(ir,1),umrnew(ir,2),uddnew(ir,1), &
-            & uddnew(ir,2),usonew(ir,1),usonew(ir,2),ucoul(ir)
-  end do
+  !do ir =0,nbox
+  !write(15,*) ir,ucnew(ir,1),ucnew(ir,2),umrnew(ir,1),umrnew(ir,2),uddnew(ir,1), &
+  !          & uddnew(ir,2),usonew(ir,1),usonew(ir,2),ucoul(ir)
+  !end do
 
 
   end subroutine build_fields
