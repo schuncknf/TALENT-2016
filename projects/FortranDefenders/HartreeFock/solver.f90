@@ -13,7 +13,7 @@ contains
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes,l, is, iq, n,iter
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff,oldtotenergy,currentconv
     real(wp), allocatable :: potential(:), woodsaxon(:), woodsaxond(:), spinorbitmat(:), coulombmat(:)
 
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2),&
@@ -28,11 +28,13 @@ contains
     wfr(:,:,:,:,:) = 0.0
     !Main loop begins here; be careful
   allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
-  do iter = 1,20
+  do iter = 1,itermax
     if(iter>1) then
-    call build_fields
-    !stop
+      call build_fields
+      !stop
     end if
+    call totenergy
+    oldtotenergy = totalenergy
     do iq =1,2
       do n =1,lmax-2
         do l =0,lmax
@@ -48,11 +50,11 @@ contains
                   do ir=0,nbox
                     ! Isospin dependent potential using matrices from before
                     if (iq .EQ. 1) then
-                       potential(ir) = (-uc(ir,1)-0*umr(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,1)-umr(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     else
-                       potential(ir) = (-uc(ir,2)-0*umr(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
-                       - ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
+                       potential(ir) = (-uc(ir,2)-umr(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
+                       - 0*ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     end if
                   end do
 
@@ -109,8 +111,13 @@ contains
           end do
         end do
       end do
-   call energy_sort
-   call build_densities
+      call energy_sort
+      call build_densities
+      call totenergy
+      currentconv = abs(totalenergy- oldtotenergy)
+      write (6,*) "Iteration:",iter,"Convergence:",currentconv
+      if (currentconv<conv) exit
+
      end do
   end subroutine solve_r
 
@@ -208,7 +215,7 @@ contains
 
     totalenergy = 0.
     do iq=1,2
-      kinetic(iq) = cmcorr*hbar22m*sum(4*pi*h*meshpoints(:)**2 * tau(:,iq))
+      kinetic(iq) = 4*pi*h*cmcorr*hbar22m*sum(meshpoints(:)**2 * tau(:,iq))
       do i=1,nn
         l = sortstates(i,2,iq)
         is= sortstates(i,3,iq)
@@ -219,9 +226,11 @@ contains
         end if
       end do
     end do
-    totalenergy = totalenergy + kinetic(1) + kinetic(2)&
-                -4*h*pi*t3*0.125*sum(meshpoints(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
-
+    totalenergy = (totalenergy + kinetic(1) + kinetic(2))/2.&
+                -4*pi*h*t3*sum(meshpoints(:)**2 * (rho(:,3)**sig &
+                *(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.
+                !-4*h*pi*t3*0.125*sum(meshpoints(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
+    write(6,*)kinetic(1),kinetic(2)
 
 
 
@@ -295,7 +304,7 @@ contains
            umrnew(ir,iq) = umrnew(ir,iq)  &
                 & + (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/meshpoints(ir) ) &
                 & + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / meshpoints(ir) )
-  !! 
+  !!
   !! t3 part of U(r)
            uddnew(ir,iq) = uddnew(ir,iq) &
                 & + ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
@@ -374,8 +383,8 @@ contains
              /(4*pi*meshpoints(ir)**3)
             end do
             rho(0,iq) = rho(1,iq)
-            tau(2,iq) = tau(3,iq)
-            tau(1,iq) = tau(2,iq)
+            !tau(2,iq) = tau(3,iq)
+            !tau(1,iq) = tau(2,iq)
             tau(0,iq) = tau(1,iq)
 
 
