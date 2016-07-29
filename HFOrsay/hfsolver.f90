@@ -105,17 +105,11 @@
          endif
          call t_bloc(n,l,t_mat(bloc_index,:,:))
          call compute_rho(rho(bloc_index,:,:),eigvecr(bloc_index,:,:),nbloc,l,bj)
-         rho=1.d0
          call compute_gamma(gama(bloc_index,:,:),rho(bloc_index,:,:),nbloc,l,bj)
-         read(*,*)
-         read(*,*)
-         read(*,*)
-         read(*,*)
-         read(*,*)
-         hf(bloc_index,:,:) = t_mat(bloc_index,:,:)  + 1.d0*gama(bloc_index,:,:)
-         write(*,*) "Gama",bloc_index 
-         write(*,*) gama(bloc_index,:,:)
-         write(*,*)
+         hf(bloc_index,:,:) = t_mat(bloc_index,:,:)  + 0.d0*gama(bloc_index,:,:)
+         !write(*,*) "Gama",bloc_index 
+         !write(*,*) gama(bloc_index,:,:)
+         !write(*,*)
          
 
 ! --------- subroutines: (re)calculate rho and hf hamiltonian
@@ -140,11 +134,8 @@
       call dsyevr('V','I','U',n,hf(bloc_index,:,:),n,vl,vu,1,n,abstol,n_val,eigvalr(bloc_index,:),eigvecr(bloc_index,:,:),ldz, isupz, work, lwork, iwork,liwork, info)
          if(info .ne. 0 ) stop 'problem in diagonalization'
       call compute_rho(rho(bloc_index,:,:),eigvecr(bloc_index,:,:),nbloc,l,bj)
-         write(*,*) "It,",it
       call compute_gamma(gama(bloc_index,:,:),rho(bloc_index,:,:),nbloc,l,bj)
-         write(*,*) "Glurps,",it
       call t_bloc(n,l,t_mat(bloc_index,:,:))
-        hf(bloc_index,:,:) = t_mat(bloc_index,:,:)  + 1.d0*gama(bloc_index,:,:)
         rhob(bloc_index,1:nbloc,1:nbloc) = rho(bloc_index,:,:)
         gamab(bloc_index,1:nbloc,1:nbloc) = gama(bloc_index,:,:)
         kinb(bloc_index,1:nbloc,1:nbloc) = t_mat(bloc_index,:,:)
