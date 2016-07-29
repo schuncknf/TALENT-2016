@@ -6,20 +6,21 @@
        use ho
        use basis
       implicit none   
-      integer:: lwmax
+      integer:: lwmax,jf
       double precision,parameter::lambda=1.d-8
       integer :: it, n , lda, ldvl, ldz,ldvr, info, i, j, k, l, lwork,liwork,il,iu,n_val
       !double precision, allocatable :: hf(:,:), eigvecr(:,:), eigvecl(:,:)
-      double precision, allocatable :: hf(:,:,:), eigvecr(:,:,:)
+      double precision, allocatable :: hf(:,:,:), eigvecr(:,:,:),eigvalold(:,:)
       !double precision, allocatable :: eigvalr(:), eigvall(:), eigvalold(:), work(:)
       double precision, allocatable :: eigvalr(:,:), work(:)
       double precision, allocatable :: rho(:,:,:), vpot(:,:,:,:,:), kin(:,:), gama(:,:,:),trho(:,:),hrho(:,:),gammarho(:,:)
-      double precision, allocatable :: vpotp(:,:,:,:),vpotas(:,:,:,:,:)
+      double precision, allocatable :: vpotas(:,:,:,:,:)
       double precision, allocatable :: vpotpr(:,:,:,:),vpotasr(:,:,:,:),vpotr(:,:,:,:)
       integer,allocatable::nl(:),nr(:),nj(:),isupz(:),iwork(:),nocc_diag(:)
       double precision esum, rhosum, gamasum, vnorm,tr
       double precision::x,ri,rj,hfenergy,hf2body,kin_energy,tbme1,tbme2
       double precision,allocatable::rhobo(:,:,:),kinbo(:,:,:),gamabo(:,:,:),t_mat(:,:,:),hfbo(:,:,:)
+      double precision,allocatable::rhob(:,:,:),kinb(:,:,:),gamab(:,:,:),hfb(:,:,:)
       integer::n1,n2,n3,n4
       integer::l1,l2,l3,l4
       integer::m1,m2,m3,m4
@@ -36,7 +37,7 @@
       !n=nbase
       ABSTOL = 0.0
       !n=red_size
-      nbloc = maxval(n_red)
+      nbloc = maxval(n_red) + 1
       n=nbloc
       !n=2
       ! n=size_full
@@ -51,57 +52,62 @@
       allocate(work(26*n),iwork(10*n),isupz(2*n))
       allocate(hf(0:2*occ_states,n,n),eigvecr(0:2*occ_states,n,n))
       allocate(eigvalr(0:2*occ_states,n))
+      allocate(eigvalold(0:2*occ_states,n))
       allocate(t_mat(0:2*occ_states,n,n))
       allocate(trho(n,n),hrho(n,n),rho(0:2*occ_states,n,n),vpot(0:2*occ_states,n,n,n,n),kin(n,n))
       allocate(gama(0:2*occ_states,n,n),gammarho(n,n))
-      allocate(vpotp(n,n,n,n),vpotas(0:2*occ_states,n,n,n,n))
+      allocate(vpotas(0:2*occ_states,n,n,n,n))
       allocate(vpotr(n,n,n,n))
       allocate(nocc_diag(n))
       allocate(rhobo(0:2*occ_states,n,n),kinbo(0:2*occ_states,n,n),gamabo(0:2*occ_states,n,n),hfbo(0:2*occ_states,n,n))
+      allocate(rhob(0:2*occ_states,n,n),kinb(0:2*occ_states,n,n),gamab(0:2*occ_states,n,n),hfb(0:2*occ_states,n,n))
 ! --------- two-body matrix elements and kinetic energy (to be calculated from subroutines)
+
+
+
 
 
 vpotas=0.d0
 write(*,*) "computing TBME"
 !!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(n,vpotas) SCHEDULE(DYNAMIC)
-     do i = 1,n
-      n1=i!-1
-      do j = 1,n
-       n2=j!-1
-       do k = 1,n
-        n3=k!-1
-        do l = 1,n
-         n4=l!-1
-!           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.,1)
-           !call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.,1)
- !          vpotas(i,j,k,l) = (vpotr(i,j,k,l))! + vpotpr(i,j,k,l))
-        enddo !l
-       enddo !k
-      enddo !j
-     enddo !i
-!!$OMP END PARALLEL DO
+!     do i = 1,n
+!      n1=i!-1
+!      do j = 1,n
+!       n2=j!-1
+!       do k = 1,n
+!        n3=k!-1
+!        do l = 1,n
+!         n4=l!-1
+!!           call tbme(n1,n2,n3,n4,vpotr(i,j,k,l),.false.,1)
+!           !call tbme(n1,n2,n4,n3,vpotpr(i,j,k,l),.false.,1)
+! !          vpotas(i,j,k,l) = (vpotr(i,j,k,l))! + vpotpr(i,j,k,l))
+!        enddo !l
+!       enddo !k
+!      enddo !j
+!     enddo !i
+!!!$OMP END PARALLEL DO
 !vpotas(1:nbase,1:nbase,1:nbase,1:nbase) = vpotasr(1:nbase,1:nbase,1:nbase,1:nbase)
   !         vpotas = 0.d0
 write(*,*) "TBME's computed and antisymetrized"
 
 ! ---------- start of iteration loop
 
-  write(*,*) "Occ states",occ_states
-  do it = 1,1! maxit
-        t_mat = 0 
+  write(*,*) "Occ states",occ_states,"It. Number",maxit
+  do it = 1,maxit
+!        t_mat = 0 
 ! ------------------ Constructing Blocks        
         bloc_index = 0
-        write(*,*) "debile",minval(l_red),maxval(l_red)
         do l = minval(l_red),maxval(l_red) 
-          call t_bloc(n,l,t_mat(bloc_index,:,:))
-          do j= 0,1
-          
+          if (l == 0) then 
+          jf = 0
+          else
+          jf=1
+          endif
+          do j= 0,jf
           if (bloc_index .gt. occ_states - 1) then
           hf = 0.d0 
           exit
           endif 
-
-
           if (l == 0) then 
           bj = 1
           elseif (j == 0) then 
@@ -109,27 +115,35 @@ write(*,*) "TBME's computed and antisymetrized"
           else 
           bj = 2*l + 1
           endif
+        
         eigvecr = 0.d0
          if(it .eq. 1) then ! initializing eigenfunctions and eigenvalues
             nocc_diag = nocc
             eigvecr = 0.d0
-            do i = 0,nbloc
-               red_i = tag_hf(i,l,bj)
+            eigvalold = 0.d0
+            do i = 1,nbloc
+               red_i = tag_hf(i-1,l,bj)
                if(nocc(red_i) .gt. 0) then 
                eigvecr(bloc_index,i,i) = 1.d0!*nocc(red_i) ! first npart states occupied with npart particles
                endif
             enddo
-         call compute_rho(rho(bloc_index,:,:),eigvecr(bloc_index,:,:),nbloc,l,bj)
-!         call compute_gamma(gama(bloc_index,:,:),vpotas(bloc_index,:,:,:,:),rho(bloc_index,:,:),nbloc,l,bj)
+         call t_bloc(n,l,t_mat(bloc_index,:,:))
          endif
 
- !       hf(bloc_index,:,:) = t_mat(bloc_index,:,:)  !+ gama(bloc_index,:,:)
+         call compute_rho(rho(bloc_index,:,:),eigvecr(bloc_index,:,:),nbloc,l,bj)
+         call compute_gamma(gama(bloc_index,:,:),rho(bloc_index,:,:),nbloc,l,bj)
+         hf(bloc_index,:,:) = t_mat(bloc_index,:,:)  + 1000.d0*gama(bloc_index,:,:)
+!        do ii=1,nbloc
+!         do ij =1,nbloc
+!            write(*,*) ii,ij,hf(bloc_index,ii,ij)
+!         enddo
+!        enddo
 
 ! --------- subroutines: (re)calculate rho and hf hamiltonian
-  !      rhobo(bloc_index,1:nbloc,1:nbloc) = rho(bloc_index,:,:)
-  !      gamabo(bloc_index,1:nbloc,1:nbloc) = gama(bloc_index,:,:)
-   !     kinbo(bloc_index,1:nbloc,1:nbloc) = t_mat(bloc_index,:,:)
-    !    hfbo(bloc_index,1:n,1:n) = hf(bloc_index,:,:)
+        rhobo(bloc_index,1:nbloc,1:nbloc) = rho(bloc_index,:,:)
+        gamabo(bloc_index,1:nbloc,1:nbloc) = gama(bloc_index,:,:)
+        kinbo(bloc_index,1:nbloc,1:nbloc) = t_mat(bloc_index,:,:)
+        hfbo(bloc_index,1:n,1:n) = hf(bloc_index,:,:)
 
 
 
@@ -145,16 +159,22 @@ write(*,*) "TBME's computed and antisymetrized"
       lwork = 26*n
       liwork =10*n
 
-!      call dsyevr('V','I','U',n,hf(bloc_index,:,:),n,vl,vu,1,n,abstol,n_val,eigvalr(bloc_index,:),eigvecr(bloc_index,:,:),ldz, isupz, work, lwork, iwork,liwork, info)
+      call dsyevr('V','I','U',n,hf(bloc_index,:,:),n,vl,vu,1,n,abstol,n_val,eigvalr(bloc_index,:),eigvecr(bloc_index,:,:),ldz, isupz, work, lwork, iwork,liwork, info)
          if(info .ne. 0 ) stop 'problem in diagonalization'
-     ! call compute_rho(rho(bloc_index,:,:),eigvecr(bloc_index,:,:),nbloc,l,bj)
-     ! call compute_gamma(gama(bloc_index,:,:),vpotas(bloc_index,:,:,:,:),rho(bloc_index,:,:),nbloc,l,bj)
-      !rhob(bloc_index,1:nbloc,1:nbloc) = rho 
-      !kinb(bloc_index,1:nbloc,1:nbloc) = t_mat 
-      !gamab(bloc_index,1:nbloc,1:nbloc) = gama 
+      call compute_rho(rho(bloc_index,:,:),eigvecr(bloc_index,:,:),nbloc,l,bj)
+      call compute_gamma(gama(bloc_index,:,:),vpotas(bloc_index,:,:,:,:),rho(bloc_index,:,:),nbloc,l,bj)
+        rhob(bloc_index,1:nbloc,1:nbloc) = rho(bloc_index,:,:)
+        gamab(bloc_index,1:nbloc,1:nbloc) = gama(bloc_index,:,:)
+        kinb(bloc_index,1:nbloc,1:nbloc) = t_mat(bloc_index,:,:)
+        hfb(bloc_index,1:n,1:n) = hf(bloc_index,:,:)
+         do i = 1, n
+            eigvalold(bloc_index,i) = eigvalr(bloc_index,i)
+         enddo
+
+      
       bloc_index = bloc_index + 1
          enddo !j
-      write(*,*) "IB,rho",bloc_index!,rho(bloc_index,:,:)
+
       enddo !l
 ! ------------ End Diagonalization for all blocks
 
@@ -165,18 +185,18 @@ write(*,*) "TBME's computed and antisymetrized"
 
        hfenergy = 0.d0
        hfold    = 0.d0
-       esum = 0
-       do i=0,occ_states
-          hfenergy = hfenergy + trace(matmul(t_mat(i,1:nbloc,1:nbloc),rho(i,1:nbloc,1:nbloc)),nbloc)& 
- &                      + half*trace(matmul(gama(i,1:nbloc,1:nbloc),rho(i,1:nbloc,1:nbloc)),nbloc)
-          hfold = hfold + trace(matmul(kinbo(i,1:nbloc,1:nbloc),rhobo(i,1:nbloc,1:nbloc)),nbloc)& 
- &                      + half*trace(matmul(gamabo(i,1:nbloc,1:nbloc),rhobo(i,1:nbloc,1:nbloc)),nbloc)
-          !tr = tr + trace(rho(i,1:nbloc,1:nbloc),nbloc)
-       enddo
-       write(*,'(a,f16.9,a)') 'Block True Hartree-Fock Energy',hfenergy,' MeV'
-       esum = hfenergy - hfold 
-         if(esum .lt. lambda) exit ! calculation converged
-         write(*,*) "iteration: ",it,"ediffi= ",esum
+!       do i=0,occ_states
+!      write(*,*) "Before"
+!      write(*,*) hfbo(i,:,:)
+!      write(*,*) "After"
+!      write(*,*) hfb(i,:,:)
+!          hfenergy = hfenergy + trace(matmul(t_mat(i,1:nbloc,1:nbloc),rhob(i,1:nbloc,1:nbloc)),nbloc)& 
+! &                      + half*trace(matmul(gamab(i,1:nbloc,1:nbloc),rhob(i,1:nbloc,1:nbloc)),nbloc)
+!          hfold = hfold + trace(matmul(kinbo(i,1:nbloc,1:nbloc),rhobo(i,1:nbloc,1:nbloc)),nbloc)& 
+! &                      + half*trace(matmul(gamabo(i,1:nbloc,1:nbloc),rhobo(i,1:nbloc,1:nbloc)),nbloc)
+!          !tr = tr + trace(rho(i,1:nbloc,1:nbloc),nbloc)
+!       enddo
+ !      esum = hfenergy - hfold 
 
 
 
@@ -184,17 +204,17 @@ write(*,*) "TBME's computed and antisymetrized"
 
 
 !      nocc_diag = 0
-!         esum = 0.d0 
-!         do i = 1,n 
-!            esum = esum + abs(eigvalr(i) - eigvalold(i))
-!         enddo
-!         esum = esum/n
+         esum = 0.d0 
+      do j=0,occ_states
+         do i = 1,n 
+            esum = esum + abs(eigvalr(j,i) - eigvalold(j,i))
+         enddo
+       enddo
+         esum = esum/n
+         write(*,*) "iteration: ",it,"ediffi= ",esum
+         if(esum .lt. lambda) exit ! calculation converged
 
 ! -------- save old eigenvalues
-
-!         do i = 1, n
-!            eigvalold(i) = eigvalr(i)
-!         enddo
 
 
 ! ------- check out normalization of states
@@ -213,9 +233,9 @@ write(*,*) "TBME's computed and antisymetrized"
 
        hfenergy = 0.d0
        tr = 0.d0
-       do i=0,occ_states 
-          hfenergy = hfenergy + trace(matmul(t_mat(i,1:nbloc,1:nbloc),rho(i,1:nbloc,1:nbloc)),nbloc)& 
- &                      + half*trace(matmul(gama(i,1:nbloc,1:nbloc),rho(i,1:nbloc,1:nbloc)),nbloc)
+       do i=0,occ_states-1 
+          hfenergy = hfenergy + trace(matmul(t_mat(i,1:nbloc,1:nbloc),rhob(i,1:nbloc,1:nbloc)),nbloc)& 
+ &                      + half*trace(matmul(gamab(i,1:nbloc,1:nbloc),rhob(i,1:nbloc,1:nbloc)),nbloc)
           tr = tr + trace(rho(i,1:nbloc,1:nbloc),nbloc)
        enddo
        write(*,'(a,f16.9,a)') 'Block True Hartree-Fock Energy',hfenergy,' MeV'

@@ -18,7 +18,7 @@ call reader()
 !write(*,*) "tbme",tbme_ext(17,18,89,18)
 !call cpu_time(start)
 call external_basis()
-!call external_tbme()
+call external_tbme(.true.)
 call filled_number()
 write(*,*) "maxval",maxval(n_red)+1
 write(*,*) "# Of occ states",occ_states
