@@ -50,10 +50,10 @@ contains
                   do ir=0,nbox
                     ! Isospin dependent potential using matrices from before
                     if (iq .EQ. 1) then
-                       potential(ir) = (-uc(ir,1)-umr(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,1) -ucso(ir,1) -umr(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     else
-                       potential(ir) = (-uc(ir,2)-umr(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,2) -ucso(ir,2)-umr(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
                        - ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     end if
                   end do
@@ -331,7 +331,7 @@ contains
 
   subroutine build_fields
   integer :: ir, iq, ir2
-  real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew
+  real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew
   real(wp), dimension(0:nbox) :: ucoulnew
   real(wp) :: tot1=0.0d0,tot2=0.0d0,tot3
   real(wp) :: xmix, ymix, slater
@@ -340,6 +340,7 @@ contains
   ymix = 1.-xmix
   ucnew(:,:) = 0._wp
   umrnew(:,:)= 0._wp
+  ucsonew(:,:) = 0._wp
   uddnew(:,:)= 0._wp
   usonew(:,:) = 0._wp
   ucoulnew(:) = 0._wp
@@ -351,10 +352,13 @@ contains
                 & 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
                	& + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
                	& + 2*( a0r0p-a1r1p )*laprho(ir,3) + 4 *a1r1p * laprho(ir,iq)
-  !!Part of U(r) coming from d(M(r))
-           umrnew(ir,iq) = umrnew(ir,iq)  &
+  !!Part of U(r) coming from so)
+           ucsonew(ir,iq) = ucsonew(ir,iq)  &
                 & + (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/meshpoints(ir) ) &
                 & + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / meshpoints(ir) )
+  !!Mq(r) contribution
+           umrnew(ir,iq) = umrnew(ir,iq) &
+                & + (a0tau0-a1tau1)*rho(ir,3) + 2 * a1tau1*rho(ir,iq)
   !!
   !! t3 part of U(r)
            uddnew(ir,iq) = uddnew(ir,iq) &
@@ -393,6 +397,7 @@ contains
 
 
   uc(:,:) = ucnew(:,:)*xmix + uc(:,:)*ymix
+  ucso(:,:) = ucsonew(:,:)*xmix + ucso(:,:)*ymix
   umr(:,:) = umrnew(:,:)*xmix + umr(:,:)*ymix
   udd(:,:) = uddnew(:,:)*xmix + udd(:,:)*ymix
   uso(:,:) = usonew(:,:)*xmix + uso(:,:)*ymix
