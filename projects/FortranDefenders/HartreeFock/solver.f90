@@ -50,10 +50,10 @@ contains
                   do ir=0,nbox
                     ! Isospin dependent potential using matrices from before
                     if (iq .EQ. 1) then
-                       potential(ir) = (-uc(ir,1) -ucso(ir,1) -umr(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,1) -ucso(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     else
-                       potential(ir) = (-uc(ir,2) -ucso(ir,2)-umr(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,2) -ucso(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
                        - ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     end if
                   end do
