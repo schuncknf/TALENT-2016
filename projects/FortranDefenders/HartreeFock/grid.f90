@@ -12,7 +12,7 @@ implicit none
      real(wp) :: a0r0,a1r1,a0s0,a1s1,a0tau0,a1tau1,a0t0,a1t1,a0r0p,a1r1p,&
                 & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
      real(wp), allocatable,dimension(:) :: meshpoints,ucoul
-     real(wp), allocatable, dimension(:,:) :: rho,tau,jsc,drho,ddrho,dtau,djsc
+     real(wp), allocatable, dimension(:,:) :: rho,tau,jsc,drho,ddrho,dtau,djsc,laprho
      real(wp), allocatable, dimension(:,:) ::uc,umr,udd,uso
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
      integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin,itermax
@@ -98,7 +98,7 @@ contains
 
           allocate(wavefunctions(0:nbox,lmax,0:lmax,2,2),wfr(0:nbox,lmax,0:lmax,2,2),&
           wfl(0:nbox,lmax,0:lmax,2,2),rho(0:nbox,4),drho(0:nbox,4),ddrho(0:nbox,4),&
-          tau(0:nbox,4),jsc(0:nbox,4),djsc(0:nbox,4))
+          tau(0:nbox,4),jsc(0:nbox,4),djsc(0:nbox,4),laprho(0:nbox,4))
 
 
      end subroutine init_wavefunctions

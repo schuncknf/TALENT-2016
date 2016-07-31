@@ -122,7 +122,7 @@ contains
   end subroutine solve_r
 
   subroutine ddensities
-    integer :: ir,iq
+    integer :: ir,iq,i
     do iq=1,2
       do ir=0,nbox
         if(ir < 1) then
@@ -173,6 +173,9 @@ contains
     djsc(:,4) = djsc(:,1) - djsc(:,2)
     ddrho(:,3) = ddrho(:,1) + ddrho(:,2)
     ddrho(:,4) = ddrho(:,1) - ddrho(:,2)
+    do i =1,4
+    laprho(:,i) = ddrho(:,i) + 2._wp/meshpoints(:)*drho(:,i)
+    end do 
 
   end subroutine ddensities
 
@@ -211,8 +214,54 @@ contains
   subroutine totenergy
     real(wp) :: kinetic(1:2),val
     integer :: iq,i,l,is
+    !Functional variables
+    real(wp) :: ekin,ecould,ecoulex,ecentr,edd, eso,totfonct
+    real(wp) :: tmp(0:nbox),rg(0:nbox)
 
 
+    !method using the functional energy
+    totfonct = 0.0_wp
+    !!!Kinetic energy
+      ekin = hbar22m * cmcorr * 4._wp*pi*h*sum( tau(:,3)*meshpoints(:)**2)
+    !!!Coulomb energy
+      ecould = 0.0_wp
+      ecoulex = 0.0_wp
+    if (icoul==1) then
+    rg = meshpoints
+    tmp = 0.0_wp
+    do i = 0, nbox
+       rg(0:i) = meshpoints(i)
+       tmp(i) = 4._wp*pi*h*sum( meshpoints(:)**2 / rg * rho(:,2) ) 
+    end do
+    ecould = 4._wp*pi*h*sum( meshpoints(:)**2 *rho(:,2)* tmp )*e2 / 2._wp 
+    ecoulex = - (3.0_wp/4.0_wp)*e2*4._wp*pi*h*sum( meshpoints(:)**2*rho(:,2)**(4._wp/3._wp) )*( 3 / pi)**(1._wp/3._wp)
+    end if
+    !!!Central energy
+    ecentr = 0.0_wp
+    ecentr = a0r0 * 4._wp*pi*h*sum( meshpoints(:)**2*rho(:,3)**2) &
+           & + a1r1*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)**2) &
+    	   & + a0r0p*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,3)*laprho(:,3)) &
+    	   & + a1r1p*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)*laprho(:,4)) &
+    	   & + a0tau0*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,3)*tau(:,3))  &
+    	   & + a1tau1*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)*tau(:,4))   
+    if (j2terms) then
+    ecentr = ecentr - 0.5 * a0t0 *4._wp*pi*h* sum(meshpoints(:)**2*jsc(:,3)**2)&
+    	& - 0.5 * a1t1 * 4._wp*pi*h*sum(meshpoints(:)**2*jsc(:,4)**2)
+    end if
+    !!!Density Dependent Energy
+    edd = 4._wp*pi*h*sum(meshpoints(:)**2*( cddr0 * rho(:,3)**2 + cddr1 * rho(:,4)**2 )  &
+         * rho(:,3)**sig )
+    !!Spin-orbit Energy
+    eso = 0.0_wp
+    eso = cso0 *4._wp*pi*h* sum(meshpoints(:)**2*rho(:,3)* &
+        &  ( djsc(:,3) + 2 * jsc(:,3) / meshpoints(:))) &
+        & + cso1 *4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)* &
+        &  ( djsc(:,4) + 2 * jsc(:,4) / meshpoints(:))) 
+
+    !!!Total Energy with the functional
+    totfonct = ekin+ecould+ecoulex+ecentr+edd+eso
+
+    !Energy calculation using Koopman's theorem
     totalenergy = 0.
     do iq=1,2
       kinetic(iq) = 4*pi*h*cmcorr*hbar22m*sum(meshpoints(:)**2 * tau(:,iq))
@@ -220,7 +269,8 @@ contains
         l = sortstates(i,2,iq)
         is= sortstates(i,3,iq)
         if (sortenergies(i,iq) < -small) then
-          val = (2*l+1)
+          !val = (2*(l+spin(is))+1)
+          val = 2*l+1
           if (l==0) val = 2.
           totalenergy = totalenergy + sortenergies(i,iq)*val
         end if
@@ -232,7 +282,7 @@ contains
                 -e2*(3./pi)**(1./3.)*pi*h*sum(meshpoints(:)**2*rho(:,2)**(4./3.))
                 !-4*h*pi*t3*0.125*sum(meshpoints(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
     totalkinetic = sum(kinetic(:))
-
+    !print *,totfonct - totalenergy
 
 
   end subroutine totenergy
@@ -300,7 +350,7 @@ contains
            ucnew(ir,iq) = ucnew(ir,iq) + &
                 & 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
                	& + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
-               	& + 2*( a0r0p-a1r1p )*ddrho(ir,3) + 4 *a1r1p * ddrho(ir,iq)
+               	& + 2*( a0r0p-a1r1p )*laprho(ir,3) + 4 *a1r1p * laprho(ir,iq)
   !!Part of U(r) coming from d(M(r))
            umrnew(ir,iq) = umrnew(ir,iq)  &
                 & + (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/meshpoints(ir) ) &
