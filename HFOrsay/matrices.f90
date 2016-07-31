@@ -46,6 +46,7 @@ gamma_matrix = 0.d0
 
 !Compute the gamma matrix out of the TBMEs and the rho matrix
 do i1=1,di 
+ !  write(*,*) "In matrices index, ",i1,i2,i3,i4
   ib1 = tag_hf(i1-1,nl,nj)
  do i2=1,di
    ib2 = tag_hf(i2-1,nl,nj)
@@ -61,7 +62,7 @@ do i1=1,di
      !  if (n3 .ne. 0) then
  ! write(6,'(6i3)') n3,n4,l3,l4,j3,j4
   !endif
-        !gammatemp = gammatemp + mtrxel(ib1,ib4,ib2,ib3)*rho(i3,i4)
+!        write(*,*) "In matrices, ",ib1,ib2,ib3,ib4,tbme_ext(ib1,ib4,ib2,ib3)
         gammatemp = gammatemp + tbme_ext(ib1,ib4,ib2,ib3)*rho(i3,i4)
         !write(128,*) ib1,ib2,ib3,ib4,tbme_ext(ib1,ib4,ib2,ib3)
         !if (gammatemp .ne. 0.d0) write(*,*) ib1,ib2,ib3,ib4,gammatemp
