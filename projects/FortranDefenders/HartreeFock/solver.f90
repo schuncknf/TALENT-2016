@@ -175,7 +175,7 @@ contains
     ddrho(:,4) = ddrho(:,1) - ddrho(:,2)
     do i =1,4
     laprho(:,i) = ddrho(:,i) + 2._wp/meshpoints(:)*drho(:,i)
-    end do 
+    end do
 
   end subroutine ddensities
 
@@ -231,9 +231,9 @@ contains
     tmp = 0.0_wp
     do i = 0, nbox
        rg(0:i) = meshpoints(i)
-       tmp(i) = 4._wp*pi*h*sum( meshpoints(:)**2 / rg * rho(:,2) ) 
+       tmp(i) = 4._wp*pi*h*sum( meshpoints(:)**2 / rg * rho(:,2) )
     end do
-    ecould = 4._wp*pi*h*sum( meshpoints(:)**2 *rho(:,2)* tmp )*e2 / 2._wp 
+    ecould = 4._wp*pi*h*sum( meshpoints(:)**2 *rho(:,2)* tmp )*e2 / 2._wp
     ecoulex = - (3.0_wp/4.0_wp)*e2*4._wp*pi*h*sum( meshpoints(:)**2*rho(:,2)**(4._wp/3._wp) )*( 3 / pi)**(1._wp/3._wp)
     end if
     !!!Central energy
@@ -243,7 +243,7 @@ contains
     	   & + a0r0p*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,3)*laprho(:,3)) &
     	   & + a1r1p*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)*laprho(:,4)) &
     	   & + a0tau0*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,3)*tau(:,3))  &
-    	   & + a1tau1*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)*tau(:,4))   
+    	   & + a1tau1*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)*tau(:,4))
     if (j2terms) then
     ecentr = ecentr - 0.5 * a0t0 *4._wp*pi*h* sum(meshpoints(:)**2*jsc(:,3)**2)&
     	& - 0.5 * a1t1 * 4._wp*pi*h*sum(meshpoints(:)**2*jsc(:,4)**2)
@@ -256,7 +256,7 @@ contains
     eso = cso0 *4._wp*pi*h* sum(meshpoints(:)**2*rho(:,3)* &
         &  ( djsc(:,3) + 2 * jsc(:,3) / meshpoints(:))) &
         & + cso1 *4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)* &
-        &  ( djsc(:,4) + 2 * jsc(:,4) / meshpoints(:))) 
+        &  ( djsc(:,4) + 2 * jsc(:,4) / meshpoints(:)))
 
     !!!Total Energy with the functional
     totfonct = ekin+ecould+ecoulex+ecentr+edd+eso
@@ -342,19 +342,20 @@ contains
 
   subroutine build_fields
   integer :: ir, iq, ir2
-  real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew
+  real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew,dumrnew
   real(wp), dimension(0:nbox) :: ucoulnew
   real(wp) :: tot1=0.0d0,tot2=0.0d0,tot3
   real(wp) :: xmix, ymix, slater
 
-  xmix = 0.2
+  xmix = 0.4
   ymix = 1.-xmix
-  ucnew(:,:) = 0._wp
-  umrnew(:,:)= 0._wp
+  ucnew(:,:)   = 0._wp
+  umrnew(:,:)  = 0._wp
+  dumrnew(:,:) = 0._wp
   ucsonew(:,:) = 0._wp
-  uddnew(:,:)= 0._wp
-  usonew(:,:) = 0._wp
-  ucoulnew(:) = 0._wp
+  uddnew(:,:)  = 0._wp
+  usonew(:,:)  = 0._wp
+  ucoulnew(:)  = 0._wp
 
   do iq = 1,2
    do ir = 0,nbox
@@ -370,7 +371,8 @@ contains
   !!Mq(r) contribution
            umrnew(ir,iq) = umrnew(ir,iq) &
                 & + (a0tau0-a1tau1)*rho(ir,3) + 2 * a1tau1*rho(ir,iq)
-  !!
+           dumrnew(ir,iq) = dumrnew(ir,iq) &
+                & + (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
   !! t3 part of U(r)
            uddnew(ir,iq) = uddnew(ir,iq) &
                 & + ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
@@ -413,6 +415,7 @@ contains
   udd(:,:) = uddnew(:,:)*xmix + udd(:,:)*ymix
   uso(:,:) = usonew(:,:)*xmix + uso(:,:)*ymix
   ucoul(:) = ucoulnew(:)*xmix + ucoul(:)*ymix
+  dumr(:,:) = dumrnew(:,:)*xmix + dumr(:,:)*ymix
   if(icoul==0) ucoul(:) = 0.
 
   !do ir =0,nbox
