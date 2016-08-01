@@ -21,6 +21,9 @@ DEPS=$(CPP_FILES:.cpp=.d)
 
 all: $(TARGET) pybind
 
+indent:
+	astyle -A1 -s2 -S -f -p -H -xe -k3 cpp/include/*.h cpp/src/*.cpp
+
 pybind: $(TARGET)
 	cd ./python/bindings;./setup.py install --user;cd -
 

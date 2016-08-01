@@ -5,8 +5,9 @@
 
 #include "Basis.h"
 
-/// class SpBasis - 
-class SpBasis : public Basis {
+/// class SpBasis -
+class SpBasis : public Basis
+{
   // Attributes
 public:
   /// Parameter of the harmonic oscillator basis
@@ -26,9 +27,9 @@ public:
   SpBasis (double _omega, int _nMax, int _lMax);
   ~SpBasis ();
   /// Calculating radial wave function
-  void evalRadialWaveFunction (arma::mat & wfMatrix, arma::vec & r);
-  void evalDerivativeRadialWaveFunction (arma::mat & wfMatrix, arma::vec & r);
-  void evalRadialWaveFunctionNoExp (arma::mat & wfMatrix, arma::vec & r);
+  void evalRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
+  void evalDerivativeRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
+  void evalRadialWaveFunctionNoExp (arma::mat &wfMatrix, arma::vec &r);
   int deltaSpin (int idx1, int idx2);
 private:
   /// Calculating normalization coefficient
