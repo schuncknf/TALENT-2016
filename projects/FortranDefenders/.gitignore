@@ -6,3 +6,10 @@ plt
 callgrind*
 densities
 fields
+Doxyfile
+fort.13
+*.gpl
+*.good
+testsolve~
+fields
+
