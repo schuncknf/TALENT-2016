@@ -49,7 +49,7 @@ void FullSpBasis::calcN()
     N(i) = pow(2 * nu * nu * nu / M_PI, 0.25) * pow(2, 0.5 * n + l + 1.5) * sqrtFactorial(n) * pow(nu, 0.5 * l) / sqrtDoubleFactorial(2 * n + 2 * l + 1);
   }
 }
-/*
+
 void FullSpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec &r)
 {
   //Calculating wave function values for each basis state and each r point provided
@@ -111,4 +111,4 @@ void FullSpBasis::evalRadialWaveFunctionNoExp(arma::mat &wfMatrix, arma::vec &r)
     wfMatrix.col(i) = N(i) * arma::pow(r, l) % laguerre;
   }
 }
-*/
+

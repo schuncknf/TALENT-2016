@@ -1,14 +1,13 @@
 # Basis configuration
 omega = 0.0506779468
-nMax = 6
-lMax = 0
+nMax = 5
+lMax = 2
 mMax = 0
 
-interaction = "MinnesotaS0"
-
+interaction = "file:../../vNN/minnesota-VM-scheme.dat"
 system = "NeutronDrop"
-nb_neutron = 2
+nb_neutron = 8
 #nb_proton = 5
 
 solver = "Hartree-Fock"
-convergence = 1.0e-10
+convergence = 1.0e-12

@@ -5,6 +5,16 @@
 #include <gsl/gsl_poly.h>
 #include <gsl/gsl_sf_laguerre.h>
 
+//
+//
+//======================GAUSS-LAGUERRE.C======================================================================================
+//
+// The module contains functions for evaluating integrals that are necessary to calculate two-body matrix elements, using Gauss
+// -Laguerre quadrature.
+
+// The following function forms a matrix containing factorials (first row), double factorials (second row) and binomial coeffic
+// -ients (remainder). We use this instead of calling recursively-defined functions in order to gain on execution speed.
+
 double** fac_bin_mat (int n)
 
 	{
@@ -39,6 +49,8 @@ double** fac_bin_mat (int n)
 	
 	}
 
+// The function calculates mesh points and weights for a=0 Gauss-Laguerre quadrature.
+
 double** fac_galag_a0 (int n, double** bmcoeff)
 	
 	{
@@ -56,7 +68,7 @@ double** fac_galag_a0 (int n, double** bmcoeff)
 	
 	coefficients = (double*) malloc ((n+1)*sizeof(double)); 
 	
-	ws = (double*) malloc ((n+1)*sizeof(double)); 
+	ws = (double*) malloc ((n+1)*sizeof(double)); // Weights are stored here.
 
 	solutions = (double*) malloc ((2*(n+1))*sizeof(double));
 	
@@ -104,6 +116,8 @@ double** fac_galag_a0 (int n, double** bmcoeff)
 	return res;
 	
 	}
+
+// Same as the above, but the mesh points and weights are calculated for the generalised Gauss-Laguerre quadrature.
 
 double** fac_galag_a (int n, int a, double** bmcoeff)
 	
@@ -171,6 +185,8 @@ double** fac_galag_a (int n, int a, double** bmcoeff)
 	free (res);
 	}
 
+// The integrands of the first integral (over r) (see HF_truncated.pdf). First is the function for the r part, then the s part.
+
 double integrand1r (double *coeff,double r1,double r2)
 	
 	{
@@ -179,7 +195,7 @@ double integrand1r (double *coeff,double r1,double r2)
 		
 		// For the integral	 of the spatial form-factor next to (1-P_sigma).	
 		res = 0.5*
-			( coeff[4]/(2*coeff[7]*(r1+0.1)*(r2+0.1)) )/4; 
+			( coeff[4]/(2*coeff[7]*(r1+0.1)*(r2+0.1)) )/1; 
 		/*res = 0.5*
 			( coeff[4]*exp(-1*coeff[7]/(2*coeff[7]*(r1+0.01)*(r2+0.01)) ))/4;*/
 		//printf ("DEBUG: fun(%lf , %lf) = %lf \t %lf \t %lf \n",r1,r2,res,exp(-1*coeff[7]*(r1*r1+r2*r2)),(2*coeff[7]*(r1+0.1)*(r2+0.1)));	
@@ -195,8 +211,8 @@ double integrand1s (double *coeff,double r1,double r2)
 		double res;
 		
 		// For the integral	 of the spatial form-factor next to (1-P_sigma).	
-		res = 0.5*
-			( coeff[6]/(2*coeff[9]*(r1+0.1)*(r2+0.1)) )/4;
+		res = -0.5*
+			( coeff[6]/(2*coeff[9]*(r1+0.1)*(r2+0.1)) )/1;
 		/*res = 0.5*
 			( coeff[6]*exp(-1*coeff[9]/(2*coeff[9]*(r1+0.01)*(r2+0.01)) ))/4;*/
 		//printf ("DEBUG: fun(%lf , %lf) = %lf \t %lf \t %lf  \t %lf\n",r1,r2,res,exp(-1*coeff[7]*(r1*r1+r2*r2)),(2*coeff[7]*(r1+0.1)*(r2+0.1)), coeff[7]);	
@@ -205,6 +221,8 @@ double integrand1s (double *coeff,double r1,double r2)
 		return res;
 	
 	}
+
+// The integrand of the 2D integral over r1, r2. (See above for reference.)
 
 double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, double s1, double s2, double s3, double s4, double **galcoeff, double ** bmcoeff,double d1, double d2)
 	
@@ -227,10 +245,10 @@ double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, do
 		);*/
 		
 		res1 = Rnl(n1,coeff,bmcoeff,galcoeff[0][i])*Rnl(n2,coeff,bmcoeff,galcoeff[0][j])*Rnl(n3,coeff,bmcoeff,galcoeff[0][i])*Rnl(n4,coeff,bmcoeff,galcoeff[0][j]) * (
-		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[7],-1.5));
+		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[9],-1.5));
 		
 		res2 = Rnl(n1,coeff,bmcoeff,galcoeff[0][i])*Rnl(n2,coeff,bmcoeff,galcoeff[0][j])*Rnl(n3,coeff,bmcoeff,galcoeff[0][j])*Rnl(n4,coeff,bmcoeff,galcoeff[0][i]) * (
-		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[7],-1.5));
+		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[9],-1.5));
 		
 		res = res1-res2;
 		
@@ -241,6 +259,8 @@ double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, do
 		return res;
 	
 	}
+
+// The 1D Gauss-Laguere integral. This is reduced to a simple sum of the integrand multiplied by weights, at the mesh points.
 
 double galag1D (int nmesh,int n, int n1, int n2, int n3, int n4, double *coeff,double r1, double r2, double s1, double s2, double s3, double s4, double **galcoeff,double ** bmcoeff, int p)
 
