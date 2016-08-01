@@ -245,10 +245,10 @@ double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, do
 		);*/
 		
 		res1 = Rnl(n1,coeff,bmcoeff,galcoeff[0][i])*Rnl(n2,coeff,bmcoeff,galcoeff[0][j])*Rnl(n3,coeff,bmcoeff,galcoeff[0][i])*Rnl(n4,coeff,bmcoeff,galcoeff[0][j]) * (
-		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[7],-1.5));
+		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[9],-1.5));
 		
 		res2 = Rnl(n1,coeff,bmcoeff,galcoeff[0][i])*Rnl(n2,coeff,bmcoeff,galcoeff[0][j])*Rnl(n3,coeff,bmcoeff,galcoeff[0][j])*Rnl(n4,coeff,bmcoeff,galcoeff[0][i]) * (
-		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[7],-1.5));
+		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[9],-1.5));
 		
 		res = res1-res2;
 		

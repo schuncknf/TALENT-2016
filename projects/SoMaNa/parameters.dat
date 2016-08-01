@@ -1,7 +1,7 @@
 !parameters:
 5.0                  ! n_max
 0.0                  ! L for S wave
-20.	             ! hbar*omega [MeV] 
+10.	             ! hbar*omega [MeV] 
 938.90590            ! mc^2[MeV]
 200.0	             ! V_0,R numerical parameter [MeV]
 178.0                ! V_0,t numerical parameter [MeV] 
