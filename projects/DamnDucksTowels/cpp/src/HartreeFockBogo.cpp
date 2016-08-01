@@ -1,7 +1,7 @@
 #include "HartreeFockBogo.h"
 #include <armadillo>
 
-HartreeFockBogo::HartreeFockBogo(System & _system) : Solver(_system), D(2*_system.particleNumbers.n_rows) 
+HartreeFockBogo::HartreeFockBogo(System &_system) : Solver(_system), D(_system.particleNumbers.n_rows)
 {
     int basisSize = _system.basis->size;
     for (unsigned int pType = 0; pType < _system.particleNumbers.n_rows; pType++)
@@ -28,8 +28,6 @@ void HartreeFockBogo::run()
         arma::mat H = system->Kinetic(pType) + system->Gamma(pType);
         // Temporary vectors and matrices to store eigenvecs and energies
         arma::vec old_indivE = indivEnergies.row(pType).t();
-        arma::vec new_indivE;
-
         // "Generalized" hamiltonian matrix 
         arma::mat bigH( 2*nb_state, 2*nb_state ); 
         bigH.submat( 0, 0, nb_state-1, nb_state-1 ) = H ; //bigH(0,0)
@@ -61,6 +59,5 @@ void HartreeFockBogo::run()
 
 void HartreeFockBogo::calcH()
 {
-
 }
 

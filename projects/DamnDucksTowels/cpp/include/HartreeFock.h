@@ -4,8 +4,9 @@
 #include "Solver.h"
 #include "System.h"
 
-/// class HartreeFock - 
-class HartreeFock : public Solver {
+/// class HartreeFock -
+class HartreeFock : public Solver
+{
   // Attributes
 public:
   /// Matrix of eigenstates of the hamiltonian
@@ -14,7 +15,7 @@ public:
   arma::field<arma::vec> occ;
   // Operations
 public:
-  HartreeFock (System & system);
+  HartreeFock (System &system);
   ~HartreeFock ();
   void run ();
   void calcH ();
