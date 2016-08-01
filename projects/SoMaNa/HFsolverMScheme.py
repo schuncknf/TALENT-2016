@@ -5,16 +5,16 @@ from datetime import datetime as dt
 import time
 
 #Import input data
-f0 = open(str('VM-scheme_n5_l0.dat')) #reading two body matrix elements.VM-scheme_n5_l2.dat
-f1 = open(str('spM_n5_l0.dat'))  #reading orbit number vs quantum number.spM_n5_l2.dat
+f0 = open(str('VM-scheme_n_l.dat')) #reading two body matrix elements.VM-scheme_n5_l2.dat
+f1 = open(str('spM_n_l.dat'))  #reading orbit number vs quantum number.spM_n5_l2.dat
 lines0 = f0.readlines()
 lines1 = f1.readlines()
 interaction = 1 # 1 - turn on interaction, all other value turns it off
-NStates = 12   #108 for n_max = 5, l_max = 2, 12 for n_max = 5, l_max = 0
-threshold = 1E-9
+NStates = 40   #108 for n_max = 5, l_max = 2, 12 for n_max = 5, l_max = 0
+threshold = 1E-6
 #Iteration index
 IterMax = 100
-partNum = 2
+partNum = 8
 count0 = 0
 hw = 10.0 #shorthand for hbar*omega, units in MeV
 
@@ -161,17 +161,17 @@ def eHF(C,partNum):
     eKin = 0
     ePot = 0
     for i in xrange(0,NStates):
+        n1 = RInd[(i)]
         eKin += H00[i][i]*rho(i,i,C)
         for j in xrange(0,NStates):
+            n2 = RInd[(j)]
             for k in xrange(0,NStates):
+                n3 = RInd[(k)]
                 for l in xrange(0,NStates):
-                    n1 = RInd[(i)]
-                    n2 = RInd[(j)]
-                    n3 = RInd[(k)]
                     n4 = RInd[(l)]
                     if ( ((n1,n2,n3,n4) in V0)):
                         ePot += 0.5*rho(i,k,C)*rho(j,l,C)*V0[(n1,n2,n3,n4)]
-
+    print "eKin = " + str(eKin) + ", ePot = " + str(ePot)
     return eKin+ePot
 
 

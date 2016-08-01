@@ -6,8 +6,8 @@ program HFSolver
   implicit none 
   integer :: i,j,k
   real(dp) :: EHF,tr_rho,r,dr
-  Nparticles = 8
-  n_orbitals = 216
+  Nparticles = 8 !< Set the number of neutrons in the system.
+  n_orbitals = 216 !< Set the number of available orbitals in your basis space.
   call read_orbitals
   Noccupied=fermi_level()
   call initialize_HF
