@@ -1,3 +1,4 @@
+!> init initializes all the paramters and arrays for use elsewhere in the code
 module init
 implicit none
      integer, parameter :: wp=kind(1.0d0)
@@ -16,12 +17,13 @@ implicit none
      real(wp), allocatable, dimension(:,:) ::uc,umr,dumr,udd,uso,ucso,sortenergies
      real(wp), allocatable, dimension(:,:,:,:,:) :: wfl,wfr
      real(wp), allocatable, dimension(:,:,:,:) :: energies
-     integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin,itermax
+     integer :: nbox, nodes, radius, lmax,nmax,njoin,itermax
      integer :: nn,np,nt,icoul,icm
      logical :: j2terms
      integer, allocatable :: sortstates(:,:,:)
 contains
-     subroutine init_params
+
+     subroutine init_params !< Initialization of the parameters
           namelist /box/ nbox,h
           namelist /params/ r0,conv,hbar22m,itermax
           namelist /nucleus/ nn,np,lmax
@@ -31,7 +33,6 @@ contains
           read(5,params)
           read(5,nucleus)
           read(5,interaction)
-          if ((welltype /= 1) .AND. (welltype /= 2)) write (*,*) "Put in a proper welltype!"
           nt = np+nn
           nrad = r0 * (nt)**(1._wp/3._wp)
           vpb(1) = -51.+33.*(nn-np)/nt
@@ -82,7 +83,7 @@ contains
      end subroutine init_params
 
 
-     subroutine init_grids
+     subroutine init_grids !< Initialization of the grids
           integer :: i
           small = 1E-20_wp
           allocate(mesh(0:nbox))
@@ -90,13 +91,13 @@ contains
           mesh(0) = small
      end subroutine init_grids
 
-     subroutine init_wavefunctions
+     subroutine init_wavefunctions !< Initialization of the wavefunctions and densities
           allocate(wfr(0:nbox,lmax,0:lmax,2,2),&
           wfl(0:nbox,lmax,0:lmax,2,2),rho(0:nbox,4),drho(0:nbox,4),ddrho(0:nbox,4),&
           tau(0:nbox,4),jsc(0:nbox,4),djsc(0:nbox,4),laprho(0:nbox,4))
      end subroutine init_wavefunctions
 
-  subroutine init_fields
+  subroutine init_fields !< Initialization of the fields
     integer :: ir,iq
     allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox),ucso(0:nbox,2),dumr(0:nbox,2))
     do iq = 1,2
@@ -110,18 +111,16 @@ contains
   end subroutine init_fields
 
     !!!Must be multiplied by (positive) vpb in calculations
- function fullwoodsaxon(ir) result(pot)
+ function fullwoodsaxon(ir) result(pot) !< Function to generate the initial woodsaxon
     real(wp) :: pot
     integer, intent(in) :: ir
       pot = 1 / (1 + exp((mesh(ir)-nrad)/a))
   end function
 
 !!!Must be multiplied by (positive) vpb in calculations
-function dfullwoodsaxon(ir) result(pot)
+function dfullwoodsaxon(ir) result(pot) !< Function to generate spin-orbit
     real(wp) :: pot
     integer, intent(in) :: ir
-      !pot = -1 / (1 + exp((mesh(ir)-nrad)/a))*(1/a)*(1 / (1 + exp((-mesh(ir)+nrad)/a)))
-      !pot = -1 / (2*a*(cosh((nrad - mesh(ir))/a) + 1))
       pot = -(1/a)*(1 / (1 + exp((-mesh(ir)+nrad)/a)))
   end function
 

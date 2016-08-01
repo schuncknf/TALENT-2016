@@ -1,10 +1,10 @@
 CC	= gfortran
-CFLAGS	=  -Ofast #-g -fbounds-check -Wall
+CFLAGS	=  -g -fbounds-check -Wall #-Ofast #-g -fbounds-check -Wall
 
 LDFLAGS	=
 EXEC	= main
 
-OBJS = main.o init.o solver.o
+OBJS = main.o init.o solver.o wavefunctions.o fields.o
 
 all: $(EXEC)
 
@@ -13,13 +13,13 @@ $(EXEC): $(OBJS)
 
 init.o: init.f90
 
-wavefunctions.o: wavefunctions.f90 init.o 
+wavefunctions.o: wavefunctions.f90 init.o
 
 fields.o: fields.f90 init.o wavefunctions.o
 
 solver.o: solver.f90 init.o fields.o wavefunctions.o
 
-main.o: main.f90 init.o solver.o wavefunctions.o
+main.o: main.f90 init.o wavefunctions.o fields.o solver.o
 
 .SUFFIXES : .f90 .o
 
