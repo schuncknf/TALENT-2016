@@ -10,9 +10,9 @@
 # Well depth [MeV]
 50.
 # Min limit  [MeV]
--44
+-44.
 # Max limit  [MeV]
--4.
+-4
 # Energy mesh [MeV]
 0.5
 # First step wavefunction value [a.u]

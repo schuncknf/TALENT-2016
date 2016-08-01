@@ -97,7 +97,9 @@ double checkDLS(double E_trial){
     
     DLSfile.close();
     
+    cout << RHSderiv/LHSderiv - RHSval/LHSval << endl;
+    
     // Return DLS condition
-    return RHSderiv*LHSval - LHSderiv*RHSval;
+    return RHSderiv/LHSderiv - RHSval/LHSval;
     
 }

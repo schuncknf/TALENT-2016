@@ -119,7 +119,15 @@ int main()
 				else Spin = 0.5;
 
 				int n = 1;
-
+                
+                vector<double> potentialPrescan;
+                for (int kk=1;kk<length;++kk){
+                    potentialPrescan.push_back(V(kk*h,isoSpin,L,spin));
+                }
+                eMin = *min_element(potentialPrescan.begin(),potentialPrescan.end());
+                nSteps = (eMax-eMin)/eStep;
+//                 cout << eMin << endl;
+                
 				// Loop for the calculation
 				for(int jj=0; jj<nSteps; jj++) // (eMax+eMin)
 				{
@@ -128,10 +136,10 @@ int main()
 					wf_val.push_back(wfStep2);
 
 					// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
-					for(int i=0; i<wBox/h; i++)
+					for(int i=2; i<wBox/h; i++)
 					{
 						//wf_val.push_back(numerovAlgorithm(eMin, wf_val.at(i+1), wf_val.at(i), i*h, isoSpin, L, spin));
-						wf_val.push_back(numerovAlgorithm(eMin, wf_val[i+1], wf_val[i], i*h, isoSpin, L, spin));
+						wf_val.push_back(numerovAlgorithm(eMin, wf_val[i-1], wf_val[i-2], i*h, isoSpin, L, spin));
 					}
 
 					// Assign value to wfLast
@@ -169,7 +177,7 @@ int main()
 
 							// Calculate eigenfunction using Numerov
 							//for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val.at(i+1), wf_val.at(i), i*h, isoSpin, L, spin));
-							for(int i=0; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val[i+1], wf_val[i], i*h, isoSpin, L, spin));
+							for(int i=2; i<wBox/h; i++) wf_val.push_back(numerovAlgorithm(eigenEng, wf_val[i-1], wf_val[i-2], i*h, isoSpin, L, spin));
 
 							// Calculate normalisation factor
 							normFac = normalise(eigenEng, isoSpin, L, spin);
@@ -205,14 +213,14 @@ int main()
 							ofstream opFile;
 							opFile.open(filename);
 							for(int k=0; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val.at(k) << "\t" << V(k*h, isoSpin, L, spin) << "\t" << woodsSaxon(k*h) << "\t" << centrifugal(k*h,L) << "\t" << spinOrbit(k*h,L,0.5) << "\t" << coulomb(k*h) << endl;
-							for(int k=1; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val[k] << "\t" << pow((sqrt(normFac)*wf_val[k]/(k*h)),2) << endl;
+// 							for(int k=1; k<wBox/h; k++) opFile << h*k << "\t" << sqrt(normFac)*wf_val[k] << "\t" << pow((sqrt(normFac)*wf_val[k]/(k*h)),2) << endl;
 							opFile.close();
                             
                             // Store state in 'protonStates' or 'neutronStates'
                             if(isoSpin==0){
                                 state newProtonState;
                                 
-                                for(int k=1; k<wBox/h; k++) wf_val[k] = sqrt(normFac)*wf_val[k];
+                                for(int k=0; k<wBox/h; k++) wf_val[k] = sqrt(normFac)*wf_val[k];
                                 newProtonState.EFN = wf_val;
                                 newProtonState.n = n;
                                 newProtonState.l = L;
@@ -224,7 +232,7 @@ int main()
                             else{
                                 state newNeutronState;
                                 
-                                for(int k=1; k<wBox/h; k++) wf_val[k] = sqrt(normFac)*wf_val[k];
+                                for(int k=0; k<wBox/h; k++) wf_val[k] = sqrt(normFac)*wf_val[k];
                                 newNeutronState.EFN = wf_val;
                                 newNeutronState.n = n;
                                 newNeutronState.l = L;                                
@@ -310,8 +318,8 @@ int main()
     cout << "*************************************************************************" << endl;
     cout << "*\tParticle totals from density calculations" << "\t\t\t*" << endl;
 	cout << "*\tTotal nucleons:\t" << totalMatterDensity(density) << "\t\t\t\t\t\t*" << endl;
-	cout << "*\tTotal protons :\t" << totalMatterDensity(totProton) << " \t\t\t\t\t*" << endl;
-	cout << "*\tTotal neutrons:\t" << totalMatterDensity(totNeutron) << " \t\t\t\t\t*" << endl;
+	cout << "*\tTotal protons :\t" << totalMatterDensity(totProton) << " \t\t\t\t\t\t*" << endl;
+	cout << "*\tTotal neutrons:\t" << totalMatterDensity(totNeutron) << " \t\t\t\t\t\t*" << endl;
     cout << "*\t\t\t\t\t\t\t\t\t*" << endl;
     
 	density.clear();
@@ -350,16 +358,39 @@ int main()
 // INPUT ARGUMENTS:
 //     E = trial energy
 //   f_x = Wavefunction value from previous step ( f(x)   from TALENT school notes)
-// f_x_h = Wavefunction value from two steps ago ( f(x-h) from TALENT scrool notes)
+// f_x_h = Wavefunction value from two steps ago ( f(x-h) from TALENT school notes)
 double numerovAlgorithm(double E, double f_x, double f_x_h, double r, int isoSpin, int L, int spin)
 {
 	double a[3];		// Array for Numerov coefficients
-	double Vr = (E-V(r+h, isoSpin, L, spin)) / hm_fac;	// Numerov potential
+	double Vrplus = (E-V(r+h, isoSpin, L, spin)) / hm_fac;	// Numerov potential
+	double Vrminus = (E-V(r-h, isoSpin, L, spin)) / hm_fac;	// Numerov potential
+	double Vr0 = (E-V(r, isoSpin, L, spin)) / hm_fac;	// Numerov potential
 
-	a[0] = 2. * (1. - 5./12. * Vr * h * h);	// Coeff. for f(x)
-	a[1] = 1. * (1. + 1./12. * Vr * h * h);	// Coeff. for f(x-h)
-	a[2] = 1. * (1. + 1./12. * Vr * h * h);	// Coeff. for f(x+h)
+//     if(r==0){
+//         a[0] = 0.;	// Coeff. for f(x)
+//     }
+//     else{
+//         a[0] = 2. * (1. - 5./12. * Vr0 * h * h);	// Coeff. for f(x)
+//     }
+//     if(r==0){
+//         a[1] = 0.;	// Coeff. for f(x-h)
+//     }
+//     else if(r==h){
+//         a[1] = 0.;	// Coeff. for f(x-h)
+//     }
+//     else{
+//         a[1] = 1. * (1. + 1./12. * Vrminus * h * h);	// Coeff. for f(x-h)
+//     }
+//     a[2] = 1. * (1. + 1./12. * Vrplus * h * h);	// Coeff. for f(x+h)
 
+    a[0] = 2. * (1. - 5./12. * Vr0 * h * h);
+    a[1] = 1. * (1. + 1./12. * Vrminus * h * h);
+    a[2] = 1. * (1. + 1./12. * Vrplus * h * h);
+
+//     a[0] = 2. * (1. - 5./12. * Vrplus * h * h);
+//     a[1] = 1. * (1. + 1./12. * Vrplus * h * h);
+//     a[2] = 1. * (1. + 1./12. * Vrplus * h * h);
+    
 	double nuWF = ((a[0] * f_x) - (a[1] * f_x_h)) / a[2]; // Calculate wavefunction value
 
 	return nuWF;	// Return nuWF value when function called
@@ -389,10 +420,10 @@ double converge(double eLo, double eHi, double wfLo, double wfHi, int isoSpin, i
 		wf_val.push_back(wfStep2);	// Initiate Step 1 wavefunction value
 
 		// Loop for calculating wavefunction values across the mesh, using the Numerov algorithm
-		for(int i=0; i<wBox/h; i++)
+		for(int i=2; i<wBox/h; i++)
 		{
 			//wf_val.push_back(numerovAlgorithm(trialE, wf_val.at(i+1), wf_val.at(i), i*h, isoSpin, L, spin));
-			wf_val.push_back(numerovAlgorithm(trialE, wf_val[i+1], wf_val[i], i*h, isoSpin, L, spin));
+			wf_val.push_back(numerovAlgorithm(trialE, wf_val[i-1], wf_val[i-2], i*h, isoSpin, L, spin));
 		}
 
 		// Work out which wavefunction is......I think this is where the convergence function is messing up.
@@ -435,9 +466,9 @@ double normalise(double eigenEng, int isoSpin, int L, int spin)
 	//for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h, isoSpin, L, spin));
 	//for(int i=0; i<(wBox/h)-1; i++) sum += h*pow(wfWork.at(i),2);
 
-	for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork[i+1], wfWork[i], i*h, isoSpin, L, spin));
+	for(int i=2; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork[i-1], wfWork[i-2], i*h, isoSpin, L, spin));
 
-	for(int i=1; i<(wBox/h)-1; i++) sum += h*pow((wfWork[i]),2);
+	for(int i=0; i<(wBox/h); i++) sum += h*pow((wfWork[i]),2);
 
 	double normFac = 1/(sum);
 	wfWork.clear();
@@ -448,6 +479,7 @@ double normalise(double eigenEng, int isoSpin, int L, int spin)
 // Total potential
 double V(double r, int isoSpin, int L, int spin)
 {
+//     if(r<r+h) r=h;
 	if (isoSpin == 0)
 		return woodsSaxon(r) + centrifugal(r,L) + spinOrbit(r,L,spin) + coulomb(r);
 	else
@@ -503,8 +535,8 @@ double coulomb(double r)
 {
 	double V_c;
 	double Rp = r0 * pow(nProton,1./3);
-	if(r<=Rp) V_c = (nProton * q * q / (2*Rp)) * (3 - pow(r/Rp,2));
-	else V_c = nProton * q * q / r;
+	if(r<=Rp) V_c = (nProton * q / (2*Rp)) * (3 - pow(r/Rp,2));
+	else V_c = nProton * q / r;
 
 	return V_c;
 }
