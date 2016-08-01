@@ -5,7 +5,7 @@ use init
 implicit none
 
 contains
-
+  !> The densities (rho, tau, J) are calculated here
   subroutine build_densities
     integer :: npr,iq,ir,i,l,n,is
     real(wp) :: j
@@ -41,10 +41,8 @@ contains
               end do
               !rho(0,iq) = rho(1,iq)
               !tau(2,iq) = tau(3,iq)
-              !tau(1,iq) = tau(2,iq)
-              !tau(0,iq) = tau(1,iq)
-
-
+              tau(1,iq) = tau(2,iq)
+              tau(0,iq) = tau(1,iq)
             end if
         end do
      end do
@@ -58,7 +56,8 @@ contains
      call ddensities
   end subroutine build_densities
 
-
+  !> dwavefunction calculates the derivative of the wavefunctions and a given
+  !! point using second order finite difference
   function dwavefunction(ir,n,l,is,iq) result(derv)
     integer, intent(in) :: ir,n,l,is,iq
     real(wp) :: derv
@@ -90,7 +89,8 @@ contains
     end if
   end function
 
-
+  !> ddensities calculates the derivative of rho and J and the second derivative
+  !! of rho and stores the value in an array
   subroutine ddensities
     integer :: ir,iq,i
     do iq=1,2

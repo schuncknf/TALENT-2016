@@ -15,7 +15,7 @@ program main
     call init_grids
     call init_wavefunctions
     call init_fields
-    call solve_r
+    call statichf
 
 
     ! Writing the single particle states to 'out'

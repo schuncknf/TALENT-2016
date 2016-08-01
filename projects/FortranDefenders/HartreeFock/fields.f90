@@ -6,7 +6,7 @@ use wavefunctions
 implicit none
 
 contains
-
+  !> build_fields builds the fields and populates the field arrays
   subroutine build_fields
     integer :: ir, iq, ir2
     real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew,dumrnew
@@ -82,17 +82,18 @@ contains
     dumr(:,:) = dumrnew(:,:)*xmix + dumr(:,:)*ymix
     if(icoul==0) ucoul(:) = 0.
   end subroutine build_fields
-
+  !> totenergy calculates the total energy using both the koopman theorem and
+  !! the integration of the energy density
   subroutine totenergy
     real(wp) :: kinetic(1:2),val
     integer :: iq,i,l,is
     !Functional variables
-    real(wp) :: ekin,ecould,ecoulex,ecentr,edd, eso,totfonct
+    real(wp) :: ekin,ecould,ecoulex,ecentr,edd, eso
     real(wp) :: tmp(0:nbox),rg(0:nbox)
 
 
     !method using the functional energy
-    totfonct = 0.0_wp
+    totfunct = 0.0_wp
     !!!Kinetic energy
       ekin = hbar22m * cmcorr * 4._wp*pi*h*sum( tau(:,3)*mesh(:)**2)
     !!!Coulomb energy
@@ -131,7 +132,7 @@ contains
         &  ( djsc(:,4) + 2 * jsc(:,4) / mesh(:)))
 
     !!!Total Energy with the functional
-    totfonct = ekin+ecould+ecoulex+ecentr+edd+eso
+    totfunct = ekin+ecould+ecoulex+ecentr+edd+eso
 
     !Energy calculation using Koopman's theorem
     totalenergy = 0.
@@ -154,9 +155,9 @@ contains
                 -e2*(3./pi)**(1./3.)*pi*h*sum(mesh(:)**2*rho(:,2)**(4./3.))
                 !-4*h*pi*t3*0.125*sum(mesh(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
     totalkinetic = sum(kinetic(:))
-    !print *,totfonct - totalenergy
+    !print *,totfunct - totalenergy
   end subroutine totenergy
-
+  !> energy_sort sorts the occupied single particle states
   subroutine energy_sort
     integer :: n, l, iq, is,k,i,nfill,nfull
     real(wp) :: temp,j
@@ -209,20 +210,5 @@ contains
     !end if
     end do
   end subroutine energy_sort
-
-  function spinorbit(ir,l,is) result(pot)
-    integer, intent(in) :: ir,l, is
-    real(wp) ::  pot
-
-    if (ir .EQ. 0) then
-      pot = 0._wp
-    else
-      if (l .EQ. 0) then
-        pot = 0._wp
-      else
-        pot = r0**2 * dfullwoodsaxon(ir)/mesh(ir)* 0.5 *((l+spin(is))*(l+spin(is)+1) - l*(l+1) - 0.75)
-      end if
-    end if
-  end function
 
 end module fields

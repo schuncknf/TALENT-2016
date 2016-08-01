@@ -9,7 +9,7 @@ implicit none
      real(wp), parameter :: vso = 23_wp
      real(wp) :: t0,x0,t1,x1,t2,x2,t3,x3,sig,w0
      real(wp) :: cmcorr
-     real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2),totalenergy,totalkinetic
+     real(wp) :: h,conv,hbar22m,v0,nrad,vpb(2),r0,small,spin(2),totalenergy,totfunct,totalkinetic
      real(wp) :: a0r0,a1r1,a0s0,a1s1,a0tau0,a1tau1,a0t0,a1t1,a0r0p,a1r1p,&
                 & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
      real(wp), allocatable,dimension(:) :: mesh,ucoul

@@ -6,12 +6,11 @@ module solver
   implicit none
 
 contains
+  !> statichf performs the Hartree-Fock iterations until the convergence criteria
+  !! or max number of iterations are met. Within, the Numerov method is used to
+  !! solve for the energy of a given state. 
+  subroutine statichf
 
-  subroutine solve_r
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ! This subroutine is closely based on the notes provided by the organizers
-    ! of the 2016 Density Functional Theory TALENT Course.
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes,l, is, iq, n,iter
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff,oldtotenergy,currentconv
     real(wp), allocatable :: potential(:),vocc(:,:,:,:)
@@ -28,7 +27,7 @@ contains
         !stop
       end if
       call totenergy
-      oldtotenergy = totalenergy
+      oldtotenergy = totfunct
       do iq =1,2
         do n =1,lmax-2
           do l =0,lmax
@@ -108,11 +107,11 @@ contains
         call energy_sort
         call build_densities
         call totenergy
-        currentconv = abs(totalenergy- oldtotenergy)
+        currentconv = abs(totfunct - oldtotenergy)
         write (6,*) "Iteration:",iter,"Convergence:",currentconv
         if (currentconv<conv) exit
 
        end do
-  end subroutine solve_r
+  end subroutine statichf
 
 end module solver
