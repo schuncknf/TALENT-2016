@@ -20,7 +20,8 @@ double sqrtDoubleFactorial(int n)
 }
 
 SpBasis::SpBasis(double _omega, int _nMax, int _lMax) :
-  Basis(std::string("SpBasis"), std::vector<std::string>(
+  Basis(std::string("SpBasis"),
+        std::vector<std::string>(
 {"n", "l", "m", "s"
 })),
 omega(_omega),
