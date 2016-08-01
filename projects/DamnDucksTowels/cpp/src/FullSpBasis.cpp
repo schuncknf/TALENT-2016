@@ -6,11 +6,12 @@
 
 FullSpBasis::FullSpBasis(double _omega, int _nMax, int _lMax) :
   Basis(std::string("FullSpBasis"), std::vector<std::string>(
-{"n", "l", "2j"
+{
+  "n", "l", "2j"
 })),
 omega(_omega),
-nMax(_nMax),
-lMax(_lMax)
+      nMax(_nMax),
+      lMax(_lMax)
 {
   //Defining maximum numbers and determining basis size
   size = (nMax + 1) * ((lMax + 1) * 2 - 1);

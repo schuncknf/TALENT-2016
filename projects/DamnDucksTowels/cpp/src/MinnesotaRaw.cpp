@@ -17,6 +17,7 @@ MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string
     {
       TBME(state0, state1) = arma::zeros(_basis.size, _basis.size);
     }
+
 /////////////////////////////////////////////////
   int nMax = _basis.nMax;
   int lMax = _basis.lMax;
@@ -66,10 +67,9 @@ MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string
 
   while (input >> a >> b >> c >> d >> V)
   {
-
     if ((vec_l(a) == vec_l(c)) && (vec_2j(a) == vec_2j(c)) && (vec_2m(a) == vec_2m(c)) && (vec_l(b) == vec_l(d)) && abs(vec_2j(b) == vec_2j(d)) && abs(vec_2m(b) == vec_2m(d)) && (vec_2t(a) == 1) && (vec_2t(b) == 1) && (vec_2t(c) == 1) && (vec_2t(d) == 1))
     {
-      TBME(lst(a-1), lst(b-1))(lst(c-1), lst(d-1)) += V / (vec_2j(a) + 1) / (vec_2j(b) + 1);
+      TBME(lst(a - 1), lst(b - 1))(lst(c - 1), lst(d - 1)) += V / (vec_2j(a) + 1) / (vec_2j(b) + 1);
     }
   }
 }

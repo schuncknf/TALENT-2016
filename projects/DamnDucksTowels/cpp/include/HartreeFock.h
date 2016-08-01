@@ -3,6 +3,10 @@
 
 #include "Solver.h"
 #include "System.h"
+#include "quadrature.h"
+#include "FullSpBasis.h"
+#include "MinnesotaRaw.h"
+#include "global.h"
 
 /// class HartreeFock -
 class HartreeFock : public Solver

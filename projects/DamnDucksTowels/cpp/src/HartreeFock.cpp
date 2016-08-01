@@ -1,7 +1,4 @@
 #include "HartreeFock.h"
-#include "quadrature.h"
-#include "SpBasis.h"
-#include "global.h"
 
 HartreeFock::HartreeFock(System &_system) : Solver(_system), D(_system.particleNumbers.n_rows), occ(_system.particleNumbers.n_rows)
 {
@@ -34,8 +31,27 @@ void HartreeFock::run()
     // Temporary vectors and matrices to store eigenvecs and energies
     arma::vec old_indivE = indivEnergies.row(pType).t();
     arma::vec new_indivE;
+
     // Hamiltonian diagonalization to extract D and e
-    arma::eig_sym(new_indivE, D(pType), H);
+    if ((system->basis->type == "FullSpBasis") && (dynamic_cast<MinnesotaRaw *>(system->inter) != NULL))
+    {
+      int bl_size = system->basis->qNumbers.col(0).max() + 1;
+
+      for (int i = 1; i <= nb_state / bl_size; i++ )
+      {
+        arma::mat subD;
+        arma::vec subE;
+        arma::mat subH = H.submat((i - 1) * bl_size, (i - 1) * bl_size, i * bl_size - 1, i * bl_size - 1);
+        arma::eig_sym(subE, subD, subH);
+        new_indivE.subvec( (i - 1)*bl_size, i * bl_size - 1) = subE;
+        D(pType).submat( (i - 1)*bl_size, (i - 1)*bl_size, i * bl_size - 1, i * bl_size - 1) = subD;
+      }
+    }
+    else
+    {
+      arma::eig_sym(new_indivE, D(pType), H);
+    }
+
     // Extraction of eigenenergies' sequence
     arma::uvec sorted_ind = arma::sort_index(new_indivE);
     sorted_ind = sorted_ind.head(system->particleNumbers(pType));

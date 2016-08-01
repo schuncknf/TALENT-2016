@@ -7,12 +7,13 @@
 SpBasis::SpBasis(double _omega, int _nMax, int _lMax) :
   Basis(std::string("SpBasis"),
         std::vector<std::string>(
-{"n", "l", "m", "s"
+{
+  "n", "l", "m", "s"
 })),
 omega(_omega),
-nMax(_nMax),
-lMax(_nMax + 1),
-mMax(_nMax + 1, _lMax + 1)
+      nMax(_nMax),
+      lMax(_nMax + 1),
+      mMax(_nMax + 1, _lMax + 1)
 {
   //Defining maximum numbers and determining basis size
   size = 0;
