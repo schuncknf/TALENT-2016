@@ -5,32 +5,13 @@ import config
 import numpy as np
 
 
-def read_TBME(inter, f_TBME):
-    basis = []
-    nMax = 3
-    lMax = 1
-    jMin = 0
-    jMax = 5
-    for n in range(1, nMax + 1):
-        for l in range(0, lMax + 1):
-            for j2 in range(int(2 * jMin + 1), int(2 * jMax), 2):
-                for tz in range(-1, 1):
-                    for mj2 in range(-j2, j2 + 1, 2):
-                        basis.append((n,l,j2 + 1,mj2,tz))
-                        print (n,l,j2,mj2,tz)
-    for l in fp:
-        if i in (0, 1):
-            continue
-        
-        
-
 if __name__ == '__main__':
     if config.lMax == 0:
         basisType = "ReducedSpBasis"
         basis = hffs.ReducedSpBasis(config.omega, config.nMax)
     else:
-        basisType = "SpBasis"
-        basis = hffs.SpBasis(config.omega, config.nMax, config.lMax, config.mMax)
+        basisType = "FullSpBasis"
+        basis = hffs.FullSpBasis(config.omega, config.nMax, config.lMax)
 
     pi = config.interaction.split(':')
     if len(pi) == 1:
@@ -50,7 +31,7 @@ if __name__ == '__main__':
         else:
             raise ValueError("Unknown interaction \"%s\"" % (config.interaction))
     elif inter_input == "file":
-        pass
+        inter = hffs.MinnesotaRaw(basis, config.nb_neutron, inter_type)
         #fp = open(inter_type, "r")
         # TODO
     else:
@@ -84,6 +65,7 @@ if __name__ == '__main__':
         kinetic = system.getKinetic(0)
         gamma = system.getGamma(0)
         delta = system.getDelta(0)
+        print(gamma)
         #print(solver.indivEnergies)
         ene = np.trace(kinetic.dot(system.getR(0,0)) + 0.5 * gamma.dot(system.getR(0,0)))
         print("%03i %s, e=%.7f" % (i,solver.info(), ene))
