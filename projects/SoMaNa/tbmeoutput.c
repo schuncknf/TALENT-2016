@@ -13,25 +13,26 @@ void tbmeprint (double *coeff, int nmesh)
        	
 	n = (int)coeff[0]; printf("N = %d \n\n", n);	
 	
-        galagcoeff = (double**) malloc(n*sizeof(double));
-        for (i=0; i<n; i++) { 
-		galagcoeff[i] = (double*) malloc(2*sizeof(double));
+        galagcoeff = (double**) malloc(nmesh*sizeof(double*));
+        for (i=0; i<nmesh; i++) { 
+		galagcoeff[i] = (double*) malloc(nmesh*sizeof(double));
 		}
 	
-	galagcoeffa = (double**) malloc((n+2)*sizeof(double));
-        for (i=0; i<n+2; i++) { 
+	galagcoeffa = (double**) malloc((nmesh+2)*sizeof(double));
+        for (i=0; i<nmesh+2; i++) { 
 		galagcoeffa[i] = (double*) malloc(2*sizeof(double));
 		}
 
-	bmcoeff = (double**) malloc((n+2)*sizeof(double));
-        for (i=0; i<n+5; i++) { 
-		bmcoeff[i] = (double*) malloc((n+2)*sizeof(double));
+	bmcoeff = (double**) malloc((nmesh+2)*sizeof(double));
+        for (i=0; i<nmesh+2; i++) { 
+		bmcoeff[i] = (double*) malloc((nmesh+2)*sizeof(double));
 		}
 	
-	bmcoeff= fac_bin_mat(n+4);
+	bmcoeff= fac_bin_mat(nmesh+4);
 	
 	galagcoeff= fac_galag_a0(nmesh,bmcoeff);
-	galagcoeffa= fac_galag_a(nmesh,0,bmcoeff);
+		
+	galagcoeffa= fac_galag_a(nmesh,2,bmcoeff);
        
         FILE *TBMEOUT, *LABELSTABLE;
         TBMEOUT = fopen("tbme.out", "w");
@@ -39,6 +40,11 @@ void tbmeprint (double *coeff, int nmesh)
        
         fprintf (TBMEOUT, "orbit 1 \t 2 \t\t 3 \t\t 4 \t\t TBME \n");
         fprintf (LABELSTABLE, "orbit \t\t n \t\t l \t\t j \t\t 2*s \n");
+	
+	/*for (i=0; i<nmesh;i++){
+		for (j=0;j<nmesh;j++){
+			printf("%lf ", i,j,galagcoeff[i][j]); }
+			printf("# \n");}*/
        
         for (n1=0; n1<=n; n1++){//l1+=1;
        
@@ -58,16 +64,14 @@ void tbmeprint (double *coeff, int nmesh)
                         for (s3=-0.5; s3<0.6; s3+=1.0){l3=n3*2+((int)(floor(s3))+1);
                         for (s4=-0.5; s4<0.6; s4+=1.0){l4=n4*2+((int)(floor(s4))+1);
                        
-                       
-                       
-			//fprintf (TBMEOUT,"%d \t\t %d \t\t %d \t\t %d \t\t %lf \n", l1,l2,l3,l4,twodgalag(n,n1,n2,n3,n4,m,w,Vr,Vs,Vt,kappar,kappas,kappat,0.0,s1,s2,s3,s4,coeff,0.0,0.0));
+			fprintf (TBMEOUT,"%d \t\t %d \t\t %d \t\t %d \t\t %lf \n", l1,l2,l3,l4,galag2D(nmesh,n,n1,n2,n3,n4,coeff,s1,s2,s3,s4,galagcoeff,bmcoeff,galagcoeffa));
                                                
                        
                         // printf ("%d \t\t %d \t\t \%d \t %d \t %d \t %d \t \%d \t %d \t\n", n1,(int)(2*s1),n2,(int)(2*s2),n3,(int)(2*s3),n4,(int)(2*s4));
                        
                         }}}} }}}} }
        
-	// printf ("%d \t\t %d \t\t %d \t\t %d \t\t %lf \n", l1,l2,l3,l4,twodgalag(n,0,1,0,2,m,w,Vr,Vs,Vt,kappar,kappas,kappat,0.0,0.5,0.5,0.5,0.5,coeff,0.0,0.0));
+	printf ("%d \t\t %d \t\t %d \t\t %d \t\t %lf \n", 1,1,1,1,galag2D(nmesh,nmesh,1,1,1,1,coeff,s1,s2,s3,s4,galagcoeff,bmcoeff,galagcoeffa));
 	
         fclose(TBMEOUT);
        

@@ -1,12 +1,12 @@
-#ifndef SPBASIS_H
-#define SPBASIS_H
+#ifndef FULLSPBASIS_H
+#define FULLSPBASIS_H
 
 #include <armadillo>
 
 #include "Basis.h"
 
-/// class SpBasis -
-class SpBasis : public Basis
+/// class FullSpBasis -
+class FullSpBasis : public Basis
 {
   // Attributes
 public:
@@ -15,21 +15,19 @@ public:
   /// Maximum allowed value for the quantum number n
   int nMax;
   /// Maximum allowed value for the quantum number l
-  arma::ivec lMax;
-  arma::imat mMax;
+  int lMax;
   /// Auxiliary parameter
   double nu;
 private:
   arma::vec N;
   // Operations
 public:
-  SpBasis (double _omega, int _nMax, int _lMax);
-  ~SpBasis ();
+  FullSpBasis (double _omega, int _nMax, int _lMax);
+  ~FullSpBasis ();
   /// Calculating radial wave function
-  void evalRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
-  void evalDerivativeRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
-  void evalRadialWaveFunctionNoExp (arma::mat &wfMatrix, arma::vec &r);
-  int deltaSpin (int idx1, int idx2);
+//  void evalRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
+//  void evalDerivativeRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
+//  void evalRadialWaveFunctionNoExp (arma::mat &wfMatrix, arma::vec &r);
 private:
   /// Calculating normalization coefficient
   void calcN ();

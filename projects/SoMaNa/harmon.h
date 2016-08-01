@@ -1,8 +1,8 @@
-#include <stdio.h>
+ #include <stdio.h>
 #include <math.h>
 
-double Anl (double*, double*);
+double Anl (int, double*, double*);
 
 double bred (double*);
 
-double Rnl (double*, double**, double);
+double Rnl (int, double*, double**, double);
