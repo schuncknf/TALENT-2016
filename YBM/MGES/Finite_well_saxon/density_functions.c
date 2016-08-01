@@ -17,7 +17,6 @@ double<vector> singleOrbitDensity(double j, double<vector> efn){
     // Returns radial density function for single eigenfunction 'efn'
     
     double<vector> density(efn.size());
-    double pi = 3.14159265358979;
         
     for(int i=0;density.size();++i){
         density[i] = (2*j + 1)/(4*pi*pow(i*h,2) * pow(efn[i],2);

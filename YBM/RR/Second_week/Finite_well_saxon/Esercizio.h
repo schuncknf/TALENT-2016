@@ -34,6 +34,7 @@
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
 
 	struct state{
+		vector<double> wavefn;
     	double n, l, j;
     	double eig;
 	};
