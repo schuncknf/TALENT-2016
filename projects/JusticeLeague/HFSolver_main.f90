@@ -4,6 +4,7 @@ program HFSolver
   use :: variables
   use :: HartreeFock
   use :: Minnesota
+  use :: LDA
   implicit none 
   integer :: i,j,k
   real(dp) :: EHF,tr_rho,r,dr
