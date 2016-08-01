@@ -11,12 +11,12 @@ int main(){
 
 	vector<double> wave_val;
 	vector<double> eigenval;
-	
-
-//Routine to find eigevalues: this works finding the value of energy at which the eigenfunction cross the 0 
-/*	
 	double S = 1./2.;
-	cout<<"Level"<<"    	"<<"L value"<<"    	"<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
+    vector<state> neutronstates;
+
+//Routine to find eigevalues and write result ordered on terminal
+
+    state appoggio;
 	for(int node=0; node<3; node++){
 		for(int L=0; L<8;L++){
 			for(int h=1; h<3; h++){
@@ -28,10 +28,10 @@ int main(){
 				Edown = -50.;
 				do{
 					Etrial = (Eup+Edown)/2.;
+					wave_val.push_back(0.05);
 					wave_val.push_back(0.1);
-					wave_val.push_back(0.15);
 					for(int i=1; i<n_step_width_box; i++){
-						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+2.*h_width,S,L,J));
+						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+h_width,S,L,J,-1./2.));
 					}
 					nodecount = 0;
 					for(int i=1; i<n_step_width_box+2; i++){
@@ -46,25 +46,40 @@ int main(){
 					}
 					wave_val.clear();
 				}while(abs(Eup-Edown)>prec);
-			if(Etrial<-4.5&&Etrial>-50)
-			cout<<node+1<<"	  	"<<L<<"    	 	"<<J*2<<"/2"<<"  	 		"<<setprecision(12)<<Etrial<<endl;
+				if(Etrial<-0.1&&Etrial>-50){
+					appoggio.eig = Etrial;
+					appoggio.l = L;
+					appoggio.j = J;
+					neutronstates.push_back(appoggio);
+				}	
 			}
 		}
-		cout<<endl;
 	}
-*/
+	sort(neutronstates.begin(), neutronstates.end(), compare());
+	int n_neutron = 0;
+	cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
+	for(int i=0; i<neutronstates.size(); i++){
+		if(n_neutron<126){
+			cout<<neutronstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<neutronstates[i].eig<<endl;
+			n_neutron += (2*neutronstates[i].j+1);
+		}
+	}
+	cout<<"Il numero di neutroni calcolato è:"<<n_neutron<<endl;
 
 
-//Density
+
+
+//Routine to obtain neutron density and proton density, and the sum of both
+/*
 	ofstream myfile_density, myfile_wave;
 	char orbital[26];
+	int n_neutron = 0;
 
 	double * density = new double [n_step_width_box+1];
 	for(int i=1; i<n_step_width_box+1; i++){
 		density[i] = 0.;
 	}
 	vector<double> wave_eigen;
-	double S = 1./2.;
 	for(int node=0; node<3; node++){
 		for(int L=0; L<8;L++){
 			for(int h=1; h<3; h++){
@@ -76,10 +91,10 @@ int main(){
 				Edown = -50.;
 				do{
 					Etrial = (Eup+Edown)/2.;
+					wave_val.push_back(0.05);
 					wave_val.push_back(0.1);
-					wave_val.push_back(0.15);
 					for(int i=1; i<n_step_width_box; i++){ //the vector has n_step_width_box + 1 boxes
-						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+2.*h_width,S,L,J));
+						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+h_width,S,L,J,-1./2.));
 					}
 					nodecount = 0;
 					for(int i=1; i<n_step_width_box+1; i++){
@@ -94,18 +109,17 @@ int main(){
 					}
 					wave_val.clear();
 				}while(abs(Eup-Edown)>prec);
-				if(Etrial<-4.5&&Etrial>-50){
+				if(Etrial<-4.5){
+					wave_eigen.push_back(0.05);
 					wave_eigen.push_back(0.1);
-					wave_eigen.push_back(0.15);
-					sprintf(orbital,"wf_%1.4f_.dat",Etrial);
+					sprintf(orbital,"wf_neutron%1.4f.dat",Etrial);
 					myfile_wave.open(orbital);
-					cout<<Etrial<<"	";
-					double norm = normalise(Etrial, n_step_width_box, S, L, J);
-					cout <<norm<<endl;
+					//cout<<Etrial<<endl;
+					double norm = normalise(Etrial, n_step_width_box, S, L, J,-1./2.);
 					for(int i=1; i<n_step_width_box+1; i++){
-						wave_eigen.push_back(numerov_algorithm_woods(Etrial, wave_eigen[i], wave_eigen[i-1], i*h_width+2.*h_width,S,L,J));
-						density[i] += (2.*J+1.)/(4.*M_PI*pow(i*h_width+2.*h_width,2))*pow(wave_eigen[i]/sqrt(norm),2);
-						myfile_wave << i*h_width +2.*h_width<< "   " << wave_eigen[i]/(sqrt(norm)*(i*h_width +2.*h_width)) << endl;	//Crea un numero di file pari agli autovalori e guarda nelle f d'onda dove ci sono i problemi ;-)
+						wave_eigen.push_back(numerov_algorithm_woods(Etrial, wave_eigen[i], wave_eigen[i-1], i*h_width+h_width,S,L,J,-1./2.));
+						density[i] += (2.*J+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(wave_eigen[i]/sqrt(norm),2);
+						myfile_wave << i*h_width +h_width<< "   " << wave_eigen[i]/(sqrt(norm)*(i*h_width +h_width)) << endl;	//Crea un numero di file pari agli autovalori e guarda nelle f d'onda dove ci sono i problemi ;-)
 					}
 					wave_eigen.clear();
 					myfile_wave.close();
@@ -113,12 +127,84 @@ int main(){
 			}
 		}	
 	}
-
-	myfile_density.open("Density.txt");
+	myfile_density.open("density_neutron.txt");
 	for(int i=1; i<n_step_width_box+1; i++){
-		myfile_density << i*h_width +2.*h_width<< "   " << density[i] << endl;
+		myfile_density << i*h_width +h_width<< "   " << density[i] << endl;
 	}
 	myfile_density.close();
+
+
+
+	ofstream myfile_density_proton, myfile_wave_proton;
+	char orbital_proton[26];
+
+	double * density_proton = new double [n_step_width_box+1];
+	for(int i=1; i<n_step_width_box+1; i++){
+		density_proton[i] = 0.;
+	}
+	vector<double> wave_eigen_proton;
+	for(int node=0; node<3; node++){
+		for(int L=0; L<8;L++){
+			for(int h=1; h<3; h++){
+				if(L==0) h=2;
+				double J = abs(S+pow(-1,h)*L);
+				int nodecount=0;
+				double Etrial=0.;
+				Eup = 10.;
+				Edown = -50.;
+				do{
+					Etrial = (Eup+Edown)/2.;
+					wave_val.push_back(0.05);
+					wave_val.push_back(0.1);
+					for(int i=1; i<n_step_width_box; i++){ //the vector has n_step_width_box + 1 boxes
+						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+h_width,S,L,J,1./2.));
+					}
+					nodecount = 0;
+					for(int i=1; i<n_step_width_box+1; i++){
+						if(wave_val[i-1]*wave_val[i]<0.)
+						nodecount++;
+					}
+					if(nodecount>node){
+						Eup = Etrial;
+					}
+					else if(nodecount<node||nodecount==node){
+						Edown = Etrial;
+					}
+					wave_val.clear();
+				}while(abs(Eup-Edown)>prec);
+				if(Etrial<8.4&&Etrial>-50){
+					wave_eigen_proton.push_back(0.05);
+					wave_eigen_proton.push_back(0.1);
+					sprintf(orbital_proton,"wf_proton%1.4f.dat",Etrial);
+					myfile_wave_proton.open(orbital_proton);
+					//cout<<Etrial<<"	"<<endl;
+					double norm = normalise(Etrial, n_step_width_box, S, L, J,1./2.);
+					for(int i=1; i<n_step_width_box+1; i++){
+						wave_eigen_proton.push_back(numerov_algorithm_woods(Etrial, wave_eigen_proton[i], wave_eigen_proton[i-1], i*h_width+h_width,S,L,J,1./2.));
+						density_proton[i] += (2.*J+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(wave_eigen_proton[i]/sqrt(norm),2);
+						myfile_wave_proton << i*h_width +h_width<< "   " << wave_eigen_proton[i]/(sqrt(norm)*(i*h_width +h_width)) << endl;	//Crea un numero di file pari agli autovalori e guarda nelle f d'onda dove ci sono i problemi ;-)
+					}
+					wave_eigen_proton.clear();
+					myfile_wave_proton.close();
+				}
+			}
+		}	
+	}
+
+	myfile_density_proton.open("density_proton.txt");
+	for(int i=1; i<n_step_width_box+1; i++){
+		myfile_density_proton << i*h_width +h_width<< "   " << density_proton[i] << endl;
+	}
+
+	myfile_density_proton.close();
+
+	ofstream myfile_density_all;
+	myfile_density_all.open("density_all.txt");
+	for(int i=1; i<n_step_width_box+1; i++){
+		myfile_density_all << i*h_width +h_width<< "   " << density_proton[i]+density[i] << endl;
+	}
+	myfile_density_all.close();
+*/
 
 // Write results to file with filename
 /*
@@ -137,8 +223,8 @@ int main(){
 	myfile.close();
 */
 
-//a=system('a=`tempfile`;cat *.dat > $a;echo "$a"') 
-//Plot the potential - Works
+
+//Plot a potential
 /*
 	ofstream myfile;
 	myfile.open("Eigen.txt");

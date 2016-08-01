@@ -34,8 +34,8 @@ subroutine t_bloc(n,l,t_mat)
  implicit none
  double precision::t_mat(n,n)
  integer::l,n,i
- do i=0,n
-   t_mat(i,i) = (2.d0*(i)+l+1.5d0)*ama*2.d0/(bosc**2)
+ do i=1,n
+   t_mat(i,i) = (2.d0*(i-1)+l+1.5d0)*ama*2.d0/(bosc**2)
  enddo
  end subroutine
 

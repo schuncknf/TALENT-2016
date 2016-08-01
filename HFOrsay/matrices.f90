@@ -16,7 +16,7 @@ D=Dt
 do i=1,di
   do j=1,di
 rho_temp =0.d0
-    do k=1,di+1
+    do k=1,di
       ibl=tag_hf(k-1,nl,nj)
       rho_temp = rho_temp+ nocc(ibl)*D(i,k)*D(j,k)
 !      if (nocc(ibl) .ne. 0) write(*,*) "In rho, nocc",nocc(ibl)
@@ -28,11 +28,11 @@ enddo
 end subroutine compute_rho
 
 
-subroutine compute_gamma(gamma_matrix,mtrxel,rho,di,nl,nj)
+subroutine compute_gamma(gamma_matrix,rho,di,nl,nj)
 use basis
 implicit none
 integer, intent(in) :: di,nl,nj
-double precision, dimension (di,di,di,di), intent(in) :: mtrxel
+!double precision, dimension (di,di,di,di), intent(in) :: mtrxel
 double precision, dimension (di,di), intent(in) :: rho
 double precision, dimension (di,di), intent(out) :: gamma_matrix
 double precision::gammatemp
@@ -46,6 +46,7 @@ gamma_matrix = 0.d0
 
 !Compute the gamma matrix out of the TBMEs and the rho matrix
 do i1=1,di 
+ !  write(*,*) "In matrices index, ",i1,i2,i3,i4
   ib1 = tag_hf(i1-1,nl,nj)
  do i2=1,di
    ib2 = tag_hf(i2-1,nl,nj)
@@ -61,7 +62,10 @@ do i1=1,di
      !  if (n3 .ne. 0) then
  ! write(6,'(6i3)') n3,n4,l3,l4,j3,j4
   !endif
-        gammatemp = gammatemp + mtrxel(ib1,ib4,ib2,ib3)*rho(i3,i4)
+!        write(*,*) "In matrices, ",ib1,ib2,ib3,ib4,tbme_ext(ib1,ib4,ib2,ib3)
+        gammatemp = gammatemp + tbme_ext(ib1,ib4,ib2,ib3)*rho(i3,i4)
+        !write(128,*) ib1,ib2,ib3,ib4,tbme_ext(ib1,ib4,ib2,ib3)
+        !if (gammatemp .ne. 0.d0) write(*,*) ib1,ib2,ib3,ib4,gammatemp
 !        endif ! J3=J4;L3=L4
     !endif !Occupied states only
       enddo
@@ -89,20 +93,6 @@ do i=1,di
     h(i,j) = t(i,j) + gamma_matrix(i,j)
   enddo
 enddo
-
-
-!--- Petar
-
-!do i=1,nt
-!  do j=1,nt
-!    h(i,j) = t(i,j) + gamma_matrix(i,j)
-!  enddo
-!enddo
-
-!--- Petar
-
-
-
 end subroutine
 
 
