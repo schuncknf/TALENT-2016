@@ -1,3 +1,12 @@
+!---------------------------------------------------------------------
+!Module:HO_Quadrature 
+!---------------------------------------------------------------------
+!> Contains the functions and subroutines needed for defining the
+!! Laguerre polynomials, which describe the radial part of the
+!! harmonic oscillator wave function (which is our starting basis).
+!> Also contains functions and subroutines for evaluating integrals
+!! of these functions, using Gauss-Laguerre quadrature.
+!---------------------------------------------------------------------
 module HO_Quadrature
   use :: types
   implicit none
@@ -97,6 +106,8 @@ contains
   end subroutine LaguerreALL
 
 
+!> Numerically evaluates the value of the factorial function,
+!! \f$n!=n(n-1)(n-2)...\f$.
   function factrl(n) result(fact)
     implicit none
     integer, intent(in) :: n 
@@ -123,6 +134,8 @@ contains
     endif
   end function factrl
 
+!> Numerically evaluates the value of the double-factorial function,
+!! \f$n!!=n(n-2)(n-4)...\f$.
   function doublefactrl(n) result(fact)
     implicit none
     integer, intent(in) :: n !< An integer
@@ -152,7 +165,9 @@ contains
     endif
   end function doublefactrl
 
-
+!> Evaluates the normalization prefactor for the 3D harmonic oscillator,
+!! as written in eqn. 5 and 6 of HO_basis.pdf, for a given value of
+!! \f$n\f$ and \f$l\f$.
   function HO_Normalization(n,l) result(Nnl)
     implicit none
     integer, intent(in) :: n,l
