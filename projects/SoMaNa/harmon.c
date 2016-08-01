@@ -9,15 +9,17 @@
 
 // Coefficients for H.O. wave functions.
 
-double Anl(double *coeff, double **bmcoeff)
+double Anl(int n,double *coeff, double **bmcoeff)
 
 	{
 		
 		int aux1, aux2;
-		aux1 = 2*coeff[0]+(int)(2*coeff[1])+1; aux2 = coeff[1];
-	
+		aux1 = 2*n+(int)(2*coeff[1])+1; aux2 = coeff[1];
+		
+		//printf("************** bmcoeff[1][aux1] = %lf  %d \n",bmcoeff[1][aux1],aux1);		
+		
 		return sqrt(
-			(   pow(2,coeff[0]+coeff[1]+2)
+			(   pow(2,n+coeff[1]+2)
 			*bmcoeff[0][aux2]/
 				(sqrt(pi)*bmcoeff[1][aux1]) )		);
 	
@@ -29,23 +31,25 @@ double bred(double *coeff)
 	
 	{
 	
-		return sqrt(197.32/coeff[3]/coeff[2]);
+		return sqrt(197.32*197.32/coeff[3]/coeff[2]);
 	
 	}
 
 // Radial wavefunctions for the harmonic oscillator. In every function m is mass and w is circular frequency.
 
-double Rnl (double *coeff, double **bmcoeff, double r)
+double Rnl (int n, double *coeff, double **bmcoeff, double r)
 
 	{
 	
 		double rnlres;
 		
-		rnlres = Anl(coeff,bmcoeff)
+		rnlres = Anl(n,coeff,bmcoeff)
 			/pow(bred(coeff),1.5)
 			*pow(r/bred(coeff),coeff[1])
 			*exp(-1.0*pow((r/bred(coeff)),2)/2.0)
-			*gsl_sf_laguerre_n(coeff[0],(coeff[1]+0.5), pow(r/bred(coeff),2));
+			*gsl_sf_laguerre_n(n,(coeff[1]+0.5), pow(r/bred(coeff),2));
+		
+		//printf("W. FUNCTION: %lf\t %lf \n",rnlres,Anl(n,coeff,bmcoeff));		
 		
 		return rnlres;
 	

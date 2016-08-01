@@ -20,7 +20,7 @@ double* read_file(void)
  {
     fgets(line, sizeof(line), file);
     fscanf(file,"%lf", &tmp);
-    p[i] = tmp;
+    p[i] = tmp; printf("\n \n PARAMETER %lf", tmp);
     if (p[i-1] == p[i]) break; 
   }
 
