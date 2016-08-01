@@ -49,9 +49,9 @@ int main()
   gsl_vector *eval = gsl_vector_alloc (N); // vector for eigenvalue
   gsl_vector *evalPrev = gsl_vector_alloc (N);  // vector to store previous eigenvalues
   gsl_vector * diff = gsl_vector_calloc (N); // vector for checking convergence criteria
-  gsl_vector_set_all(diff, 1.0);
-  gsl_matrix *D = gsl_matrix_alloc (N, N); // density matrix / eigenvector storeage
-  gsl_matrix_set_identity(D);//initialization for density matrix
+  gsl_vector_set_all(diff, 1.0); // initialize diff so that it doesn't converge on first iteration
+  gsl_matrix *D = gsl_matrix_alloc (N, N); // eigenvectors storage
+  gsl_matrix_set_identity(D);//initialization of eigenvectors
   gsl_eigen_symmv_workspace * w = gsl_eigen_symmv_alloc(N); //gsl diag. function workspace
   //strings used for writing TBME matrix from .dat files
   char *token, *ptr, line[128];
