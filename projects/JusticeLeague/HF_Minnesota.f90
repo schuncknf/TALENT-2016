@@ -224,7 +224,7 @@ contains
     xi = r/b_ho
     call LaguerreALL(5,2,xi**2,L_nl)
     rho = 0
-    do i = 1,3
+    do i = 1,Noccupied!3
        phi = 0
        ji = j_hf(i)
        do j = 1,Nsize
@@ -266,7 +266,6 @@ contains
           gamma = gamma_LDA(ni,nj,li)
           gamma_mat(i,j) = gamma
           gamma_mat(j,i) = gamma
-!          if(i.eq.1.and.i.eq.j) write(*,*) 'Gamma 001', gamma
        enddo
     enddo
     
@@ -276,26 +275,21 @@ contains
     implicit none
     integer, intent(in) :: n,np,l
     real(dp) :: gamma
-    integer, parameter :: Ngauss = 95
     real(dp) :: alpha,xi,wi,An,Anp,Ln,Lnp,rho,Ivc
-    real(dp), dimension(1:Ngauss) :: w,x
-    logical :: first_call = .true.
     integer :: i
-    save w,x,first_call,Ivc
-    if(first_call) then
+    save Ivc
+    if(calc_Ivc) then
        Ivc = IntegralVc()
-       alpha = 0.5_dp
-       call GaussLaguerreWX(alpha,w,x)
-       first_call = .false.
+       calc_ivc = .false.
     endif
     An  = HO_Normalization(n ,l)
     Anp = HO_Normalization(np,l)
     gamma = 0
-    do i = 1,Ngauss
-       call LaguerreL( n,l+0.5_dp,x(i),Ln)
-       call LaguerreL(np,l+0.5_dp,x(i),Lnp)
-       rho = rho_LDA(b_ho*x(i)**0.5_dp)
-       gamma = gamma + w(i)*x(i)**l*Ln*Lnp*rho
+    do i = 1,N_quad
+       call LaguerreL( n,l+0.5_dp,x_quad(i),Ln)
+       call LaguerreL(np,l+0.5_dp,x_quad(i),Lnp)
+       rho = rho_quad(i)
+       gamma = gamma + w_quad(i)*x_quad(i)**l*Ln*Lnp*rho
     enddo
     gamma = Ivc*gamma*An*Anp/2._dp
   end function gamma_LDA
@@ -351,7 +345,6 @@ contains
        write(100,*) ri, rho_LDA(ri)*ri**2
     enddo
     close(100)
-!    stop
   end subroutine Plot_rho_LDA
 
   function Trace_rho_LDA() result(Trho)
@@ -368,5 +361,40 @@ contains
     enddo
     Trho = Trho/pi
   end function Trace_rho_LDA
+
+  subroutine sample_rho_LDA
+    implicit none
+    real(dp) :: alpha
+    logical :: first_call = .true.
+    integer :: i
+    save first_call
+    if(first_call) then
+       alpha = 0.5_dp
+       call GaussLaguerreWX(alpha,w_quad,x_quad)
+       first_call = .false.
+    endif
+    do i = 1,N_quad
+       rho_quad(i) = rho_LDA(b_ho*x_quad(i)**0.5_dp)
+    enddo
+  end subroutine sample_rho_LDA
+
+  subroutine sample_DME_fields
+    implicit none
+    real(dp) :: alpha
+    logical :: first_call = .true.
+    integer :: i
+    real
+    save first_call
+    if(first_call) then
+       alpha = 0.5_dp
+       call GaussLaguerreWX(alpha,w_quad,x_quad)
+       first_call = .false.
+    endif
+    do i = 1,N_quad
+       call DME_fields(b_ho*x_quad(i)**0.5_dp,rho,tau,del_rho)
+       rho_quad(i) = rho_LDA(b_ho*x_quad(i)**0.5_dp)
+    enddo
+  end subroutine sample_DME_fields
+
 
 end module Minnesota
