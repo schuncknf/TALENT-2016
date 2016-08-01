@@ -3,17 +3,18 @@
 
 #include "System.h"
 
-/// class Solver - 
-class Solver {
+/// class Solver -
+class Solver
+{
   // Attributes
 public:
-  System * system;
+  System *system;
   /// Individual energies (indivEnergies(ptype, idState))
   arma::mat indivEnergies;
   double cvg;
   // Operations
 public:
-  Solver (System & _system);
+  Solver (System &_system);
   virtual ~Solver () = 0;
   virtual void run () = 0;
   void initH (int type);
