@@ -30,7 +30,6 @@ mMax(_nMax + 1, _lMax + 1)
 {
   //Defining maximum numbers and determining basis size
   size = 0;
-
   for (int n = 0; n <= nMax; n++)
   {
     // Here to specify lMax dependency on n
@@ -42,9 +41,9 @@ mMax(_nMax + 1, _lMax + 1)
       size += 2 * l + 1;
     }
   }
-
   //Considering spin
   size *= 2;
+  
   //Filling the quantum numbers for each state
   qNumbers = arma::imat(size, qNumSize);
   int i = 0;

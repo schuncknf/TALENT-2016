@@ -16,8 +16,6 @@ public:
   int nMax;
   /// Maximum allowed value for the quantum number l
   arma::ivec lMax;
-  /// Maximum allowed value for the quantum number m
-  arma::imat mMax;
   /// Auxiliary parameter
   double nu;
 private:
