@@ -14,7 +14,7 @@ LDFLAGS = -larmadillo -lgsl -lgslcblas
 
 CPP_FILES=cpp/src/Basis.cpp cpp/src/FieldMinnesota.cpp cpp/src/Fields.cpp cpp/src/FieldSph.cpp cpp/src/HartreeFockBogo.cpp cpp/src/HartreeFock.cpp \
             cpp/src/quadrature.cpp cpp/src/ReducedSpBasis.cpp cpp/src/Solver.cpp cpp/src/SpBasis.cpp cpp/src/System.cpp cpp/src/NeutronDrop.cpp \
-            cpp/src/Nucleus.cpp cpp/src/Interaction.cpp cpp/src/RawInteraction.cpp cpp/src/MinnesotaS0.cpp
+            cpp/src/Nucleus.cpp cpp/src/Interaction.cpp cpp/src/RawInteraction.cpp cpp/src/MinnesotaS0.cpp cpp/src/MinnesotaRaw.cpp
 OBJ_FILES=$(CPP_FILES:.cpp=.o)
 
 DEPS=$(CPP_FILES:.cpp=.d)
