@@ -8,7 +8,7 @@
 
 MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string _filename) :
   Interaction( _basis, _nParticleTypes ),
-  TBME(_nParticleTypes, _basis.size),
+  TBME(_basis.size, _basis.size),
   nParticleTypes(_nParticleTypes)
 {
 ///////////////////////////////////////////////
@@ -36,7 +36,6 @@ MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string
   arma::ivec vec_2t(size_nljmt + 1);
   int i_nljmt = 0;
   int i_nlj = 0;
-
   for (int n = 0; n <= nMax; n++)
     for (int l = 0; l <= lMax; l++)
       for (int _2j = 2 * l + 1; (_2j >= 2 * l - 1) && (_2j > 0); _2j -= 2)
@@ -47,7 +46,7 @@ MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string
             for (int _2m = -_2j; _2m <= _2j; _2m += 2)
             {
               i_nljmt++;
-              lst(i_nljmt) = i_nlj - 1;
+              lst(i_nljmt - 1) = i_nlj - 1;
               vec_l(i_nljmt) = l;
               vec_2j(i_nljmt) = _2j;
               vec_2m(i_nljmt) = _2m;
@@ -59,6 +58,10 @@ MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string
   int a, b, c, d;
   double V;
   std::ifstream input(_filename.c_str());
+  if (!input)
+  {
+    throw std::runtime_error("The file doesn't exist !!!!!!!!!!!!!!!!");
+  }
   std::string line;
   getline(input, line);
   getline(input, line);
