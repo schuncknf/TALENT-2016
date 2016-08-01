@@ -22,8 +22,8 @@ implicit none
      logical :: j2terms
      integer, allocatable :: sortstates(:,:,:)
 contains
-
-     subroutine init_params !< Initialization of the parameters
+     !> Initialization of the parameters
+     subroutine init_params
           namelist /box/ nbox,h
           namelist /params/ r0,conv,hbar22m,itermax
           namelist /nucleus/ nn,np,lmax
@@ -82,8 +82,8 @@ contains
           cso1 = - 1._wp/4._wp * w0
      end subroutine init_params
 
-
-     subroutine init_grids !< Initialization of the grids
+     !> Initialization of the grids
+     subroutine init_grids
           integer :: i
           small = 1E-20_wp
           allocate(mesh(0:nbox))
@@ -91,13 +91,14 @@ contains
           mesh(0) = small
      end subroutine init_grids
 
-     subroutine init_wavefunctions !< Initialization of the wavefunctions and densities
+     !> Initialization of the wavefunctions and densities
+     subroutine init_wavefunctions
           allocate(wfr(0:nbox,lmax,0:lmax,2,2),&
           wfl(0:nbox,lmax,0:lmax,2,2),rho(0:nbox,4),drho(0:nbox,4),ddrho(0:nbox,4),&
           tau(0:nbox,4),jsc(0:nbox,4),djsc(0:nbox,4),laprho(0:nbox,4))
      end subroutine init_wavefunctions
-
-  subroutine init_fields !< Initialization of the fields
+  !> Initialization of the fields
+  subroutine init_fields
     integer :: ir,iq
     allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox),ucso(0:nbox,2),dumr(0:nbox,2))
     do iq = 1,2
@@ -110,15 +111,15 @@ contains
     end do
   end subroutine init_fields
 
-    !!!Must be multiplied by (positive) vpb in calculations
- function fullwoodsaxon(ir) result(pot) !< Function to generate the initial woodsaxon
+ !> Function to generate the initial woodsaxon
+ function fullwoodsaxon(ir) result(pot)
     real(wp) :: pot
     integer, intent(in) :: ir
       pot = 1 / (1 + exp((mesh(ir)-nrad)/a))
   end function
 
-!!!Must be multiplied by (positive) vpb in calculations
-function dfullwoodsaxon(ir) result(pot) !< Function to generate spin-orbit
+  !> Function to generate spin-orbit
+  function dfullwoodsaxon(ir) result(pot)
     real(wp) :: pot
     integer, intent(in) :: ir
       pot = -(1/a)*(1 / (1 + exp((-mesh(ir)+nrad)/a)))
