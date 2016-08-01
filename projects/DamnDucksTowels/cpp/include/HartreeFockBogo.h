@@ -6,8 +6,9 @@
 #include "Solver.h"
 #include "System.h"
 
-/// class HartreeFockBogo - 
-class HartreeFockBogo : public Solver {
+/// class HartreeFockBogo -
+class HartreeFockBogo : public Solver
+{
   // Attributes
 public:
   /// Transformation matrix from HO to HF
@@ -16,7 +17,7 @@ public:
   arma::field<arma::vec> occ;
   // Operations
 public:
-  HartreeFockBogo (System & system);
+  HartreeFockBogo (System &system);
   ~HartreeFockBogo ();
   void run ();
   void calcH ();
