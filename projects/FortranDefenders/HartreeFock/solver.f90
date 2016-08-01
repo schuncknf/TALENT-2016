@@ -269,8 +269,8 @@ contains
         l = sortstates(i,2,iq)
         is= sortstates(i,3,iq)
         if (sortenergies(i,iq) < -small) then
-          !val = (2*(l+spin(is))+1)
-          val = 2*l+1
+          val = (2*(l+spin(is))+1)
+          !val = 2*l+1
           if (l==0) val = 2.
           totalenergy = totalenergy + sortenergies(i,iq)*val
         end if
@@ -316,17 +316,28 @@ contains
        end do
        sortenergies(k,iq) = energies(state(1),state(2),state(3),iq)
        do i = 1,3
-         sortstates(k,i,iq) = state(i)
+       sortstates(k,i,iq) = state(i)
        end do
        energies(state(1),state(2),state(3),iq) = 0.0_wp
        if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
          j = state(2) + spin(state(3))
        if (state(2)==0) j = 0.5
        nfill = nfill + INT(2*j+1)
+        if (nfill.gt.nfull) then
+         sortenergies(k-1,iq) = sortenergies(k,iq)
+         sortenergies(k,iq) = 0.0_wp
+         do i = 1,3
+          sortstates(k-1,i,iq) = sortstates(k,i,iq)
+          sortstates(k,i,iq) = 1
+         end do
+        end if
        k = k+1
      end do
+  !if (nfill.ne.nfull) then
+  !write (6,*) 'Not the correct number of particles'
+  !stop
+  !end if
   end do
-
   end subroutine energy_sort
 
   subroutine build_fields
@@ -336,7 +347,7 @@ contains
   real(wp) :: tot1=0.0d0,tot2=0.0d0,tot3
   real(wp) :: xmix, ymix, slater
 
-  xmix = 0.4
+  xmix = 0.2
   ymix = 1.-xmix
   ucnew(:,:) = 0._wp
   umrnew(:,:)= 0._wp
@@ -445,10 +456,10 @@ contains
              *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)**2&
              /(4*pi*meshpoints(ir)**3)
             end do
-            rho(0,iq) = rho(1,iq)
+            !rho(0,iq) = rho(1,iq)
             !tau(2,iq) = tau(3,iq)
             !tau(1,iq) = tau(2,iq)
-            tau(0,iq) = tau(1,iq)
+            !tau(0,iq) = tau(1,iq)
 
 
           end if

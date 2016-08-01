@@ -2,22 +2,7 @@
 #include <gsl/gsl_sf_laguerre.h>
 #include "FullSpBasis.h"
 #include "global.h"
-
-double sqrtFactorial(int n)
-{
-  if (n <= 1)
-    return 1.0;
-  else
-    return sqrt(n) * sqrtFactorial(n - 1);
-}
-
-double sqrtDoubleFactorial(int n)
-{
-  if (n <= 1)
-    return 1.0;
-  else
-    return sqrt(n) * sqrtDoubleFactorial(n - 2);
-}
+#include "utils.h"
 
 FullSpBasis::FullSpBasis(double _omega, int _nMax, int _lMax) :
   Basis(std::string("FullSpBasis"), std::vector<std::string>(
@@ -63,7 +48,7 @@ void FullSpBasis::calcN()
     N(i) = pow(2 * nu * nu * nu / M_PI, 0.25) * pow(2, 0.5 * n + l + 1.5) * sqrtFactorial(n) * pow(nu, 0.5 * l) / sqrtDoubleFactorial(2 * n + 2 * l + 1);
   }
 }
-
+/*
 void FullSpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec &r)
 {
   //Calculating wave function values for each basis state and each r point provided
@@ -125,3 +110,4 @@ void FullSpBasis::evalRadialWaveFunctionNoExp(arma::mat &wfMatrix, arma::vec &r)
     wfMatrix.col(i) = N(i) * arma::pow(r, l) % laguerre;
   }
 }
+*/

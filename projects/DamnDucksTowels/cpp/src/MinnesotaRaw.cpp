@@ -1,56 +1,102 @@
-#include "RawInteraction.h"
+#include <iostream>
+#include <iomanip>
+#include <fstream>
 
-RawInteraction::RawInteraction(Basis &_basis, int _nParticleTypes) :
+#include "global.h"
+#include "quadrature.h"
+#include "MinnesotaRaw.h"
+
+MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string _filename) :
   Interaction( _basis, _nParticleTypes ),
-  potential(_nParticleTypes, _basis.size),
+  TBME(_nParticleTypes, _basis.size),
   nParticleTypes(_nParticleTypes)
 {
-  for (int pType0 = 0; pType0 < nParticleTypes; pType0++)
-    for (int state0 = 0; state0 < _basis.size;    state0++)
+///////////////////////////////////////////////
+  for (int state0 = 0; state0 < _basis.size;    state0++)
+    for (int state1 = 0; state1 < _basis.size;    state1++)
     {
-      potential(pType0, state0) = arma::field<arma::field<arma::mat> >(_nParticleTypes, _basis.size);
-
-      for (int pType1 = 0; pType1 < nParticleTypes; pType1++)
-        for (int state1 = 0; state1 < _basis.size;    state1++)
-        {
-          potential(pType0, state0)(pType1, state1) = arma::field<arma::mat>(_nParticleTypes, _basis.size);
-        }
+      TBME(state0, state1) = arma::zeros(_basis.size, _basis.size);
     }
-}
+/////////////////////////////////////////////////
+  int nMax = _basis.nMax;
+  int lMax = _basis.lMax;
+  int size_nljmt = 0;
 
-RawInteraction::~RawInteraction()
-{
-}
+  for (int n = 0; n <= nMax; n++)
+    for (int l = 0; l <= lMax; l++)
+      for (int _2j = 2 * l + 1; (_2j >= 2 * l - 1) && (_2j > 0); _2j -= 2)
+        for (int _2t = -1; _2t <= 1; _2t += 2)
+          for (int _2m = -_2j; _2m <= _2j; _2m += 2)
+            size_nljmt++;
 
-double &RawInteraction::set(int ti0, int i0, int ti1, int i1, int tj0, int j0, int tj1, int j1)
-{
-  if (potential(ti0, i0)(ti1, i1)(tj0, j0).empty())
+  arma::ivec lst(size_nljmt);
+  arma::ivec vec_l(size_nljmt + 1);
+  arma::ivec vec_2j(size_nljmt + 1);
+  arma::ivec vec_2m(size_nljmt + 1);
+  arma::ivec vec_2t(size_nljmt + 1);
+  int i_nljmt = 0;
+  int i_nlj = 0;
+
+  for (int n = 0; n <= nMax; n++)
+    for (int l = 0; l <= lMax; l++)
+      for (int _2j = 2 * l + 1; (_2j >= 2 * l - 1) && (_2j > 0); _2j -= 2)
+      {
+        i_nlj++;
+        {
+          for (int _2t = -1; _2t <= 1; _2t += 2)
+            for (int _2m = -_2j; _2m <= _2j; _2m += 2)
+            {
+              i_nljmt++;
+              lst(i_nljmt) = i_nlj - 1;
+              vec_l(i_nljmt) = l;
+              vec_2j(i_nljmt) = _2j;
+              vec_2m(i_nljmt) = _2m;
+              vec_2t(i_nljmt) = _2t;
+            }
+        }
+      }
+
+  int a, b, c, d;
+  double V;
+  std::ifstream input(_filename.c_str());
+  std::string line;
+  getline(input, line);
+  getline(input, line);
+  //std::cout << "Reading..." << std::endl;
+
+  while (input >> a >> b >> c >> d >> V)
   {
-    potential(ti0, i0)(ti1, i1)(tj0, j0) = arma::zeros(nParticleTypes, particleBases(0)->size);
-  }
 
-  return potential(ti0, i0)(ti1, i1)(tj0, j0)(tj1, j1);
+    if ((vec_l(a) == vec_l(c)) && (vec_2j(a) == vec_2j(c)) && (vec_2m(a) == vec_2m(c)) && (vec_l(b) == vec_l(d)) && abs(vec_2j(b) == vec_2j(d)) && abs(vec_2m(b) == vec_2m(d)) && (vec_2t(a) == 1) && (vec_2t(b) == 1) && (vec_2t(c) == 1) && (vec_2t(d) == 1))
+    {
+      TBME(lst(a-1), lst(b-1))(lst(c-1), lst(d-1)) += V / (vec_2j(a) + 1) / (vec_2j(b) + 1);
+    }
+  }
 }
 
-double RawInteraction::get(arma::field<arma::mat> &R, arma::ivec &bType, arma::ivec &bId, arma::ivec &kType, arma::ivec &kId)
+MinnesotaRaw::~MinnesotaRaw()
+{
+}
+
+double MinnesotaRaw::get(arma::field<arma::mat> &R, arma::ivec &bType, arma::ivec &bId, arma::ivec &kType, arma::ivec &kId)
 {
   (void) R;
 
-  if (potential(bType(0), bId(0))(bType(1), bId(1))(kType(0), kId(0)).empty())
+  if (bType.n_elem != 2 || kType.n_elem != 2 || bId.n_elem != 2 || kId.n_elem != 2)
   {
     return 0.;
   }
 
-  return potential(bType(0), bId(0))(bType(1), bId(1))(kType(0), kId(0))(kType(1), kId(1));
+  return TBME(bId(0), bId(1))(kId(0), kId(1));
 }
 
-std::string RawInteraction::info ()
+std::string MinnesotaRaw::info ()
 {
   return std::string();
 }
 
 
-std::string RawInteraction::toString ()
+std::string MinnesotaRaw::toString ()
 {
   return std::string();
 }
