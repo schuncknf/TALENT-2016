@@ -5,7 +5,8 @@ using namespace std;
 #define     a0 0.67	// 
 #define     r0 1.27	// fm
 #define    Vls 0.22	//
-#define      q 1	//
+// #define      q 1.439978	// e^2
+#define      q 1.
 
 // Variables
 double  wBox;	// Box width  [fm]
