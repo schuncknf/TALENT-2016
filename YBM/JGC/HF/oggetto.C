@@ -16,15 +16,6 @@
 		}
 	}
 
-	double numerov_algorithm_HF(double energy, double V_sky1, double V_sky0, double V_sky_, double f0, double f_){
-		double v=0., a[3];
-
-		a[0] = 2. * (1. - 5./12. * (E - V_sky) * pow(h_width,2));	
-		a[1] = 1. * (1. + 1./12. * (E - V_sky) * pow(h_width,2));
-		a[2] = 1. * (1. + 1./12. * (E - V_sky) * pow(h_width,2));
-		return (a[0] * f0 - a[1] * f_) / a[2];
-	}
-
 	double v_neutron(double energy, double r,double S, double L, double J){
 		return (energy-potential_woods(r)-centrifug_term(r,L)-potential_spin_orbit(r,S,L,J))/m_factor;
 	}
@@ -32,6 +23,34 @@
 	double v_proton(double energy, double r,double S, double L, double J){
 		return (energy-potential_woods(r)-centrifug_term(r,L)-potential_spin_orbit(r,S,L,J)-potential_coulomb(r))/m_factor;
 	}
+
+/////////////////////HARTREE FOCK///////////////////////////
+
+	double numerov_algorithm_woods_HF(double energy, double f0, double f_,double r, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1){
+		double v=0., a[3];
+		if(T==-1./2.){
+			a[0] = 2. * (1. - 5./12. * v_neutron_HF(energy,r,S,L,J) * pow(h_width,2));	
+			a[1] = 1. * (1. + 1./12. * v_neutron_HF(energy,r-h_width ,S,L,J) * pow(h_width,2));
+			a[2] = 1. * (1. + 1./12. * v_neutron_HF(energy,r+h_width,S,L,J) * pow(h_width,2));
+			return (a[0] * f0 - a[1] * f_) / a[2];
+		}
+		else if(T==1./2.){
+			a[0] = 2. * (1. - 5./12. * v_proton_HF(energy,r,S,L,J) * pow(h_width,2));
+			a[1] = 1. * (1. + 1./12. * v_proton_HF(energy,r-h_width,S,L,J) * pow(h_width,2));
+			a[2] = 1. * (1. + 1./12. * v_proton_HF(energy,r+h_width,S,L,J) * pow(h_width,2));
+			return (a[0] * f0 - a[1] * f_) / a[2];
+		}
+	}
+
+
+	double v_neutron_HF(double energy, double r,double S, double L, double J){
+		return (energy-V_sky(r)-centrifug_term(r,L))/m_factor;
+	}
+
+	double v_proton_HF(double energy, double r,double S, double L, double J){
+		return (energy-V_sky(r)-centrifug_term(r,L))/m_factor;
+	}
+
 
 	double potential_woods(double r){
 		double V = -51.+33.*(N-Z)/(N+Z); 
