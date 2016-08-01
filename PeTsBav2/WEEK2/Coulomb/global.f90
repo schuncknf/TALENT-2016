@@ -6,7 +6,7 @@
       real (kind=dm) :: R_max=6., R_min=0., R_box=6.,h=0.1,Em, nmfactor, a=0.67, r0=1.67
       integer  :: Nmesh, NN=126, ZZ=82
       real (kind=dm),allocatable :: rho(:) ,Psi(:)! psi(grid_index)
-      logical :: comparison= .true., bisloop= .true.
+      logical :: comparison= .true., bisloop= .true., out_wave_func= .true.
       real (kind=dm) :: E_minus=-150., E_plus=0., E_left, E_right,  E_minus_n,  E_minus_p
       integer(kind=dm) :: numnodes ! the number of excited state, that has to be the same as number of nodes in wavefunction
       integer(kind=dm) :: cnodes ! nodes of wavefuntion 

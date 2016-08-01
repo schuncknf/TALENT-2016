@@ -2,13 +2,13 @@ blddir=./bld
 $(shell mkdir $(blddir) 2> /dev/null)
 
 # For Serial Version
-#FC = ifort -132 -O2 -fno-alias -vec_report=0 -fomit-frame-pointer -g -traceback
-FC = ifort -132 -O2 -debug all -traceback -check all -warn usage -warn errors -warn general -openmp
-FC1 = ifort -132 -O2 -fno-alias -vec_report=0 -fomit-frame-pointer -openmp
+FC = ifort -132 -O2 -fno-alias -fomit-frame-pointer -g -traceback
+#FC = ifort -132 -O2 -debug all -traceback -check all -warn usage -warn errors -warn general -openmp
+FC1 = ifort -132 -O2 -fno-alias -fomit-frame-pointer -openmp
 #FC = ifort -debug all -traceback -check all -warn usage -warn errors -warn general
 LK = ifort -O2 -openmp 
-#FC = gfortran -O3
-#LK = gfortran -O3
+#FC1 = gfortran 
+#LK = gfortran
 #-cpp
 #  FFLAGS=-O5 -align dcommons
 # FFLAGS=-O4 -align dcommons

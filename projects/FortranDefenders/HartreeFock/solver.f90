@@ -13,7 +13,7 @@ contains
     ! of the 2016 Density Functional Theory TALENT Course.
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     integer :: i, ir, nnodes,l, is, iq, n,iter
-    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff
+    real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff,oldtotenergy,currentconv
     real(wp), allocatable :: potential(:), woodsaxon(:), woodsaxond(:), spinorbitmat(:), coulombmat(:)
 
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2),&
@@ -28,11 +28,13 @@ contains
     wfr(:,:,:,:,:) = 0.0
     !Main loop begins here; be careful
   allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
-  do iter = 1,2
+  do iter = 1,itermax
     if(iter>1) then
-    call build_fields
-    !stop
+      call build_fields
+      !stop
     end if
+    call totenergy
+    oldtotenergy = totalenergy
     do iq =1,2
       do n =1,lmax-2
         do l =0,lmax
@@ -40,18 +42,18 @@ contains
                 j = l + spin(is)
                 if (l==0) j=0.5
                 ! Bound States only
-                Eupper = 1_wp
-                Elower = -500._wp
+                Eupper = 100_wp
+                Elower = -100._wp
                 do i=1,1000000
                   ! Trial Energy for Numerov Algorithm
                   Etrial = (Eupper+Elower)/2.0
                   do ir=0,nbox
                     ! Isospin dependent potential using matrices from before
                     if (iq .EQ. 1) then
-                       potential(ir) = (-uc(ir,1)-umr(ir,1)-udd(ir,1)-uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,1) -ucso(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
                       -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     else
-                       potential(ir) = (-uc(ir,2)-umr(ir,2)-udd(ir,2)-uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
+                       potential(ir) = (-uc(ir,2) -ucso(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
                        - ucoul(ir) -hbar22m*cmcorr*l*(l+1)/meshpoints(ir)**2+Etrial)/hbar22m*cmcorr
                     end if
                   end do
@@ -95,7 +97,7 @@ contains
                   end if
                   ! If the energies converge on something that is not vpb, select that solution
                   if (abs(Eupper - Elower) < conv) then
-                    if (Etrial < 0 .AND. Etrial > -500.+.01) then
+                    if (Etrial < 0 .AND. Etrial > -100.+.01) then
                           vocc(n,l,is,iq) = 2*l+1
                           energies(n,l,is,iq) = etrial
                           norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
@@ -109,13 +111,18 @@ contains
           end do
         end do
       end do
-   call energy_sort
-   call build_densities
+      call energy_sort
+      call build_densities
+      call totenergy
+      currentconv = abs(totalenergy- oldtotenergy)
+      write (6,*) "Iteration:",iter,"Convergence:",currentconv
+      if (currentconv<conv) exit
+
      end do
   end subroutine solve_r
 
   subroutine ddensities
-    integer :: ir,iq
+    integer :: ir,iq,i
     do iq=1,2
       do ir=0,nbox
         if(ir < 1) then
@@ -166,6 +173,9 @@ contains
     djsc(:,4) = djsc(:,1) - djsc(:,2)
     ddrho(:,3) = ddrho(:,1) + ddrho(:,2)
     ddrho(:,4) = ddrho(:,1) - ddrho(:,2)
+    do i =1,4
+    laprho(:,i) = ddrho(:,i) + 2._wp/meshpoints(:)*drho(:,i)
+    end do 
 
   end subroutine ddensities
 
@@ -201,6 +211,81 @@ contains
 
   end function
 
+  subroutine totenergy
+    real(wp) :: kinetic(1:2),val
+    integer :: iq,i,l,is
+    !Functional variables
+    real(wp) :: ekin,ecould,ecoulex,ecentr,edd, eso,totfonct
+    real(wp) :: tmp(0:nbox),rg(0:nbox)
+
+
+    !method using the functional energy
+    totfonct = 0.0_wp
+    !!!Kinetic energy
+      ekin = hbar22m * cmcorr * 4._wp*pi*h*sum( tau(:,3)*meshpoints(:)**2)
+    !!!Coulomb energy
+      ecould = 0.0_wp
+      ecoulex = 0.0_wp
+    if (icoul==1) then
+    rg = meshpoints
+    tmp = 0.0_wp
+    do i = 0, nbox
+       rg(0:i) = meshpoints(i)
+       tmp(i) = 4._wp*pi*h*sum( meshpoints(:)**2 / rg * rho(:,2) ) 
+    end do
+    ecould = 4._wp*pi*h*sum( meshpoints(:)**2 *rho(:,2)* tmp )*e2 / 2._wp 
+    ecoulex = - (3.0_wp/4.0_wp)*e2*4._wp*pi*h*sum( meshpoints(:)**2*rho(:,2)**(4._wp/3._wp) )*( 3 / pi)**(1._wp/3._wp)
+    end if
+    !!!Central energy
+    ecentr = 0.0_wp
+    ecentr = a0r0 * 4._wp*pi*h*sum( meshpoints(:)**2*rho(:,3)**2) &
+           & + a1r1*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)**2) &
+    	   & + a0r0p*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,3)*laprho(:,3)) &
+    	   & + a1r1p*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)*laprho(:,4)) &
+    	   & + a0tau0*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,3)*tau(:,3))  &
+    	   & + a1tau1*4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)*tau(:,4))   
+    if (j2terms) then
+    ecentr = ecentr - 0.5 * a0t0 *4._wp*pi*h* sum(meshpoints(:)**2*jsc(:,3)**2)&
+    	& - 0.5 * a1t1 * 4._wp*pi*h*sum(meshpoints(:)**2*jsc(:,4)**2)
+    end if
+    !!!Density Dependent Energy
+    edd = 4._wp*pi*h*sum(meshpoints(:)**2*( cddr0 * rho(:,3)**2 + cddr1 * rho(:,4)**2 )  &
+         * rho(:,3)**sig )
+    !!Spin-orbit Energy
+    eso = 0.0_wp
+    eso = cso0 *4._wp*pi*h* sum(meshpoints(:)**2*rho(:,3)* &
+        &  ( djsc(:,3) + 2 * jsc(:,3) / meshpoints(:))) &
+        & + cso1 *4._wp*pi*h*sum(meshpoints(:)**2*rho(:,4)* &
+        &  ( djsc(:,4) + 2 * jsc(:,4) / meshpoints(:))) 
+
+    !!!Total Energy with the functional
+    totfonct = ekin+ecould+ecoulex+ecentr+edd+eso
+
+    !Energy calculation using Koopman's theorem
+    totalenergy = 0.
+    do iq=1,2
+      kinetic(iq) = 4*pi*h*cmcorr*hbar22m*sum(meshpoints(:)**2 * tau(:,iq))
+      do i=1,nn
+        l = sortstates(i,2,iq)
+        is= sortstates(i,3,iq)
+        if (sortenergies(i,iq) < -small) then
+          !val = (2*(l+spin(is))+1)
+          val = 2*l+1
+          if (l==0) val = 2.
+          totalenergy = totalenergy + sortenergies(i,iq)*val
+        end if
+      end do
+    end do
+    totalenergy = (totalenergy + kinetic(1) + kinetic(2))/2.&
+                -4*pi*h*t3*sum(meshpoints(:)**2 * (rho(:,3)**sig &
+                *(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.&
+                -e2*(3./pi)**(1./3.)*pi*h*sum(meshpoints(:)**2*rho(:,2)**(4./3.))
+                !-4*h*pi*t3*0.125*sum(meshpoints(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
+    totalkinetic = sum(kinetic(:))
+    !print *,totfonct - totalenergy
+
+
+  end subroutine totenergy
 
   subroutine energy_sort
     integer :: n, l, iq, is,k,i,nfill,nfull
@@ -208,7 +293,7 @@ contains
     integer, dimension(1:3) :: state
     ! This sorts the energies
     sortenergies = small
-    sortstates = small
+    sortstates = 0
     do iq =1,2
      nfull = nn
      if (iq == 2) nfull = np
@@ -237,7 +322,7 @@ contains
        if (state(2)==0) energies(state(1),state(2),:,iq) = 0.0_wp
          j = state(2) + spin(state(3))
        if (state(2)==0) j = 0.5
-       nfill = nfill + 2*j+1
+       nfill = nfill + INT(2*j+1)
        k = k+1
      end do
   end do
@@ -246,15 +331,16 @@ contains
 
   subroutine build_fields
   integer :: ir, iq, ir2
-  real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew
+  real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew
   real(wp), dimension(0:nbox) :: ucoulnew
-  real :: tot1=0.0d0,tot2=0.0d0
-  real :: xmix, ymix
+  real(wp) :: tot1=0.0d0,tot2=0.0d0,tot3
+  real(wp) :: xmix, ymix, slater
 
   xmix = 0.4
   ymix = 1.-xmix
   ucnew(:,:) = 0._wp
   umrnew(:,:)= 0._wp
+  ucsonew(:,:) = 0._wp
   uddnew(:,:)= 0._wp
   usonew(:,:) = 0._wp
   ucoulnew(:) = 0._wp
@@ -265,11 +351,15 @@ contains
            ucnew(ir,iq) = ucnew(ir,iq) + &
                 & 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
                	& + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
-               	& + 2*( a0r0p-a1r1p )*ddrho(ir,3) + 4 *a1r1p * ddrho(ir,iq)
-  !! Part of U(r) coming from d(M(r))
-           umrnew(ir,iq) = umrnew(ir,iq)  &
+               	& + 2*( a0r0p-a1r1p )*laprho(ir,3) + 4 *a1r1p * laprho(ir,iq)
+  !!Part of U(r) coming from so)
+           ucsonew(ir,iq) = ucsonew(ir,iq)  &
                 & + (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/meshpoints(ir) ) &
                 & + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / meshpoints(ir) )
+  !!Mq(r) contribution
+           umrnew(ir,iq) = umrnew(ir,iq) &
+                & + (a0tau0-a1tau1)*rho(ir,3) + 2 * a1tau1*rho(ir,iq)
+  !!
   !! t3 part of U(r)
            uddnew(ir,iq) = uddnew(ir,iq) &
                 & + ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
@@ -286,30 +376,38 @@ contains
            end if
    !!coulomb
     if (iq==2) then
-	tot1=0.0d0
-	tot2=0.0d0
+          tot1=0.0d0
+          tot2=0.0d0
+          tot3=0._wp
+          !slater = e2*(3./pi)**(1./3.)*rho(:,2)**(1./3.)
       do ir2=0,ir
        tot1=tot1+rho(ir2,2)*(meshpoints(ir2)**2)
+       !tot3=tot3+rho(ir2,2)*meshpoints(ir2)
       end do
-      do ir2=ir,nbox
+      !do ir2=0,nbox
+      !  tot2 = tot2 + rho(ir2,2)*meshpoints(ir2)
+      !end do
+      do ir2=ir+1,nbox
        tot2=tot2+rho(ir2,2)*meshpoints(ir2)
       end do
-      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir) + tot2)*h
+      ucoulnew(ir)=4.0d0*pi*e2*(tot1/meshpoints(ir)  + tot2)*h - e2*(3./pi)**(1./3.)*rho(ir,2)**(1./3.)
     end if
    end do
   end do
-  
-  
+
+
   uc(:,:) = ucnew(:,:)*xmix + uc(:,:)*ymix
+  ucso(:,:) = ucsonew(:,:)*xmix + ucso(:,:)*ymix
   umr(:,:) = umrnew(:,:)*xmix + umr(:,:)*ymix
   udd(:,:) = uddnew(:,:)*xmix + udd(:,:)*ymix
   uso(:,:) = usonew(:,:)*xmix + uso(:,:)*ymix
   ucoul(:) = ucoulnew(:)*xmix + ucoul(:)*ymix
- 
-  do ir =0,nbox
-  write(15,*) ir,ucnew(ir,1),ucnew(ir,2),umrnew(ir,1),umrnew(ir,2),uddnew(ir,1), &
-            & uddnew(ir,2),usonew(ir,1),usonew(ir,2),ucoul(ir)
-  end do
+  if(icoul==0) ucoul(:) = 0.
+
+  !do ir =0,nbox
+  !write(15,*) ir,ucnew(ir,1),ucnew(ir,2),umrnew(ir,1),umrnew(ir,2),uddnew(ir,1), &
+  !          & uddnew(ir,2),usonew(ir,1),usonew(ir,2),ucoul(ir)
+  !end do
 
 
   end subroutine build_fields
@@ -348,8 +446,8 @@ contains
              /(4*pi*meshpoints(ir)**3)
             end do
             rho(0,iq) = rho(1,iq)
-            tau(2,iq) = tau(3,iq)
-            tau(1,iq) = tau(2,iq)
+            !tau(2,iq) = tau(3,iq)
+            !tau(1,iq) = tau(2,iq)
             tau(0,iq) = tau(1,iq)
 
 
@@ -364,9 +462,7 @@ contains
    jsc(:,4)=jsc(:,1) - jsc(:,2)
 
    call ddensities
-    do ir = 0,nbox
-      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
-    end do
+
   end subroutine build_densities
 
   function infwell_exact() result(energy)

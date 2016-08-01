@@ -9,8 +9,8 @@ program HFSolver
 !  real(dp) :: EHF,tr_rho
 !  integer :: i,j,k
   real(dp) :: EHF,tr_rho,r,dr
-  Nparticles = 8
-  n_orbitals = 216
+  Nparticles = 8 !< Set the number of neutrons in the system.
+  n_orbitals = 216 !< Set the number of available orbitals in your basis space.
   call read_orbitals
   Noccupied=fermi_level()
   write(*,*) Noccupied
@@ -24,7 +24,7 @@ program HFSolver
   call initialize_HF
   call Initialize_Minnseota
 !  call read_TBME
-  do i = 1,50
+  do i = 1,100 !< Set the number of Hartree-Fock iterations.
 !     call Construct_rho
 !     call Construct_gamma
 !     write(*,*) i, gamma_mat(1,1)
@@ -44,10 +44,10 @@ program HFSolver
   enddo
 !  call Construct_rho
 !  call Construct_gamma
-!  call calculate_gamma_LDA 
-!  h_mat = t_mat + gamma_mat
-!  EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
-!  write(*,*) '  Hartree-Fock energy in MeV'
-!  write(*,*) EHF
+  call calculate_gamma_LDA 
+  h_mat = t_mat + gamma_mat
+  EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp !< $E_{HF}=Tr(t\rho)+Tr(h\rho)$
+  write(*,*) '  Hartree-Fock energy in MeV'
+  write(*,*) EHF
   
 end program HFSolver

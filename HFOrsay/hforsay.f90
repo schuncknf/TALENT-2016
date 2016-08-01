@@ -1,5 +1,5 @@
 program hforsay
-use omp_lib
+!use omp_lib
 use constants
 use lag_pol
 use maths
@@ -18,19 +18,25 @@ call reader()
 !write(*,*) "tbme",tbme_ext(17,18,89,18)
 !call cpu_time(start)
 call external_basis()
-call external_tbme()
+call external_tbme(.true.)
 call filled_number()
-write(*,*) "State, n , l , j , occ"
+write(*,*) "# Of occ states",occ_states
+read(*,*)
+write(*,'(a)') "State, n , l , j , nocc"
 do j=1,red_size
-write(*,'(a,5i4)') "State: ",j,n_red(j),l_red(j),j_red(j),occ(j)
+write(*,'(a,5i4)') "State: ",j,n_red(j),l_red(j),j_red(j),nocc(j)
 write(*,*) 
 enddo
+write(*,*) "TBME TEST"
+write(*,*) tag_hf(0,0,1),tag_hf(2,0,1),tag_hf(0,0,1),tag_hf(1,0,1)
+write(*,*) "tb= ",tbme_ext(tag_hf(0,0,1),tag_hf(2,0,1),tag_hf(0,0,1),tag_hf(1,0,1))
 read(*,*)
-start = omp_get_wtime()
-call lag_roots(ngauss,0.5d0,.true.)
+write(*,*) "maxval",maxval(n_red)+1
+!start = omp_get_wtime()
+call lag_roots(ngauss,0.5d0,.false.)
 call hfsolver(.true.)
-finish = omp_get_wtime()
+!finish = omp_get_wtime()
 !call cpu_time(finish)
-print '("Real cpu-time = ",f6.3," Seconds")',finish-start
+!print '("Real cpu-time = ",f6.3," Seconds")',finish-start
 
 end program
