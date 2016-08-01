@@ -8,16 +8,16 @@
       integer :: Nodemax, kpot, N_max, N_maxN, N_maxZ, N_act, Num_par
       integer :: Num_par_max
       REAL(kind=dp) :: Etrial, Eexp
-      integer :: points, ifail, converg, i, charge, l, jj, nstat, jmin, jmax
+      integer :: points, ifail, converg, i,j, charge, l, jj, nstat, jmin, jmax
       integer :: Nodecount, numN, numZ, strval, n_rad, occup, st_pos, minN
       integer :: minZ, nstatN, nstatZ, num_stat
       REAL(kind=dp) :: a1, a2, a3, pot, normal, deltae, pos
       REAL(kind=dp) :: potV, rProt, valueR0, den_int, denN_int, denZ_int
-      REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: trialwf
+      REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: trialwf, posiR
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: pott, density, denN, denZ
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:,:) :: states, states2
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: ordEneN, ordEneZ
-      CHARACTER(LEN=5):: Nodecc
+      CHARACTER(LEN=5):: caran
       CHARACTER(LEN=5) :: string
 !==========     set initial values     ==============================
       Eup=100.E0_dp
@@ -56,6 +56,9 @@
          allocate(pott(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
 !
+         allocate(posiR(0:points), stat = ifail)
+         if (ifail .ne. 0) STOP
+!
          allocate(density(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
 !
@@ -65,6 +68,10 @@
          allocate(denZ(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
 !
+         do i=0,points
+         posiR(i)=Rmin+i*meshsize
+         end do
+
          num_stat=0
          nstatN=0
          nstatZ=0
@@ -196,8 +203,10 @@
          do i= 0,points
             states(7+i,nstat)=trialwf(i)**2
          end do
+
+         write(caran, '(i3)') nstat
 !
-!         OPEN(UNIT=7, FILE='squared_u_r_'//nstat//'.dat', status='unknown')
+!         OPEN(UNIT=7, FILE='squared_u_r_'//TRIM(caran)//'.dat', status='unknown')
 !         
 !         write(7,*) "Number of nodes=", Nodecount
 !         write(7,*) "Energy= ", Etrial
@@ -253,33 +262,42 @@
             ordEneZ(minZ)=Eup
          end do
 
-          
+!          do i=1,num_stat
+!            print*, states2(1,i)
+!          end do
 
       density(:)=0.0E0_dp
       denN(:)=0.0E0_dp
       denZ(:)=0.0E0_dp
           
-
+        do j=0,points
 !loop on neutron density
            charge=0
            N_max=N_maxN
            Num_par_max=numN
            Num_par=0
          do i=1, nstatN
-         if(Num_par+(states2(5,i)+1) .le. Num_par_max) then
+         if(Num_par+int(states2(5,i)+1) .le. Num_par_max) then
            occup=(states2(5,i)+1)
          else if (Num_par .lt. Num_par_max) then
            occup=Num_par_max-Num_par
          else if (Num_par .gt. Num_par_max) then
            occup=0
          end if
-         Num_par= Num_par+(states2(5,i)+1)
+         Num_par= Num_par+int(states2(5,i)+1)
+!         print*, int(states2(5,i)+1),occup, Num_par
 !
-            density(:)= density(:) + 1/4/pi* (dble(occup))*states2(6:points+7,i)**2
-            denN(:)= denN(:) + 1/4/pi*(dble(occup))*states2(6:points+7,i)**2
+            density(j)= density(j) + (dble(occup))*states2(7+j,i)/4/pi !&
+                        !/1!posiR(j)**2
+!            print*, posiR(j), density(j), i
+
+            denN(j)= denN(j) + (dble(occup))*states2(7+j,i)/4/pi  !&
+                        !/1!posiR(j)**2
 
          end do
+         end do
 !loop on proton density
+         do j=0,points
            charge=1
            N_max=N_maxZ
            Num_par_max=numZ
@@ -293,16 +311,19 @@
            occup=0
          end if
          Num_par= Num_par+(states2(5,i)+1)
+!         print*, int(states2(5,i)+1),occup
 !
-         density(:)= density(:) + 1/4/pi*(dble(occup))*states2(6:points+7,i)**2
-         denZ(:)= denZ(:) + 1/4/pi* (dble(occup))*states2(6:points+7,i)**2
+         density(j)= density(j) + (dble(occup))*states2(7+j,i)/4/pi !&
+                        !/posiR(:)**2
+         denZ(j)= denZ(j) +  (dble(occup))*states2(7+j,i)/4/pi! &
+                        !/posiR(:)**2
+         end do
          end do
 
          do i=0, points-1
-         pos=Rmin+i*meshsize
-         den_int= den_int+ density(i)*meshsize*pos**2
-         denN_int= denN_int+ denN(i)*meshsize*pos**2
-         denZ_int= denZ_int+ denZ(i)*meshsize*pos**2
+         den_int= den_int+ density(i)*meshsize*posiR(i)**2*4*pi
+         denN_int= denN_int+ denN(i)*meshsize*posiR(i)**2*4*pi
+         denZ_int= denZ_int+ denZ(i)*meshsize*posiR(i)**2*4*pi
          end do
          print*, "total density=", den_int
          print*, "N density=", denN_int
@@ -342,7 +363,7 @@
          REAL(kind=dp) :: pot, a, Vvalue
          REAL(kind=dp) , DIMENSION(0:points), INTENT(IN) :: pott
 !
-          kk=0
+!          kk=0
 !         allocate(trialwf(0:points), stat = ifail)
 !         if (ifail .ne. 0) then
 !          print*, "failed allocation"
@@ -363,6 +384,9 @@
            do i=0,imin-1
               trialwf(i)=0.0E0_dp!meshsize**(l+1)
            end do
+!           if(l .eq. 0) then
+!           trialwf(0)=meshsize**(l+1)
+!           end if
            trialwf(imin)=meshsize**(l+1)
            imax=points-1
 !loop until convergence

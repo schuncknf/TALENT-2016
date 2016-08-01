@@ -13,7 +13,7 @@ implicit none
                 & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
      real(wp), allocatable,dimension(:) :: meshpoints,ucoul
      real(wp), allocatable, dimension(:,:) :: rho,tau,jsc,drho,ddrho,dtau,djsc,laprho
-     real(wp), allocatable, dimension(:,:) ::uc,umr,udd,uso,ucso
+     real(wp), allocatable, dimension(:,:) ::uc,umr,dumr,udd,uso,ucso
      real(wp), allocatable, dimension(:,:,:,:,:) :: wavefunctions,wfl,wfr
      integer :: nbox, nodes, radius, lmax, welltype,nmax,njoin,itermax
      integer :: nn,np,nt,icoul,icm
@@ -105,7 +105,7 @@ contains
 
     subroutine init_fields
           integer :: ir,iq
-          allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox),ucso(0:nbox,2))
+          allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox),ucso(0:nbox,2),dumr(0:nbox,2))
            do iq = 1,2
             do ir = 0,nbox
              uc(ir,iq) = vpb(iq)*fullwoodsaxon(ir)
