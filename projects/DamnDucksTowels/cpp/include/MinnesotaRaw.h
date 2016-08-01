@@ -1,13 +1,10 @@
-#ifndef RAWINTERACTION_H
-#define RAWINTERACTION_H
-
-#include <armadillo>
+#ifndef MINNESOTARAW_H
+#define MINNESOTARAW_H
 
 #include "Interaction.h"
-#include "Basis.h"
 
-/// class RawInteraction -
-class RawInteraction : public Interaction
+/// class MinnesotaRaw -
+class MinnesotaRaw : public MinnesotaS0
 {
   // Attributes
 public:
@@ -15,9 +12,9 @@ public:
   int nParticleTypes;
   // Operations
 public:
-  RawInteraction (Basis &_basis, int _nParticleTypes);
-  ~RawInteraction ();
-  double &set (int ti0, int i0, int ti1, int i1, int tj0, int j0, int tj1, int j1);
+  MinnesotaRaw (FullSpBasis &_basis, int _nParticleTypes);
+  ~MinnesotaRaw ();
+  double &set (arma::vec &pTypes, arma::vec &n, arma::vec &l, arma::vec &j, arma::vec &mj);
   double get (arma::field<arma::mat> &R, arma::ivec &bType, arma::ivec &bId, arma::ivec &kType, arma::ivec &kId);
   std::string info ();
   std::string toString ();

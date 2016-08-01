@@ -35,7 +35,7 @@ contains
        do j = i,Nsize
           if(l_hf(i).ne.l_hf(j).or.j_hf(i).ne.j_hf(j)) cycle
           D = 0
-          do k = 1,3 !3 is the number of occupied states for 8 particles
+          do k = 1,Noccupied
              D = D + (j_hf(k)+1)*D_mat(i,k)*D_mat(j,k)
           enddo
           rho_mat(i,j) = D

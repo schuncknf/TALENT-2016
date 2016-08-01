@@ -1,6 +1,6 @@
 #include <cmath>
 #include <gsl/gsl_sf_laguerre.h>
-#include "SpBasis.h"
+#include "FullSpBasis.h"
 #include "global.h"
 
 double sqrtFactorial(int n)
@@ -19,67 +19,41 @@ double sqrtDoubleFactorial(int n)
     return sqrt(n) * sqrtDoubleFactorial(n - 2);
 }
 
-SpBasis::SpBasis(double _omega, int _nMax, int _lMax) :
-  Basis(std::string("SpBasis"), std::vector<std::string>(
-{"n", "l", "m", "s"
+FullSpBasis::FullSpBasis(double _omega, int _nMax, int _lMax) :
+  Basis(std::string("FullSpBasis"), std::vector<std::string>(
+{"n", "l", "2j"
 })),
 omega(_omega),
 nMax(_nMax),
-lMax(_nMax + 1),
-mMax(_nMax + 1, _lMax + 1)
+lMax(_lMax)
 {
   //Defining maximum numbers and determining basis size
-  size = 0;
-
-  for (int n = 0; n <= nMax; n++)
-  {
-    // Here to specify lMax dependency on n
-    lMax(n) = _lMax;
-
-    for (int l = 0; l <= lMax(n); l++)
-    {
-      mMax(n, l) = l;
-      size += 2 * l + 1;
-    }
-  }
-
-  //Considering spin
-  size *= 2;
+  size = (nMax + 1) * ((lMax + 1) * 2 - 1);
   //Filling the quantum numbers for each state
   qNumbers = arma::imat(size, qNumSize);
   int i = 0;
 
-  for (int s = -1; s <= 1; s += 2)
-    for (int n = 0; n <= nMax; n++)
-      for (int l = 0; l <= lMax(n); l++)
-        for (int m = -mMax(n, l); m <= mMax(n, l); m++)
-        {
-          qNumbers(i, 0) = n;
-          qNumbers(i, 1) = l;
-          qNumbers(i, 2) = m;
-          qNumbers(i, 3) = s;
-          i++;
-        }
+  for (int n = 0; n <= nMax; n++)
+    for (int l = 0; l <= lMax; l++)
+      for (int _2j = 2 * l + 1; (_2j >= 2 * l - 1) && (_2j > 0); _2j -= 2)
+      {
+        qNumbers(i, 0) = n;
+        qNumbers(i, 1) = l;
+        qNumbers(i, 2) = _2j;
+        i++;
+      }
 
   //Calculating N normalization coefficients
-  nu = NUCLEON_MASS * omega / 2 / HBAR;
+  nu = HBAR * omega / HBAR2_2M;
   N = arma::zeros<arma::vec>(size);
   calcN();
 }
 
-SpBasis::~SpBasis()
+FullSpBasis::~FullSpBasis()
 {
 }
 
-int SpBasis::deltaSpin (int idx1, int idx2)
-{
-  if (qNumbers(idx1, 3) == qNumbers(idx2, 3))
-    return 1;
-  else
-    return 0;
-}
-
-void SpBasis::calcN()
+void FullSpBasis::calcN()
 {
   //Calculating N noramalization coefficients for each basis state
   for (int i = 0; i < size; i++)
@@ -90,7 +64,7 @@ void SpBasis::calcN()
   }
 }
 
-void SpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec &r)
+void FullSpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec &r)
 {
   //Calculating wave function values for each basis state and each r point provided
   wfMatrix = arma::zeros(r.n_elem, size);
@@ -108,7 +82,7 @@ void SpBasis::evalRadialWaveFunction(arma::mat &wfMatrix, arma::vec &r)
   }
 }
 
-void SpBasis::evalDerivativeRadialWaveFunction(arma::mat &wfMatrix, arma::vec &r)
+void FullSpBasis::evalDerivativeRadialWaveFunction(arma::mat &wfMatrix, arma::vec &r)
 {
   //Calculating first derivative of wave function for each basis state and each r point provided
   wfMatrix = arma::zeros(r.n_elem, size);
@@ -134,7 +108,7 @@ void SpBasis::evalDerivativeRadialWaveFunction(arma::mat &wfMatrix, arma::vec &r
   }
 }
 
-void SpBasis::evalRadialWaveFunctionNoExp(arma::mat &wfMatrix, arma::vec &r)
+void FullSpBasis::evalRadialWaveFunctionNoExp(arma::mat &wfMatrix, arma::vec &r)
 {
   //Calculating wave function values for each basis state and each r point provided
   wfMatrix = arma::zeros(r.n_elem, size);

@@ -3,8 +3,9 @@
 
 #include "SpBasis.h"
 
-/// class ReducedSpBasis - 
-class ReducedSpBasis : public SpBasis {
+/// class ReducedSpBasis -
+class ReducedSpBasis : public SpBasis
+{
   // Operations
 public:
   ReducedSpBasis (double _omega, int _nMax) : SpBasis(_omega, _nMax, 0)
