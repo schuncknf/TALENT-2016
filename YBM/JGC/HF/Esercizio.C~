@@ -168,6 +168,33 @@ int main(){
 	myfile_density_proton.open("density_proton.txt");
 	myfile_density_np.open("density_np.txt");
 
+
+	// Create vector to store the skyrme potentials for protons and neutrons
+	vector<double> U_skyrme_p, U_skyrme_n;
+
+
+	// Fill vectors of skyrme potentials for protons and neutrons
+	for(int i=0; i<n_step_width_box; i++){
+		double r  = density_proton[i] + density_neutron[i];
+		double rp = density_proton[i];
+		double rn = density_neutron[i];
+
+		U_skyrme_p.push_back(skyrme(r,rp,rp,rn));
+		U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
+	}// Close loop for filling skyrme potentials
+
+
+	vector<double> wav_HF;
+
+	wav_HF.push_back(0);
+	wav_HF.push_back(0.0001);
+
+	for(int i=2; i<n_step_width_box; i++){
+		wav_HF.push_back(Etrial, U_skyrme_p[i], U_skyrme_p[i-1], U_skyrme_p[i-2],wav_HF[i-1],wav_HF[i-2]);
+	}
+	
+
+
 	for(int i=2; i<n_step_width_box+1; i++){
 		myfile_density_neutron << i*h_width +h_width<< "   " << density_neutron[i] << endl;
 		myfile_density_proton << i*h_width +h_width<< "   " << density_proton[i] << endl;
@@ -199,17 +226,18 @@ int main(){
 */
 
 //This can be useful to plot a potential
-/*
+
 	ofstream myfile;
 	myfile.open("Eigen.txt");
 
-	for(int i=0; i<n_step_width_box; i++){
-		wave_val.push_back(potential_woods(i*h_width +h_width)-centrifug_term(i*h_width +h_width, 0));
-		myfile <<i*h_width +h_width<< "   " << wave_val[i] << endl;
+	for(int i=2; i<n_step_width_box; i++){
+//		wave_val.push_back(potential_woods(i*h_width +h_width)-centrifug_term(i*h_width +h_width, 0));
+//		myfile <<i*h_width +h_width<< "   " << wave_val[i]<< endl;
+		myfile <<i*h_width +h_width<< "\t" << U_skyrme_p[i] << "\t" << U_skyrme_n[i] << endl;
 	}
 
 	myfile.close();
-*/
+
 
 //Plot the proton and neutron central potential
 /*

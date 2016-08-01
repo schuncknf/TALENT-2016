@@ -9,6 +9,14 @@
 	#include <sstream>
 	#include <algorithm>
 
+/********************************************************************************************/	//JGC
+	// Skyrme parameters for t0, t3 system
+	#define _a 1
+	#define t0 -1132.400
+	#define t3 23610.40
+	#define x0 0
+	#define x3 0
+/********************************************************************************************/	//JGC
 
 	#define width_box 22.
 	#define h_width 0.01
@@ -32,6 +40,11 @@
 	double potential_spin_orbit(double r, double S, double L, double J);
 	double potential_coulomb(double r);
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
+
+/********************************************************************************************/	//JGC
+	// H-F bit...
+	double skyrme(double rho, double rho_q, double rho_p, double rho_n);
+/********************************************************************************************/	//JGC
 
 	struct state{
 		vector<double> wavefn;

@@ -16,6 +16,15 @@
 		}
 	}
 
+	double numerov_algorithm_HF(double energy, double V_sky1, double V_sky0, double V_sky_, double f0, double f_){
+		double v=0., a[3];
+
+		a[0] = 2. * (1. - 5./12. * (E - V_sky) * pow(h_width,2));	
+		a[1] = 1. * (1. + 1./12. * (E - V_sky) * pow(h_width,2));
+		a[2] = 1. * (1. + 1./12. * (E - V_sky) * pow(h_width,2));
+		return (a[0] * f0 - a[1] * f_) / a[2];
+	}
+
 	double v_neutron(double energy, double r,double S, double L, double J){
 		return (energy-potential_woods(r)-centrifug_term(r,L)-potential_spin_orbit(r,S,L,J))/m_factor;
 	}
@@ -65,4 +74,15 @@
 
 	wfWork.clear();
 	return sum;
-}
+	}
+/********************************************************************************************/	//JGC
+	double skyrme(double rho, double rho_q, double rho_p, double rho_n){
+		double e_skyrme =   rho * ( ( (t0/2.) * (2+x0) )  + ( (2+_a) * (t3/24.) * (2+x3) * pow(rho,_a)) )
+				+ rho_q * ( ((-t0/2.) * (2*x0+1)) - ( (t3/12.) * (2*x3 + 1) * pow(rho,_a)) )
+				+ _a * pow(rho,_a-1) * ((-t3/24.)*(2*x3 + 1)) * ( (rho_p * rho_p) + (rho_n * rho_n) );
+
+		return e_skyrme;
+	}
+/********************************************************************************************/	//JGC
+
+
