@@ -1,0 +1,14 @@
+&nucleons
+ proton = 8, neutron = 8 /
+&parameters
+ h2m=20.73553d0, R_max=30d0, N=300 /
+&max_quantum_number
+ n_max = 4, l_max = 10/
+&effective_charge
+ charge = 1d0 / 
+&bisection
+ E_p = 0d0, E_m = -100d0 /
+&output
+ output_wave_func = .true. /
+&WoodSaxon
+r0=1.27, a=0.67, e=1.439978/  

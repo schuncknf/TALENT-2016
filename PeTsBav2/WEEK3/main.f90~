@@ -1,0 +1,123 @@
+      ! Authors: Fang Ni, Kai Wang, Claudia Gonzalez Boquera
+      ! TALENT COURSE 4 2016 
+      program HARTREEFOCK
+      use globals 
+      use numerov_module
+      use integrations
+      implicit none
+
+      integer(kind=dm) :: i, uu
+      real(kind=dm) :: vpot
+
+      !TODO: CANVIAR PARAMETRES DEL INPUT ALS DE SKYRME
+      !------------------Read parameters from input---------------------
+      NAMELIST / Nucleus / NN, ZZ
+      NAMELIST / parameters / epsi, h2m, e
+      NAMELIST / sizebox /  h 
+      NAMELIST / energy / E_minus, E_plus
+      NAMELIST / max_quantum_number / n_max, l_max
+      NAMELIST / Skyrme / t0, t3, alpha
+
+      open(30, file='WS.input', status='old')
+      read(30, NML= Nucleus)
+      read(30, NML=parameters)
+      read(30, NML=sizebox)
+      read(30, NML=energy)
+      read(30, NML=max_quantum_number)
+      read(30, NML=Skyrme)
+      close(30)
+      !-----------------------------------------------------------------
+      Nmesh=nint((R_box)/h)
+      allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
+      allocate(tau(0:Nmesh), taup(0:Nmesh), taun(0:Nmesh), &
+               rho(0:Nmesh), rhon(0:Nmesh), rhop(0:Nmesh))
+      allocate(kinetic(0:Nmesh), Spot(0:Nmesh), VSkyrme(0:Nmesh))
+
+      allocate(psitrial(0:Nmesh, 2), rhotrial(0:Nmesh, 2))
+      rho(:)=0.d0
+      rhon(:)=0.d0
+      rhop(:)=0.d0
+      orbital = 0
+      do n=0, n_max-1 !loop n
+            do l=0, l_max !loop l 
+                  do ii=1,-1, -2!loop sm--->j
+                  if((l.eq.0).and.(ii.eq.-1)) exit 
+                       j=l+1./2.*ii                         
+                        orbital = orbital + 1 
+                        quannum(orbital,1) = n
+                        quannum(orbital,2) = l
+                        quannum(orbital,3) = j 
+                  end do
+            end do
+      end do
+orbital=0
+      allocate (quannum(orbital,1:3), Orbwf(orbital, 0:Nmesh, 2))
+      do n=0, n_max-1 !loop n
+            do l=0, l_max !loop l 
+                  do ii=1,-1, -2!loop sm--->j
+                  if((l.eq.0).and.(ii.eq.-1)) exit 
+                       j=l+1./2.*ii                         
+                        orbital = orbital + 1 
+                        quannum(orbital,1) = n+1
+                        quannum(orbital,2) = l
+                        quannum(orbital,3) = j 
+                  end do
+            end do
+      end do
+      allocate (Enl2j(orbital,1:4, 2), Orbwf(orbital, 0:Nmesh, 2))
+      
+DO WHILE (.true.) ! autoconsistence loop 
+
+do ipart=1, 2 ! loop over particles
+      uu=1
+      do n=0, nmax-1 !loop over n
+            do l=0, lmax !loop over l
+                  do ii=-1,1, 2 !loop over spin
+                  sm=1./2.*ii
+                  if((l.eq.0).and.(ii.eq.-1)) exit 
+                  j=l+sm 
+                  Enl2j(uu, 2, ipart)= n+1
+                  Enl2j(uu, 3, ipart)= l
+                  Enl2j(uu, 4, ipart)= sm
+
+                  CALL get_eigenvv (uu)
+                  ! tinc psi(:) i el valor de lenergia
+                  Orbwf(uu, :, ipart) = psi(:, ipart)
+                  uu=uu+1
+
+                  enddo  ! loop over spin
+
+            enddo !loop over l
+
+      enddo !loop over n
+
+end do ! loop over particles
+                  CALL calculate_dens()
+                  !!!!!!MIRAR QUE SHA DINTEGRAR, SI E, E/V O QUE, PERQUE APUNTS HI HA E TOTAL
+                  ! una vegada tinguis les coses dun nivell, no tornis a fer servir
+                  ! la funcio dona del principi de tot, utilitiza la trial com 
+                  !lanterior calculada
+
+                  
+                  psi(:, :) = psinew(:,:)
+                  rho(:) = rhonew(:)
+                  rhon(:) = rhonnew(:)
+                  rhop(:) = rhopnew(:)
+
+
+                  if (woods=.false.) then 
+                  call Skyrme()   
+                  call simpson_array(Nmesh, h, VSkyrme, Energy_new) 
+                  DeltaE= abs(Energy_new-Energy)  
+                  endif 
+                  woods= .false.
+                  if(DeltaE.lt.epsi) exit  
+
+                  Energy= Energy_new
+
+END DO !autoconsistence loop
+
+      end program HARTREEFOCK
+
+
+
