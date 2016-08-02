@@ -111,7 +111,7 @@ contains
         call build_densities
         call totenergy
         currentconv = abs(totfunct - oldtotenergy)
-        write (6,*) "Iteration:",iter,"Convergence:",currentconv
+        write (*,*) "Iteration:",iter,"Convergence:",currentconv
         if (currentconv<conv) exit
 
        end do

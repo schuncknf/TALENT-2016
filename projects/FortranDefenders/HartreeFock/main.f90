@@ -11,7 +11,7 @@ program main
     open(unit=14,file='densities',form='formatted')
     open(unit=15,file='fields',form='formatted')
     open(unit=16,file='fieldsnew',form='formatted')
-
+    write(*,*) 1E-30 * 1E-30
     call init_params
     call init_grids
     call init_wavefunctions

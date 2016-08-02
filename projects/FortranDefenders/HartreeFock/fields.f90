@@ -51,7 +51,7 @@ contains
 
         do ir2=ir+1,nbox
          tot2=tot2+rho(ir2,2)*mesh(ir2)
-        end do	
+        end do
         ucoulnew(ir)=4.0d0*pi*e2*(tot1/mesh(ir) &
         + tot2)*h - e2*(3./pi)**(1./3.)*rho(ir,2)**(1./3.)
       end if
