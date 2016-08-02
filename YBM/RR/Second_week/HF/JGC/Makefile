@@ -1,7 +1,7 @@
 
 #LIBS:=`root-config --libs`
 #INCS:=`root-config --cflags`
-ARM:= -Ofast
+ARM:= -O2
 
 Esercizio: Esercizio.o oggetto.o
 	g++ Esercizio.o oggetto.o -o Esercizio #${LIBS} ${INCS}

@@ -1,15 +1,14 @@
 CC	= g++
-CFLAGS	= -W -O3
+CFLAGS	= -O3 -g -Wall
 LDFLAGS	=
-EXEC	= star
-#SRC	= radial_1D.c #hello.c
-SRC	= test.c main.c #hello.c
+EXEC	= exe
+SRC	= spherical.c #hello.c
 OBJ	= $(SRC:.c=.o)
 
 all: $(EXEC)
 
 $(EXEC): $(OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS) -lncurses
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)
