@@ -53,12 +53,12 @@ int main(){
     for(int i=0, i<n_step_width_box; i++){
     	density_proton[i] << density_proton << endl;
     }
-*/    myneutron.close();
+*/  myneutron.close();
     myproton.close();
 
 
 
-do{
+//do{
 
 	old_integral=integral;
 // First: get the skyrme potential
@@ -281,7 +281,7 @@ do{
 ///////////////////////////////////////////////////////////////
 
 //cout<<abs(old_integral)<<endl;
-}while(fabs(old_integral - integral) > prec);
+//}while(fabs(old_integral - integral) > prec);
 
 
 
@@ -321,7 +321,7 @@ do{
 //USEFUL ROUTINES
 
 //This is just for plotting all wavefunction
-/*
+
 	char orbital[26];
 	ofstream myfile_wave;
 	for(int k=0; k<p_levels-7; k++){
@@ -333,7 +333,7 @@ do{
 				myfile_wave.close();
 			}
 
-*/
+
 
 //This can be useful to plot a potential
 /*
