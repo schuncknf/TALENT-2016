@@ -19,7 +19,7 @@ public:
   /// Auxiliary parameter
   double nu;
 private:
-  /// Normalization coefficients for the basis states 
+  /// Normalization coefficients for the basis states
   arma::vec N;
   // Operations
 public:

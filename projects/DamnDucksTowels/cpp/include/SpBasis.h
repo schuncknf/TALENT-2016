@@ -21,7 +21,7 @@ public:
   /// Auxiliary parameter
   double nu;
 private:
-  /// Normalization coefficients 
+  /// Normalization coefficients
   arma::vec N;
   // Operations
 public:

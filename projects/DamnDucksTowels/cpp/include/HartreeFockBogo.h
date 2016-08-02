@@ -5,6 +5,8 @@
 
 #include "Solver.h"
 #include "System.h"
+#include "FullSpBasis.h"
+#include "MinnesotaRaw.h"
 
 /// class HartreeFockBogo - Class representing a Hartree-Fock-Bogoliubov solver
 class HartreeFockBogo : public Solver

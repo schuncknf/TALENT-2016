@@ -12,7 +12,7 @@ class NeutronDrop : public System
 {
   // Attributes
 public:
-  /// Omega parameter for the harmonic part of the Hamiltonian 
+  /// Omega parameter for the harmonic part of the Hamiltonian
   double omega;
   // Operations
 public:
