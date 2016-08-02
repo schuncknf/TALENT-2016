@@ -30,27 +30,28 @@ void HartreeFock::run()
     arma::mat H = system->Kinetic(pType) + system->Gamma(pType);
     // Temporary vectors and matrices to store eigenvecs and energies
     arma::vec old_indivE = indivEnergies.row(pType).t();
-    arma::vec new_indivE;
+    arma::vec new_indivE = arma::zeros<arma::vec>(nb_state);
 
     // Hamiltonian diagonalization to extract D and e
-    if ((system->basis->type == "FullSpBasis") && (dynamic_cast<MinnesotaRaw *>(system->inter) != NULL))
+    /*if ((system->basis->type == "FullSpBasis") && (dynamic_cast<MinnesotaRaw *>(system->inter) != NULL))
     {
-      int bl_size = system->basis->qNumbers.col(0).max() + 1;
-
-      for (int i = 1; i <= nb_state / bl_size; i++ )
+      FullSpBasis &fullSpBasis = static_cast<FullSpBasis &>(*system->basis);
+      const int bl_size = fullSpBasis.nMax + 1;
+      //const int bl_size = 6;
+      for (int i = 0; i < nb_state / bl_size; i++ )
       {
-        arma::mat subD;
-        arma::vec subE;
-        arma::mat subH = H.submat((i - 1) * bl_size, (i - 1) * bl_size, i * bl_size - 1, i * bl_size - 1);
+        arma::mat subD = arma::eye<arma::mat>(bl_size, bl_size);
+        arma::vec subE = arma::zeros<arma::vec>(bl_size);
+        arma::mat subH = H.submat(i * bl_size, i * bl_size, (i+1) * bl_size - 1, (i+1) * bl_size - 1);
         arma::eig_sym(subE, subD, subH);
-        new_indivE.subvec( (i - 1)*bl_size, i * bl_size - 1) = subE;
-        D(pType).submat( (i - 1)*bl_size, (i - 1)*bl_size, i * bl_size - 1, i * bl_size - 1) = subD;
+        new_indivE.subvec( i*bl_size, (i+1) * bl_size - 1) = subE;
+        D(pType).submat( i*bl_size, i*bl_size, (i+1) * bl_size - 1, (i+1) * bl_size - 1) = subD;
       }
     }
     else
-    {
+    {*/
       arma::eig_sym(new_indivE, D(pType), H);
-    }
+    //}
 
     // Extraction of eigenenergies' sequence
     arma::uvec sorted_ind = arma::sort_index(new_indivE);
