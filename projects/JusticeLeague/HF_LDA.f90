@@ -43,8 +43,8 @@ contains
              if(lk.ne.lj.or.jj.ne.jk) cycle
              Anl =  HO_Normalization(nj,lj)
              Anpl = HO_Normalization(nk,lk)
-             phi = phi + (D_mat( i,j)*D_mat( i,k)*0.1_dp + &
-                          D_prev(i,j)*D_prev(i,k)*0.9_dp)*&
+             phi = phi + (D_mat( j,i)*D_mat( k,i)*1.0_dp + &
+                          D_prev(j,i)*D_prev(k,i)*0.0_dp)*&
                           xi**(lj+lk)*exp(-xi**2)*&
                           L_nl(nj,lj)*L_nl(nk,lk)*Anl*Anpl/(b_ho**3)
           enddo
@@ -71,7 +71,8 @@ contains
           lj = l_hf(j)
           jj = j_hf(j)
           if(li.ne.lj.or.ji.ne.jj) cycle
-          gamma = gamma_LDA(ni,nj,li)
+!          gamma = gamma_LDA(ni,nj,li)
+          gamma = gamma_DME(ni,nj,li)
           gamma_mat(i,j) = gamma
           gamma_mat(j,i) = gamma
        enddo
@@ -140,6 +141,15 @@ contains
     j1 = sin(x)/x**2 - cos(x)/x
   end function SphericalBesselJ1
 
+!> Spherical Bessel function \f$J_3(x)\f$
+  function SphericalBesselJ3(x) result(j3)
+    implicit none
+    real(dp), intent(in) :: x
+    real(dp) :: j3
+    j3 = (15/x**3-6/x)*sin(x)/x - (15/x**2-1)*cos(x)/x
+  end function SphericalBesselJ3
+
+
 !> Writes \f$r\f$ and \f$\rho_{LDA}(r)\f$ (or rather,
 !! \f$r^2\rho_{LDA}(r)\f$) to a file \f$\texttt{mixed\_rho\_plot**.dat}\f$
 !! for plotting.
@@ -197,25 +207,143 @@ contains
     enddo
   end subroutine sample_rho_LDA
 
-!> I don't know what this one does, either.
-!! I commented it out for now since I don't have a function
-!! DME_fields to call, giving me a compilation error.
-!  subroutine sample_DME_fields
-!    implicit none
-!    real(dp) :: alpha
-!    logical :: first_call = .true.
-!    integer :: i
-!    real :: rho, tau, del_rho
-!    save first_call
-!    if(first_call) then
-!       alpha = 0.5_dp
-!       call GaussLaguerreWX(alpha,w_quad,x_quad)
-!       first_call = .false.
-!    endif
-!    do i = 1,N_quad
-!       call DME_fields(b_ho*x_quad(i)**0.5_dp,rho,tau,del_rho)
-!       rho_quad(i) = rho_LDA(b_ho*x_quad(i)**0.5_dp)
-!    enddo
-!  end subroutine sample_DME_fields
+  subroutine DME_fields(r,rho,tau,del_rho)
+    implicit none
+    real(dp), intent(in) :: r
+    real(dp), intent(out) :: rho,tau,del_rho
+    real(dp), dimension(0:2,0:5,0:2) :: Rnl
+    real(dp) :: xi
+    integer :: i,ji,j,nj,lj,jj,k,nk,lk,jk
+    xi = r/b_ho
+    call RadialHOALL(5,2,xi,b_ho,Rnl)
+    rho = 0
+    tau = 0
+    del_rho = 0
+    do i = 1,Noccupied!3
+       ji = j_hf(i)
+       do j = 1,Nsize
+          nj = n_hf(j)
+          lj = l_hf(j)
+          jj = j_hf(j)
+          do k = 1,Nsize
+             nk = n_hf(k)
+             lk = l_hf(k)
+             jk = j_hf(k)
+             if(lk.ne.lj.or.jj.ne.jk) cycle
+             rho = rho + (ji+1)*D_mat( j,i)*D_mat( k,i)*&
+                  Rnl(0,nj,lj)*Rnl(0,nk,lk)
+             tau = tau + (ji+1)*D_mat( j,i)*D_mat( k,i)*&
+                  (Rnl(1,nj,lj)*Rnl(1,nk,lk)+&
+                  lj*(lj+1)/r**2*Rnl(0,nj,lj)*Rnl(0,nk,lk))
+             del_rho = del_rho + (ji+1)*D_mat( j,i)*D_mat( k,i)*&
+                  (2*(Rnl(0,nj,lj)*Rnl(1,nk,lk)/r + &
+                      Rnl(0,nk,lk)*Rnl(1,nj,lj)/r + &
+                      Rnl(1,nj,lj)*Rnl(1,nk,lk)) + & 
+                   Rnl(0,nj,lj)*Rnl(2,nk,lk) + Rnl(0,nk,lk)*Rnl(2,nj,lj))
+
+          enddo
+       enddo
+    enddo
+    rho = rho/(4*pi)
+    tau = tau/(4*pi)
+    del_rho = del_rho/(4*pi)
+  end subroutine DME_fields
+
+
+
+  function gamma_DME(n,np,l) result(gamma)
+    implicit none
+    integer, intent(in) :: n,np,l
+    real(dp) :: gamma
+    real(dp) :: alpha,xi,wi,An,Anp,Ln,Lnp,rho,tau,delrho
+    integer :: i
+    if(calc_couplings) then
+       call calculte_couplings
+       calc_couplings = .false.
+    endif
+    An  = HO_Normalization(n ,l)
+    Anp = HO_Normalization(np,l)
+    gamma = 0
+    do i = 1,N_quad
+       call LaguerreL( n,l+0.5_dp,x_quad(i),Ln)
+       call LaguerreL(np,l+0.5_dp,x_quad(i),Lnp)
+       rho = rho_quad(i)
+       tau = tau_quad(i)
+       delrho = delrho_quad(i)
+       gamma = gamma + w_quad(i)*x_quad(i)**l*Ln*Lnp &
+            *(C_rhorho*rho + C_rhotau*tau + C_rhodelrho*delrho)
+    enddo
+    gamma = gamma*An*Anp/2._dp
+  end function gamma_DME
+
+
+  subroutine sample_DME_fields
+    implicit none
+    real(dp) :: alpha
+    logical :: first_call = .true.
+    integer :: i
+    real(dp) :: rho,tau,del_rho
+    real(dp) :: xi
+    real(dp), dimension(0:3,0:5,0:5) :: Rnl
+    save first_call
+   if(first_call) then
+      alpha = 0.5_dp
+      call GaussLaguerreWX(alpha,w_quad,x_quad)
+      first_call = .false.
+   endif
+    do i = 1,N_quad
+!       xi = i*0.01
+!       call RadialHOALL(5,5,xi,b_ho,Rnl)
+!       write(*,*) xi,Rnl(0,3,5), Rnl(1,3,5), Rnl(2,3,5)
+       call DME_fields(b_ho*x_quad(i)**0.5_dp,rho,tau,del_rho)
+       rho_quad(i) = rho
+       tau_quad(i) = tau
+       delrho_quad(i) = del_rho
+    enddo
+  end subroutine sample_DME_fields
+
+  subroutine calculte_couplings
+    implicit none
+    real(dp) :: alpha,xi,wi
+    integer, parameter :: Ngauss = 77
+    real(dp), dimension(1:Ngauss) :: w,x
+    logical :: first_call = .true.
+    integer :: i
+    real(dp) :: I_R, I_S, J_R, J_S
+    save w,x,first_call
+    if(first_call) then
+       alpha = -0.5_dp
+       call GaussLaguerreWX(alpha,w,x)
+       first_call = .false.
+    endif
+    C_hartree = pi**(1.5_dp)*(V0R/(muR**1.5_dp)-V0s/(mus**1.5_dp))/4._dp
+    I_R = 0
+    I_S = 0
+    do i = 1,Ngauss
+       I_R = I_R + w(i)*C_rhorho_kernel((x(i)/muR)**0.5_dp)
+       I_S = I_S + w(i)*C_rhorho_kernel((x(i)/muS)**0.5_dp)
+       J_R = J_R + w(i)*C_rhotau_kernel((x(i)/muR)**0.5_dp)
+       J_S = J_S + w(i)*C_rhotau_kernel((x(i)/muS)**0.5_dp)
+    enddo
+    C_rhorho=pi*(V0R*I_R/muR**0.5_dp-V0S*I_S/muS**0.5_dp)/(4*k_fermi**2)
+    C_rhotau=-pi*105*(V0R*J_R/muR**0.5_dp-V0S*J_S/muS**0.5_dp)/(4*k_fermi**4)
+    C_rhodelrho = -C_rhotau/4._dp
+    C_rhorho = 2*C_rhorho + C_hartree
+  end subroutine calculte_couplings
+
+  function C_rhorho_kernel(r) result(Ck)
+    implicit none
+    real(dp), intent(in) :: r
+    real(dp) :: Ck
+    Ck =  9*SphericalBesselJ1(k_fermi*r)**2 + &
+         63*SphericalBesselJ1(k_fermi*r)*SphericalBesselJ3(k_fermi*r)
+  end function C_rhorho_kernel
+
+  function C_rhotau_kernel(r) result(Ck)
+    implicit none
+    real(dp), intent(in) :: r
+    real(dp) :: Ck
+    Ck =  SphericalBesselJ1(k_fermi*r)*SphericalBesselJ3(k_fermi*r)
+  end function C_rhotau_kernel
 
 end module LDA
