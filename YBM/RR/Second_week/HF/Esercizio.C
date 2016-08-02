@@ -3,7 +3,7 @@
 int main(){
 
 
-//Finite well
+//Some costants and variables
 
 	double Edown = 0.;
 	double Eup = -50.;
@@ -12,6 +12,47 @@ int main(){
 	vector<double> wave_val;
 	double S = 1./2.;
     vector<state> neutronstates;
+    vector<double> U_skyrme_p, U_skyrme_n;
+   	double integral=0., old_integral=0.;
+
+	double * density_neutron = new double [n_step_width_box+1];
+	double * density_proton = new double [n_step_width_box+1];
+	double * K_skyrme = new double [n_step_width_box+1];
+	double * E_skyrme = new double [n_step_width_box+1];
+
+
+//I get the first density from files
+
+    ifstream myneutron, myproton;
+    myneutron.open(density_neutron);
+    myproton.open(density_proton)
+    for(int i=0, i<n_step_width_box, i++){
+    	density_neutron[i] << density_neutron << endl;
+    }
+
+    for(int i=0, i<n_step_width_box; i++){
+    	density_proton[i] << density_proton << endl;
+    }
+    myneutron.close();
+    myproton.close();
+
+
+
+do{
+
+	old_integral=integral;
+// First: get the skyrme potential
+
+    U_skyrme_p.clear();
+	U_skyrme_n.clear();
+
+	for(int i=0; i<n_step_width_box; i++){
+		double r  = density_proton[i] + density_neutron[i];
+		double rp = density_proton[i];
+		double rn = density_neutron[i];
+		U_skyrme_p.push_back(skyrme(r,rp,rp,rn));
+		U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
+	}
 
 //Routine to find eigevalues of neutron
 
@@ -30,7 +71,7 @@ int main(){
 					wave_val.push_back(0.05);
 					wave_val.push_back(0.1);
 					for(int i=1; i<n_step_width_box; i++){
-						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+h_width,S,L,J,-1./2.));
+						wave_val.push_back(numerov_algorithm_woods_HF(Etrial, wav_HF[i], wav_HF[i-1], i*h_width + h_width, S, L, J, -1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
 					}
 					nodecount = 0;
 					for(int i=1; i<n_step_width_box+2; i++){
@@ -141,23 +182,76 @@ int main(){
 	}
 	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
 
-//Routine to obtain neutron density and proton density, and the sum of both
 
-	double * density_neutron = new double [n_step_width_box+1];
-	double * density_proton = new double [n_step_width_box+1];
+//This routine calculate the new density for neutron
+
 	for(int i=0; i<n_step_width_box+1; i++){
 		density_neutron[i] = 0.;
 	}
-	for(int i=0; i<n_step_width_box+1; i++){
-		density_proton[i] = 0.;
-	}
-
 	for(int k=0; k<n_levels; k++){
 		for(int i=2; i<n_step_width_box; i++)
 			density_neutron[i] += (2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(neutronstates[k].wavefn[i],2);
 	}
 
+//This routine calculate the new density for proton
+
+	for(int i=0; i<n_step_width_box+1; i++){
+		density_proton[i] = 0.;
+	}
 	for(int k=0; k<p_levels; k++){
+		for(int i=2; i<n_step_width_box; i++)
+			density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
+	}
+
+
+//////////////////TOTAL ENERGY///////////////////////////////////
+
+//Calculate the kinetic density
+	for(int i=0; i<n_step_width_box+1; i++){
+		K_skyrme[i] = 0.;
+	}
+	for(int k=0; k<n_levels; k++){
+		for(int i=2; i<n_step_width_box; i++)
+			K_skyrme[i] += m_factor*(2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((neutronstates[k].wavefn[i]-neutronstates[k].wavefn[i-1])/h_width-neutronstates[k].wavefn[i]/(i*h_width+h_width),2)+
+									neutronstates[k].l*(neutronstates[k].l+1)/pow(i*h_width+h_width,2)*pow(neutronstates[k].wavefn[i],2) );
+	}
+
+//Calculate the skyrme density
+
+	for(int i=0; i<n_step_width_box+1; i++){
+		E_skyrme[i] = 0.;
+	}
+	for(int k=0; k<n_levels; k++){
+		double r  = density_proton[i] + density_neutron[i];
+		double rp = density_proton[i];
+		double rn = density_neutron[i];
+		for(int i=2; i<n_step_width_box; i++)
+			E_skyrme[i] += 	1./2.*t0*((1+x0/2.)*pow(r,2)-(x0+1./2.)*(pow(rp,2)+pow(rn,2)))+ 
+								1./12.*t3*pow(r,_a)*((1+x3/2.)*pow(r,2)-(x3+1./2.)*(pow(rp,2)+pow(rn,2)))
+	}
+
+
+//Integral
+	integral = 0.;
+	for(int i=0; i<n_step_width_box+1; i++){
+		integral += 4*M_PI*pow(i*h_width+h_width,2)*(K_skyrme[i]+E_skyrme[i])*h_width;
+	}
+
+///////////////////////////////////////////////////////////////
+
+}while(fabs(old_integral - integral) < prec)
+
+
+
+
+
+//Routine to obtain proton density, and the sum of both
+/*
+	double * density_proton = new double [n_step_width_box+1];
+	for(int i=0; i<n_step_width_box+1; i++){
+		density_proton[i] = 0.;
+	}
+	for(int k=0; k<p_levels-7; k++){
 		for(int i=2; i<n_step_width_box; i++)
 			density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
 	}
@@ -175,6 +269,8 @@ int main(){
 	myfile_density_neutron.close();
 	myfile_density_proton.close();
 	myfile_density_np.close();
+
+	*/
 
 
 
@@ -202,9 +298,10 @@ int main(){
 	ofstream myfile;
 	myfile.open("Eigen.txt");
 
-	for(int i=0; i<n_step_width_box; i++){
+	for(int i=2; i<n_step_width_box; i++){
 		wave_val.push_back(potential_woods(i*h_width +h_width)-centrifug_term(i*h_width +h_width, 0));
-		myfile <<i*h_width +h_width<< "   " << wave_val[i] << endl;
+		myfile <<i*h_width +h_width<< "   " << wave_val[i]<< endl;
+		myfile <<i*h_width +h_width<< "\t" << U_skyrme_p[i] << "\t" << U_skyrme_n[i] << endl;
 	}
 
 	myfile.close();

@@ -57,7 +57,7 @@ int main(){
 					appoggio.j = J;
 					neutronstates.push_back(appoggio);
 					appoggio.wavefn.clear();
-				}	
+				}
 			}
 		}
 	}
@@ -122,7 +122,7 @@ int main(){
 					appoggio.j = J;
 					protonstates.push_back(appoggio);
 					appoggio.wavefn.clear();
-				}	
+				}
 			}
 		}
 	}
@@ -140,6 +140,7 @@ int main(){
 		}
 	}
 	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
+
 
 //Routine to obtain neutron density and proton density, and the sum of both
 
@@ -176,8 +177,15 @@ int main(){
 	myfile_density_proton.close();
 	myfile_density_np.close();
 
+// Check that correct number of nucleons is obtained by integrating density profiles
 
+    double noProtons = particleFromDensity(density_proton,n_step_width_box);
+    double noNeutrons = particleFromDensity(density_neutron,n_step_width_box);
+//     double noNucleons = particleFromDensity(density_proton + density_neutron,n_step_width_box);
 
+    cout << "Protons:\t" << noProtons << endl;
+    cout << "Neutrons:\t" << noNeutrons << endl;
+//     cout << "Nucleons:\t" << noNucleons << endl;
 
 
 //USEFUL ROUTINES

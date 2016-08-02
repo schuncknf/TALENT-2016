@@ -17,8 +17,9 @@
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: pott, density, denN, denZ
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:,:) :: states, states2
       REAL(kind=dp) , ALLOCATABLE, DIMENSION(:) :: ordEneN, ordEneZ
-      CHARACTER(LEN=5):: caran
+      CHARACTER(LEN=3):: char_nstat
       CHARACTER(LEN=5) :: string
+      CHARACTER(LEN=3):: part
 !==========     set initial values     ==============================
       Eup=100.E0_dp
       Edown=-100.E0_dp
@@ -47,7 +48,7 @@
       N_maxZ=8
 !==================================================================     
 !
-      points=(Rmax-Rmin)/meshsize
+      points=int((Rmax-Rmin)/meshsize)
 
          allocate(trialwf(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
@@ -168,11 +169,10 @@
 !            trialwf(0)=trialwf(1)
 !         end if
          do i=0,points-1
-            normal = normal + trialwf(i)**2*meshsize
+            normal = normal + trialwf(i)**2*meshsize !trialwf(r)= u_r(r)
          end do
-         do i=1,points
-         pos=Rmin+i*meshsize
-         trialwf(i)=trialwf(i)/sqrt(normal)/pos
+         do i=0,points
+         trialwf(i)=trialwf(i)/sqrt(normal)
          end do
 !         if(l .eq. 0 .and. kpot .eq. 5) then
 !            trialwf(0)=trialwf(1)
@@ -189,9 +189,6 @@
          end do 
          if(trialwf(points-1)*trialwf(points) .lt. 0.0E0_dp) &
              Nodecount= Nodecount-1 
-         print'(" nod= ", i3, "  n_rad= ", i3, "  l=", i3, "  2j=", i3)', &
-               Nodecount, n_rad, l, jj
-         print*, "e= ", Etrial
 !
 ! allocating super matrix
          states(1,nstat)=Etrial
@@ -203,50 +200,13 @@
          do i= 0,points
             states(7+i,nstat)=trialwf(i)**2
          end do
-
-         write(caran, '(i3)') nstat
-!
-!         OPEN(UNIT=7, FILE='squared_u_r_'//TRIM(caran)//'.dat', status='unknown')
-!         
-!         write(7,*) "Number of nodes=", Nodecount
-!         write(7,*) "Energy= ", Etrial
-!          if(l .eq. 0) then
-!            valueR0= trialwf(0)
-!          else
-!            valueR0=0.0E0_dp
-!          end if
-!          write(7,*) 0.0E0_dp, valueR0
-!         do i=0,points
-!           write(7,*) Rmin+i*meshsize, trialwf(i)**2
-!         end do
-!         CLOSE(unit=7)
-
-         print*, "------------------------------------- "
-       write(8,'("n_rad",i3,2x,"l",i3,2x,"2j",i3,4x,"wf",i4,4x,"Energy ",1f18.10)') &
-                n_rad, l, jj, nstat, Etrial
-!
-!         if(Num_par+(jj+1) .le. Num_par_max) then
-!           occup=(jj+1)
-!         else if (Num_par .lt. Num_par_max) then
-!           occup=Num_par_max-Num_par
-!         else if (Num_par .gt. Num_par_max) then
-!          occup=0
-!         end if
-!         Num_par= Num_par+(jj+1)
-!
-!            density(:)= density(:) + (dble(occup))*trialwf(:)**2
-!            if(charge .eq. 0) then
-!            denN(:)= denN(:) + (dble(occup))*trialwf(:)**2
-!            else if (charge .eq. 1) then
-!            denZ(:)= denZ(:) + (dble(occup))*trialwf(:)**2
-!            end if
                 end do !loop j
 31            continue
               end do ! loop l
             end do !  loop n_rad
          end do ! N_max
          end do ! charge             
-         CLOSE(unit=8)
+
 
          ordEneN(:)=states(1,1:nstatN)
          ordEneZ(:)=states(1,nstatN+1:num_stat)
@@ -262,15 +222,46 @@
             ordEneZ(minZ)=Eup
          end do
 
-!          do i=1,num_stat
+          do i=1,num_stat
 !            print*, states2(1,i)
-!          end do
+         if ( i < 10 ) then
+           write( char_nstat, '("00",i1)' ) i
+         else if ( i .ge. 10 .and. i .lt. 100 ) then
+           write( char_nstat, '("0",i2)' ) i
+         else if ( i .ge. 100 .and. i .lt. 1000 ) then
+           write( char_nstat, '(i3)' ) i
+         else if ( i .gt. 10000 ) then
+           write( char_nstat, '("###")' )
+         end if
+!
+!         OPEN(UNIT=7, FILE='u(r)_state'//char_nstat//'.dat', status='unknown')
+!         
+!         write(7,*) "#Radial number=", states2(2,i)
+!         write(7,*) "#Energy= ", states2(1,i)
+!         do j=7,points
+!           write(7,*) Rmin+i*meshsize, states2(j,i)
+!         end do
+!         CLOSE(unit=7)
+         if (int(states2(2,i)) .eq. 0) then
+            part="n"
+         else if (int(states2(2,i)) .eq. 1) then
+            part="p"
+         end if
+         print*, "------------------------------------------------------------- "
+       print'(a, "  n_rad= ",i3, " l=",i3, " 2j=",i3,4x,"sp_en= ",1f18.10)', &
+          part,  int(states2(3,i)), int(states2(4,i)), int(states2(5,i)), states2(1,i)
+      write(8,'(a," n_rd_",i3,2x,"l",i3,2x,"2j",i2,4x,"u(r)_",a,4x,"sp_en= ",1f18.10)') &
+                part, int(states2(3,i)), int(states2(4,i)),  &
+                int(states2(5,i)), char_nstat, states2(1,i)
 
+          end do
+         CLOSE(unit=8)
+!
       density(:)=0.0E0_dp
       denN(:)=0.0E0_dp
       denZ(:)=0.0E0_dp
           
-        do j=0,points
+        do j=2,points
 !loop on neutron density
            charge=0
            N_max=N_maxN
@@ -287,17 +278,23 @@
          Num_par= Num_par+int(states2(5,i)+1)
 !         print*, int(states2(5,i)+1),occup, Num_par
 !
-            density(j)= density(j) + (dble(occup))*states2(7+j,i)/4/pi !&
-                        !/1!posiR(j)**2
+            density(j)= density(j) + (dble(occup))*states2(7+j,i)/4/pi &
+                        /posiR(j)**2
 !            print*, posiR(j), density(j), i
 
-            denN(j)= denN(j) + (dble(occup))*states2(7+j,i)/4/pi  !&
-                        !/1!posiR(j)**2
-
+            denN(j)= denN(j) + (dble(occup))*states2(7+j,i)/4/pi  &
+                        /posiR(j)**2
+            if((j .eq. 1 .or. j .eq. 2) .and. int(states2(4,i)) .eq. 0) then
+            density(0)= density(0) +(dble(occup))*states2(10,i)/4/pi &
+                        /posiR(j)**2
+            denN(0)= denN(0) +(dble(occup))*states2(10,i)/4/pi &
+                        /posiR(j)**2
+            end if
          end do
          end do
+         
 !loop on proton density
-         do j=0,points
+         do j=1,points
            charge=1
            N_max=N_maxZ
            Num_par_max=numZ
@@ -313,18 +310,23 @@
          Num_par= Num_par+(states2(5,i)+1)
 !         print*, int(states2(5,i)+1),occup
 !
-         density(j)= density(j) + (dble(occup))*states2(7+j,i)/4/pi !&
-                        !/posiR(:)**2
-         denZ(j)= denZ(j) +  (dble(occup))*states2(7+j,i)/4/pi! &
-                        !/posiR(:)**2
-
+         density(j)= density(j) + (dble(occup))*states2(7+j,i)/4/pi &
+                        /posiR(j)**2
+         denZ(j)= denZ(j) +  (dble(occup))*states2(7+j,i)/4/pi &
+                        /posiR(j)**2
+         if((j .eq. 1 .or. j .eq. 2) .and. int(states2(4,i)) .eq. 0) then
+            density(0)= density(0) +(dble(occup))*states2(10,i)/4/pi &
+                        /posiR(j)**2
+            denZ(0)= denZ(0) +(dble(occup))*states2(10,i)/4/pi &
+                        /posiR(j)**2
+            end if
          end do
          end do
 
          do i=0, points-1
-         den_int= den_int+ density(i)*meshsize*posiR(i)**2*4*pi
-         denN_int= denN_int+ denN(i)*meshsize*posiR(i)**2*4*pi
-         denZ_int= denZ_int+ denZ(i)*meshsize*posiR(i)**2*4*pi
+         den_int= den_int+ density(i)*meshsize*4*pi*posiR(i)**2
+         denN_int= denN_int+ denN(i)*meshsize*4*pi*posiR(i)**2
+         denZ_int= denZ_int+ denZ(i)*meshsize*4*pi*posiR(i)**2
          end do
          print*, "total density=", den_int
          print*, "N density=", denN_int
@@ -338,17 +340,17 @@
          end do
          CLOSE(unit=10)
 ! kinetic density
-         do i=0, points-1,
-           derdens(i)= (density(i+1)-density(i))/meshsize
-           derdenN(i)= (denN(i+1)-denN(i))/meshsize
-           derdenZ(i)= (denZ(i+1)-denZ(i))/meshsize
-         end do
-           derdens(points)= 0.0d0
-           derdenN(points)= 0.0d0
-           derdenZ(points)= 0.0d0
+!         do i=0, points-1,
+!           derdens(i)= (density(i+1)-density(i))/meshsize
+!           derdenN(i)= (denN(i+1)-denN(i))/meshsize
+!           derdenZ(i)= (denZ(i+1)-denZ(i))/meshsize
+!         end do
+!           derdens(points)= 0.0d0
+!           derdenN(points)= 0.0d0
+!           derdenZ(points)= 0.0d0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!continue from here!!!!!!!!
-         do i=0, points
-         end do
+!         do i=0, points
+!         end do
 
 !
          
@@ -378,12 +380,6 @@
          REAL(kind=dp) :: pot, a, Vvalue
          REAL(kind=dp) , DIMENSION(0:points), INTENT(IN) :: pott
 !
-!          kk=0
-!         allocate(trialwf(0:points), stat = ifail)
-!         if (ifail .ne. 0) then
-!          print*, "failed allocation"
-!          STOP
-!         end if
          !loading the potential
            Eup=Eup0
            Edown=Edown0
@@ -615,8 +611,11 @@
          ! symmetric square well
          pos=Rmin+i*meshsize
          points=(Rmax-Rmin)/meshsize !redundant
-         pos0=Rmin !redundant
          bigR= rzero*(numN+numZ)**(1.0E0_dp/3.0E0_dp)
+!
+         if(i .eq. 0) then
+           vr=0.0d0
+         else if (i .ne. 0) then
 !
          if(kpot .eq. 0) then
              vr=0         
@@ -648,12 +647,12 @@
                 pos = meshsize
              end if
              Uq_pot=- 44.0192307692 &
-                    /(1+exp((abs(pos-pos0)-bigR)/a))
+                    /(1+exp((abs(pos)-bigR)/a))
 !                   -(51-33*(numN-numZ)/(numN+numZ)) &
 !                   /(1+exp((abs(pos-pos0)-bigR)/a))
              !jj=2j so jj is integer
-             ferre=-0.44*exp((abs(pos-pos0)-bigR)/a) * rzero**2 &
-                   /a/(pos)/(1+exp((abs(pos-pos0)-bigR)/a))**2
+             ferre=-0.44*exp((abs(pos)-bigR)/a) * rzero**2 &
+                   /a/(pos)/(1+exp((abs(pos)-bigR)/a))**2
 !
              Wq_pot1=ferre*(dble(jj)/2*(dble(jj)/2+1)-l*(l+1)-3/4)/(pos) 
 ! 
@@ -666,13 +665,15 @@
              vr=Uq_pot+Wq_pot1*Wq_pot2+V_cfug
 ! Coulomb part
              if(charge .eq. 1) then
-               if(abs(pos-pos0) .le. rProt) then
+               if(abs(pos) .le. rProt) then
                 V_Cou=numZ*esquare/2/rProt*(3-(pos/rProt)**2)         
-               else if(abs(pos-pos0) .gt. rProt) then
+               else if(abs(pos) .gt. rProt) then
                 V_Cou=numZ*esquare/rProt 
                end if
              vr= vr+V_Cou
              end if
+         end if
+!
          end if
          
 end function potV
