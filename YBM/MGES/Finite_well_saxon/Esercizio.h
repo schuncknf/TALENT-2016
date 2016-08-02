@@ -8,13 +8,13 @@
 	#include <iomanip>
 	#include <sstream>
 	#include <algorithm>
-	
+
 
 	#define width_box 22.
 	#define h_width 0.01
 	#define r0 1.27
 	#define e 1.439978
-	
+
 	#define A 208.
 	#define N 126.
 	#define Z 82.
@@ -32,14 +32,14 @@
 	double potential_spin_orbit(double r, double S, double L, double J);
 	double potential_coulomb(double r);
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
-    double particleFromDensity(double * density,double n_step_width_box);
+  double particleFromDensity(double * density,double n_step_width_box);
 
 	struct state{
 		vector<double> wavefn;
     	double n, l, j;
     	double eig;
 	};
-	
+
 	struct compare{
    		bool operator() (const state struct1, const state struct2){
    	    	return (struct1.eig < struct2.eig);
