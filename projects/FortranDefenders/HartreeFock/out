@@ -1,0 +1,13 @@
+ Iteration:           1 Convergence:   10.440713360037201     
+ Iteration:           2 Convergence:   302448162242.52094     
+ Iteration:           3 Convergence:                       NaN
+ Single Particle States | 
+ Neutrons | 
+ n=           1 l=           1 is=           1 Energy=  -4.4441198988351971     
+ n=           2 l=           0 is=           1 Energy=  -3.9725513488519937     
+ n=           1 l=           2 is=           1 Energy= -0.86896460852585733     
+ Protons  | 
+ n=           1 l=           2 is=           2 Energy=  -1.2264757941011339     
+ n=           2 l=           0 is=           1 Energy= -0.76844923314638436     
+ Total Neutrons =                       NaN Total Protons =                       NaN
+ Total Energy =                       NaN Total Kinetic Energy:                       NaN
