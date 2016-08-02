@@ -21,25 +21,24 @@ contains
      do ir = 0,nbox
     !!Central Field U(r)
              ucnew(ir,iq) = 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
-                 	 + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
-                 	 + 2*( a0r0p-a1r1p )*laprho(ir,3) + 4 *a1r1p * laprho(ir,iq)
+                            + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
+                            +2*( a0r0p-a1r1p )*laprho(ir,3) + 4 *a1r1p * laprho(ir,iq)
     !!Part of U(r) coming from so)
              ucsonew(ir,iq) = (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/mesh(ir) ) &
-                   + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / mesh(ir) )
+                            + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / mesh(ir) )
     !!Mq(r) contribution
              umrnew(ir,iq) = (a0tau0-a1tau1)*rho(ir,3) + 2 * a1tau1*rho(ir,iq)
-             dumrnew(ir,iq) = dumrnew(ir,iq) &
-                   + (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
+             dumrnew(ir,iq) = (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
     !! t3 part of U(r)
              uddnew(ir,iq) = ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
-                   + 2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
-                   + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
+                           +2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
+                           + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
      !!spin-orbit part
              usonew(ir,iq) = - (cso0-cso1 )*drho(ir,3)/mesh(ir) &
-                   - 2 *cso1 * drho(ir,iq) / mesh(ir)
+                             - 2 *cso1 * drho(ir,iq) / mesh(ir)
              if (j2terms) then
              usonew(ir,iq) = -(a0t0-a1t1) *jsc(ir,3) / mesh(ir) &
-                 	 - 2 *a1t1 * jsc(ir,iq) / mesh(ir)
+                             - 2 *a1t1 * jsc(ir,iq) / mesh(ir)
              end if
      !!coulomb
       if (iq==2) then
