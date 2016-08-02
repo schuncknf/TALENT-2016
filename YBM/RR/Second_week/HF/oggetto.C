@@ -5,18 +5,18 @@
 
 	double numerov_algorithm_HF(double energy, double f0, double f_,double r, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1){
 		double v=0., a[3];
-			a[0] = 2. * (1. - 5./12. * v_HF(energy,r,S,L,J,T, Vsky_,Vsky0, Vsky1) * pow(h_width,2));	
-			a[1] = 1. * (1. + 1./12. * v_HF(energy,r-h_width ,S,L,J,T, Vsky_,Vsky0, Vsky1) * pow(h_width,2));
-			a[2] = 1. * (1. + 1./12. * v_HF(energy,r+h_width,S,L,J,T, Vsky_,Vsky0, Vsky1) * pow(h_width,2));
+			a[0] = 2. * (1. - 5./12. * v_HF(energy,r,S,L,J,T, Vsky0) * pow(h_width,2));	
+			a[1] = 1. * (1. + 1./12. * v_HF(energy,r-h_width ,S,L,J,T, Vsky_) * pow(h_width,2));
+			a[2] = 1. * (1. + 1./12. * v_HF(energy,r+h_width,S,L,J,T, Vsky1) * pow(h_width,2));
 			return (a[0] * f0 - a[1] * f_) / a[2];
 	}
 
 
-	double v_HF(double energy, double r, double S, double L, double J){
+	double v_HF(double energy, double r, double S, double L, double J, double T, double Vsky){
 		if(T==-1./2.)
-			return (energy-V_sky(r)-centrifug_term(r,L))/m_factor;
+			return (energy-Vsky-centrifug_term(r,L))/m_factor;
 		else if(T==1./2.)
-			return (energy-V_sky(r)-centrifug_term(r,L))/m_factor;
+			return (energy-Vsky-centrifug_term(r,L))/m_factor;
 	}
 
 
@@ -73,6 +73,7 @@
 			return 0;
 	}
 
+/*
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T){
 	vector<double> wfWork;
 	wfWork.push_back(0.05);
@@ -85,6 +86,7 @@
 	wfWork.clear();
 	return sum;
 	}
+	*/
 
 
 
