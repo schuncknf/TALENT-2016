@@ -4,14 +4,15 @@
 !> Contains the functions and subroutines needed for defining the
 !! Laguerre polynomials, which describe the radial part of the
 !! harmonic oscillator wave function (which is our starting basis).
-!> Also contains functions and subroutines for evaluating integrals
-!! of these functions, using Gauss-Laguerre quadrature.
+!! Also contains functions and subroutines for evaluating integrals
+!! of these and other functions, using Gauss-Laguerre quadrature.
 !---------------------------------------------------------------------
 module HO_Quadrature
   use :: types
   implicit none
 contains
- 
+
+!> Gauss-Laguerre quadrature routine 
   subroutine GaussLaguerreWX(alfa,w,x)
     implicit none
     real(dp), intent(in) :: alfa
@@ -57,7 +58,12 @@ contains
     end do
   end subroutine GaussLaguerreWX
 
-
+!> Evaluates the Laguerre polynomial \f$L_n^\alpha(x)\f$ using the
+!! recurrence relation (see section 1.2 of HO_basis.pdf). Returns
+!! \f$\texttt{Ln}\f$. Optionally, the user may include a fifth and sixth
+!! argument, in which case the subroutine will also return the derivative
+!! \f$L_n'\rightarrow\texttt{Lnp}\f$ and the previous Laguerre polynomial
+!! \f$L_{n-1}\rightarrow\texttt{Lnm1}\f$.
   subroutine LaguerreL(n,alpha,x,Ln,Lnp,Lnm1)
     implicit none
     integer, intent(in) :: n    
@@ -81,6 +87,12 @@ contains
     return
   end subroutine LaguerreL
 
+!> Similar to \f$\texttt{LaguerreAll}\f$, this subroutine computes and
+!! stores an array \f$\texttt{Rnl}\f$ in which \f$\texttt{Rnl(0,n,l)}\f$
+!! is the radial part of the 3D harmonic oscillator wave function
+!! \f$R_{nl}\f$, \f$\texttt{Rnl(1,n,l)}\f$ is its first derivative, and
+!! \f$\texttt{Rnl(0,n,l)}\f$ is its second derivative. See eqn. 5 of
+!! HO_basis.pdf.
   subroutine RadialHOALL(n_max,l_max,xi,b,Rnl)
     implicit none
     integer, intent(in) :: n_max
@@ -128,6 +140,9 @@ contains
     enddo
   end subroutine RadialHOALL
 
+!> Calls the function \f$\texttt{HO\_Normalization(n,l)}\f$ for all values
+!! of \f$n,l\f$ up to \f$n_{max},l_{max}\f$, and stores the result to
+!! an array \f$\texttt{Anl(n,l)}\f$.
   subroutine NormalizationAll(n_max,l_max,Anl)
     implicit none
     integer, intent(in) :: n_max
@@ -141,6 +156,9 @@ contains
     enddo
   end subroutine NormalizationAll
 
+!> Similar to \f$\texttt{LaguerreL}\f$, except that this computes ALL
+!! Laguerre polynomials up to \f$\texttt{n\_max, l\_max}\f$ using the
+!! recurrence relation (see section 1.2 of HO_basis.pdf).
   subroutine LaguerreALL(n_max,l_max,x,Ln)
     implicit none
     integer, intent(in) :: n_max

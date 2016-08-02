@@ -82,6 +82,10 @@ contains
     enddo
   end subroutine Construct_gamma
 
+!> Diagonalizes a matrix, returning its eigenvalues and eigenvectors, by
+!! calling the LAPACK routine dsyev. Unless I'm mistaken, eigenvalues are
+!! returned in the array \f$\texttt{E\_Values}\f$, and eigenvectors in
+!! the array \f$\texttt{D\_mat}\f$.
   subroutine Diagonalize_h 
     implicit none
     real(dp),  dimension(1:3*nsize-1) :: Work
@@ -91,6 +95,7 @@ contains
     call dsyev('V','U',Nsize,D_mat,Nsize,E_Values,Work,lwork,info)
   end subroutine Diagonalize_h
 
+!> Computes the trace of the matrix produce \f$Tr(AB)\f$.
   function Trace_product(A,B) result(TrAB)
     implicit none
     real(dp), dimension(:,:) :: A,B
@@ -105,6 +110,7 @@ contains
     enddo
   end function Trace_product
 
+!> Computes the trace of a square matrix \f$Tr(A)\f$
   function Trace(A) result(TrA)
     implicit none
     real(dp), dimension(:,:) :: A

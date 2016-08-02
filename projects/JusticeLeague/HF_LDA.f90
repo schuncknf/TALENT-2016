@@ -54,8 +54,8 @@ contains
     rho = rho/(4*pi)
   end function rho_LDA
 
-!> Calls the function \f$\texttt{gamma\_{LDA}(n,n',l)}\f$ to calculate
-!! the matrix elements \f$\Gamma_{ij}, \Gamma_{ji}$ (see
+!> Calls the function \f$\texttt{gamma\_LDA(n,n',l)}\f$ to calculate
+!! the matrix elements \f$\Gamma_{ij}, \Gamma_{ji}\f$ (see
 !! HF_Extensions.pdf, eqn. 58).
   subroutine calculate_gamma_LDA 
     implicit none
@@ -80,7 +80,7 @@ contains
     
   end subroutine calculate_gamma_LDA
 
-!> Performs the integral in HF_Extensions.pdf, eqn. 58)
+!> Performs the integral in HF_Extensions.pdf, eqn. 58
   function gamma_LDA(n,np,l) result(gamma)
     implicit none
     integer, intent(in) :: n,np,l
@@ -104,7 +104,7 @@ contains
     gamma = Ivc*gamma*An*Anp/2._dp
   end function gamma_LDA
 
-!> Evaluates the integral ______the whole thing or just part?_____ in
+!> Evaluates the integral ******the whole thing or just part?****** in
 !! HF_Extensions.pdf eqn. 54
   function IntegralVc() result(Ivc)
     real(dp) :: Ivc
@@ -207,6 +207,7 @@ contains
     enddo
   end subroutine sample_rho_LDA
 
+!> There's something Doxygen doesn't like about this particular subroutine.
   subroutine DME_fields(r,rho,tau,del_rho)
     implicit none
     real(dp), intent(in) :: r
@@ -219,7 +220,7 @@ contains
     rho = 0
     tau = 0
     del_rho = 0
-    do i = 1,Noccupied!3
+    do i = 1,Noccupied
        ji = j_hf(i)
        do j = 1,Nsize
           nj = n_hf(j)
@@ -247,10 +248,10 @@ contains
     rho = rho/(4*pi)
     tau = tau/(4*pi)
     del_rho = del_rho/(4*pi)
-  end subroutine DME_fields
+ subroutine DME_fields
 
 
-
+!> gamma_DME
   function gamma_DME(n,np,l) result(gamma)
     implicit none
     integer, intent(in) :: n,np,l
@@ -271,12 +272,13 @@ contains
        tau = tau_quad(i)
        delrho = delrho_quad(i)
        gamma = gamma + w_quad(i)*x_quad(i)**l*Ln*Lnp &
+!            *(-18.25_dp*rho + 4.57_dp*tau - 1.8_dp*delrho)
             *(C_rhorho*rho + C_rhotau*tau + C_rhodelrho*delrho)
     enddo
     gamma = gamma*An*Anp/2._dp
   end function gamma_DME
 
-
+!> sample_DME_fields
   subroutine sample_DME_fields
     implicit none
     real(dp) :: alpha
@@ -302,6 +304,12 @@ contains
     enddo
   end subroutine sample_DME_fields
 
+!> Here the coupling constants \f$C^{\rho\rho}, C^{\rho\tau}\f$, and
+!! \f$C^{\rho\nabla^2\rho}\f$ are calculated using the kernels defined in
+!! the functions \f$\texttt{C\_rhorho\_kernel(r)}\f$ and
+!! \f$\texttt{C\_rhotau\_kernel(r)}\f$ (the kernel of the
+!! \f$C^{\rho\nabla^2\rho}\f$ term is equal to
+!! \f$-\frac{C^{\rho\tau}}{4}\f$; see  HF_extensions.pdf eqn. 63).
   subroutine calculte_couplings
     implicit none
     real(dp) :: alpha,xi,wi
@@ -331,6 +339,11 @@ contains
     C_rhorho = 2*C_rhorho + C_hartree
   end subroutine calculte_couplings
 
+!> Contains the kernel of the integral used to compute \f$C^{\rho\rho}\f$.
+!! Essentially, it is everything inside the integral in eqn. 64 of
+!! HF_extensions.pdf, except the integral has been transformed into a
+!! form that permits it to be evaluated using our Gauss-Laguerre
+!! quadrature scheme.
   function C_rhorho_kernel(r) result(Ck)
     implicit none
     real(dp), intent(in) :: r
@@ -339,6 +352,11 @@ contains
          63*SphericalBesselJ1(k_fermi*r)*SphericalBesselJ3(k_fermi*r)
   end function C_rhorho_kernel
 
+!> Contains the kernel of the integral used to compute \f$C^{\rho\tau}\f$
+!! [see  eqn. 63 of HF_extensions.pdf] As in the case of
+!! \f$C^{\rho\rho}\f$, the integral has been transformed into a
+!! form that permits it to be evaluated using our Gauss-Laguerre
+!! quadrature scheme.
   function C_rhotau_kernel(r) result(Ck)
     implicit none
     real(dp), intent(in) :: r
