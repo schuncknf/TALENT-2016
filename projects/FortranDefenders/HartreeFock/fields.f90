@@ -9,7 +9,7 @@ contains
   !> build_fields builds the fields and populates the field arrays
   subroutine build_fields
     integer :: ir, iq, ir2
-    real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew,dumrnew
+    real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew,dumrnew,d2umrnew
     real(wp), dimension(0:nbox) :: ucoulnew
     real(wp) :: tot1=0.0d0,tot2=0.0d0
     real(wp) :: xmix, ymix
@@ -26,9 +26,10 @@ contains
     !!Part of U(r) coming from so)
              ucsonew(ir,iq) = (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/mesh(ir) ) &
                             + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / mesh(ir) )
-    !!Mq(r) contribution
-             umrnew(ir,iq) = (a0tau0-a1tau1)*rho(ir,3) + 2 * a1tau1*rho(ir,iq)
+    !!Mq(r) contributions
+             umrnew(ir,iq) = hbar22m*cmcorr+(a0tau0-a1tau1)*rho(ir,3) + 2 * a1tau1*rho(ir,iq)
              dumrnew(ir,iq) = (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
+             d2umrnew(ir,iq) = (a0tau0-a1tau1)*ddrho(ir,3) + 2 * a1tau1*ddrho(ir,iq)
     !! t3 part of U(r)
              uddnew(ir,iq) = ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
                            +2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
@@ -65,6 +66,8 @@ contains
     uso(:,:) = usonew(:,:)*xmix + uso(:,:)*ymix
     ucoul(:) = ucoulnew(:)*xmix + ucoul(:)*ymix
     dumr(:,:) = dumrnew(:,:)*xmix + dumr(:,:)*ymix
+    d2umr(:,:) = d2umrnew(:,:)*xmix + d2umr(:,:)*ymix
+
     if(icoul==0) ucoul(:) = 0.
   end subroutine build_fields
   !> totenergy calculates the total energy using both the koopman theorem and
