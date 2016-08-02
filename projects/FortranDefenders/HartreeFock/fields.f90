@@ -11,54 +11,40 @@ contains
     integer :: ir, iq, ir2
     real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew,dumrnew
     real(wp), dimension(0:nbox) :: ucoulnew
-    real(wp) :: tot1=0.0d0,tot2=0.0d0,tot3
-    real(wp) :: xmix, ymix, slater
+    real(wp) :: tot1=0.0d0,tot2=0.0d0
+    real(wp) :: xmix, ymix
 
     xmix = 0.4
     ymix = 1.-xmix
-    ucnew(:,:)   = 0._wp
-    umrnew(:,:)  = 0._wp
-    dumrnew(:,:) = 0._wp
-    ucsonew(:,:) = 0._wp
-    uddnew(:,:)  = 0._wp
-    usonew(:,:)  = 0._wp
-    ucoulnew(:)  = 0._wp
 
     do iq = 1,2
      do ir = 0,nbox
     !!Central Field U(r)
-             ucnew(ir,iq) = ucnew(ir,iq) + &
-                  & 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
-                 	& + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
-                 	& + 2*( a0r0p-a1r1p )*laprho(ir,3) + 4 *a1r1p * laprho(ir,iq)
+             ucnew(ir,iq) = 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
+                 	 + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
+                 	 + 2*( a0r0p-a1r1p )*laprho(ir,3) + 4 *a1r1p * laprho(ir,iq)
     !!Part of U(r) coming from so)
-             ucsonew(ir,iq) = ucsonew(ir,iq)  &
-                  & + (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/mesh(ir) ) &
-                  & + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / mesh(ir) )
+             ucsonew(ir,iq) = (cso0-cso1 ) *(djsc(ir,3) + 2 * jsc(ir,3)/mesh(ir) ) &
+                   + 2 *cso1 * ( djsc(ir,iq) + 2 * jsc(ir,iq) / mesh(ir) )
     !!Mq(r) contribution
-             umrnew(ir,iq) = umrnew(ir,iq) &
-                  & + (a0tau0-a1tau1)*rho(ir,3) + 2 * a1tau1*rho(ir,iq)
+             umrnew(ir,iq) = (a0tau0-a1tau1)*rho(ir,3) + 2 * a1tau1*rho(ir,iq)
              dumrnew(ir,iq) = dumrnew(ir,iq) &
-                  & + (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
+                   + (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
     !! t3 part of U(r)
-             uddnew(ir,iq) = uddnew(ir,iq) &
-                  & + ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
-                  & + 2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
-                  & + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
+             uddnew(ir,iq) = ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
+                   + 2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
+                   + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
      !!spin-orbit part
-             usonew(ir,iq) = usonew(ir,iq) &
-                  & - (cso0-cso1 )*drho(ir,3)/mesh(ir) &
-                  & - 2 *cso1 * drho(ir,iq) / mesh(ir)
+             usonew(ir,iq) = - (cso0-cso1 )*drho(ir,3)/mesh(ir) &
+                   - 2 *cso1 * drho(ir,iq) / mesh(ir)
              if (j2terms) then
-             usonew(ir,iq) = usonew(ir,iq)&
-                  & -(a0t0-a1t1) *jsc(ir,3) / mesh(ir) &
-                 	& - 2 *a1t1 * jsc(ir,iq) / mesh(ir)
+             usonew(ir,iq) = -(a0t0-a1t1) *jsc(ir,3) / mesh(ir) &
+                 	 - 2 *a1t1 * jsc(ir,iq) / mesh(ir)
              end if
      !!coulomb
       if (iq==2) then
             tot1=0.0d0
             tot2=0.0d0
-            tot3=0._wp
         do ir2=0,ir
          tot1=tot1+rho(ir2,2)*(mesh(ir2)**2)
         end do
