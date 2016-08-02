@@ -3,12 +3,15 @@
 import hffs
 import config
 import numpy as np
-
+import time
 
 if __name__ == '__main__':
     logofp = open("logo.txt", "r")
     ss = logofp.read()
     print(ss)
+    ############################################
+    t0 = time.time()
+    ############################################
     if config.lMax == 0:
         basisType = "ReducedSpBasis"
         basis = hffs.ReducedSpBasis(config.omega, config.nMax)
@@ -58,6 +61,9 @@ if __name__ == '__main__':
     cvg = 1000
     i = 0
     np.set_printoptions(linewidth = 1000, suppress = True)
+    ############################################
+    t1 = time.time()
+    ############################################
     print("%03i %s" % (i,solver.info()))
     while cvg > config.convergence:
         solver.run()
@@ -67,7 +73,14 @@ if __name__ == '__main__':
         rho = system.getR(0,0)
         kinetic = system.getKinetic(0)
         gamma = system.getGamma(0)
-        delta = system.getDelta(0)
+        #delta = system.getDelta(0)
         #print(solver.indivEnergies)
         ene = np.trace(kinetic.dot(system.getR(0,0)) + 0.5 * gamma.dot(system.getR(0,0)))
         print("%03i %s, e=%.7f" % (i,solver.info(), ene))
+        #print(kinetic + gamma.dot(rho))
+    ############################################
+    t2 = time.time()
+    ############################################
+    print(i)
+    print(t1 - t0)
+    print(t2 - t1)

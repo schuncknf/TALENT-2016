@@ -19,7 +19,7 @@ HartreeFock::HartreeFock(System &_system) : Solver(_system), D(_system.particleN
 HartreeFock::~HartreeFock()
 {
 }
-#include <iostream>
+
 void HartreeFock::run()
 {
   int nb_state = system->basis->size;
