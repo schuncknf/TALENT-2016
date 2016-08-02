@@ -31,6 +31,7 @@ namespace std
 #include "utils.h"
 #include "Basis.h"
 #include "SpBasis.h"
+#include "FullSpBasis.h"
 #include "ReducedSpBasis.h"
 #include "System.h"
 #include "NeutronDrop.h"
@@ -41,6 +42,7 @@ namespace std
 #include "Interaction.h"
 #include "RawInteraction.h"
 #include "MinnesotaS0.h"
+#include "MinnesotaRaw.h"
 %}
 
 %include "armanpy.i"
@@ -48,6 +50,7 @@ namespace std
 %include "utils.h"
 %include "Basis.h"
 %include "SpBasis.h"
+%include "FullSpBasis.h"
 %include "ReducedSpBasis.h"
 %include "System.h"
 %include "NeutronDrop.h"
@@ -58,3 +61,4 @@ namespace std
 %include "Interaction.h"
 %include "RawInteraction.h"
 %include "MinnesotaS0.h"
+%include "MinnesotaRaw.h"

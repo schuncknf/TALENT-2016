@@ -2,22 +2,7 @@
 #include <gsl/gsl_sf_laguerre.h>
 #include "SpBasis.h"
 #include "global.h"
-
-double sqrtFactorial(int n)
-{
-  if (n <= 1)
-    return 1.0;
-  else
-    return sqrt(n) * sqrtFactorial(n - 1);
-}
-
-double sqrtDoubleFactorial(int n)
-{
-  if (n <= 1)
-    return 1.0;
-  else
-    return sqrt(n) * sqrtDoubleFactorial(n - 2);
-}
+#include "utils.h"
 
 SpBasis::SpBasis(double _omega, int _nMax, int _lMax) :
   Basis(std::string("SpBasis"),

@@ -57,7 +57,7 @@ int main(){
 					appoggio.j = J;
 					neutronstates.push_back(appoggio);
 					appoggio.wavefn.clear();
-				}
+				}	
 			}
 		}
 	}
@@ -72,8 +72,8 @@ int main(){
 		if(n_neutron<126){
 			cout<<neutronstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<neutronstates[i].eig<<endl;
 			n_neutron += (2*neutronstates[i].j+1);
-			n_levels ++;
 		}
+		n_levels ++;
 	}
 	cout<<"Il numero di neutroni richiesto è:"<<n_neutron<<endl<<endl;
 
@@ -122,7 +122,7 @@ int main(){
 					appoggio.j = J;
 					protonstates.push_back(appoggio);
 					appoggio.wavefn.clear();
-				}
+				}	
 			}
 		}
 	}
@@ -136,8 +136,8 @@ int main(){
 		if(n_proton<82){
 			cout<<protonstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<protonstates[i].eig<<endl;
 			n_proton += (2*protonstates[i].j+1);
-			p_levels ++;
 		}
+		p_levels ++;
 	}
 	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
 
@@ -158,7 +158,7 @@ int main(){
 			density_neutron[i] += (2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(neutronstates[k].wavefn[i],2);
 	}
 
-	for(int k=0; k<p_levels; k++){
+	for(int k=0; k<p_levels-7; k++){
 		for(int i=2; i<n_step_width_box; i++)
 			density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
 	}
@@ -167,6 +167,33 @@ int main(){
 	myfile_density_neutron.open("density_neutron.txt");
 	myfile_density_proton.open("density_proton.txt");
 	myfile_density_np.open("density_np.txt");
+
+
+	// Create vector to store the skyrme potentials for protons and neutrons
+	vector<double> U_skyrme_p, U_skyrme_n;
+
+
+	// Fill vectors of skyrme potentials for protons and neutrons
+	for(int i=0; i<n_step_width_box; i++){
+		double r  = density_proton[i] + density_neutron[i];
+		double rp = density_proton[i];
+		double rn = density_neutron[i];
+
+		U_skyrme_p.push_back(skyrme(r,rp,rp,rn));
+		U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
+	}// Close loop for filling skyrme potentials
+
+
+	vector<double> wav_HF;
+
+	wav_HF.push_back(0);
+	wav_HF.push_back(0.0001);
+
+	for(int i=2; i<n_step_width_box; i++){
+		wav_HF.push_back(Etrial, U_skyrme_p[i], U_skyrme_p[i-1], U_skyrme_p[i-2],wav_HF[i-1],wav_HF[i-2]);
+	}
+	
+
 
 	for(int i=2; i<n_step_width_box+1; i++){
 		myfile_density_neutron << i*h_width +h_width<< "   " << density_neutron[i] << endl;
@@ -177,15 +204,8 @@ int main(){
 	myfile_density_proton.close();
 	myfile_density_np.close();
 
-// Check that correct number of nucleons is obtained by integrating density profiles
 
-    double noProtons = particleFromDensity(density_proton,n_step_width_box);
-    double noNeutrons = particleFromDensity(density_neutron,n_step_width_box);
-//     double noNucleons = particleFromDensity(density_proton + density_neutron,n_step_width_box);
 
-    cout << "Protons:\t" << noProtons << endl;
-    cout << "Neutrons:\t" << noNeutrons << endl;
-//     cout << "Nucleons:\t" << noNucleons << endl;
 
 
 //USEFUL ROUTINES
@@ -206,17 +226,18 @@ int main(){
 */
 
 //This can be useful to plot a potential
-/*
+
 	ofstream myfile;
 	myfile.open("Eigen.txt");
 
-	for(int i=0; i<n_step_width_box; i++){
-		wave_val.push_back(potential_woods(i*h_width +h_width)-centrifug_term(i*h_width +h_width, 0));
-		myfile <<i*h_width +h_width<< "   " << wave_val[i] << endl;
+	for(int i=2; i<n_step_width_box; i++){
+//		wave_val.push_back(potential_woods(i*h_width +h_width)-centrifug_term(i*h_width +h_width, 0));
+//		myfile <<i*h_width +h_width<< "   " << wave_val[i]<< endl;
+		myfile <<i*h_width +h_width<< "\t" << U_skyrme_p[i] << "\t" << U_skyrme_n[i] << endl;
 	}
 
 	myfile.close();
-*/
+
 
 //Plot the proton and neutron central potential
 /*

@@ -25,9 +25,9 @@ public:
   FullSpBasis (double _omega, int _nMax, int _lMax);
   ~FullSpBasis ();
   /// Calculating radial wave function
-  void evalRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
-  void evalDerivativeRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
-  void evalRadialWaveFunctionNoExp (arma::mat &wfMatrix, arma::vec &r);
+//  void evalRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
+//  void evalDerivativeRadialWaveFunction (arma::mat &wfMatrix, arma::vec &r);
+//  void evalRadialWaveFunctionNoExp (arma::mat &wfMatrix, arma::vec &r);
 private:
   /// Calculating normalization coefficient
   void calcN ();
