@@ -183,18 +183,29 @@ int main(){
 		U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
 	}// Close loop for filling skyrme potentials
 
+/*
+	do{
+		"Calculate total energy"
+		vector<double> wav_HF;
+		wav_HF.push_back(0);
+		wav_HF.push_back(0.0001);
+		for(int i=2; i<n_step_width_box; i++){
+			wav_HF.push_back(numerov_algorithm_woods_HF(Etrial, wav_HF[i-1], wav_HF[i-2], i*h_width + h_width, S, L, J, T, U_skyrme_p[i-2], U_skyrme_p[i-1], U_skyrme_p[i]));
+		}
+		"Calculate densities"
+		U_skyrme_p.clear();
+		U_skyrme_n.clear();
+		for(int i=0; i<n_step_width_box; i++){
+			double r  = density_proton[i] + density_neutron[i];
+			double rp = density_proton[i];
+			double rn = density_neutron[i];
 
-	vector<double> wav_HF;
+			U_skyrme_p.push_back(skyrme(r,rp,rp,rn));
+			U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
+		}// Close loop for filling skyrme potentials
 
-	wav_HF.push_back(0);
-	wav_HF.push_back(0.0001);
-
-	for(int i=2; i<n_step_width_box; i++){
-		wav_HF.push_back(Etrial, U_skyrme_p[i], U_skyrme_p[i-1], U_skyrme_p[i-2],wav_HF[i-1],wav_HF[i-2]);
-	}
-	
-
-
+	}while("condition: compare old total energy with new");
+*/
 	for(int i=2; i<n_step_width_box+1; i++){
 		myfile_density_neutron << i*h_width +h_width<< "   " << density_neutron[i] << endl;
 		myfile_density_proton << i*h_width +h_width<< "   " << density_proton[i] << endl;

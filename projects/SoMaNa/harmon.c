@@ -47,7 +47,7 @@ double Rnl (int n, double *coeff, double **bmcoeff, double r)
 			/pow(bred(coeff),1.5)
 			*pow(r/bred(coeff),coeff[1])
 			*exp(-1.0*pow((r/bred(coeff)),2)/2.0)
-			*gsl_sf_laguerre_n(n,(coeff[1]+0.5), pow(r/bred(coeff),2));
+			*gsl_sf_laguerre_n(n,(n+0.5), pow(r/bred(coeff),2));
 		
 		//printf("W. FUNCTION: %lf\t %lf \n",rnlres,Anl(n,coeff,bmcoeff));		
 		
