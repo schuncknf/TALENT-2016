@@ -22,10 +22,7 @@ contains
     !Main loop begins here; be careful
     allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
     do iter = 1,itermax
-      if(iter>1) then
-        call build_fields
-        !stop
-      end if
+      if(iter>1) call build_fields
       call totenergy
       oldtotenergy = totfunct
       do iq =1,2

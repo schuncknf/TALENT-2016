@@ -33,8 +33,9 @@ enddo
 !read(*,*)
 !write(*,*) "maxval",maxval(n_red)+1
 !start = omp_get_wtime()
-call lag_roots(ngauss,0.5d0,.false.)
-call hfsolver(.true.)
+!call lag_roots(ngauss,0.5d0,.false.)
+!call hfsolver(.true.)
+call solver()
 !finish = omp_get_wtime()
 !call cpu_time(finish)
 !print '("Real cpu-time = ",f6.3," Seconds")',finish-start
