@@ -4,18 +4,22 @@ CFLAGS	=  -Ofast #-g -fbounds-check -Wall
 LDFLAGS	=
 EXEC	= main
 
-OBJS = main.o grid.o solver.o
+OBJS = main.o init.o solver.o wavefunctions.o fields.o
 
 all: $(EXEC)
 
 $(EXEC): $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
-grid.o: grid.f90
+init.o: init.f90
 
-solver.o: solver.f90 grid.o
+wavefunctions.o: wavefunctions.f90 init.o
 
-main.o: main.f90 grid.o solver.o
+fields.o: fields.f90 init.o wavefunctions.o
+
+solver.o: solver.f90 init.o fields.o wavefunctions.o
+
+main.o: main.f90 init.o wavefunctions.o fields.o solver.o
 
 .SUFFIXES : .f90 .o
 
