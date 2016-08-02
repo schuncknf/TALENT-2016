@@ -47,6 +47,7 @@ contains
     allocate(n_hf(1:n_orbitals))
     allocate(l_hf(1:n_orbitals))
     allocate(j_hf(1:n_orbitals))
+!    open(100,file='spM.dat')
     open(100,file='spM_n5l2.dat')
     do i = 1,1
        read(100,*)
@@ -95,6 +96,7 @@ contains
     real(dp) :: TBME
     allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
     v_mat = 0
+!    open(100,file='VM-scheme.dat')
     open(100,file='VM-scheme_n5l2.dat')
     read(100,*)
     read(100,*)
