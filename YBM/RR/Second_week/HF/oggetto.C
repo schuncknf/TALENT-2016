@@ -26,7 +26,7 @@
 				+ _a * pow(rho,_a-1) * ((-t3/24.)*(2*x3 + 1)) * ( (rho_p * rho_p) + (rho_n * rho_n) );
 	}
 
-
+/*
 	double normalise_HF(double eigen, double n_step_width_box, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1){
 	vector<double> wfWork;
 	wfWork.push_back(0.05);
@@ -39,6 +39,7 @@
 	wfWork.clear();
 	return sum;
 	}
+	*/
 
 /////////////////////OLD THINGS///////////////////////////
 
