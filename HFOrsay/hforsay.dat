@@ -1,6 +1,10 @@
 n0base   =   5              ! Number of osc. shells
 ngauss   =  120	            ! Points for the laguerre-Mesh
 npart   =    8              ! Number of particules 
-maxit    =   20	            ! Maximum iterations number
+maxit    =   30	            ! Maximum iterations number
 homega   =    10.00
+bcs      =    0              ! Plug in pairing 
+gpair    =     1.00
+plot     =    1              ! Ploting Routines
+
 

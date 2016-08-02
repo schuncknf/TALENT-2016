@@ -2,7 +2,7 @@ blddir=./bld
 $(shell mkdir $(blddir) 2> /dev/null)
 
 # For Serial Version
-FC1 = ifort -132 -O2 -fno-alias -fomit-frame-pointer -g -traceback -warn errors 
+FC1 = ifort -132 -O2 -fno-alias -fomit-frame-pointer -g -traceback -warn errors
 #FC = ifort -132 -O2 -debug all -traceback -check all -warn usage -warn errors -warn general -openmp
 #FC1 = ifort -132 -O2 -fno-alias -fomit-frame-pointer -openmp
 #FC = ifort -debug all -traceback -check all -warn usage -warn errors -warn general
@@ -15,7 +15,7 @@ LK = ifort -O2 -openmp
 # FFLAGS=-O5 -align dcommons -tune host
 
 OBJ =  time.o constants.o maths.o base.o laguerre_polynomial.o lag_pol.o ho.o pot.o matrices.o \
-	 solver.o gausslag.o tbme.o hforsay.o\
+	 bcs.o solver.o gausslag.o tbme.o hforsay.o\
 	
        
 BLDOBJ = $(foreach obj,$(OBJ),$(blddir)/$(obj))
