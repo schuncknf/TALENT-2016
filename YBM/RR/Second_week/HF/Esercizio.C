@@ -23,8 +23,8 @@ int main(){
 //I get the first density from files
 
     ifstream myneutron, myproton;
-    myneutron.open("density_neutron.txt");
-    myproton.open("density_proton.txt");
+    myneutron.open("Oxy_density_neutron.txt");
+    myproton.open("Oxy_density_proton.txt");
 	
     int fileLine = 0;
     double radius, fileDensity;
@@ -61,6 +61,13 @@ int main(){
 do{
 
 	old_integral=integral;
+
+	cout << "\nMy Integral: " << integral << "\tOld integral: " << old_integral << endl;
+
+	cout << "\nPRESS ENTER TO CONTINUE!" << endl;
+	cin.ignore(); 
+
+
 // First: get the skyrme potential
 
     U_skyrme_p.clear();
@@ -279,6 +286,11 @@ do{
 	}
 
 ///////////////////////////////////////////////////////////////
+
+	cout << "\nMy Integral: " << integral << "\tOld integral: " << old_integral << endl;
+
+	cout << "\nPRESS ENTER TO CONTINUE!" << endl;
+	cin.ignore(); 
 
 //cout<<abs(old_integral)<<endl;
 }while(fabs(old_integral - integral) > prec);
