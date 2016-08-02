@@ -13,7 +13,7 @@ HartreeFock::HartreeFock(System &_system) : Solver(_system), D(_system.particleN
     D(pType).eye(basisSize, basisSize);
     occ(pType) = arma::zeros<arma::vec>(basisSize);
 
-    for (unsigned int state = 0; state < _system.particleNumbers(pType); state++)
+    for (int state = 0; state < _system.particleNumbers(pType); state++)
     {
       occ(pType)(state) = 1;
     }
