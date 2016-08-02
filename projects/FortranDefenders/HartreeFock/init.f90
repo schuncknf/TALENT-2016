@@ -14,7 +14,7 @@ implicit none
                 & a0s0p,a1s1p,cddr0,cddr1,cdds0,cdds1,cso0,cso1
      real(wp), allocatable,dimension(:) :: mesh,ucoul
      real(wp), allocatable, dimension(:,:) :: rho,tau,jsc,drho,ddrho,dtau,djsc,laprho
-     real(wp), allocatable, dimension(:,:) ::uc,umr,dumr,udd,uso,ucso,sortenergies
+     real(wp), allocatable, dimension(:,:) ::uc,umr,dumr, d2umr,udd,uso,ucso,sortenergies
      real(wp), allocatable, dimension(:,:,:,:,:) :: wfl,wfr
      real(wp), allocatable, dimension(:,:,:,:) :: energies
      integer :: nbox, nodes, radius, lmax,nmax,njoin,itermax
@@ -41,7 +41,7 @@ contains
           if (icm==0) cmcorr = 1._wp
           spin(1) = -0.5
           spin(2) = 0.5
-          njoin = 400
+          njoin = 2.0/h
           nmax = nn - np
 
           if (nmax.ge.0) then
@@ -100,11 +100,12 @@ contains
   !> Initialization of the fields
   subroutine init_fields
     integer :: ir,iq
-    allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox),ucso(0:nbox,2),dumr(0:nbox,2))
+    allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox),ucso(0:nbox,2),dumr(0:nbox,2),d2umr(0:nbox,2))
     do iq = 1,2
       do ir = 0,nbox
         uc(ir,iq) = vpb(iq)*fullwoodsaxon(ir)
         uso(ir,iq) = vso*r0**2 * dfullwoodsaxon(ir)*fullwoodsaxon(ir)/mesh(ir)
+        umr(ir,iq) = hbar22m*cmcorr
         if(ir*h .lt. nrad ) ucoul(ir) = (np*e2/(2*nrad))*(3.0d0- (ir*h/nrad)**2)
         if(ir*h .ge. nrad ) ucoul(ir) = np*e2/(ir*h)
       end do

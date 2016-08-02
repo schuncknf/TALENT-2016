@@ -4,6 +4,7 @@
 #include "Solver.h"
 #include "System.h"
 #include "quadrature.h"
+#include "SpBasis.h"
 #include "FullSpBasis.h"
 #include "MinnesotaRaw.h"
 #include "global.h"

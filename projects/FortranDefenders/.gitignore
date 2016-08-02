@@ -1,6 +1,6 @@
 *.mod
 *.o
-/main
+main
 *~
 plt
 callgrind*
