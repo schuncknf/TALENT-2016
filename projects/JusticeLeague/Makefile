@@ -25,7 +25,7 @@ HF_HOQuadrature.o: HF_HOQuadrature.f90 types.mod
 HF_Minnesota.o: HF_Minnesota.f90 types.mod variables.mod ho_quadrature.mod
 	$(COMPILER) $(FLAGS) -c $<
 
-HF_LDA.o: HF_LDA.f90 types.mod variables.mod ho_quadrature.mod minnesota.mod
+HF_LDA.o: HF_LDA.f90 types.mod variables.mod ho_quadrature.mod #minnesota.mod
 	$(COMPILER) $(FLAGS) -c $<
 
 HFSolver_main.o: HFSolver_main.f90 types.mod variables.mod hartreefock.mod minnesota.mod lda.mod
