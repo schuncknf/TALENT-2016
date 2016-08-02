@@ -5,6 +5,7 @@ lMax = 2
 mMax = 0
 
 interaction = "file:../../vNN/minnesota-VM-scheme.dat"
+#interaction = "file:/run/shm/minnesota-VM-scheme.dat"
 system = "NeutronDrop"
 nb_neutron = 8
 #nb_proton = 5

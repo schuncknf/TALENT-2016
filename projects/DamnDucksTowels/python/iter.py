@@ -6,6 +6,9 @@ import numpy as np
 
 
 if __name__ == '__main__':
+    logofp = open("logo.txt", "r")
+    ss = logofp.read()
+    print(ss)
     if config.lMax == 0:
         basisType = "ReducedSpBasis"
         basis = hffs.ReducedSpBasis(config.omega, config.nMax)
@@ -65,7 +68,6 @@ if __name__ == '__main__':
         kinetic = system.getKinetic(0)
         gamma = system.getGamma(0)
         delta = system.getDelta(0)
-        print(gamma)
         #print(solver.indivEnergies)
         ene = np.trace(kinetic.dot(system.getR(0,0)) + 0.5 * gamma.dot(system.getR(0,0)))
         print("%03i %s, e=%.7f" % (i,solver.info(), ene))

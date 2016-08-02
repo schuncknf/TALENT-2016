@@ -14,7 +14,7 @@ System::System (std::string _name, Basis &_basis, arma::ivec _particleNumbers, s
     {
       R(dType, pType) = arma::zeros(basis->size, basis->size);
 
-      for (unsigned int state = 0; state < particleNumbers(pType); state++)
+      for (int state = 0; state < particleNumbers(pType); state++)
       {
         R(dType, pType)(state, state) = 1;
       }

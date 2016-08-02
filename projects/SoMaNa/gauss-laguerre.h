@@ -15,7 +15,7 @@ double integrand1r (double *,double ,double);
 
 double integrand1s (double *,double ,double);
 
-double integrand2 (double **, int, int,int , int , int , int , double , double , double , double , double **,double**, double , double );
+double integrand2 (double **, int, int,int , int , int , int , double , double , double , double , double **,double**, double , double ,double **);
 
 double galag1D (int, int , int , int , int , int , double **,double , double , double, double , double , double , double **, int);
 

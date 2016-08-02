@@ -8,8 +8,8 @@ DEBUG_CFLAGS  =-g -fno-inline-functions -O0 -D_GLIBCXX_DEBUG
 RELEASE_CFLAGS =-O3 -march=native -DARMA_NO_DEBUG
 COMMON_CFLAGS =-fPIC -Wall -Wextra -std=gnu++11 -Icpp/include
 
-CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
-#CFLAGS  =$(RELEASE_CFLAGS) $(COMMON_CFLAGS)
+#CFLAGS  =$(DEBUG_CFLAGS) $(COMMON_CFLAGS)
+CFLAGS  =$(RELEASE_CFLAGS) $(COMMON_CFLAGS)
 LDFLAGS = -larmadillo -lgsl -lgslcblas
 
 CPP_FILES=cpp/src/utils.cpp cpp/src/Basis.cpp cpp/src/HartreeFockBogo.cpp cpp/src/HartreeFock.cpp \
