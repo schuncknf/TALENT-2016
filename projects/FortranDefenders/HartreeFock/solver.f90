@@ -8,7 +8,7 @@ module solver
 contains
   !> statichf performs the Hartree-Fock iterations until the convergence criteria
   !! or max number of iterations are met. Within, the Numerov method is used to
-  !! solve for the energy of a given state. 
+  !! solve for the energy of a given state.
   subroutine statichf
 
     integer :: i, ir, nnodes,l, is, iq, n,iter
@@ -17,7 +17,7 @@ contains
 
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
 
-
+    oldtotenergy = 0.0
     wfr(:,:,:,:,:) = 0.0
     !Main loop begins here; be careful
     allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
@@ -43,11 +43,15 @@ contains
                     do ir=0,nbox
                       ! Isospin dependent potential using matrices from before
                       if (iq .EQ. 1) then
-                         potential(ir) = (-uc(ir,1) -ucso(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
-                        -hbar22m*cmcorr*l*(l+1)/mesh(ir)**2+Etrial)/hbar22m*cmcorr
+                         potential(ir) = (-0.25*(dumr(ir,1)/umr(ir,1))**2&
+                         +(-uc(ir,1) -ucso(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
+                         -dumr(ir,1)/mesh(ir) - umr(ir,1)*l*(l+1)/mesh(ir)**2+Etrial)/umr(ir,1)&
+                         -0.5*(d2umr(ir,1)*umr(ir,1) - dumr(ir,1)**2)/(umr(ir,1)**2))
                       else
-                         potential(ir) = (-uc(ir,2) -ucso(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
-                         - ucoul(ir) -hbar22m*cmcorr*l*(l+1)/mesh(ir)**2+Etrial)/hbar22m*cmcorr
+                         potential(ir) = (-0.25*(dumr(ir,2)/umr(ir,2))**2&
+                         +(-uc(ir,2)-ucso(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
+                         -dumr(ir,2)/mesh(ir)-ucoul(ir)-umr(ir,2)*l*(l+1)/mesh(ir)**2+Etrial)/umr(ir,2)&
+                         -0.5*(d2umr(ir,2)*umr(ir,2) - dumr(ir,2)**2)/(umr(ir,2)**2))
                       end if
                     end do
 
@@ -100,6 +104,7 @@ contains
                       exit
                     end if
                   end do
+                  wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/sqrt(umr(:,iq))
                 end do
             end do
           end do
