@@ -23,9 +23,9 @@
 	#define r0 1.27
 	#define e 1.439978
 
-	#define A 208.
-	#define N 126.
-	#define Z 82.
+	#define A 16.
+	#define N 8.
+	#define Z 8.
 
 	#define prec 1E-12
 	#define m_factor 20.73553
@@ -33,7 +33,7 @@
 	using namespace std;
 
 	double numerov_algorithm_HF(double energy, double f0, double f_,double r, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1);
-	double v_HF(double energy, double r, double S, double L, double J);
+	double v_HF(double energy, double r, double S, double L, double J, double T, double Vsky);
 	double normalise_HF(double eigen, double n_step_width_box, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1);
 	double centrifug_term(double r, double L);
 	double potential_woods(double r);
