@@ -37,6 +37,7 @@ contains
                   ! Bound States only
                   Eupper = 100_wp
                   Elower = -100._wp
+                  !print *, umr(200,1), umr(200,2),dumr(200,1),dumr(200,2),d2umr(200,1),d2umr(200,2)
                   do i=1,1000000
                     ! Trial Energy for Numerov Algorithm
                     Etrial = (Eupper+Elower)/2.0
@@ -95,6 +96,7 @@ contains
                     ! If the energies converge on something that is not vpb, select that solution
                     if (abs(Eupper - Elower) < conv) then
                       if (Etrial < 0 .AND. Etrial > -100.+.01) then
+                            wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/sqrt(umr(:,iq))
                             vocc(n,l,is,iq) = 2*l+1
                             energies(n,l,is,iq) = etrial
                             norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
@@ -104,7 +106,6 @@ contains
                       exit
                     end if
                   end do
-                  wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/sqrt(umr(:,iq))
                 end do
             end do
           end do
