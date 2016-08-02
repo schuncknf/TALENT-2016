@@ -195,7 +195,7 @@ double integrand1r (double *coeff,double r1,double r2)
 		
 		// For the integral	 of the spatial form-factor next to (1-P_sigma).	
 		res = 0.5*
-			( coeff[4]/(2*coeff[7]*(r1+0.1)*(r2+0.1)) )/1; 
+			( coeff[4]/(2*coeff[7]*(r1+0.0000)*(r2+0.0000)) )/2; 
 		/*res = 0.5*
 			( coeff[4]*exp(-1*coeff[7]/(2*coeff[7]*(r1+0.01)*(r2+0.01)) ))/4;*/
 		//printf ("DEBUG: fun(%lf , %lf) = %lf \t %lf \t %lf \n",r1,r2,res,exp(-1*coeff[7]*(r1*r1+r2*r2)),(2*coeff[7]*(r1+0.1)*(r2+0.1)));	
@@ -212,7 +212,7 @@ double integrand1s (double *coeff,double r1,double r2)
 		
 		// For the integral	 of the spatial form-factor next to (1-P_sigma).	
 		res = -0.5*
-			( coeff[6]/(2*coeff[9]*(r1+0.1)*(r2+0.1)) )/1;
+			( coeff[6]/(2*coeff[9]*(r1+0.0001)*(r2+0.0001)) )/2;
 		/*res = 0.5*
 			( coeff[6]*exp(-1*coeff[9]/(2*coeff[9]*(r1+0.01)*(r2+0.01)) ))/4;*/
 		//printf ("DEBUG: fun(%lf , %lf) = %lf \t %lf \t %lf  \t %lf\n",r1,r2,res,exp(-1*coeff[7]*(r1*r1+r2*r2)),(2*coeff[7]*(r1+0.1)*(r2+0.1)), coeff[7]);	
@@ -224,7 +224,7 @@ double integrand1s (double *coeff,double r1,double r2)
 
 // The integrand of the 2D integral over r1, r2. (See above for reference.)
 
-double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, double s1, double s2, double s3, double s4, double **galcoeff, double ** bmcoeff,double d1, double d2)
+double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, double s1, double s2, double s3, double s4, double **galcoeff, double ** bmcoeff,double d1, double d2, double ** galcoeffa)
 	
 	{
 	
@@ -244,13 +244,13 @@ double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, do
 		* exp(-1*coeff[7]*(pow(galcoeff[0][i],2) + pow(galcoeff[0][j],2) - galcoeff[0][i] - galcoeff[0][j] )  )
 		);*/
 		
-		res1 = Rnl(n1,coeff,bmcoeff,galcoeff[0][i])*Rnl(n2,coeff,bmcoeff,galcoeff[0][j])*Rnl(n3,coeff,bmcoeff,galcoeff[0][i])*Rnl(n4,coeff,bmcoeff,galcoeff[0][j]) * (
-		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[9],-1.5));
+		res1 = Rnl(n1,coeff,bmcoeff,galcoeffa[0][i])*Rnl(n2,coeff,bmcoeff,galcoeffa[0][j])*Rnl(n3,coeff,bmcoeff,galcoeffa[0][i])*Rnl(n4,coeff,bmcoeff,galcoeffa[0][j]) * (
+		d1*(pow(coeff[7],-1.5))+ 0.5*(1+s3*s4)*d2*(pow(coeff[9],-1.5)));
 		
-		res2 = Rnl(n1,coeff,bmcoeff,galcoeff[0][i])*Rnl(n2,coeff,bmcoeff,galcoeff[0][j])*Rnl(n3,coeff,bmcoeff,galcoeff[0][j])*Rnl(n4,coeff,bmcoeff,galcoeff[0][i]) * (
-		d1*pow(coeff[7],-1.5)+ d2*pow(coeff[9],-1.5));
+		res2 = Rnl(n1,coeff,bmcoeff,galcoeffa[0][i])*Rnl(n2,coeff,bmcoeff,galcoeffa[0][j])*Rnl(n3,coeff,bmcoeff,galcoeffa[0][j])*Rnl(n4,coeff,bmcoeff,galcoeffa[0][i]) * (
+		d1*(pow(coeff[7],-1.5))+ 0.5*(1+s3*s4)*d2*(pow(coeff[9],-1.5)));
 		
-		res = res1-res2;
+		res = res1+res2;
 		
 		//printf ("SPECIAL DEBUG!: %lf \t%lf \t%lf \t%lf \t%lf \t%lf \t%lf \t%lf \t \n",Rnl(n4,coeff,bmcoeff,galcoeff[0][i]),Rnl(n1,coeff,bmcoeff,galcoeff[0][j]),Rnl(n2,coeff,bmcoeff,galcoeff[0][i]),Rnl(n3,coeff,bmcoeff,galcoeff[0][j]),d1,pow(coeff[7],-1.5),d2,pow(coeff[7],-1.5));		
 		
@@ -270,7 +270,7 @@ double galag1D (int nmesh,int n, int n1, int n2, int n3, int n4, double *coeff,d
 	
 	double res=0;
 	
-	for (i=0; i<nmesh; i++)
+	for (i=1; i<nmesh; i++)
 		
 		{
 			
@@ -295,9 +295,9 @@ double galag2D (int nmesh,int n, int n1, int n2, int n3, int n4, double *coeff, 
 	
 	double res = 0, dummy1, dummy2;
 
-	for (i=0; i<nmesh; i++)
+	for (i=1; i<nmesh; i++)
 		
-		for (j=0; j<nmesh; j+=1)
+		for (j=1; j<nmesh; j+=1)
 		
 			{
 				{
@@ -309,7 +309,7 @@ double galag2D (int nmesh,int n, int n1, int n2, int n3, int n4, double *coeff, 
 			//printf("DEBUG: dummy1 = %lf, dummy2 = %lf \t %lf \t %lf \n",dummy1,dummy2, galcoeffa[1][i],galcoeffa[1][j]);			
 			
 			res+= galcoeffa[1][i]*galcoeffa[1][j]*
-			integrand2(coeff,i,j,n1,n2,n3,n4,s1,s2,s3,s4,galcoeff,bmcoeff,dummy1,dummy2);
+			integrand2(coeff,i,j,n1,n2,n3,n4,s1,s2,s3,s4,galcoeff,bmcoeff,dummy1,dummy2,galcoeffa );
 			
 			//printf ("\n\n\n 2DGALAG \t res =%lf \n",res);
 			}
