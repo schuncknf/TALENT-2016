@@ -317,6 +317,7 @@
                         !/posiR(:)**2
          denZ(j)= denZ(j) +  (dble(occup))*states2(7+j,i)/4/pi! &
                         !/posiR(:)**2
+
          end do
          end do
 
@@ -328,13 +329,27 @@
          print*, "total density=", den_int
          print*, "N density=", denN_int
          print*, "Z density=", denZ_int
+!
 ! print density matrix
+!
          OPEN(UNIT=10, FILE='density.dat', status='unknown')
-
          do i=0,points
            write(10,*) Rmin+i*meshsize, density(i), denN(i), denZ(i)
          end do
          CLOSE(unit=10)
+! kinetic density
+         do i=0, points-1,
+           derdens(i)= (density(i+1)-density(i))/meshsize
+           derdenN(i)= (denN(i+1)-denN(i))/meshsize
+           derdenZ(i)= (denZ(i+1)-denZ(i))/meshsize
+         end do
+           derdens(points)= 0.0d0
+           derdenN(points)= 0.0d0
+           derdenZ(points)= 0.0d0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!continue from here!!!!!!!!
+         do i=0, points
+         end do
+
 !
          
          deallocate(trialwf)
