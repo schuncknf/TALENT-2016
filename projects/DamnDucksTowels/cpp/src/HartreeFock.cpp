@@ -1,6 +1,7 @@
 #include "HartreeFock.h"
 #include "quadrature.h"
 #include "SpBasis.h"
+#include "FullSpBasis.h"
 #include "global.h"
 
 HartreeFock::HartreeFock(System &_system) : Solver(_system), D(_system.particleNumbers.n_rows), occ(_system.particleNumbers.n_rows)
@@ -22,7 +23,7 @@ HartreeFock::HartreeFock(System &_system) : Solver(_system), D(_system.particleN
 HartreeFock::~HartreeFock()
 {
 }
-
+#include <iostream>
 void HartreeFock::run()
 {
   int nb_state = system->basis->size;
@@ -40,7 +41,32 @@ void HartreeFock::run()
     arma::uvec sorted_ind = arma::sort_index(new_indivE);
     sorted_ind = sorted_ind.head(system->particleNumbers(pType));
     occ(pType).zeros();
-    occ(pType)(sorted_ind) = arma::ones<arma::vec>(sorted_ind.n_rows);
+    if(system->basis->type == "FullSpBasis")
+    {
+      FullSpBasis & fullSpBasis = static_cast<FullSpBasis &>(*system->basis);
+      arma::vec vecocc = arma::zeros<arma::vec>(sorted_ind.n_elem);
+      int accu = 0;
+      for(unsigned int i = 0; i < sorted_ind.n_elem; i++)
+      {
+        int state = sorted_ind(i);
+        int _2j = fullSpBasis.qNumbers(state, 2);
+        if(accu >= system->particleNumbers(pType))
+          break;
+        if(accu + _2j + 1 >= system->particleNumbers(pType))
+        {
+          vecocc(i) = system->particleNumbers(pType) - accu;
+          accu += system->particleNumbers(pType) - accu;
+          break;
+        }
+        accu += _2j + 1;
+        vecocc(i) = _2j + 1;
+      }
+      occ(pType)(sorted_ind) = vecocc;
+    }
+    else
+    {
+      occ(pType)(sorted_ind) = arma::ones<arma::vec>(sorted_ind.n_rows);
+    }
     // New derivation of rho
     R(0, pType) = D(pType) * arma::diagmat(occ(pType)) * D(pType).t();
     indivEnergies.row(pType) = new_indivE.t();
