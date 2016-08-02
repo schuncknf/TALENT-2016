@@ -1,9 +1,22 @@
+!---------------------------------------------------------------------
+!Module: HartreeFock
+!---------------------------------------------------------------------
+!> Contains functions and subroutines for the Hartree-Fock self-
+!! consistent part of the calculation, include building the density
+!! matrix \f$\rho_{\mu\nu}\f$ and the single particle potential
+!! \f$\Gamma_{\alpha\beta}\f$, and diagonalizing the Hamiltonian to
+!! extract its eigenvectors and eigenvalues [see pg. 2 of
+!! HF_truncated_v2.pdf].
+!---------------------------------------------------------------------
 module HartreeFock
   use :: types
   use :: variables
   implicit none
 contains
 
+!> Allocates the arrays which will be used in the Hartree-Fock
+!! calculation, and initializes the matrix \f$D_{\mu i}=\delta{\mu i}\f$
+!! [see eqns. 1, 5 of HF_truncated_v2.pdf].
   subroutine Initialize_HF
     implicit none
     integer :: i
@@ -26,6 +39,8 @@ contains
     D_prev = D_mat
   end subroutine Initialize_HF
 
+!> Constructs the density matrix 
+!! \f$\rho_{\mu\nu}=\sum_{i=1}^ND_{\mu i}D^*_{\nu i}\f$.
   subroutine Construct_rho
     implicit none
     integer :: i,j,k
@@ -44,6 +59,8 @@ contains
     enddo
   end subroutine Construct_rho
 
+!> Constructs the single-particle potential
+!! \f$\Gamma_{\alpha\beta}=\sum_{\mu\nu}v_{\alpha\nu\beta\mu}\rho{\mu\nu}\f$
   subroutine Construct_gamma
     implicit none
     integer :: i,j,k,l

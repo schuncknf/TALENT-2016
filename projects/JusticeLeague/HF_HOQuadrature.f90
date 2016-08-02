@@ -1,3 +1,12 @@
+!---------------------------------------------------------------------
+!Module:HO_Quadrature 
+!---------------------------------------------------------------------
+!> Contains the functions and subroutines needed for defining the
+!! Laguerre polynomials, which describe the radial part of the
+!! harmonic oscillator wave function (which is our starting basis).
+!> Also contains functions and subroutines for evaluating integrals
+!! of these functions, using Gauss-Laguerre quadrature.
+!---------------------------------------------------------------------
 module HO_Quadrature
   use :: types
   implicit none
@@ -72,6 +81,66 @@ contains
     return
   end subroutine LaguerreL
 
+  subroutine RadialHOALL(n_max,l_max,xi,b,Rnl)
+    implicit none
+    integer, intent(in) :: n_max
+    integer, intent(in) :: l_max
+    real(dp), intent(in) :: xi
+    real(dp), intent(in) :: b
+    real(dp), intent(out), dimension(0:2,0:n_max,0:l_max) :: Rnl
+    real(dp), dimension(0:n_max,0:l_max+2) :: Lnl
+    real(dp), dimension(0:n_max,0:l_max+2) :: Anl
+    real(dp) :: Rnm1lp1, Rnm2lp2
+    integer :: n,l
+    Rnl = 0
+    call NormalizationAll(n_max,l_max+2,Anl)
+    call LaguerreAll(n_max,l_max+2,xi**2,Lnl)
+    do n = 0,n_max
+       do l = l_max,0,-1
+          Rnl(0,n,l) = Anl(n,l)*xi**l*exp(-xi**2/2._dp)&
+               *Lnl(n,l)/(b**(1.5_dp))
+          if(n.gt.0) then
+             if(l.lt.l_max) then
+                Rnm1lp1 = Rnl(0,n-1,l+1)/Anl(n-1,l+1)
+             else
+                Rnm1lp1 = xi**(l+1)*exp(-xi**2/2._dp)*&
+                     Lnl(n-1,l+1)/(b**(1.5_dp))
+             endif
+             if(n.gt.1) then
+                if(l.lt.l_max-1) then
+                   Rnm2lp2 = Rnl(0,n-2,l+2)/Anl(n-2,l+2)
+                else
+                   Rnm2lp2 = xi**(l+2)*exp(-xi**2/2._dp)*&
+                        Lnl(n-2,l+2)/(b**(1.5_dp))
+                endif
+             else
+                Rnm2lp2 = 0
+             endif
+          else
+             Rnm1lp1 = 0
+             Rnm2lp2 = 0
+          endif
+          Rnl(1,n,l) = ( (l/xi-xi)*Rnl(0,n,l) - 2*Anl(n,l)*Rnm1lp1)/b
+          Rnl(2,n,l) = ( ((l/xi-xi)**2 - (l/xi**2+1))*Rnl(0,n,l) -&
+               2*Anl(n,l)*((2*l+1)/xi-2*xi)*Rnm1lp1 + &
+               4*Anl(n,l)*Rnm2lp2)/b**2
+       enddo
+    enddo
+  end subroutine RadialHOALL
+
+  subroutine NormalizationAll(n_max,l_max,Anl)
+    implicit none
+    integer, intent(in) :: n_max
+    integer, intent(in) :: l_max
+    real(dp), intent(out), dimension(0:n_max,0:l_max) :: Anl
+    integer :: n,l
+    do n = 0,n_max
+       do l = 0,l_max
+          Anl(n,l) = HO_Normalization(n,l)
+       enddo
+    enddo
+  end subroutine NormalizationAll
+
   subroutine LaguerreALL(n_max,l_max,x,Ln)
     implicit none
     integer, intent(in) :: n_max
@@ -97,6 +166,8 @@ contains
   end subroutine LaguerreALL
 
 
+!> Numerically evaluates the value of the factorial function,
+!! \f$n!=n(n-1)(n-2)...\f$.
   function factrl(n) result(fact)
     implicit none
     integer, intent(in) :: n 
@@ -123,6 +194,8 @@ contains
     endif
   end function factrl
 
+!> Numerically evaluates the value of the double-factorial function,
+!! \f$n!!=n(n-2)(n-4)...\f$.
   function doublefactrl(n) result(fact)
     implicit none
     integer, intent(in) :: n !< An integer
@@ -152,7 +225,9 @@ contains
     endif
   end function doublefactrl
 
-
+!> Evaluates the normalization prefactor for the 3D harmonic oscillator,
+!! as written in eqn. 5 and 6 of HO_basis.pdf, for a given value of
+!! \f$n\f$ and \f$l\f$.
   function HO_Normalization(n,l) result(Nnl)
     implicit none
     integer, intent(in) :: n,l

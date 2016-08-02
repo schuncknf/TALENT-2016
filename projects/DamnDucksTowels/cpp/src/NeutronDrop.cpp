@@ -6,6 +6,7 @@
 #include "global.h"
 #include "NeutronDrop.h"
 #include "SpBasis.h"
+#include "FullSpBasis.h"
 
 
 NeutronDrop::NeutronDrop(Basis &_basis, Interaction &_inter, int _nbNeut, double _omega, int _nPoints) :
@@ -73,6 +74,63 @@ void NeutronDrop::calcH()
               if (bra == ket)
               {
                 Kinetic(pTyp)(bra, ket) = 10 * (2 * basis->qNumbers(bra, 0) + 3. / 2.);
+              }
+            }
+          }
+          else
+          {
+            Kinetic(pTyp)(bra, ket) = 0.0;
+          }
+        }
+    }
+  }
+  else if (basis->type == "FullSpBasis")
+  {
+    FullSpBasis &spBasis = static_cast<FullSpBasis &>(*basis);
+    //Initialization of quadrature
+    arma::vec wi_p;
+    arma::vec pi_p;
+    arma::vec fun;
+    GET_LAG_ROOTS(nPoints, pi_p, wi_p);
+    arma::mat wfMatrix;
+    arma::mat wfDerMatrix;
+    spBasis.evalRadialWaveFunction(wfMatrix, pi_p);
+    spBasis.evalDerivativeRadialWaveFunction(wfDerMatrix, pi_p);
+
+    for (int pTyp = 0; pTyp < pNum; pTyp++)
+    {
+      arma::mat gamma(spBasis.size, spBasis.size, arma::fill::zeros);
+
+      for (int bra = 0; bra < spBasis.size; bra++)
+        for (int ket = 0; ket < spBasis.size; ket++)
+        {
+          int lBra = spBasis.qNumbers(bra, 1);
+          int lKet = spBasis.qNumbers(ket, 1);
+          int jBra = spBasis.qNumbers(bra, 2);
+          int jKet = spBasis.qNumbers(ket, 2);
+
+          if ((lBra == lKet) && (jBra == jKet))
+          {
+            // Calculation of the kinetic part
+            double kinetic, potential;
+            fun = ( arma::pow(pi_p, 2) % wfDerMatrix.col(bra) % wfDerMatrix.col(ket) + lBra * (lBra + 1) * wfMatrix.col(bra) % wfMatrix.col(ket)) % arma::exp(pi_p);
+            kinetic = HBAR2_2M * arma::accu(wi_p % fun);
+            //kinetic = HBAR*HBAR/2.0/NUCLEON_MASS * arma::accu(wi_p % fun);
+            // Calculation of the harmonic part
+            fun = arma::pow(pi_p, 4) % wfMatrix.col(bra) % wfMatrix.col(ket) % arma::exp(pi_p);
+            potential = 0.5 * NUCLEON_MASS * pow(spBasis.omega, 2) * arma::accu(wi_p % fun);
+
+            if (abs(omega - spBasis.omega) > 1.0e-7)
+            {
+              Kinetic(pTyp)(bra, ket) = kinetic + potential;
+            }
+            else
+            {
+              Kinetic(pTyp)(bra, ket) = 0;
+
+              if (bra == ket)
+              {
+                Kinetic(pTyp)(bra, ket) = HBAR * omega * (2 * basis->qNumbers(bra, 0) + basis->qNumbers(bra, 1) + 3. / 2.);
               }
             }
           }

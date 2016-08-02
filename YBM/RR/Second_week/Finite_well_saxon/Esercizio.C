@@ -72,8 +72,8 @@ int main(){
 		if(n_neutron<126){
 			cout<<neutronstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<neutronstates[i].eig<<endl;
 			n_neutron += (2*neutronstates[i].j+1);
+			n_levels ++;
 		}
-		n_levels ++;
 	}
 	cout<<"Il numero di neutroni richiesto è:"<<n_neutron<<endl<<endl;
 
@@ -136,11 +136,10 @@ int main(){
 		if(n_proton<82){
 			cout<<protonstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<protonstates[i].eig<<endl;
 			n_proton += (2*protonstates[i].j+1);
+			p_levels ++;
 		}
-		p_levels ++;
 	}
 	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
-
 
 //Routine to obtain neutron density and proton density, and the sum of both
 
@@ -158,7 +157,7 @@ int main(){
 			density_neutron[i] += (2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(neutronstates[k].wavefn[i],2);
 	}
 
-	for(int k=0; k<p_levels-7; k++){
+	for(int k=0; k<p_levels; k++){
 		for(int i=2; i<n_step_width_box; i++)
 			density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
 	}

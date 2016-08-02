@@ -27,11 +27,11 @@ do j=1,red_size
 write(*,'(a,5i4)') "State: ",j,n_red(j),l_red(j),j_red(j),nocc(j)
 write(*,*) 
 enddo
-write(*,*) "TBME TEST"
-write(*,*) tag_hf(0,0,1),tag_hf(2,0,1),tag_hf(0,0,1),tag_hf(1,0,1)
-write(*,*) "tb= ",tbme_ext(tag_hf(0,0,1),tag_hf(2,0,1),tag_hf(0,0,1),tag_hf(1,0,1))
-read(*,*)
-write(*,*) "maxval",maxval(n_red)+1
+!write(*,*) "TBME TEST"
+!write(*,*) tag_hf(0,0,1),tag_hf(2,0,1),tag_hf(0,0,1),tag_hf(1,0,1)
+!write(*,*) "tb= ",tbme_ext(tag_hf(0,0,1),tag_hf(2,0,1),tag_hf(0,0,1),tag_hf(1,0,1))
+!read(*,*)
+!write(*,*) "maxval",maxval(n_red)+1
 !start = omp_get_wtime()
 call lag_roots(ngauss,0.5d0,.false.)
 call hfsolver(.true.)
