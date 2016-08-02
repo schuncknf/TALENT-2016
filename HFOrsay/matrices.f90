@@ -51,28 +51,21 @@ do i1=1,di
  do i2=1,di
    ib2 = tag_hf(i2-1,nl,nj)
      gammatemp = 0.d0
- !    if (l1 .eq. l2 .and. j1 .eq. j2) then
     ! if (nocc2 .ne. 0 .and. nocc1 .ne. 0) then
   do i3=1,di
    ib3 = tag_hf(i3-1,nl,nj)
    do i4=1,di
    ib4 = tag_hf(i4-1,nl,nj)
-     !if (nocc4 .ne. 0 .and. nocc3 .ne. 0) then
-!       if (j3 .eq. j4 .and. l3 .eq. l4) then
+!     if (nocc4 .ne. 0 .and. nocc3 .ne. 0) then
      !  if (n3 .ne. 0) then
  ! write(6,'(6i3)') n3,n4,l3,l4,j3,j4
   !endif
 !        write(*,*) "In matrices, ",ib1,ib2,ib3,ib4,tbme_ext(ib1,ib4,ib2,ib3)
-        gammatemp = gammatemp + tbme_ext(ib1,ib4,ib2,ib3)*rho(i3,i4)
-        !write(128,*) ib1,ib2,ib3,ib4,tbme_ext(ib1,ib4,ib2,ib3)
-        !if (gammatemp .ne. 0.d0) write(*,*) ib1,ib2,ib3,ib4,gammatemp
-!        endif ! J3=J4;L3=L4
-    !endif !Occupied states only
+        gammatemp = gammatemp + 0.d0*tbme_ext(ib1,ib4,ib2,ib3)*rho(i3,i4)
       enddo
     enddo
     gamma_matrix(i1,i2) = gammatemp
 !    endif
-   ! endif
   enddo
 enddo
 end subroutine compute_gamma
