@@ -41,7 +41,7 @@ FullSpBasis::~FullSpBasis()
 
 void FullSpBasis::calcN()
 {
-  //Calculating N noramalization coefficients for each basis state
+  //Calculating N normalization coefficients for each basis state
   for (int i = 0; i < size; i++)
   {
     int n = qNumbers(i, 0);
