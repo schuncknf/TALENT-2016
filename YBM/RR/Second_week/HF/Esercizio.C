@@ -20,12 +20,30 @@ int main(){
 	double * K_skyrme = new double [n_step_width_box+1];
 	double * E_skyrme = new double [n_step_width_box+1];
 
-
 //I get the first density from files
 
     ifstream myneutron, myproton;
     myneutron.open(density_neutron);
-    myproton.open(density_proton)
+    myproton.open(density_proton);
+	
+    int fileLine = 0;
+
+    while(myneutron >> double radius >> double fileDensity)
+	{
+		density_neutron[i] = fileDensity;
+		fileLine++
+	}
+
+    fileLine = 0;
+
+    while(myproton >> double radius >> double fileDensity)
+	{
+		density_proton[i] = fileDensity;
+		fileLine++
+	}
+
+    for(int i=0, i<n_step_width_box, i++) cout << density_proton[i] << "\t" << density_neutron[i] << endl;
+/*
     for(int i=0, i<n_step_width_box, i++){
     	density_neutron[i] << density_neutron << endl;
     }
@@ -33,7 +51,7 @@ int main(){
     for(int i=0, i<n_step_width_box; i++){
     	density_proton[i] << density_proton << endl;
     }
-    myneutron.close();
+*/    myneutron.close();
     myproton.close();
 
 
