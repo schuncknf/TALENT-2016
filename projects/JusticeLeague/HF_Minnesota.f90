@@ -29,7 +29,7 @@ contains
 !! setting \f$\texttt{hf\_flag(i)=1}\f$). Since we won't need every state
 !! in the list for a calculation, the array \f$\texttt{HO\_inverse}\f$ is
 !! used to match the index j (referred to by the m-scheme two-body term
-!! \f$V(j_1,j_2,j_3,j_4\f$) - see RHS of eq. 4 of HF_fullspherical.pdf)
+!! \f$V(j_1,j_2,j_3,j_4)\f$ - see RHS of eq. 4 of HF_fullspherical.pdf)
 !! with the index of the corresponding state in the \f$\texttt{spM.dat}\f$
 !! list(indexed by i).
   subroutine read_orbitals

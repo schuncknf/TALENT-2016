@@ -1,4 +1,9 @@
-!< $E_{HF}=Tr(t\rho)+Tr(h\rho)$
+!> Solves the problem of \f$n\f$ neutrons in a harmonic oscillator trap
+!! by a self-consistent, Hartree-Fock calculation.
+!! $E_{HF}=Tr(t\rho)+Tr(h\rho)$
+!! Set the number of neutrons in the trap by changing \f$Nparticles\f$,
+!! and change the number of orbitals in your basis by changing
+!! \f$n_orbitals\f$.
 program HFSolver
   use :: types
   use :: variables
@@ -8,8 +13,8 @@ program HFSolver
   implicit none 
   integer :: i,j,k
   real(dp) :: EHF,tr_rho,r,dr
-  Nparticles = 8 !< Set the number of neutrons in the system.
-  n_orbitals = 216 !< Set the number of available orbitals in your basis space.
+  Nparticles = 8 
+  n_orbitals = 216 
   call read_orbitals
   Noccupied=fermi_level()
   call initialize_HF
@@ -49,6 +54,7 @@ program HFSolver
      EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
 !     write(*,*) '  Hartree-Fock energy in MeV'
      write(*,*) k_Fermi, EHF,i
+     write(*,*) "C_rhorho, C_rhotau = ", C_rhorho, C_rhotau
      k_Fermi = K_Fermi + 0.01_dp
   enddo
   
