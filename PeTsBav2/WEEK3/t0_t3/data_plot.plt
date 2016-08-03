@@ -6,5 +6,5 @@ set terminal x11 0
 set nokey
 set grid
 set title 'Densities'
-plot m using 1:2 with linespoints  'Neutron'
-replot n using 1:2 with linespoints  'Neutron'
+plot m using 1:2 with linespoints  
+replot n using 1:2 with linespoints  
