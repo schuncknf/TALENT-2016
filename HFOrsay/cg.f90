@@ -1,29 +1,3 @@
-!***********************************************************************************************************************************
-!
-!                                                               C G
-!
-!  Program:      CG
-!
-!  Programmer:   David G. Simpson
-!                NASA Goddard Space Flight Center
-!                Greenbelt, Maryland  20771
-!
-!  Date:         April 20, 2005
-!
-!  Language:     Fortran-90
-!
-!  Version:      1.00a
-!
-!  Description:  Calculates Clebsch-Gordan cg_coefficients.
-!
-!  Files:        Source files:
-!
-!                   cg.f90                   Main program
-!
-!  Notes:
-!
-!***********************************************************************************************************************************
-
 module cg
 use maths
 
@@ -32,7 +6,7 @@ contains
     IMPLICIT NONE
     INTEGER :: I, K
     DOUBLE PRECISION :: J1, J2, J3, M1, M2, M3, C, SUMK, TERM, cg_coeff
-    
+
 !-----------------------------------------------------------------------------------------------------------------------------------
 
       M3 = M1 + M2
