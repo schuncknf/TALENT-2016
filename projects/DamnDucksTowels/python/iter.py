@@ -6,19 +6,20 @@ import numpy as np
 import time
 
 if __name__ == '__main__':
-    logofp = open("team-logo.txt", "r")
-    ss = logofp.read()
-    print(ss)
-    logofp.close()
-    logofp = open("small-code-logo.txt", "r")
-    ss = ""
-    print("+" * 85 + "\n")
-    for l in logofp:
-        vl = len(l)
-        ss += l
-    print(ss)
-    logofp.close()
-    print("+" * 85 + "\n")
+    if not config.nox:
+        logofp = open("team-logo.txt", "r")
+        ss = logofp.read()
+        print(ss)
+        logofp.close()
+        logofp = open("small-code-logo.txt", "r")
+        ss = ""
+        print("+" * 85 + "\n")
+        for l in logofp:
+            vl = len(l)
+            ss += l
+        print(ss)
+        logofp.close()
+        print("+" * 85 + "\n")
     ############################################
     t0 = time.time()
     ############################################
@@ -75,7 +76,6 @@ if __name__ == '__main__':
     t1 = time.time()
     ############################################
     if config.nox:
-        print("%03i %s" % (i,solver.info()))
         while cvg > config.convergence:
             solver.run()
             system.calcH()
