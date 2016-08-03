@@ -627,7 +627,7 @@ deallocate(V_skyrme_p,V_skyrme_n,M_eff_p,M_eff_n,W_p,W_n,g_p,g_n,dg_p,dg_n,f_p,f
 deallocate(psi,u_nlj_p,u_nlj_n)
 deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,dens_p,dens_n,dens)
 
-
+CALL SYSTEM('gnuplot -p data_plot.plt')
 
 end program skyrme
 
