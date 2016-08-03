@@ -33,25 +33,41 @@ void HartreeFock::run()
     arma::vec new_indivE = arma::zeros<arma::vec>(nb_state);
 
     // Hamiltonian diagonalization to extract D and e
-    /*if ((system->basis->type == "FullSpBasis") && (dynamic_cast<MinnesotaRaw *>(system->inter) != NULL))
+    if ((system->basis->type == "FullSpBasis") && (dynamic_cast<MinnesotaRaw *>(system->inter) != NULL))
     {
       FullSpBasis &fullSpBasis = static_cast<FullSpBasis &>(*system->basis);
-      const int bl_size = fullSpBasis.nMax + 1;
-      //const int bl_size = 6;
-      for (int i = 0; i < nb_state / bl_size; i++ )
+
+      for (int l = 0; l < fullSpBasis.lMax + 1; l++)
       {
-        arma::mat subD = arma::eye<arma::mat>(bl_size, bl_size);
-        arma::vec subE = arma::zeros<arma::vec>(bl_size);
-        arma::mat subH = H.submat(i * bl_size, i * bl_size, (i+1) * bl_size - 1, (i+1) * bl_size - 1);
-        arma::eig_sym(subE, subD, subH);
-        new_indivE.subvec( i*bl_size, (i+1) * bl_size - 1) = subE;
-        D(pType).submat( i*bl_size, i*bl_size, (i+1) * bl_size - 1, (i+1) * bl_size - 1) = subD;
+        for (int _2j = 2 * l + 1; (_2j >= 2 * l - 1 ) && (_2j > 0); _2j -= 2)
+        {
+          std::vector<long long unsigned int> v;
+
+          for (unsigned int i = 0; i < fullSpBasis.qNumbers.n_elem; i++ )
+          {
+            if (fullSpBasis.qNumbers(i, 1) != l)
+              continue;
+
+            if (fullSpBasis.qNumbers(i, 2) != _2j)
+              continue;
+
+            v.push_back(i);
+          }
+
+          arma::uvec vv(v);
+          arma::mat subH = H.submat( vv, vv);
+          arma::mat subD ;
+          arma::vec subE ;
+          arma::eig_sym(subE, subD, subH);
+          new_indivE.elem(vv) = subE;
+          D(pType).submat(vv, vv) = subD;
+        }
       }
     }
     else
-    {*/
+    {
       arma::eig_sym(new_indivE, D(pType), H);
-    //}
+    }
 
     // Extraction of eigenenergies' sequence
     arma::uvec sorted_ind = arma::sort_index(new_indivE);

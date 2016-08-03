@@ -1,3 +1,5 @@
+!> This routine computes the product of genereralized Laguerre polynomials L(n,m,x).
+!>\param n is the degree of the polynom .
 subroutine gausslag(n,n1,n2,inte) 
 use ho
 use lag_pol

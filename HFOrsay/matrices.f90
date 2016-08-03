@@ -1,3 +1,10 @@
+!> A subroutine which computes the density matrix.
+!! \param rho is the matrix to be constructed.
+!! \param Dt are the eigenvalues obtained by diagonalisation.
+!! \param di is the size of the block density matrix. 
+!! \param nl is quantum number l.
+!! \param nj is quantum number j.
+!! \param iteration is argument to include initialisation.
 subroutine compute_rho(rho,Dt,di,nl,nj,iteration)
 use constants
 use basis
@@ -26,8 +33,6 @@ rho_temp =0.d0
     do k=1,di
       ibl=tag_hf(k-1,nl,nj)
       rho_temp = rho_temp+ nocc(ibl)*D(i,k)*D(j,k)
- !     if (nocc(ibl) .ne. 0) write(*,*) "In rho, nocc",k-1,nocc(ibl)
-      !rho_temp = rho_temp+ occ_num(k)*D(i,k)*D(j,k)
     enddo
     rho(i,j) = rho_temp
   enddo
@@ -35,11 +40,16 @@ enddo
 end subroutine compute_rho
 
 
+!> A subroutine which computes the gamma interaction matrix.
+!! \param gamma_matrix is the interaction matrix to be computed.
+!! \param rho is the density matrix for <b>all</b> blocks.
+!! \param di is the size of the block density matrix. 
+!! \param nl is quantum number l.
+!! \param nj is quantum number j.
 subroutine compute_gamma(gamma_matrix,rho,di,nl,nj)
 use basis
 implicit none
 integer, intent(in) :: di,nl,nj
-!double precision, dimension (di,di,di,di), intent(in) :: mtrxel
 double precision, dimension (lmin:lmax,jmin:jmax,di,di), intent(in) :: rho
 double precision, dimension (di,di), intent(out) :: gamma_matrix
 double precision::gammatemp
@@ -70,23 +80,4 @@ do i1=1,di
   enddo
 enddo
 end subroutine compute_gamma
-
-
-subroutine compute_h(h,t,gamma_matrix,di)
-implicit none
-integer, intent(in) :: di
-double precision, dimension (di,di), intent(in) :: t
-double precision, dimension (di,di), intent(in) :: gamma_matrix
-double precision, dimension (di,di), intent(out) :: h
-!subroutine local variables
-integer :: i,j
-h = 0.d0
-
-do i=1,di
-  do j=1,di
-    h(i,j) = t(i,j) + gamma_matrix(i,j)
-  enddo
-enddo
-end subroutine
-
 

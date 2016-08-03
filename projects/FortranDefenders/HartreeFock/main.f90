@@ -10,7 +10,6 @@ program main
     open(unit=13,file='plt',form='formatted')
     open(unit=14,file='densities',form='formatted')
     open(unit=15,file='fields',form='formatted')
-    open(unit=16,file='fieldsnew',form='formatted')
 
     call init_params
     call init_grids
@@ -58,6 +57,5 @@ program main
     close(5)
     close(14)
     close(15)
-    close(16)
 
 end program main

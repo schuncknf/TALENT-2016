@@ -6,6 +6,8 @@
 </pre>
 ## Coding for Hono(u)r
 ![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.png)
+
+
 Welcome to our home in the Repo.
 
 Of particular interest right now is the Hartree-Fock solver in the Hartree-Fock folder.

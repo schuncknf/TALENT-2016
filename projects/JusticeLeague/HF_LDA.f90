@@ -153,21 +153,21 @@ contains
 !> Writes \f$r\f$ and \f$\rho_{LDA}(r)\f$ (or rather,
 !! \f$r^2\rho_{LDA}(r)\f$) to a file \f$\texttt{mixed\_rho\_plot**.dat}\f$
 !! for plotting.
-  subroutine plot_rho_LDA(j)
+  subroutine plot_rho_LDA
     implicit none
-    integer, intent(in) :: j
+!    integer, intent(in) :: j
     real(dp) :: Trho
     real(dp), parameter :: dr=0.001_dp
     real(dp) :: ri
     integer :: i
     character(2) :: index
-    Trho = 0
-    write(index,'(i2.2)') j
-    open(100,file='mixed_rho_plot'//index//'.dat')
+!    Trho = 0
+!    write(index,'(i2.2)') j
+    open(100,file='rho_plot_LDA_sat.dat')
     do i = 1,10000
        ri = i*dr
-       Trho = Trho  + rho_LDA(ri)*ri**2*dr
-       write(100,*) ri, rho_LDA(ri)*ri**2
+!       Trho = Trho  + rho_LDA(ri)*ri**2*dr
+       write(100,*) ri, rho_LDA(ri)!*ri**2
     enddo
     close(100)
   end subroutine Plot_rho_LDA
@@ -187,7 +187,7 @@ contains
        ri = i*dr
        Trho = Trho  + rho_LDA(ri)*ri**2*dr
     enddo
-    Trho = Trho/pi
+    Trho = Trho*4*pi
   end function Trace_rho_LDA
 
 !> I'm not sure what this subroutine was used for.
@@ -248,7 +248,7 @@ contains
     rho = rho/(4*pi)
     tau = tau/(4*pi)
     del_rho = del_rho/(4*pi)
- subroutine DME_fields
+  end subroutine DME_fields
 
 
 !> gamma_DME
@@ -294,15 +294,13 @@ contains
       first_call = .false.
    endif
     do i = 1,N_quad
-!       xi = i*0.01
-!       call RadialHOALL(5,5,xi,b_ho,Rnl)
-!       write(*,*) xi,Rnl(0,3,5), Rnl(1,3,5), Rnl(2,3,5)
        call DME_fields(b_ho*x_quad(i)**0.5_dp,rho,tau,del_rho)
        rho_quad(i) = rho
        tau_quad(i) = tau
        delrho_quad(i) = del_rho
     enddo
   end subroutine sample_DME_fields
+
 
 !> Here the coupling constants \f$C^{\rho\rho}, C^{\rho\tau}\f$, and
 !! \f$C^{\rho\nabla^2\rho}\f$ are calculated using the kernels defined in
@@ -317,14 +315,15 @@ contains
     real(dp), dimension(1:Ngauss) :: w,x
     logical :: first_call = .true.
     integer :: i
-    real(dp) :: I_R, I_S, J_R, J_S
+    real(dp) :: I_R, I_S, J_R, J_S, C_Hdelrho
     save w,x,first_call
     if(first_call) then
        alpha = -0.5_dp
        call GaussLaguerreWX(alpha,w,x)
        first_call = .false.
     endif
-    C_hartree = pi**(1.5_dp)*(V0R/(muR**1.5_dp)-V0s/(mus**1.5_dp))/4._dp
+    C_hartree =  pi**(1.5_dp)*(V0R/(muR**1.5_dp)-V0s/(mus**1.5_dp))/4._dp
+    C_Hdelrho =0!3*pi**(1.5_dp)*(V0R/(muR**2.5_dp)-V0s/(mus**2.5_dp))/8._dp
     I_R = 0
     I_S = 0
     do i = 1,Ngauss
@@ -335,7 +334,7 @@ contains
     enddo
     C_rhorho=pi*(V0R*I_R/muR**0.5_dp-V0S*I_S/muS**0.5_dp)/(4*k_fermi**2)
     C_rhotau=-pi*105*(V0R*J_R/muR**0.5_dp-V0S*J_S/muS**0.5_dp)/(4*k_fermi**4)
-    C_rhodelrho = -C_rhotau/4._dp
+    C_rhodelrho = (-C_rhotau/4._dp+C_Hdelrho/8._dp)
     C_rhorho = 2*C_rhorho + C_hartree
   end subroutine calculte_couplings
 
@@ -363,5 +362,41 @@ contains
     real(dp) :: Ck
     Ck =  SphericalBesselJ1(k_fermi*r)*SphericalBesselJ3(k_fermi*r)
   end function C_rhotau_kernel
+
+
+  subroutine plot_DME_fields
+    implicit none
+    integer :: i
+    real(dp) :: rho,tau,del_rho
+    real(dp) :: xi
+    real(dp) :: Tr, dr
+    dr = 0.001
+    Tr = 0._dp
+    open(100,file='dmefields_surface_sat.dat')
+    do i = 1,10000
+       xi = i*dr
+       call DME_fields(xi,rho,tau,del_rho)
+       Tr = Tr + rho*xi**2*dr
+       write(100,*) xi,rho,tau,del_rho
+    enddo
+    close(100)
+    Tr = Tr*4*pi
+    write(*,*) 'Trace of DME rho', Tr
+  end subroutine plot_DME_fields
+
+  function rms_DME() result(rms)
+    implicit none
+    real(dp) :: rms
+    integer :: i
+    real(dp) :: dr, xi, rho,tau,del_rho
+    dr = 0.01
+    rms = 0._dp
+    do i = 1,1000
+       xi = i*dr
+       call DME_fields(xi,rho,tau,del_rho)
+       rms = rms + rho*xi**4*dr
+    enddo
+    rms = sqrt(rms*4*pi/real(Nparticles,kind=dp))
+  end function rms_DME
 
 end module LDA

@@ -47,6 +47,7 @@ contains
     allocate(n_hf(1:n_orbitals))
     allocate(l_hf(1:n_orbitals))
     allocate(j_hf(1:n_orbitals))
+!    open(100,file='spM.dat')
     open(100,file='spM_n5l2.dat')
     do i = 1,1
        read(100,*)
@@ -92,15 +93,17 @@ contains
     integer :: i1,i2,i3,i4,tz,P,J
     integer :: j1,j2,j3,j4
     integer :: k1,k2,k3,k4
+    integer :: iostatus
     real(dp) :: TBME
     allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
     v_mat = 0
+!    open(100,file='VM-scheme.dat')
     open(100,file='VM-scheme_n5l2.dat')
     read(100,*)
     read(100,*)
     do
-       read(100,*) i1,i2,i3,i4,TBME
-       if(i1.eq.0) exit 
+       read(100,*, iostat = iostatus) i1,i2,i3,i4,TBME
+       !if(i1.eq.0) exit 
        if(ho_flag(i1).eq.1.and.ho_flag(i2).eq.1.and.&
             ho_flag(i3).eq.1.and.ho_flag(i4).eq.1) then
           if(m_ho(i1).ne.m_ho(i3).or.m_ho(i2).ne.m_ho(i4)) cycle
@@ -111,6 +114,7 @@ contains
           v_mat(j1,j2,j3,j4) = v_mat(j1,j2,j3,j4) + &
                1/((j_ho(i1)+1._dp)*(j_ho(i2)+1._dp))*TBME
        endif
+       if(iostatus < 0) exit
     enddo
     close(100)
   end subroutine read_TBME
