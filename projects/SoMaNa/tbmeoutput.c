@@ -18,8 +18,8 @@ void tbmeprint (double *coeff, int nmesh)
 		galagcoeff[i] = (double*) malloc(nmesh*sizeof(double));
 		}
 	
-	galagcoeffa = (double**) malloc((nmesh+2)*sizeof(double));
-        for (i=0; i<nmesh+2; i++) { 
+	galagcoeffa = (double**) malloc((nmesh)*sizeof(double));
+        for (i=0; i<nmesh; i++) { 
 		galagcoeffa[i] = (double*) malloc(2*sizeof(double));
 		}
 
@@ -35,7 +35,7 @@ void tbmeprint (double *coeff, int nmesh)
 	galagcoeffa= fac_galag_a(nmesh,0.5,bmcoeff);
        
         FILE *TBMEOUT, *LABELSTABLE;
-        TBMEOUT = fopen("tbme.out", "w");
+        TBMEOUT = fopen("tbme.new", "w");
         LABELSTABLE = fopen("states.out", "w");
        
         fprintf (TBMEOUT, "o1 o2 o3 o4 TBME \n=======================\n");
