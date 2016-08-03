@@ -1,3 +1,4 @@
+!> A external module to compute Clebsch-Gordan Coefficients
 module cg
 use maths
 
