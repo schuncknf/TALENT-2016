@@ -1,0 +1,27 @@
+/**
+@mainpage HF-Orsay 
+
+@section Introduction
+
+ This program solve the Hartree-Fock equations in the harmonic oscillator space in a self consistent way using an external Minnesota potential.\n
+ The case of interest is the study of the formation of neutrons droplets in a harmonic trap.\n
+ The pairing force used here is a simple contact interaction (Seniority Model)\n
+
+@section Readme
+ The input parameters are located in the hforsay.dat file\n
+ The <b>n0base</b> and ngauss variables are used only while matrix elements are computed internally\n
+ The <b>npart</b> variables fix the numbers of the neutrons considered\n
+ The <b>maxit</b> variable fix the maximum iteration for the Self-Consistent procedure\n
+ The <b>homega</b> variable fix the legnth of the harmonic oscillator\n
+ The <b>bcs</b> flag turn on/off (1/0) the pairing calculation on top of the converged Hartree-Fock solutions\n
+ The <b>gpair</b> fixes the strength of the pairing interaction\n
+ The <b>plot</b> flag turn on/off (1/0) the output writting of the density/occupation probabilities of states\n
+ The <b>ext</b> flag turn on/off (1/0) the reading from the tbme.bin file generated at the first lecture of the VM-scheme.dat\n
+
+
+@section Requirements
+ \item lapack and blas libraries installed\n
+ \item VM-scheme.dat file (for the matrix elements)\n
+ \item spM.dat file (for the basis)\n
+
+*/
