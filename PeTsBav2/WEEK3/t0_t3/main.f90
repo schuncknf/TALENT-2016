@@ -647,7 +647,7 @@ deallocate(psi,u_nlj_p,u_nlj_n)
 deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,dens_p,dens_n,dens)
 
 CALL SYSTEM('gnuplot -p data_plot.plt')
-
+CALL SYSTEM('gnuplot -p data_plot2.plt')
 end program skyrme
 
 

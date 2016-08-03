@@ -1,7 +1,7 @@
 &nucleons
  proton = 8, neutron = 8/
 &parameters
- h2m=20.73553d0, R_max=20d0, N=1000 /
+ h2m=20.73553d0, R_max=20d0, N=100 /
 &max_quantum_number
  n_max = 4, l_max = 10/
 &effective_charge
