@@ -1,4 +1,4 @@
-!Recursive defintion of laguerre polynomial
+!>Recursive defintion of laguerre polynomial
 module lag_pol
 double precision,dimension(:),allocatable::lag_zeros,lag_w
 double precision,dimension(:,:),allocatable::temp

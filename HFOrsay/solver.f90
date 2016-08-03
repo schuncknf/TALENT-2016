@@ -145,6 +145,7 @@ endif
 write(*,*) "Particles Number",partnum
 !Printing out in a file
 call printer(red_size,hfenergy,hfenergybcs,v2,esp,partnum,pr)
+call spatial_rho(rho)
 
 
 ! Memory deallocation -------------------------
