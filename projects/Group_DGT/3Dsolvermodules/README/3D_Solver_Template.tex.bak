@@ -1,0 +1,53 @@
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\usepackage{extsizes}
+\linespread{1}
+
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{adjustbox}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{fullpage}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[C]{3D SOLVER README}
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\usepackage{natbib}
+\usepackage{hyperref} % Should be the last usepackage{} used in this file.
+
+\definecolor{light-grey}{gray}{0.8}
+
+\newenvironment{Coloured Box}[2]{
+	\begin{adjustbox}{minipage=\textwidth - 1ex, margin=0.5ex, bgcolor=#1, env=center}
+		\textbf{#2 \\}
+		}{
+	\end{adjustbox}
+}
+
+\newcounter{Example Counter}[chapter] \setcounter{Example Counter}{0}
+\newenvironment{Example}[1]{
+	\refstepcounter{Example Counter}\begin{adjustbox}{minipage=\textwidth - 1ex, margin=0.5ex, bgcolor=light-grey, env=center}
+		\textbf{Example \arabic{chapter}.\arabic{Example Counter}: #1} \\
+		}{
+	\end{adjustbox} 
+}
+
+\newcounter{Lemma Counter}[chapter] \setcounter{Lemma Counter}{0}
+\newenvironment{Lemma}[1]{\\ \\ \refstepcounter{Lemma Counter}\textbf{Lemma \arabic{chapter}.\arabic{Lemma Counter}: #1} \\ \it}{\\ \par}
+
+\newcounter{Definition Counter}[chapter] \setcounter{Definition Counter}{0}
+\newenvironment{Definition}[1]{\\ \\ \refstepcounter{Definition Counter}\textbf{Definition \arabic{chapter}.\arabic{Definition Counter}: #1} \\ \it}{\\ \par}
+
+\title{3D SOLVER README}
+\author{Tiia Haverinen \\
+		David Muir \\
+		Gianluca Salvioni}
+\date{\today}
