@@ -24,6 +24,11 @@ int main(){
 	double * K_skyrme = new double [n_step_width_box+1];
 	double * E_skyrme = new double [n_step_width_box+1];
 
+	// 'state' structs to store neutron and proton eigenstates
+	state appoggio;
+	vector<state> neutronstates;
+	vector<state> protonstates;
+	
 
 	// Read initial densities from files
 
@@ -62,6 +67,9 @@ int main(){
 		++iteration;
 		cout << "\nIteration number =\t" << iteration << endl;
 
+		neutronstates.clear();
+		protonstates.clear();
+
 
 		// Calculate Skyrme potentials from total, proton, and neutron densities
 	    U_skyrme_p.clear();
@@ -75,13 +83,6 @@ int main(){
 			U_skyrme_p.push_back(skyrme(r,rp,rp,rn));
 			U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
 		}
-
-
-		// 'state' structs to store neutron and proton eigenstates
-		state appoggio;
-		vector<state> neutronstates;
-		vector<state> protonstates;
-
 
 
 		// Neutron eigenstates
@@ -165,27 +166,41 @@ int main(){
 		// Proton eigenstates
 		isospin = 1./2.;
 
+		// Loop over number of nodes (i.e. quantum no "n")
 		for(int node=0; node<3; node++){
+			// Loop over angular momentum
 			for(int L=0; L<8;L++){
+				// Loop over spin up/down
 				for(int h=1; h<3; h++){
+
+					// Calculate j=l+s
 					if(L==0) h=2;
 					double J = abs(S+pow(-1,h)*L);
+
 					int nodecount=0;
 					double Etrial=0.;
 					double Eup = 0.;
 					double Edown = minScanE;
-					do{
+
+					// Convergence loop
+					while(abs(Eup-Edown)>prec){
+
+						// Integrate with trial energy
 						Etrial = (Eup+Edown)/2.;
 						wave_val.push_back(wavefn0);
 						wave_val.push_back(wavefn1);
 						for(int i=1; i<n_step_width_box; i++){
 							wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
 						}
+
+						// Count nodes in resulting wavefunction
 						nodecount = 0;
 						for(int i=1; i<n_step_width_box+2; i++){
 							if(wave_val[i-1]*wave_val[i]<0.)
 							nodecount++;
 						}
+
+						// Adjust energy window according to no. of nodes
 						if(nodecount>node){
 							Eup = Etrial;
 						}
@@ -193,19 +208,20 @@ int main(){
 							Edown = Etrial;
 						}
 						wave_val.clear();
-					}while(abs(Eup-Edown)>prec);
+					}
+
+					// Store converged eigenstate, if e'energy in suitable range
 					if(Etrial<maxProtScanE && Etrial>minScanE){
 
-						//Normalisation
+						// Calculate normalisation factor 'norm'
 						wfWork.push_back(wavefn0);
 						wfWork.push_back(wavefn1);
 						double norm = 0.;
 						for(int i=1; i<n_step_width_box; i++) wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, 1./2.,  U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
 						for(int i=1; i<n_step_width_box+1; i++) norm += h_width*pow(wfWork[i],2);
 						wfWork.clear();
-						//end normalisation
 
-
+						// Store e'state
 						appoggio.wavefn.push_back(wavefn0);
 						appoggio.wavefn.push_back(wavefn1);
 						for(int i=1; i<n_step_width_box; i++){
@@ -217,42 +233,40 @@ int main(){
 						protonstates.push_back(appoggio);
 						appoggio.wavefn.clear();
 					}
-				}
-			}
-		}
+
+				}	// Spin loop end
+			}	// Angular momentum loop end
+		}	// Nodes loop end
 
 
 		int n_neutron = 0, n_levels = 0;
 		int n_proton = 0, p_levels = 0;
 
-		//This routine sort the vector of NEUTRON and print it
-
+		// Sort vectors of neutron and proton states by e'energies
 		sort(neutronstates.begin(), neutronstates.end(), compare());
-		cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
+		cout << "J value\t\t\t" << "Eigenvalue" << endl;
 		for(int i=0; i<neutronstates.size(); i++){
 			if(n_neutron<N){
-				cout<<neutronstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<neutronstates[i].eig<<endl;
+				cout  <<  neutronstates[i].j*2 << "/2\t\t\t" << setprecision(12) << neutronstates[i].eig  <<  endl;
 				n_neutron += (2*neutronstates[i].j+1);
 				n_levels ++;
 			}
 		}
-		cout<<"Il numero di neutroni richiesto è:"<<n_neutron<<endl;
-
-		//This routine sort the vector of PROTON and print it
+		cout << "Il numero di neutroni richiesto è:" << n_neutron  <<  endl;
 
 		sort(protonstates.begin(), protonstates.end(), compare());
-		cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
+		cout << "J value\t\t\t" << "Eigenvalue" << endl;
 		for(int i=0; i<protonstates.size(); i++){
 			if(n_proton<Z){
-				cout<<protonstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<protonstates[i].eig<<endl;
+				cout  <<  protonstates[i].j*2 << "/2\t\t\t" << setprecision(12) << protonstates[i].eig  <<  endl;
 				n_proton += (2*protonstates[i].j+1);
 				p_levels ++;
 			}
 		}
 		cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
 
-		//This routine calculate the new density for neutron
 
+		// Calculate new densities for neutrons and protons
 		for(int i=0; i<n_step_width_box+1; i++){
 			density_neutron[i] = 0.;
 		}
@@ -260,8 +274,6 @@ int main(){
 			for(int i=2; i<n_step_width_box; i++)
 				density_neutron[i] += (2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(neutronstates[k].wavefn[i],2);
 		}
-
-		//This routine calculate the new density for proton
 
 		for(int i=0; i<n_step_width_box+1; i++){
 			density_proton[i] = 0.;
@@ -272,9 +284,9 @@ int main(){
 		}
 
 
-		//////////////////TOTAL ENERGY///////////////////////////////////
+		// Calculate total energy of system using kinetic and Skyrme densities
 
-		//Calculate the kinetic density
+		// Calculate the kinetic density
 		for(int i=0; i<n_step_width_box+1; i++){
 			K_skyrme[i] = 0.;
 		}
@@ -284,12 +296,10 @@ int main(){
 										neutronstates[k].l*(neutronstates[k].l+1)/pow(i*h_width+h_width,2)*pow(neutronstates[k].wavefn[i],2) );
 		}
 
-		//Calculate the skyrme density
-
+		// Calculate the skyrme density
 		for(int i=0; i<n_step_width_box+1; i++){
 			E_skyrme[i] = 0.;
 		}
-
 		for(int i=2; i<n_step_width_box; i++){
 			double r  = density_proton[i] + density_neutron[i];
 			double rp = density_proton[i];
@@ -299,18 +309,12 @@ int main(){
 				//cout<<"K_skyrme:"<<"\t"<<K_skyrme[i]<<"\t"<<"E_skyrme:"<<"\t"<<E_skyrme[i]<<endl;
 		}
 
-
-
-		//Integral
-
+		// Integral densities to get new total energy 'integral'
 		old_integral = integral;
 		integral = 0.;
 		for(int i=0; i<n_step_width_box+1; i++){
 			integral += 4*M_PI*pow(i*h_width+h_width,2)*(K_skyrme[i]+E_skyrme[i])*h_width;
 		}
-
-		///////////////////////////////////////////////////////////////
-
 
 		cout<<abs(old_integral)<< "\t" << old_integral-integral << endl;
 	}
@@ -403,5 +407,5 @@ cout<<n_levels<<endl;
 	myfileP.close();
 */
 
-return 0;
+	return 0;
 }
