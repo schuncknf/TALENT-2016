@@ -41,13 +41,15 @@ double Rnl (int n, double *coeff, double **bmcoeff, double r)
 
 	{
 	
-		double rnlres;
+		double rnlres, br;
+				
+		br = bred(coeff);	
 		
 		rnlres = Anl(n,coeff,bmcoeff)
-			/pow(bred(coeff),1.5)
-			*pow(r/bred(coeff),coeff[1])
-			*exp(-1.0*pow((r/bred(coeff)),2)/2.0)
-			*gsl_sf_laguerre_n(n,(n+0.5), pow(r/bred(coeff),2));
+			/pow(br,1.5)
+			*pow(r/br,coeff[1])
+			*exp(-1.0*pow((r/br),2)/2.0)
+			*gsl_sf_laguerre_n(n,(n+0.5), pow(r/br,2));
 		
 		//printf("W. FUNCTION: %lf\t %lf \n",rnlres,Anl(n,coeff,bmcoeff));		
 		

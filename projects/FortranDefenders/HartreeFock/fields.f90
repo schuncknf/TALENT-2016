@@ -38,7 +38,7 @@ contains
              usonew(ir,iq) = - (cso0-cso1 )*drho(ir,3)/mesh(ir) &
                              - 2 *cso1 * drho(ir,iq) / mesh(ir)
              if (j2terms) then
-             usonew(ir,iq) = -(a0t0-a1t1) *jsc(ir,3) / mesh(ir) &
+             usonew(ir,iq) = usonew(ir,iq)-(a0t0-a1t1) *jsc(ir,3) / mesh(ir) &
                              - 2 *a1t1 * jsc(ir,iq) / mesh(ir)
              end if
      !!coulomb

@@ -1,7 +1,7 @@
  #include <stdio.h>
 #include <math.h>
 
-double Anl (int, double*, double*);
+double Anl (int, double*, double**);
 
 double bred (double*);
 
