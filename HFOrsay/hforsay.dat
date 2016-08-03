@@ -7,3 +7,4 @@ bcs      =    1              ! Plug in pairing
 gpair    =     0.5400
 plot     =    1              ! Ploting Routines
 iflag    =    1              ! From external tbme.bin
+i3d      =    1              ! Ploting 3D density

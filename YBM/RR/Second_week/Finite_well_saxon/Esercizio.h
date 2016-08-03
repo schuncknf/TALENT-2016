@@ -15,9 +15,9 @@
 	#define r0 1.27
 	#define e 1.439978
 
-	#define A 208.
-	#define N 126.
-	#define Z 82.
+	#define A 16.
+	#define N 8.
+	#define Z 8.
 
 	#define prec 1E-12
 	#define m_factor 20.73553

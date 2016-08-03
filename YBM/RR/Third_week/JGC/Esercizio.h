@@ -12,11 +12,11 @@
 
 
 	// Skyrme parameters for t0, t3 system
-	#define _a 1.
+	#define _a 1
 	#define t0 -1132.400
 	#define t3 23610.40
-	#define x0 0.
-	#define x3 0.
+	#define x0 0
+	#define x3 0
 
 	#define width_box 22.
 	#define h_width 0.01
@@ -28,7 +28,6 @@
 	#define Z 8.
 
 	#define prec 1E-12
-	#define HF_prec 1E-6
 	#define m_factor 20.73553
 
 	using namespace std;
