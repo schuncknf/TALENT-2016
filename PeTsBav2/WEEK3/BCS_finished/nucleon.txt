@@ -1,0 +1,19 @@
+&nucleons
+ proton = 16, neutron = 26/
+&parameters
+ h2m=20.73553d0, R_max=30d0, N=300 /
+&max_quantum_number
+ n_max = 4, l_max = 10/
+&effective_charge
+ charge = 1d0 / 
+&bisection
+ E_p = 0d0, E_m = -100d0 /
+&output
+ output_wave_func = .false. , epsi=1e-2/
+&WoodSaxon
+ r0=1.27, a=0.67, e2=1.439978/  
+&CMcorr
+ CMcorrection = .false./
+&BCS_parameters
+ BCS_cal = .false., g = 0.2 /
+
