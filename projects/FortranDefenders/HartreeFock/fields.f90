@@ -138,12 +138,12 @@ contains
         end if
       end do
     end do
-    totalenergy = (totalenergy + kinetic(1) + kinetic(2))/2.&
-                -4*pi*h*t3*sum(mesh(:)**2 * (rho(:,3)**sig &
-                *(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.&
-                -e2*(3./pi)**(1./3.)*pi*h*sum(mesh(:)**2*rho(:,2)**(4./3.))
+    totalenergy = totfunct !(totalenergy + kinetic(1) + kinetic(2))/2.&
+                !-4*pi*h*t3*sum(mesh(:)**2 * (rho(:,3)**sig &
+                !*(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.&
+                !-e2*(3./pi)**(1./3.)*pi*h*sum(mesh(:)**2*rho(:,2)**(4./3.))
                 !-4*h*pi*t3*0.125*sum(mesh(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
-    totalkinetic = sum(kinetic(:))
+    totalkinetic = ekin!sum(kinetic(:))
     !print *,totfunct - totalenergy
   end subroutine totenergy
   !> energy_sort sorts the occupied single particle states

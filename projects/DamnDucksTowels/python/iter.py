@@ -15,10 +15,8 @@ if __name__ == '__main__':
     print("+" * 85 + "\n")
     for l in logofp:
         vl = len(l)
-        ss += " " * 18 + "| " + l.replace("\n","").replace(" ", ".") + " |" + "\n"
-    print(" " * 18 + "+-" + "-" * vl + "+")
-    print(ss[:-1])
-    print(" " * 18 + "+-" + "-" * vl + "+\n")
+        ss += l
+    print(ss)
     logofp.close()
     print("+" * 85 + "\n")
     ############################################
@@ -76,12 +74,14 @@ if __name__ == '__main__':
     ############################################
     t1 = time.time()
     ############################################
-    print("%03i %s" % (i,solver.info()))
-    while cvg > config.convergence:
-        solver.run()
-        system.calcH()
-        cvg = solver.cvg
-        i += 1
+    if config.nox:
+        print("%03i %s" % (i,solver.info()))
+        while cvg > config.convergence:
+            solver.run()
+            system.calcH()
+            cvg = solver.cvg
+            i += 1
+            #print(kinetic + gamma.dot(rho))
         rho = system.getR(0,0)
         kinetic = system.getKinetic(0)
         gamma = system.getGamma(0)
@@ -89,10 +89,26 @@ if __name__ == '__main__':
         #print(solver.indivEnergies)
         ene = np.trace(kinetic.dot(system.getR(0,0)) + 0.5 * gamma.dot(system.getR(0,0)))
         print("%03i %s, e=%.7f" % (i,solver.info(), ene))
-        #print(kinetic + gamma.dot(rho))
+    else:
+        print("%03i %s" % (i,solver.info()))
+        while cvg > config.convergence:
+            solver.run()
+            system.calcH()
+            cvg = solver.cvg
+            i += 1
+            rho = system.getR(0,0)
+            kinetic = system.getKinetic(0)
+            gamma = system.getGamma(0)
+            #delta = system.getDelta(0)
+            #print(solver.indivEnergies)
+            ene = np.trace(kinetic.dot(system.getR(0,0)) + 0.5 * gamma.dot(system.getR(0,0)))
+            print("%03i %s, e=%.7f" % (i,solver.info(), ene))
+            #print(kinetic + gamma.dot(rho))
+        
+        
     ############################################
     t2 = time.time()
     ############################################
-    print(i)
+    
     print(t1 - t0)
     print(t2 - t1)

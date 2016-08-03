@@ -37,15 +37,15 @@
 	#define maxProtScanE 10.	// energy below which to look for e'functions
 	#define maxNeutScanE 0.
 
-	#define integralPrec 1e-1 // iteration energy convergence
+	#define integralPrec 1e-6 // iteration energy convergence
 
 	// Physical constants
 	#define m_factor 20.73553 // hBar^2/2m
 	#define e 1.439978 // e^2
 
 	// Function declarations
-	double numerov_algorithm_HF(double energy, double f0, double f_,double r, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1, double * densityCou);
-	double v_HF(double energy, double r, double S, double L, double J, double T, double Vsky, double * densityCou);
+	double numerov_algorithm_HF(double energy, double f0, double f_,double r, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1);
+	double v_HF(double energy, double r, double S, double L, double J, double T, double Vsky);
 	double normalise_HF(double eigen, double n_step_width_box, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1);
 	double centrifug_term(double r, double L);
 	double potential_woods(double r);
@@ -53,8 +53,12 @@
 	double potential_coulomb(double r);
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
 	double skyrme(double rho, double rho_q, double rho_p, double rho_n);
+<<<<<<< HEAD
 	double coulombPotentialHF(double * densityCou, double r);
 	double coulombHF();
+=======
+	//int star();
+>>>>>>> a705b1a6bc1586633dcb5f18a2500e2a99cb41b0
 
 	// Struct for storing all information about an e'function once found (and e'function itself)
 	struct state{

@@ -1,3 +1,32 @@
+!> A external module to compute Clebsch-Gordan Coefficients
+
+
+
+!***********************************************************************************************************************************
+!
+!                                                               C G
+!
+!  Program:      CG
+!
+!  Programmer:   David G. Simpson
+!                NASA Goddard Space Flight Center
+!                Greenbelt, Maryland  20771
+!TURNED INTO A MODULE IN HFORSAY CODE
+!  Date:         April 20, 2005
+!
+!  Language:     Fortran-90
+!
+!  Version:      1.00a
+!
+!  Description:  Calculates Clebsch-Gordan coefficients.
+!
+!  Files:        Source files:
+!
+!                   cg.f90                   Main program
+!
+!  Notes:
+!
+!***********************************************************************************************************************************
 module cg
 use maths
 

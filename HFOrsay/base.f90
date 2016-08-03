@@ -1,5 +1,5 @@
-module basis
 !> A module which computes all the required quantities and constructs the harmonic oscillator basis from external inputs.
+module basis
 use constants
 integer,allocatable::n_ext(:),m_ext(:),l_ext(:),j_ext(:),t_ext(:)
 integer,allocatable::n_red(:),l_red(:),j_red(:),occ(:),nocc(:)
