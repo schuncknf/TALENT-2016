@@ -53,7 +53,7 @@
 	double potential_coulomb(double r);
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
 	double skyrme(double rho, double rho_q, double rho_p, double rho_n);
-	double coulombHF();
+	//int star();
 
 	// Struct for storing all information about an e'function once found (and e'function itself)
 	struct state{

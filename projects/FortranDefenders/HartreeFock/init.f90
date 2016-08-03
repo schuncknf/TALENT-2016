@@ -3,7 +3,7 @@ module init
 implicit none
      integer, parameter :: wp=kind(1.0d0)
      real(wp), parameter :: pi = 3.14159265358979_wp
-     real(wp), parameter :: e2 = 1.43989_wp
+     real(wp), parameter :: e2 = 1.4399784_wp
      real(wp), parameter :: hbar = 6.582119E-22_wp
      real(wp), parameter :: a = 0.67_wp
      real(wp), parameter :: vso = 23_wp
@@ -33,6 +33,7 @@ contains
           read(5,params)
           read(5,nucleus)
           read(5,interaction)
+          sig = 1./sig
           nt = np+nn
           nrad = r0 * (nt)**(1._wp/3._wp)
           vpb(1) = -51.+33.*(nn-np)/nt
@@ -85,7 +86,7 @@ contains
      !> Initialization of the grids
      subroutine init_grids
           integer :: i
-          small = 1E-20_wp
+          small = 1E-25_wp
           allocate(mesh(0:nbox))
           mesh = (/ (real(i)*h,i=0,nbox) /)
           mesh(0) = small
@@ -101,6 +102,10 @@ contains
   subroutine init_fields
     integer :: ir,iq
     allocate(uc(0:nbox,2),umr(0:nbox,2),udd(0:nbox,2),uso(0:nbox,2),ucoul(0:nbox),ucso(0:nbox,2),dumr(0:nbox,2),d2umr(0:nbox,2))
+    udd=0._wp
+    ucso=0.0_wp
+    dumr=0.0_wp
+    d2umr=0.0_wp
     do iq = 1,2
       do ir = 0,nbox
         uc(ir,iq) = vpb(iq)*fullwoodsaxon(ir)

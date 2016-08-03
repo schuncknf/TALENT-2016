@@ -17,9 +17,9 @@ contains
         else
         npr = np
         end if
-        rho(:,iq)=0.
-        tau(:,iq)=0.
-        jsc(:,iq)=0.
+        rho(:,iq)=small
+        tau(:,iq)=small
+        jsc(:,iq)=small
         do i = 1, npr
            if (sortenergies(i,iq) < - small) then
              n = sortstates(i,1,iq)
@@ -39,7 +39,7 @@ contains
                *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)**2&
                /(4*pi*mesh(ir)**3)
               end do
-              !rho(0,iq) = rho(1,iq)
+              rho(0,iq) = rho(1,iq)
               !tau(2,iq) = tau(3,iq)
               tau(1,iq) = tau(2,iq)
               tau(0,iq) = tau(1,iq)
@@ -47,6 +47,7 @@ contains
         end do
      end do
      rho(:,3)=rho(:,1) + rho(:,2)
+     rho(0,3) = rho(1,3)
      rho(:,4)=rho(:,1) - rho(:,2)
      tau(:,3)=tau(:,1) + tau(:,2)
      tau(:,4)=tau(:,1) - tau(:,2)

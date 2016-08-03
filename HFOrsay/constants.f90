@@ -14,7 +14,7 @@ double precision,parameter::v0t=178.00d0 !in MeV
 double precision,parameter::v0s=91.85d0 !in MeV
 double precision,parameter::ama = 20.736209412d0 !in (fm**2)
 double precision,parameter::mc2 = 938.90590d0 !in MeV
-integer::nbase,npart,maxit,ngauss,n_lines,ntx,flagbcs
+integer::nbase,npart,maxit,ngauss,n_lines,ntx,flagbcs,flag3d
 integer::na_max,la_max,ja_max,nb_max,lb_max,jb_max,iplot,flagext
 double precision::homega,bosc,g_pair
 integer,allocatable::exttag(:,:,:)
@@ -33,6 +33,7 @@ read(1,'(10x,i5)') flagbcs
 read(1,'(10x,f10.4)') g_pair
 read(1,'(10x,i5)') iplot
 read(1,'(10x,i5)') flagext
+read(1,'(10x,i5)') flag3d
 nbase = nbase
 ntx = (nbase + 2)*(nbase +3)
 ntx = ntx/2-1

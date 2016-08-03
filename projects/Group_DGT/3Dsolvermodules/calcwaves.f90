@@ -13,12 +13,12 @@ contains
 ! Edown0 = initial lower boundary for energy
 ! epsil = demanded precision
 ! pott = 
-! trialwf = trial wavefunction
+! trialU = trial wavefunction
 ! Etrial = energy of trial wavefunction
 !=========================================================
 !wave function calculation
          subroutine wavef(points,meshsize, n_rad,l, Eup0, Edown0, epsil, pott, &
-                 trialwf, Etrial) 
+                 trialU, Etrial) 
          use variables
          implicit none
          REAL(kind=dp), INTENT(IN) :: Eup0, Edown0, epsil
@@ -29,7 +29,7 @@ contains
          integer:: converg, kk
          integer :: Nodecount , ifail, i, idir, imin, imax, kpot
          REAL(kind=dp) :: a1, a2, a3, normal, Eexp, rcentr
-         REAL(kind=dp), DIMENSION(0:points), INTENT(OUT) :: trialwf
+         REAL(kind=dp), DIMENSION(0:points), INTENT(OUT) :: trialU
          REAL(kind=dp) :: pot, a, Vvalue
          REAL(kind=dp) , DIMENSION(0:points), INTENT(IN) :: pott
 !
@@ -48,12 +48,13 @@ contains
 !
            idir=1
            do i=0,imin-1
-              trialwf(i)=0.0E0_dp!meshsize**(l+1)
+              trialU(i)=0.0E0_dp!meshsize**(l+1)
            end do
+
 !           if(l .eq. 0) then
-!           trialwf(0)=meshsize**(l+1)
+!           trialU(0)=meshsize**(l+1)
 !           end if
-           trialwf(imin)=meshsize**(l+1)
+           trialU(imin)=meshsize**(l+1)
            imax=points-1
 
 !loop until convergence
@@ -69,16 +70,16 @@ contains
            a1= 2.0E0_dp*(1.0E0_dp-5.0E0_dp/12.0E0_dp*pot*meshsize**2)
            a2=(1.0E0_dp+1.0E0_dp/12.0E0_dp*pot*meshsize**2)
            a3=(1.0E0_dp+1.0E0_dp/12.0E0_dp*pot*meshsize**2)
-           trialwf(i+idir)= (a1*trialwf(i)-a2*trialwf(i-idir))/a3
+           trialU(i+idir)= (a1*trialU(i)-a2*trialU(i-idir))/a3
          end do
 
 ! counting nodes
          Nodecount=0    
          do i=1,points
-           if(trialwf(i-1)*trialwf(i) .lt. 0.0E0_dp) &
+           if(trialU(i-1)*trialU(i) .lt. 0.0E0_dp) &
              Nodecount= Nodecount+1
          end do 
-         if(trialwf(points-1)*trialwf(points) .lt. 0.0E0_dp) &
+         if(trialU(points-1)*trialU(points) .lt. 0.0E0_dp) &
              Nodecount= Nodecount-1 
 !         print*, Nodecount
 
@@ -110,13 +111,13 @@ contains
 ! Edown0 = initial lower boundary for energy
 ! epsil = demanded precision
 ! pott = 
-! trialwf = trial wavefunction
+! trialU = trial wavefunction
 ! Etrial = energy of trial wavefunction
 !============================================================
 ! 
 
          subroutine parwf(points,meshsize, n_rad, l, numN, numZ, Etrial, &
-                    epsil, pott, trialwf) 
+                    epsil, pott, trialU) 
          use variables
          implicit none
          REAL(kind=dp), INTENT(IN) :: Etrial, epsil
@@ -126,24 +127,17 @@ contains
          integer, INTENT(IN):: points
          integer :: Nodecount , ifail, i, idir, imin, imax, converg, i_sur
          REAL(kind=dp) :: a1, a2, a3, normal, normalr, normall, rcentr
-         REAL(kind=dp), DIMENSION(0:points), INTENT(OUT) :: trialwf
+         REAL(kind=dp), DIMENSION(0:points), INTENT(OUT) :: trialU
          REAL(kind=dp), DIMENSION(0:points) ::  triall, trialr
          REAL(kind=dp) :: pot, surf
          REAL(kind=dp), DIMENSION(0:points), INTENT(IN) :: pott
          REAL(kind=dp) :: derivr, derivl, contir, contil, coeff
 !
 ! half left wavefunction
-!         allocate(triall(0:points), stat = ifail)
-!         if (ifail .ne. 0) STOP 
-!           
-!            if (l .gt. 0) then
-!             rcentr=sqrt(Etrial/(l*(l+1))/hb2m)
-!             imin=int(rcentr/meshsize)
-!           else
-             imin=1
-!           end if
-!
-           idir=1
+
+            imin=1
+	    idir=1
+
 !           do i=0,imin-1
               triall(0)=0.0E0_dp!meshsize**(l+1)
 !           end do
@@ -158,23 +152,17 @@ contains
          end do
 !
 ! half right wavefunction
-!         allocate(trialr(0:points), stat = ifail)
-!         if (ifail .ne. 0) STOP
-!
-!           if (l .gt. 5) then
-!             rcentr=sqrt(Etrial/(l*(l+1))/hb2m)
-!             imin=int(rcentr/meshsize)
-!           else
-             imin=1
- !          end if
-!
+           imin=1
            idir=-1
+
 !           do i=0,imin-1
               trialr(0)=0.0E0_dp!meshsize**(l+1)
 !           end do
+
            imax=points-1
            trialr(points)=0.0E0_dp
            trialr(points-1)= (100.**n_rad)*1.0E-8_dp
+
          do i=imax,imin+1,idir
            pot=(Etrial-pott(i))/hb2m !insert V if V=0
            a1= 2.0E0_dp*(1.0E0_dp-5.0E0_dp/12.0E0_dp*pot*meshsize**2)
@@ -182,6 +170,7 @@ contains
            a3=(1.0E0_dp+1.0E0_dp/12.0E0_dp*pot*meshsize**2)
            trialr(i+idir)= (a1*trialr(i)-a2*trialr(i-idir))/a3
          end do
+
 ! calculating derivatives and wave function values at "surface" point
            surf=1.25E0_dp*(numN+numZ)**(1.0E0_dp/3.0E0_dp)
 !           print*, surf
@@ -197,19 +186,7 @@ contains
 !
          converg=0
          do while(converg .ne. 1)
-!
-!         normall=0.0E0_dp
-!         do i=1,(points+1)/2
-!            normall = normall + triall(i)**2*meshsize
-!         end do
-!         print*, "normal L=", normall
-!         triall(:)=triall(:)/sqrt(normall*2)
-!         normalr=0.0E0_dp
-!         do i=points-1,(points+1)/2,-1
-!            normalr = normalr + trialr(i)**2*meshsize
-!         end do
-!         print*, "normal R=",normalr
-!         trialr(:)=trialr(:)/sqrt(normalr*2)
+
 !
 !
             !if(derivr .lt. 1.0E-10_dp) then
@@ -218,8 +195,10 @@ contains
 !              print*, "left derivative =", derivl
 !              print*, "right derivative =", derivr
           !  end if
+
             coeff= contil/contir
 !              print*, "coefficient =", coeff
+
             trialr(:)= coeff*trialr(:)
 !            triall(:)=derivr*triall(:)
 !            trialr(:)=derivl*trialr(:)
@@ -251,14 +230,14 @@ contains
 !
           end do
 !
-!         allocate(trialwf(0:points), stat = ifail)
+!         allocate(trialU(0:points), stat = ifail)
 !         if (ifail .ne. 0) STOP           
 !
            do i=0,i_sur
-              trialwf(i)= triall(i)
+              trialU(i)= triall(i)
            end do
            do i=i_sur+1, points
-              trialwf(i)= trialr(i)
+              trialU(i)= trialr(i)
            end do
          end subroutine parwf
 

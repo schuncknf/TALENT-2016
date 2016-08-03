@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/james/Dropbox/TALENT/TALENT2016/YBM/MGES/HF/Esercizio.C
+Esercizio.h
+/home/james/Dropbox/TALENT/TALENT2016/YBM/MGES/HF/Esercizio.h
+star.h
+/home/james/Dropbox/TALENT/TALENT2016/YBM/MGES/HF/star.h
+
+/home/james/Dropbox/TALENT/TALENT2016/YBM/MGES/HF/Esercizio.h
+iostream
+-
+cmath
+-
+vector
+-
+fstream
+-
+ostream
+-
+sstream
+-
+iomanip
+-
+algorithm
+-
+
+/home/james/Dropbox/TALENT/TALENT2016/YBM/MGES/HF/star.h
+

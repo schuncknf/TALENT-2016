@@ -41,9 +41,9 @@ void HartreeFock::run()
       {
         for (int _2j = 2 * l + 1; (_2j >= 2 * l - 1 ) && (_2j > 0); _2j -= 2)
         {
-          std::vector<long long unsigned int> v;
+          std::vector<arma::uword> v;
 
-          for (unsigned int i = 0; i < fullSpBasis.qNumbers.n_elem; i++ )
+          for (unsigned int i = 0; i < fullSpBasis.qNumbers.n_rows; i++ )
           {
             if (fullSpBasis.qNumbers(i, 1) != l)
               continue;
@@ -55,12 +55,12 @@ void HartreeFock::run()
           }
 
           arma::uvec vv(v);
-          arma::mat subH = H.submat( vv, vv);
+          arma::mat subH = H( vv, vv);
           arma::mat subD ;
           arma::vec subE ;
           arma::eig_sym(subE, subD, subH);
           new_indivE.elem(vv) = subE;
-          D(pType).submat(vv, vv) = subD;
+          D(pType)(vv, vv) = subD;
         }
       }
     }
