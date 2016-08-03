@@ -14,7 +14,7 @@ contains
     real(wp) :: tot1=0.0d0,tot2=0.0d0
     real(wp) :: xmix, ymix
 
-    xmix = 0.4
+    xmix = 0.2
     ymix = 1.-xmix
 
     do iq = 1,2

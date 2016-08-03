@@ -1,1 +1,32 @@
-   0.00000000    
+ Iteration:           1 Convergence:   856216134.17260778     
+ Iteration:           2 Convergence:   4.8333359300262373     
+ Iteration:           3 Convergence:   1.2973177926585890     
+ Iteration:           4 Convergence:  0.47643561429097758     
+ Iteration:           5 Convergence:  0.19024056965167802     
+ Iteration:           6 Convergence:   8.2136046487136127E-002
+ Iteration:           7 Convergence:   3.6846295594472167E-002
+ Iteration:           8 Convergence:   1.7289195313281880E-002
+ Iteration:           9 Convergence:   8.4508654607304834E-003
+ Iteration:          10 Convergence:   4.3335745461092756E-003
+ Iteration:          11 Convergence:   2.3321471289818874E-003
+ Iteration:          12 Convergence:   1.3168492938859799E-003
+ Iteration:          13 Convergence:   7.7616292153948052E-004
+ Iteration:          14 Convergence:   4.7420982642165654E-004
+ Iteration:          15 Convergence:   2.9792195988420644E-004
+ Iteration:          16 Convergence:   1.9105198848023974E-004
+ Iteration:          17 Convergence:   1.2430814487629505E-004
+ Iteration:          18 Convergence:   8.1687348284731343E-005
+ Iteration:          19 Convergence:   5.4038252699228906E-005
+ Iteration:          20 Convergence:   3.5906800945895156E-005
+ Iteration:          21 Convergence:   2.3925644057953832E-005
+ Single Particle States | 
+ Neutrons | 
+ n=           1 l=           0 is=           2 Energy=  -50.104500370798633     
+ n=           1 l=           1 is=           2 Energy=  -27.591643953928724     
+ n=           1 l=           1 is=           1 Energy=  -25.065291108330712     
+ Protons  | 
+ n=           1 l=           0 is=           2 Energy=  -45.961451396578923     
+ n=           1 l=           1 is=           2 Energy=  -23.804570076754317     
+ n=           1 l=           1 is=           1 Energy=  -21.314855903619900     
+ Total Neutrons =   7.9999999999999947      Total Protons =   7.9999999999999938      vocc:   40.000000000000000     
+ Total Energy =  -654.06010563204086      Total Kinetic Energy:   273.74584113517687     
