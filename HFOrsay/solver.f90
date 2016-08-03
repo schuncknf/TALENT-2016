@@ -1,7 +1,7 @@
 
-!>This routine solve the Hartree-Fock Equations in a spherical basis
-!>We are here using a Block Diagonalisation method
-!>The block are labeled by the quantum numbers (l,j) in the reduced basis
+!>This routine solves the Hartree-Fock Equations in a spherical basis.
+!>We are here using a Block Diagonalisation method.
+!>The block are labeled by the quantum numbers (l,j) in the reduced basis.
 subroutine solver(pr)
 use basis
 use maths
