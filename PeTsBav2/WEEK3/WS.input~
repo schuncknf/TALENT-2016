@@ -8,6 +8,8 @@ R_box= 20., h= 0.1,  /
 E_minus=-80., E_plus=10/
 &max_quantum_number
 n_max=4, l_max=5/
+&Skyrme
+t0=-1132.4d0 , t3= 23610.40d0, alpha=1.d0/
 &WoodSaxon
 r0=1.27, a=0.67/
 

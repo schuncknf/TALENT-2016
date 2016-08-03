@@ -1,4 +1,4 @@
-!>Just a printing routine to the "hforsay.out" file
+!>Just a printing routine to the "hforsay.out" file.
 subroutine printer(n,hfenergy,hfenergybcs,v2,esp,partnum,pr)
 use constants
 use bcs
