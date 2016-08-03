@@ -334,8 +334,8 @@ int main(){
 		}
 		integral = integralKin + integralSky;
 
-		cout << integral << "\t" << old_integral-integral << endl;
-		cout << integralKin << "\t" << integralSky << "\t" << endl;
+		// cout << "Kinetic energy:\t" integralKin << integralSky << "\t" << endl;
+		// cout << integral << "\t" << old_integral-integral << endl;
 	}
 
 
@@ -362,6 +362,8 @@ int main(){
 		}
 	}
 	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
+
+	cout << "Total energy:\t" << integral << endl;
 
 	//star();
 
