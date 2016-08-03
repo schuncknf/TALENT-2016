@@ -1,12 +1,12 @@
-!> A module wich contains variables for BCS calculation
+!> A module which contains variables for BCS calculation.
 module bcs
 double precision::x2,gap
 contains
-!> This pairing routine allow the computation of the new occ. number after BCS convergency
-!> \param n The number of the states considered for routine
-!> \param spener an array containing the n ordered single particles energies
-!> \param v2 The array containing the <b>normalized</b> occupation numbers 
-!> \param lpr a logical flag to print the convergency pattern of the chemical potential
+!> This pairing routine allows the computation of the new occupational number after BCS convergency.
+!> \param n is the number of the states considered for routine.
+!> \param spener is he array containing n ordered singleparticle energies.
+!> \param v2 is the array containing the <b>normalized</b> occupation numbers. 
+!> \param lpr is the logical flag for printing the convergency pattern of the chemical potential.
 subroutine pairing(n,spener,v2,lpr)
 use constants
 use basis
@@ -60,11 +60,11 @@ enddo
 end subroutine
 
 
-!> A function computing the BCS kernel (The number equation)
-!> \param n The number of BCS states
-!> \param spener an array containing the n ordered single particles energies
-!> \param gap a variable giving the BCS gap 
-!> \param the too be computed checmical potential
+!> A function computing the BCS kernel (the number equation).
+!> \param n is the number of BCS states.
+!> \param spener is an array containing n ordered singleparticle energies.
+!> \param gap is a variable determining the BCS gap. 
+!> \param lambda is chemical potential to be computed.
 function bcs_lambda(n,spener,gap,lambda) result(nbcs)
 use basis
 use maths
