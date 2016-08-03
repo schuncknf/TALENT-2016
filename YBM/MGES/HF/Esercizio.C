@@ -363,14 +363,9 @@ int main(){
 	}
 	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
 
-	cout << fixed << setprecision(12) << "Total energy:\t" << integral << endl;
+	cout << "Total energy:\t" << integral << endl;
 
-	ofstream opFile;
-	opFile.open("densities.dat");
-	for(int i=1; i<n_step_width_box+1; i++) opFile << i*h_width << "\t" << density_proton[i]+density_neutron[i] << "\t" << density_proton[i] << "\t" << density_neutron[i] << endl;
-	opFile.close();
-
-	star();
+	//star();
 
 
 //Routine to obtain proton density, and the sum of both

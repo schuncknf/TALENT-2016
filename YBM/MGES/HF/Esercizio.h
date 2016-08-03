@@ -22,8 +22,8 @@
 	#define x3 0
 
 	// System parameters
-	#define width_box 22.
-	#define h_width 0.01 // mesh spacing
+	#define width_box 20.
+	#define h_width 0.02 // mesh spacing
 	#define r0 1.27
 
 	// Nucleons numbers
