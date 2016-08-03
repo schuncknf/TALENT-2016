@@ -1,34 +1,37 @@
- Iteration:           1 Convergence:   26.416200413182818     
- Iteration:           2 Convergence:   143.99649302258254     
- Iteration:           3 Convergence:   9.3652273059173723     
- Iteration:           4 Convergence:  0.90289409023328915     
- Iteration:           5 Convergence:  0.12280298163234704     
- Iteration:           6 Convergence:   2.6372472921352141E-002
- Iteration:           7 Convergence:   8.2264035756480780E-003
- Iteration:           8 Convergence:   2.8729276394869885E-003
- Iteration:           9 Convergence:   1.0657537941369810E-003
- Iteration:          10 Convergence:   4.1266301846576425E-004
- Iteration:          11 Convergence:   1.6512681617086855E-004
- Iteration:          12 Convergence:   6.7831209406676862E-005
- Iteration:          13 Convergence:   2.8469601971892189E-005
- Iteration:          14 Convergence:   1.2165903029881520E-005
- Iteration:          15 Convergence:   5.2787633819662005E-006
- Iteration:          16 Convergence:   2.3204690364764247E-006
- Iteration:          17 Convergence:   1.0314923315490887E-006
- Iteration:          18 Convergence:   4.6289969191093405E-007
- Iteration:          19 Convergence:   2.0946703216395690E-007
- Iteration:          20 Convergence:   9.5422592494287528E-008
- Iteration:          21 Convergence:   4.3739703414757969E-008
- Iteration:          22 Convergence:   2.0141925460848142E-008
- Iteration:          23 Convergence:   9.3194501005200436E-009
+ Iteration:           1 Convergence:   24.323458284635819     
+ Iteration:           2 Convergence:   145.63885428569307     
+ Iteration:           3 Convergence:   6.9292858455579847     
+ Iteration:           4 Convergence:  0.31142696577350648     
+ Iteration:           5 Convergence:  0.12451738245812294     
+ Iteration:           6 Convergence:   5.2385587945479983E-002
+ Iteration:           7 Convergence:   2.2550093003104621E-002
+ Iteration:           8 Convergence:   9.8318301073163639E-003
+ Iteration:           9 Convergence:   4.3213496803105045E-003
+ Iteration:          10 Convergence:   1.9098031299336071E-003
+ Iteration:          11 Convergence:   8.4736733904833272E-004
+ Iteration:          12 Convergence:   3.7708151666038248E-004
+ Iteration:          13 Convergence:   1.6818293497067316E-004
+ Iteration:          14 Convergence:   7.5144649770209071E-005
+ Iteration:          15 Convergence:   3.3622067462601990E-005
+ Iteration:          16 Convergence:   1.5060489289453471E-005
+ Iteration:          17 Convergence:   6.7522262554575718E-006
+ Iteration:          18 Convergence:   3.0295217925413453E-006
+ Iteration:          19 Convergence:   1.3600658803625265E-006
+ Iteration:          20 Convergence:   6.1088522329555417E-007
+ Iteration:          21 Convergence:   2.7449789286038140E-007
+ Iteration:          22 Convergence:   1.2338514920884336E-007
+ Iteration:          23 Convergence:   5.5477812566095963E-008
+ Iteration:          24 Convergence:   2.4951447130661109E-008
+ Iteration:          25 Convergence:   1.1226575225009583E-008
+ Iteration:          26 Convergence:   5.0511630433902610E-009
  Single Particle States | 
  Neutrons | 
- n=           1 l=           0 is=           1 Energy=  -36.063809698680416     
- n=           1 l=           1 is=           2 Energy=  -20.555208186851814     
- n=           1 l=           1 is=           1 Energy=  -14.429995330283418     
+ n=           1 l=           0 is=           1 Energy=  -26.516207220265642     
+ n=           1 l=           1 is=           2 Energy=  -15.711086575174704     
+ n=           1 l=           1 is=           1 Energy=  -15.711055422434583     
  Protons  | 
- n=           1 l=           0 is=           1 Energy=  -32.272941741393879     
- n=           1 l=           1 is=           2 Energy=  -17.082938546082005     
- n=           1 l=           1 is=           1 Energy=  -11.085738841211423     
- Total Neutrons =   8.0000000000000142      Total Protons =   8.0000000000000000     
- Total Energy =   0.00000000     Total Kinetic Energy:   0.00000000    
+ n=           1 l=           0 is=           1 Energy=  -22.939747310010716     
+ n=           1 l=           1 is=           2 Energy=  -12.318568391492590     
+ n=           1 l=           1 is=           1 Energy=  -12.318537308601663     
+ Total Neutrons =   7.9999999999999964      Total Protons =   8.0000000000000000     
+ Total Energy =  -128.77315356499940      Total Kinetic Energy:   223.65736970955848     
