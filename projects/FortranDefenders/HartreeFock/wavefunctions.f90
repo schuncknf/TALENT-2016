@@ -17,9 +17,9 @@ contains
         else
         npr = np
         end if
-        rho(:,iq)=0.
-        tau(:,iq)=0.
-        jsc(:,iq)=0.
+        rho(:,iq)=small
+        tau(:,iq)=small
+        jsc(:,iq)=small
         do i = 1, npr
            if (sortenergies(i,iq) < - small) then
              n = sortstates(i,1,iq)
