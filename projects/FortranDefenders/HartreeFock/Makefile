@@ -1,5 +1,5 @@
 CC	= gfortran#ifort #gfortran
-CFLAGS	=  -Ofast#-Ofast#-g -fbounds-check -Wall -ffpe-trap=invalid
+CFLAGS	=  -g -fbounds-check -Wall -ffpe-trap=invalid#-Ofast#-g -fbounds-check -Wall -ffpe-trap=invalid
 
 LDFLAGS	=
 EXEC	= main

@@ -50,7 +50,7 @@ contains
                       if (iq .EQ. 1) then
                          potential(ir) = temp1(ir) + Etrial/umr(ir,1)
                       else
-                         potential(ir) = temp1(ir) - (ucoul(ir) - Etrial)/umr(ir,1)
+                         potential(ir) = temp1(ir) - (ucoul(ir) - Etrial)/umr(ir,2)
                       end if
                     end do
 
