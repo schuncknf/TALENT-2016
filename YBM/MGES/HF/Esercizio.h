@@ -23,7 +23,7 @@
 
 	// System parameters
 	#define width_box 22.
-	#define h_width 0.01 // mesh spacing
+	#define h_width 0.1 // mesh spacing
 	#define r0 1.27
 
 	// Nucleons numbers

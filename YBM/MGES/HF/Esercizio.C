@@ -5,7 +5,6 @@ int main(){
 
 
 	// Declaration of constants and variables
-
 	int n_step_width_box = width_box/h_width;
 	vector<double> wave_val;	// Vector for storing e'functions during
 	vector<double> wfWork;	// Vector for storing e'function and then normalising
@@ -36,6 +35,8 @@ int main(){
     ifstream myneutron, myproton;
     myneutron.open("Oxy_density_neutron.txt");
     myproton.open("Oxy_density_proton.txt");
+
+	cout << __LINE__ << endl;
 
 	for(int i=0; i<n_step_width_box+1; i++){
 		density_proton[i] = 0.;
@@ -297,7 +298,6 @@ int main(){
 				density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
 		}
 
-
 		// Calculate total energy of system using kinetic and Skyrme densities
 
 		// Calculate the kinetic density
@@ -334,8 +334,8 @@ int main(){
 		}
 		integral = integralKin + integralSky;
 
-		cout << integral << "\t" << old_integral-integral << endl;
-		cout << integralKin << "\t" << integralSky << "\t" << endl;
+		// cout << "Kinetic energy:\t" integralKin << integralSky << "\t" << endl;
+		// cout << integral << "\t" << old_integral-integral << endl;
 	}
 
 
@@ -363,7 +363,14 @@ int main(){
 	}
 	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
 
-	//star();
+	cout << fixed << setprecision(12) << "Total energy:\t" << integral << endl;
+
+	ofstream opFile;
+	opFile.open("densities.dat");
+	for(int i=1; i<n_step_width_box+1; i++) opFile << i*h_width << "\t" << density_proton[i]+density_neutron[i] << "\t" << density_proton[i] << "\t" << density_neutron[i] << endl;
+	opFile.close();
+
+	star();
 
 
 //Routine to obtain proton density, and the sum of both
