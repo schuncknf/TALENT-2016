@@ -13,46 +13,44 @@ contains
 
     integer :: i, ir, nnodes,l, is, iq, n,iter
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff,oldtotenergy,currentconv
-    real(wp), allocatable :: potential(:),vocc(:,:,:,:)
+    real(wp), allocatable :: potential(:),vocc(:,:,:,:),temp1(:)
 
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
 
     oldtotenergy = 0.0
     wfr(:,:,:,:,:) = 0.0
     !Main loop begins here; be careful
-    allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
+    allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2),temp1(0:nbox))
     do iter = 1,itermax
       if(iter>1) then
         call build_fields
         !stop
       end if
       call totenergy
+      if(iter==1) totfunct=0.
       oldtotenergy = totfunct
       do iq =1,2
-        do n =1,lmax-2
+        do is =1,2
           do l =0,lmax
-              do is = 1,2
+              do n = 1,lmax-2
                   j = l + spin(is)
                   if (l==0) j=0.5
                   ! Bound States only
                   Eupper = 100_wp
                   Elower = -100._wp
-                  !print *, umr(200,1), umr(200,2),dumr(200,1),dumr(200,2),d2umr(200,1),d2umr(200,2)
+                  temp1(:) = -0.25*(dumr(:,iq)/umr(:,iq))**2&
+                  +(-uc(:,iq) -ucso(:,iq)-udd(:,iq)-uso(:,iq)*(j*(j+1)- l*(l+1) - 0.75) &
+                  -dumr(:,iq)/mesh(:) - umr(:,iq)*l*(l+1)/mesh(:)**2)/umr(:,iq)&
+                  -0.5*(d2umr(:,iq)*umr(:,iq) - dumr(:,iq)**2)/(umr(:,iq)**2)
                   do i=1,1000000
                     ! Trial Energy for Numerov Algorithm
                     Etrial = (Eupper+Elower)/2.0
                     do ir=0,nbox
                       ! Isospin dependent potential using matrices from before
                       if (iq .EQ. 1) then
-                         potential(ir) = -0.25*(dumr(ir,1)/umr(ir,1))**2&
-                         +(-uc(ir,1) -ucso(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
-                         -dumr(ir,1)/mesh(ir) - umr(ir,1)*l*(l+1)/mesh(ir)**2+Etrial)/umr(ir,1)&
-                         -0.5*(d2umr(ir,1)*umr(ir,1) - dumr(ir,1)**2)/(umr(ir,1)**2)
+                         potential(ir) = temp1(ir) + Etrial/umr(ir,1)
                       else
-                         potential(ir) = -0.25*(dumr(ir,2)/umr(ir,2))**2&
-                         +(-uc(ir,2)-ucso(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
-                         -dumr(ir,2)/mesh(ir)-ucoul(ir)-umr(ir,2)*l*(l+1)/mesh(ir)**2+Etrial)/umr(ir,2)&
-                         -0.5*(d2umr(ir,2)*umr(ir,2) - dumr(ir,2)**2)/(umr(ir,2)**2)
+                         potential(ir) = temp1(ir) - (ucoul(ir) - Etrial)/umr(ir,2)
                       end if
                     end do
 

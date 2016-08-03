@@ -206,7 +206,7 @@ do ipart=1, 2 !1=neutrons, 2=protons
       dens_n(:) = dens_n(:) + Nn_l*abs(all_wavefunction(orbital_tmp+1,:))**2/(4d0*pi)
       
       dens_t(:) = dens_t(:) + dens_n(:)
-      do i=1,Nmesh-1
+      do i=1,Nmesh
          x = i*h
          write(12,'(2f15.8)') x, dens_n(i)/x**2 
       end do

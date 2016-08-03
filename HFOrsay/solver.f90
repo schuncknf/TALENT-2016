@@ -1,7 +1,7 @@
 
-!>This routine solve the Hartree-Fock Equations in a spherical basis
-!>We are here using a Block Diagonalisation method
-!>The block are labeled by the quantum numbers (l,j) in the reduced basis
+!>This routine solves the Hartree-Fock Equations in a spherical basis.
+!>We are here using a Block Diagonalisation method.
+!>The block are labeled by the quantum numbers (l,j) in the reduced basis.
 subroutine solver(pr)
 use basis
 use maths
@@ -19,9 +19,11 @@ double precision,allocatable::rho(:,:,:,:),eigvec(:,:,:,:),gama(:,:,:,:)
 double precision,allocatable::t(:,:,:),h(:,:,:,:),eigval(:,:,:),work(:)
 double precision,allocatable::conv(:,:,:),v2(:),esp(:),qesp(:)
 double precision::diff,hfenergy,partnum,kinenergy,hfenergybcs
+double precision,allocatable::rhobcs(:,:,:,:)
 
 sizebloc=maxval(n_red) + 1
 allocate(rho(lmin:lmax,jmin:jmax,sizebloc,sizebloc))
+allocate(rhobcs(lmin:lmax,jmin:jmax,sizebloc,sizebloc))
 allocate(gama(lmin:lmax,jmin:jmax,sizebloc,sizebloc))
 allocate(eigvec(lmin:lmax,jmin:jmax,sizebloc,sizebloc))
 allocate(h(lmin:lmax,jmin:jmax,sizebloc,sizebloc))
@@ -116,7 +118,7 @@ endif
   do q = 1,sizebloc
         esp(tag_hf(q-1,l,j)) = eigval(l,j,q)
         if (nocc(tag_hf(q-1,l,j)) .ne. 0.d0) then
-        v2(tag_hf(q-1,l,j)) = nocc(tag_hf(q-1,l,j))
+        v2(tag_hf(q-1,l,j)) = 1.d0
         else
         v2(tag_hf(q-1,l,j)) = 0.d0
         endif
@@ -133,7 +135,8 @@ write(*,*) "Hartree-Fock Energy",hfenergy
 !Pairing part
 if (flagbcs .eq. 1) then
 write(*,*) "BCS Computation"
-call pairing(red_size,esp,v2,.false.)
+call pairing(red_size,esp,v2,rhobcs,.false.)
+rho = rhobcs
 partnum = two*sum(v2,red_size)
 hfenergybcs = 0.d0
 do k=1,red_size
@@ -145,10 +148,11 @@ endif
 write(*,*) "Particles Number",partnum
 !Printing out in a file
 call printer(red_size,hfenergy,hfenergybcs,v2,esp,partnum,pr)
+if (iplot .eq. 1) call spatial_rho(rho)
 
 
 ! Memory deallocation -------------------------
-deallocate(rho,h,t,gama,work,conv)
+deallocate(rho,h,t,gama,work,conv,rhobcs)
 deallocate(esp,qesp)
 end subroutine
 

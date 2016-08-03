@@ -12,13 +12,14 @@ contains
     real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew,dumrnew,d2umrnew
     real(wp), dimension(0:nbox) :: ucoulnew
     real(wp) :: tot1=0.0d0,tot2=0.0d0
-    real(wp) :: xmix, ymix
+    real(wp) :: xmix, ymix,a,b,c
 
     xmix = 0.4
     ymix = 1.-xmix
 
     do iq = 1,2
      do ir = 0,nbox
+
     !!Central Field U(r)
              ucnew(ir,iq) = 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
                             + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
@@ -31,14 +32,14 @@ contains
              dumrnew(ir,iq) = (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
              d2umrnew(ir,iq) = (a0tau0-a1tau1)*ddrho(ir,3) + 2 * a1tau1*ddrho(ir,iq)
     !! t3 part of U(r)
-             uddnew(ir,iq) = ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
-                           +2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
-                           + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
+              uddnew(ir,iq) = ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
+                            +2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1.) &
+                            + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
      !!spin-orbit part
              usonew(ir,iq) = - (cso0-cso1 )*drho(ir,3)/mesh(ir) &
                              - 2 *cso1 * drho(ir,iq) / mesh(ir)
              if (j2terms) then
-             usonew(ir,iq) = -(a0t0-a1t1) *jsc(ir,3) / mesh(ir) &
+             usonew(ir,iq) = usonew(ir,iq)-(a0t0-a1t1) *jsc(ir,3) / mesh(ir) &
                              - 2 *a1t1 * jsc(ir,iq) / mesh(ir)
              end if
      !!coulomb
@@ -137,12 +138,12 @@ contains
         end if
       end do
     end do
-    totalenergy = (totalenergy + kinetic(1) + kinetic(2))/2.&
-                -4*pi*h*t3*sum(mesh(:)**2 * (rho(:,3)**sig &
-                *(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.&
-                -e2*(3./pi)**(1./3.)*pi*h*sum(mesh(:)**2*rho(:,2)**(4./3.))
+    totalenergy = totfunct !(totalenergy + kinetic(1) + kinetic(2))/2.&
+                !-4*pi*h*t3*sum(mesh(:)**2 * (rho(:,3)**sig &
+                !*(rho(:,3)**2 -(rho(:,1)**2 +rho(:,2)**2)/2.)))/24.&
+                !-e2*(3./pi)**(1./3.)*pi*h*sum(mesh(:)**2*rho(:,2)**(4./3.))
                 !-4*h*pi*t3*0.125*sum(mesh(:)**2 * rho(:,3)*rho(:,1)*rho(:,2))
-    totalkinetic = sum(kinetic(:))
+    totalkinetic = ekin!sum(kinetic(:))
     !print *,totfunct - totalenergy
   end subroutine totenergy
   !> energy_sort sorts the occupied single particle states
