@@ -21,12 +21,21 @@
 
 
 	double skyrme(double rho, double rho_q, double rho_p, double rho_n){
-		return  rho * ((t0/2.)*(2.+x0) + (2.+_a)*(t3/24.)*(2.+x3)*pow(rho,_a)) +
-				rho_q * ((-t0/2.)*(2.*x0+1.) - (t3/12.)*(2.*x3 + 1.)*pow(rho,_a)) +
-				_a * pow(rho,_a-1)*(-t3/24.)*(2.*x3 + 1.) * (pow(rho_p,2) + pow(rho_n,2));
+		return  rho * ( ( (t0/2.) * (2+x0) )  + ( (2+_a) * (t3/24.) * (2+x3) * pow(rho,_a)) )
+				+ rho_q * ( ((-t0/2.) * (2*x0+1)) - ( (t3/12.) * (2*x3 + 1) * pow(rho,_a)) )
+				+ _a * pow(rho,(_a-1)) * ((-t3/24.)*(2*x3 + 1)) * ( (rho_p * rho_p) + (rho_n * rho_n) );
 	}
 
-/*
+
+
+	double skyrme(double rho, double rho_q, double rho_p, double rho_n){
+		return  rho * ( ( (t0/2.) * (2+x0) )  + ( (2+_a) * (t3/24.) * (2+x3) * pow(rho,_a)) )
+				+ rho_q * ( ((-t0/2.) * (2*x0+1)) - ( (t3/12.) * (2*x3 + 1) * pow(rho,_a)) )
+				+ _a * pow(rho,(_a-1)) * ((-t3/24.)*(2*x3 + 1)) * ( (rho_p * rho_p) + (rho_n * rho_n) );
+	}
+
+
+
 	double normalise_HF(double eigen, double n_step_width_box, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1){
 	vector<double> wfWork;
 	wfWork.push_back(0.05);
@@ -38,8 +47,7 @@
 
 	wfWork.clear();
 	return sum;
-	}*/
-	
+	}
 
 /////////////////////OLD THINGS///////////////////////////
 
