@@ -1,3 +1,5 @@
+nox = True
+
 # Basis configuration
 omega = 0.0506779468
 nMax = 5
@@ -11,4 +13,4 @@ nb_neutron = 8
 #nb_proton = 5
 
 solver = "Hartree-Fock"
-convergence = 1.0e-09
+convergence = 1.0e-13
