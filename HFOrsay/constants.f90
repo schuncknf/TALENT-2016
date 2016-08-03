@@ -1,12 +1,10 @@
 module constants
 implicit none
 double precision,parameter::one = 1.d0,two=2.d0,half=0.5d0,zero=0.d0
-!double precision,parameter::pi=3.14159265359
 double precision,parameter::pi=acos(-1.d0)
-!double precision,parameter::bosc=2.03537781d0 !Oscilator length (fm)
 double precision,parameter::hc=197.327d0 ! (MeV*fm)
 double precision,parameter::mneutron =939.57d0
-!definition of the parameters of the t
+!definition of the parameters of the Minesotta potential
 double precision,parameter::kr=1.487d0 !in fm -2
 double precision,parameter::kt=0.639d0 !in fm -2
 double precision,parameter::ks=0.465d0 !in fm -2
@@ -16,7 +14,7 @@ double precision,parameter::v0s=91.85d0 !in MeV
 double precision,parameter::ama = 20.736209412d0 !in (fm**2)
 double precision,parameter::mc2 = 938.90590d0 !in MeV
 integer::nbase,npart,maxit,ngauss,n_lines,ntx,flagbcs
-integer::na_max,la_max,ja_max,nb_max,lb_max,jb_max,iplot
+integer::na_max,la_max,ja_max,nb_max,lb_max,jb_max,iplot,flagext
 double precision::homega,bosc,g_pair
 integer,allocatable::exttag(:,:,:)
 contains
@@ -32,6 +30,7 @@ read(1,'(10x,f10.4)') homega
 read(1,'(10x,i5)') flagbcs
 read(1,'(10x,f10.4)') g_pair
 read(1,'(10x,i5)') iplot
+read(1,'(10x,i5)') flagext
 nbase = nbase
 ntx = (nbase + 2)*(nbase +3)
 ntx = ntx/2-1

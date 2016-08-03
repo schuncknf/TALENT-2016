@@ -14,8 +14,8 @@ LK = ifort -O2 -openmp
 # FFLAGS=-O4 -align dcommons
 # FFLAGS=-O5 -align dcommons -tune host
 
-OBJ =  time.o constants.o maths.o base.o laguerre_polynomial.o lag_pol.o ho.o pot.o matrices.o \
-	 bcs.o solver.o gausslag.o tbme.o hforsay.o\
+OBJ =  constants.o maths.o base.o laguerre_polynomial.o lag_pol.o ho.o pot.o matrices.o \
+	 bcs.o solver.o printer.o gausslag.o tbme.o hforsay.o\
 	
        
 BLDOBJ = $(foreach obj,$(OBJ),$(blddir)/$(obj))
