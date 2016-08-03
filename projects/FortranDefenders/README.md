@@ -6,7 +6,7 @@
 </pre>
 ## Coding for Hono(u)r
 
-![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.pdf)
+![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.png)
 
 
 Welcome to our home in the Repo.
@@ -26,4 +26,4 @@ and then two wavefunctions in the remaining columns. If you want to change which
 
 ***Have Fun!***
 
-*p.s. if you require more instruction, email one of us at kylegodbey(at)gmail.com*
+*p.s. if you require more instruction, email one of us at kylegodbey(at)gmail.com, becker_pierre(at)hotmail.fr*
