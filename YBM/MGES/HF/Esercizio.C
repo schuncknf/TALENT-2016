@@ -1,4 +1,5 @@
 #include "Esercizio.h"
+#include "star.h"
 
 int main(){
 
@@ -320,7 +321,7 @@ int main(){
 	}
 
 
-
+	star();
 
 
 //Routine to obtain proton density, and the sum of both

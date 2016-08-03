@@ -1,11 +1,9 @@
 n0base   =   5              ! Number of osc. shells
-ngauss   =  120	            ! Points for the laguerre-Mesh
-npart   =    8              ! Number of particules 
-maxit    =   30	            ! Maximum iterations number
+ngauss   =  120             ! Points for the laguerre-Mesh
+npart   =    8              ! Number of particules
+maxit    =   30             ! Maximum iterations number
 homega   =    10.00
-bcs      =    1              ! Plug in pairing 
-gpair    =     1.00
+bcs      =    1              ! Plug in pairing
+gpair    =     0.5400
 plot     =    1              ! Ploting Routines
-ext      =    1              ! Using external valid tbme.bin file
-
-
+iflag    =    1              ! From external tbme.bin

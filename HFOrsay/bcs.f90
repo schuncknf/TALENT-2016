@@ -6,21 +6,25 @@ contains
 !> \param n is the number of the states considered for routine.
 !> \param spener is he array containing n ordered singleparticle energies.
 !> \param v2 is the array containing the <b>normalized</b> occupation numbers. 
+!> \param rhobcs The rho matrix computed after BCS  
 !> \param lpr is the logical flag for printing the convergency pattern of the chemical potential.
-subroutine pairing(n,spener,v2,lpr)
+subroutine pairing(n,spener,v2,rhobcs,lpr)
 use constants
 use basis
 implicit none
-integer::i,j,k,l,n
+integer::i,j,k,l,n,jf,q,sizebloc
 integer,parameter::limit=100,itbcs=100
 double precision::x1,x2,x
 double precision::gap_next,e
 double precision::d,step,value
 double precision::spener(n),v2(n)
+double precision::rhobcs(lmin:lmax,jmin:jmax,maxval(n_red) + 1,maxval(n_red) + 1)
 logical::lpr,s
+sizebloc=maxval(n_red) + 1
 e  =1.d-11
 x1 = 10.d0;x2=40.d0
 gap = 1.d0 !MeV
+rhobcs = 0.d0
 i=0
 do k=1,red_size
 enddo
@@ -57,6 +61,29 @@ enddo
 do j=1,red_size
  v2(j) = half*(one-(spener(j)-x2)/(dsqrt((spener(j)-x2)**2+gap**2)))
 enddo
+
+
+! --------- Construction of the matrix density wih BCS solutions
+ do l = lmin,lmax !Construction of the density matrix for all the possible blocks
+  if (l == 0) then
+     jf = 0
+  else
+     jf = 1
+  endif
+  do k=0,jf
+  if (l == 0) then
+    j = 1
+   elseif (k==0) then
+    j = 2*l - 1
+   else
+    j = 2*l+1
+  endif
+    do q=1,sizebloc
+     rhobcs(l,j,q,q) = two*v2(tag_hf(q-1,l,j))
+   enddo !q
+  enddo !j
+  enddo !l
+
 end subroutine
 
 
@@ -80,5 +107,7 @@ do i = 1,red_size
 enddo 
 nbcs = npart - nbcs
 end function
+
+
 
 end

@@ -37,7 +37,7 @@
 	#define maxProtScanE 10.	// energy below which to look for e'functions
 	#define maxNeutScanE 0.
 
-	#define integralPrec 1e-6 // iteration energy convergence
+	#define integralPrec 1e-1 // iteration energy convergence
 
 	// Physical constants
 	#define m_factor 20.73553 // hBar^2/2m
@@ -54,6 +54,7 @@
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
 	double skyrme(double rho, double rho_q, double rho_p, double rho_n);
 	double coulombHF();
+	//int star();
 
 	// Struct for storing all information about an e'function once found (and e'function itself)
 	struct state{

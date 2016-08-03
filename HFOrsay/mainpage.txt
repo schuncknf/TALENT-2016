@@ -24,6 +24,12 @@
  VM-scheme.dat file (for the matrix elements)\n
  spM.dat file (for the basis)\n
 
+@section Results
+ The generated output will be:\n
+ <i>hforsay.out</i> A file which contains a summary of the physical results of the code\n
+ <i>occ.dat</i> A file which contains the index of the state,the single particle energy of this state, the associates v2\n
+ <i>density.dat</i> A file which contains: the position in fm and the density in r-space\n
+ 
 @section Authors
  Petar Marevic\n
  Maxime Mougeot\n
