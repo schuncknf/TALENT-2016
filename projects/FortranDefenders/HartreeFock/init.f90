@@ -86,7 +86,7 @@ contains
      !> Initialization of the grids
      subroutine init_grids
           integer :: i
-          small = 1E-20_wp
+          small = 1E-25_wp
           allocate(mesh(0:nbox))
           mesh = (/ (real(i)*h,i=0,nbox) /)
           mesh(0) = small
