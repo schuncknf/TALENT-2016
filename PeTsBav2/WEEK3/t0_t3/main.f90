@@ -587,7 +587,26 @@ end do
 ! iteration finish
 
 !results
-
+! output energy
+open(11,file='energy_n.dat')
+Nn_tmp = 0
+do orbital_l=1,orbital
+   j_tot = E_data_n(orbital_l,3) + E_data_n(orbital_l,4)
+   Nn_tmp = nint(2d0*j_tot+1)
+   if (E_data_n(orbital_l,1)>=0d0) exit
+   write(11,'(f15.8,2i5,f5.1,i5)') E_data_n(orbital_l,1), nint(E_data_n(orbital_l,2)),&
+        nint(E_data_n(orbital_l,3)), E_data_n(orbital_l,4), Nn_tmp
+end do
+close(11)
+open(11,file='energy_p.dat')
+Np_tmp = 0
+do orbital_l=1,orbital
+   j_tot = E_data_p(orbital_l,3) + E_data_p(orbital_l,4)
+   Np_tmp = nint(2d0*j_tot+1)
+   if (E_data_p(orbital_l,1)>=0d0) exit
+   write(11,'(f15.8,2i5,f5.1,i5)') E_data_p(orbital_l,1), nint(E_data_p(orbital_l,2)),&
+        nint(E_data_p(orbital_l,3)), E_data_p(orbital_l,4), Np_tmp
+end do
 ! write filename of wave_func
 if (output_wave_func) then
    do orbital_l=1,orbital
@@ -627,7 +646,7 @@ deallocate(V_skyrme_p,V_skyrme_n,M_eff_p,M_eff_n,W_p,W_n,g_p,g_n,dg_p,dg_n,f_p,f
 deallocate(psi,u_nlj_p,u_nlj_n)
 deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,dens_p,dens_n,dens)
 
-
+CALL SYSTEM('gnuplot -p data_plot.plt')
 
 end program skyrme
 
