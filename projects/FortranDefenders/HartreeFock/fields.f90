@@ -12,13 +12,14 @@ contains
     real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew,dumrnew,d2umrnew
     real(wp), dimension(0:nbox) :: ucoulnew
     real(wp) :: tot1=0.0d0,tot2=0.0d0
-    real(wp) :: xmix, ymix
+    real(wp) :: xmix, ymix,a,b,c
 
     xmix = 0.4
     ymix = 1.-xmix
 
     do iq = 1,2
      do ir = 0,nbox
+
     !!Central Field U(r)
              ucnew(ir,iq) = 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
                             + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
@@ -31,9 +32,9 @@ contains
              dumrnew(ir,iq) = (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
              d2umrnew(ir,iq) = (a0tau0-a1tau1)*ddrho(ir,3) + 2 * a1tau1*ddrho(ir,iq)
     !! t3 part of U(r)
-             uddnew(ir,iq) = ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
-                           +2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
-                           + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
+              uddnew(ir,iq) = ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
+                            +2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1.) &
+                            + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
      !!spin-orbit part
              usonew(ir,iq) = - (cso0-cso1 )*drho(ir,3)/mesh(ir) &
                              - 2 *cso1 * drho(ir,iq) / mesh(ir)

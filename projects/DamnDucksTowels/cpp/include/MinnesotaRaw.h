@@ -5,6 +5,7 @@
 
 #include "Interaction.h"
 #include "FullSpBasis.h"
+#include "TotalFullSpBasis.h"
 
 /// class MinnesotaRaw - Class describing the Minnesota pontential when considering all quantum numbers
 class MinnesotaRaw : public Interaction
@@ -17,8 +18,9 @@ public:
   int nParticleTypes;
   // Operations
 public:
-  /// Constructor for the MinnesotaRaw class
+  /// Constructors for the MinnesotaRaw class
   MinnesotaRaw (FullSpBasis &_basis, int _nParticleTypes, std::string _filename);
+  MinnesotaRaw (TotalFullSpBasis &_basis, int _nParticleTypes, std::string _filename);
   /// Destructor
   ~MinnesotaRaw ();
   /// Accesses the matrix elements of the interaction

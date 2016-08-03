@@ -1,4 +1,5 @@
 #include "Esercizio.h"
+#include "star.h"
 
 int main(){
 
@@ -325,6 +326,7 @@ int main(){
 	}
 
 
+<<<<<<< HEAD
 
 	int n_neutron = 0, n_levels = 0;
 	int n_proton = 0, p_levels = 0;
@@ -349,6 +351,9 @@ int main(){
 	}
 	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
 
+=======
+	star();
+>>>>>>> 3d8711f98384033c6c74965f69d91ef05dc21bb1
 
 
 //Routine to obtain proton density, and the sum of both

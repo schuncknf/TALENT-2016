@@ -27,11 +27,12 @@ contains
         !stop
       end if
       call totenergy
+      if(iter==1) totfunct=0.
       oldtotenergy = totfunct
       do iq =1,2
-        do n =1,lmax-2
+        do is =1,2
           do l =0,lmax
-              do is = 1,2
+              do n = 1,lmax-2
                   j = l + spin(is)
                   if (l==0) j=0.5
                   ! Bound States only

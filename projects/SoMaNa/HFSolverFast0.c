@@ -50,7 +50,7 @@
 #define file1 "TBME/spM_n5_l2.dat"//"TBME/spM_n5_l2.dat"
 
 
-struct timeval start_t, end_t, start_t0, end_t0;//Obtaining time for performance check
+//struct timeval start_t, end_t, start_t0, end_t0;//Obtaining time for performance check
 //Two Body Matrix Element matrix, written from input files, initialized with 0
 double TBME[N][N][N][N] = {{{{0}}}};
 //1D index arrays for storing corresponding n,l,m,t quantum numbers of an orbit number ID, according to spM.dat index_j[NStates+1], index_m[NStates+1] will not be used currently
