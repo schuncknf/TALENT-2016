@@ -14,6 +14,7 @@ PROGNAME=main
 objs= globals.o arrange2.o	\
 	simpson.o arrange.o\
 	initial_phi.o Coulomb.o\
+	sub_LU.o BCS.o\
 	main.o\
 #
 .SUFFIXES: .f90 .f	.o
