@@ -37,7 +37,7 @@
 	#define maxProtScanE 10.	// energy below which to look for e'functions
 	#define maxNeutScanE 0.
 
-	#define integralPrec 1e-6 // iteration energy convergence
+	#define integralPrec 1e-1 // iteration energy convergence
 
 	// Physical constants
 	#define m_factor 20.73553 // hBar^2/2m
