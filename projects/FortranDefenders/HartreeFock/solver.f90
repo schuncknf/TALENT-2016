@@ -29,29 +29,26 @@ contains
       call totenergy
       if(iter==1) totfunct=0.
       oldtotenergy = totfunct
+
       do iq =1,2
         do is =1,2
           do l =0,lmax
+              j = l + spin(is)
+              if (l==0) j=0.5
+              temp1(:) = -0.25*(dumr(:,iq)/umr(:,iq))**2&
+              +(-uc(:,iq) -ucso(:,iq)-udd(:,iq)-uso(:,iq)*(j*(j+1)- l*(l+1) - 0.75) &
+              -dumr(:,iq)/mesh(:) + (1-iq)*ucoul(:) - umr(:,iq)*l*(l+1)/mesh(:)**2)/umr(:,iq)&
+              -0.5*(d2umr(:,iq)*umr(:,iq) - dumr(:,iq)**2)/(umr(:,iq)**2)
               do n = 1,lmax-2
-                  j = l + spin(is)
-                  if (l==0) j=0.5
-                  ! Bound States only
-                  Eupper = 100_wp
-                  Elower = -100._wp
-                  temp1(:) = -0.25*(dumr(:,iq)/umr(:,iq))**2&
-                  +(-uc(:,iq) -ucso(:,iq)-udd(:,iq)-uso(:,iq)*(j*(j+1)- l*(l+1) - 0.75) &
-                  -dumr(:,iq)/mesh(:) - umr(:,iq)*l*(l+1)/mesh(:)**2)/umr(:,iq)&
-                  -0.5*(d2umr(:,iq)*umr(:,iq) - dumr(:,iq)**2)/(umr(:,iq)**2)
+                  Eupper = 1_wp
+                  Elower = -80._wp
+
                   do i=1,1000000
                     ! Trial Energy for Numerov Algorithm
                     Etrial = (Eupper+Elower)/2.0
                     do ir=0,nbox
                       ! Isospin dependent potential using matrices from before
-                      if (iq .EQ. 1) then
-                         potential(ir) = temp1(ir) + Etrial/umr(ir,1)
-                      else
-                         potential(ir) = temp1(ir) - (ucoul(ir) - Etrial)/umr(ir,2)
-                      end if
+                         potential(ir) = temp1(ir) + Etrial/umr(ir,iq)
                     end do
 
                     ! Setting initial values for left and right W.F.
@@ -80,7 +77,7 @@ contains
                       if (ir <= njoin) then
                         wfl(ir,n,l,is,iq) = diff * wfl(ir,n,l,is,iq)
                       end if
-                      ! Count the nodes (Except those spurious ones near the boundary)
+                      ! Count the nodes
                       if((wfl(nbox-ir,n,l,is,iq)*wfl(nbox-ir+1,n,l,is,iq) < 0)) nnodes = nnodes+1
                     end do
                     ! Unite the left and right
