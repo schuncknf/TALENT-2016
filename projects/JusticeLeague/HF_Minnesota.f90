@@ -159,7 +159,7 @@ contains
 !! matrix elements, and stores the result in an array such that
 !! \f$V_{i_1i_2i_3i_4}= V_{i_1i_2i_4i_3}=V_{i_2i_1i_3i_4}=V_{i_2i_1i_4i_3}\f$.
 !! Consequnetly, these matrix elements respect fermion
-!! antisymmetry [see HF_truncated_v2.pdf eqns. 17-21].
+!! antisymmetry (see HF_truncated_v2.pdf eqns. 17-21).
  subroutine calculate_TBME
     implicit none
     integer :: n1,n2,n3,n4,i1,i2,i3,i4

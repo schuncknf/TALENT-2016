@@ -5,8 +5,8 @@
 !! consistent part of the calculation, include building the density
 !! matrix \f$\rho_{\mu\nu}\f$ and the single particle potential
 !! \f$\Gamma_{\alpha\beta}\f$, and diagonalizing the Hamiltonian to
-!! extract its eigenvectors and eigenvalues [see pg. 2 of
-!! HF_truncated_v2.pdf].
+!! extract its eigenvectors and eigenvalues (see pg. 2 of
+!! HF_truncated_v2.pdf).
 !---------------------------------------------------------------------
 module HartreeFock
   use :: types
@@ -16,7 +16,7 @@ contains
 
 !> Allocates the arrays which will be used in the Hartree-Fock
 !! calculation, and initializes the matrix \f$D_{\mu i}=\delta{\mu i}\f$
-!! [see eqns. 1, 5 of HF_truncated_v2.pdf].
+!! (see eqns. 1, 5 of HF_truncated_v2.pdf).
   subroutine Initialize_HF
     implicit none
     integer :: i
