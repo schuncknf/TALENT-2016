@@ -73,7 +73,7 @@ int main(){
 
 
 		// Calculate Skyrme potentials from total, proton, and neutron densities
-	    U_skyrme_p.clear();
+	    	U_skyrme_p.clear();
 		U_skyrme_n.clear();
 
 		for(int i=0; i<n_step_width_box; i++){
@@ -82,7 +82,7 @@ int main(){
 			double rn = density_neutron[i];
 			// Inputs are rho, rho_q, rho_p, rho_n
 			U_skyrme_p.push_back(skyrme(r,rp,rp,rn));
-			U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
+			U_skyrme_n.push_back(skyrme(r,rn,rp,rn));	
 		}
 
 
