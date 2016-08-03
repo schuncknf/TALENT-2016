@@ -29,7 +29,7 @@ int main(){
 	state appoggio;
 	vector<state> neutronstates;
 	vector<state> protonstates;
-	
+
 
 	// Read initial densities from files
 
@@ -112,7 +112,7 @@ int main(){
 						wave_val.push_back(wavefn0);
 						wave_val.push_back(wavefn1);
 						for(int i=1; i<n_step_width_box; i++){
-							wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, isospin, U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
+							wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, isospin, U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1], density_proton));
 						}
 
 						// Count nodes in resulting wavefunction
@@ -140,7 +140,7 @@ int main(){
 						wfWork.push_back(wavefn1);
 						double norm = 0.;
 						for(int i=1; i<n_step_width_box+1; i++){
-							wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, isospin,  U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
+							wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, isospin,  U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1], density_proton));
 						}
 						for(int i=1; i<n_step_width_box+1; i++) norm += h_width*pow(wfWork[i],2);
 						wfWork.clear();
@@ -149,7 +149,7 @@ int main(){
 						appoggio.wavefn.push_back(wavefn0/sqrt(norm));
 						appoggio.wavefn.push_back(wavefn1/sqrt(norm));
 						for(int i=1; i<n_step_width_box; i++){
-							appoggio.wavefn.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, isospin, U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1])/sqrt(norm));
+							appoggio.wavefn.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, isospin, U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1], density_proton)/sqrt(norm));
 						}
 						appoggio.eig = Etrial;
 						appoggio.l = L;
@@ -191,7 +191,7 @@ int main(){
 						wave_val.push_back(wavefn0);
 						wave_val.push_back(wavefn1);
 						for(int i=1; i<n_step_width_box; i++){
-							wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
+							wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1], density_proton));
 						}
 
 						// Count nodes in resulting wavefunction
@@ -218,7 +218,7 @@ int main(){
 						wfWork.push_back(wavefn0);
 						wfWork.push_back(wavefn1);
 						double norm = 0.;
-						for(int i=1; i<n_step_width_box; i++) wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, 1./2.,  U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
+						for(int i=1; i<n_step_width_box; i++) wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, 1./2.,  U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1], density_proton));
 						for(int i=1; i<n_step_width_box+1; i++) norm += h_width*pow(wfWork[i],2);
 						wfWork.clear();
 
@@ -226,7 +226,7 @@ int main(){
 						appoggio.wavefn.push_back(wavefn0);
 						appoggio.wavefn.push_back(wavefn1);
 						for(int i=1; i<n_step_width_box; i++){
-							appoggio.wavefn.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1])/sqrt(norm));
+							appoggio.wavefn.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1], density_proton)/sqrt(norm));
 						}
 						appoggio.eig = Etrial;
 						appoggio.l = L;
@@ -240,31 +240,31 @@ int main(){
 		}	// Nodes loop end
 
 
-		int n_neutron = 0, n_levels = 0;
-		int n_proton = 0, p_levels = 0;
-
 		// Sort vectors of neutron and proton states by e'energies
+
+		int n_neutron = 0, n_levels = 0;
 		sort(neutronstates.begin(), neutronstates.end(), compare());
-		cout << "J value\t\t\t" << "Eigenvalue" << endl;
+		// cout << "J value\t\t\t" << "Eigenvalue" << endl;
 		for(int i=0; i<neutronstates.size(); i++){
 			if(n_neutron<N){
-				cout  <<  neutronstates[i].j*2 << "/2\t\t\t" << setprecision(12) << neutronstates[i].eig  <<  endl;
+				// cout  <<  neutronstates[i].j*2 << "/2\t\t\t" << setprecision(12) << neutronstates[i].eig  <<  endl;
 				n_neutron += (2*neutronstates[i].j+1);
 				n_levels ++;
 			}
 		}
-		cout << "Il numero di neutroni richiesto è:" << n_neutron  <<  endl;
+		// cout << "Il numero di neutroni richiesto è:" << n_neutron  <<  endl;
 
+		int n_proton = 0, p_levels = 0;
 		sort(protonstates.begin(), protonstates.end(), compare());
-		cout << "J value\t\t\t" << "Eigenvalue" << endl;
+		// cout << "J value\t\t\t" << "Eigenvalue" << endl;
 		for(int i=0; i<protonstates.size(); i++){
 			if(n_proton<Z){
-				cout  <<  protonstates[i].j*2 << "/2\t\t\t" << setprecision(12) << protonstates[i].eig  <<  endl;
+				// cout  <<  protonstates[i].j*2 << "/2\t\t\t" << setprecision(12) << protonstates[i].eig  <<  endl;
 				n_proton += (2*protonstates[i].j+1);
 				p_levels ++;
 			}
 		}
-		cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
+		// cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
 
 
 		// Calculate new densities for neutrons and protons
@@ -294,7 +294,9 @@ int main(){
 		for(int k=0; k<n_levels; k++){
 			for(int i=2; i<n_step_width_box; i++)
 				K_skyrme[i] += m_factor*(2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((neutronstates[k].wavefn[i]-neutronstates[k].wavefn[i-1])/h_width-neutronstates[k].wavefn[i]/(i*h_width+h_width),2)+
-										neutronstates[k].l*(neutronstates[k].l+1)/pow(i*h_width+h_width,2)*pow(neutronstates[k].wavefn[i],2) );
+										neutronstates[k].l*(neutronstates[k].l+1)/pow(i*h_width+h_width,2)*pow(neutronstates[k].wavefn[i],2) ) 	// kinetic energy of neutrons
+							+ m_factor*(2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((protonstates[k].wavefn[i]-protonstates[k].wavefn[i-1])/h_width-protonstates[k].wavefn[i]/(i*h_width+h_width),2)+
+										protonstates[k].l*(protonstates[k].l+1)/pow(i*h_width+h_width,2)*pow(protonstates[k].wavefn[i],2) ); 	// kinetic energy of protons
 		}
 
 		// Calculate the skyrme density
@@ -312,16 +314,46 @@ int main(){
 
 		// Integral densities to get new total energy 'integral'
 		old_integral = integral;
-		integral = 0.;
+		double integralKin = 0., integralSky = 0.;
 		for(int i=0; i<n_step_width_box+1; i++){
-			integral += 4*M_PI*pow(i*h_width+h_width,2)*(K_skyrme[i]+E_skyrme[i])*h_width;
+			integralKin += 4*M_PI*pow(i*h_width+h_width,2)*K_skyrme[i]*h_width;
+			integralSky += 4*M_PI*pow(i*h_width+h_width,2)*E_skyrme[i]*h_width;
 		}
+		integral = integralKin + integralSky;
 
-		cout<<abs(old_integral)<< "\t" << old_integral-integral << endl;
+		cout << integral << "\t" << old_integral-integral << endl;
+		cout << integralKin << "\t" << integralSky << "\t" << endl;
 	}
 
 
+<<<<<<< HEAD
+
+	int n_neutron = 0, n_levels = 0;
+	int n_proton = 0, p_levels = 0;
+
+	cout << "J value\t\t\t" << "Eigenvalue" << endl;
+	for(int i=0; i<neutronstates.size(); i++){
+		if(n_neutron<N){
+			cout  <<  neutronstates[i].j*2 << "/2\t\t\t" << setprecision(12) << neutronstates[i].eig  <<  endl;
+			n_neutron += (2*neutronstates[i].j+1);
+			n_levels ++;
+		}
+	}
+	cout << "Il numero di neutroni richiesto è:" << n_neutron  <<  endl;
+
+	cout << "J value\t\t\t" << "Eigenvalue" << endl;
+	for(int i=0; i<protonstates.size(); i++){
+		if(n_proton<Z){
+			cout  <<  protonstates[i].j*2 << "/2\t\t\t" << setprecision(12) << protonstates[i].eig  <<  endl;
+			n_proton += (2*protonstates[i].j+1);
+			p_levels ++;
+		}
+	}
+	cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
+
+=======
 	star();
+>>>>>>> 3d8711f98384033c6c74965f69d91ef05dc21bb1
 
 
 //Routine to obtain proton density, and the sum of both

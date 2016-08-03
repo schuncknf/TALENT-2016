@@ -41,7 +41,7 @@ void HartreeFock::run()
       {
         for (int _2j = 2 * l + 1; (_2j >= 2 * l - 1 ) && (_2j > 0); _2j -= 2)
         {
-          std::vector<long long unsigned int> v;
+          std::vector<arma::uword> v;
 
           for (unsigned int i = 0; i < fullSpBasis.qNumbers.n_elem; i++ )
           {
