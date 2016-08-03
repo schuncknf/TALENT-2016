@@ -11,6 +11,7 @@ contains
 subroutine pairing(n,spener,v2,rhobcs,lpr)
 use constants
 use basis
+use maths
 implicit none
 integer::i,j,k,l,n,jf,q,sizebloc
 integer,parameter::limit=100,itbcs=100
@@ -61,7 +62,12 @@ enddo
 do j=1,red_size
  v2(j) = half*(one-(spener(j)-x2)/(dsqrt((spener(j)-x2)**2+gap**2)))
 enddo
-
+open(78,file="occ.dat")
+call sorteigv(red_size,spener,v2)
+do j=1,red_size
+ write(78,'(i3,2f18.12)') j,spener(j),v2(j)
+enddo
+close(78)
 
 ! --------- Construction of the matrix density wih BCS solutions
  do l = lmin,lmax !Construction of the density matrix for all the possible blocks

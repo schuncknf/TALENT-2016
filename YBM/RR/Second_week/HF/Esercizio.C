@@ -282,6 +282,7 @@ do{
 
 ///////////////////////////////////////////////////////////////
 
+cout<<"Kinetic energy:"<<integral_kin<<"\t"<<"Skyrme energy:"<<integral_en<<endl;
 cout<<"Total energy:"<<integral_kin+integral_en<<endl;
 cout<<"Energy difference:"<<abs(old_integral - integral_kin - integral_en)<<endl<<endl;
 iteration++;

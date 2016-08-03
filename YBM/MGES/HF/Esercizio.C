@@ -365,7 +365,7 @@ int main(){
 
 	cout << "Total energy:\t" << integral << endl;
 
-	//star();
+	star();
 
 
 //Routine to obtain proton density, and the sum of both
