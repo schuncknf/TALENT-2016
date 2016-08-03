@@ -32,12 +32,11 @@ contains
              dumrnew(ir,iq) = (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
              d2umrnew(ir,iq) = (a0tau0-a1tau1)*ddrho(ir,3) + 2 * a1tau1*ddrho(ir,iq)
     !! t3 part of U(r)
-              a = ( 2. + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1.)
-              b1 = 2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)
-              b2 = (rho(ir,3)+small)**(sig-1.d0)
-              c = 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
 
-             uddnew(ir,iq) = a+b+c
+
+             uddnew(ir,iq) = ( 2. + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1.)&
+                             +2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*(rho(ir,3)+small)**(sig-1.d0)&
+                             +4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
      !!spin-orbit part
              usonew(ir,iq) = - (cso0-cso1 )*drho(ir,3)/mesh(ir) &
                              - 2 *cso1 * drho(ir,iq) / mesh(ir)
