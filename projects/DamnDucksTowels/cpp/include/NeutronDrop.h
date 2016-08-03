@@ -14,6 +14,7 @@ class NeutronDrop : public System
 public:
   /// Omega parameter for the harmonic part of the Hamiltonian
   double omega;
+  arma::field<arma::mat> TBME;
   // Operations
 public:
   /// Constructor of the NeutronDrop class
