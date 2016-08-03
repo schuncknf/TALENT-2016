@@ -9,7 +9,8 @@ use lag_pol
 implicit none
 integer::i,jf,l,j,n,ir,spatial_mesh
 integer::n1,n2,k,sizebloc
-double precision::r,part_spat,step
+integer::it
+double precision::r,part_spat,step,x,y,t
 double precision::rho(lmin:lmax,jmin:jmax,maxval(n_red) + 1,maxval(n_red) + 1)
 double precision,allocatable::rhor(:)
 sizebloc=maxval(n_red) + 1
@@ -57,4 +58,20 @@ do i=0,spatial_mesh
 enddo
  write(*,*) "Particule Spatial-Density",part_spat
 close(66)
+
+if (flag3d .eq. 1) then
+open(67,file='density3d.dat')
+do ir=0,spatial_mesh
+ r=step*ir
+ do it=0,20
+ t = it/20.d0*2*pi
+ x = r*cos(t)
+ y= r*sin(t)
+ write(67,'(3f18.14)') x,y,rhor(ir)
+ enddo
+ write(67,*)
+enddo
+close(67)
+endif
+
 end subroutine
