@@ -32,7 +32,7 @@ void tbmeprint (double *coeff, int nmesh)
 	
 	galagcoeff= fac_galag_a0(nmesh,bmcoeff);
 		
-	galagcoeffa= fac_galag_a(nmesh,2,bmcoeff);
+	galagcoeffa= fac_galag_a(nmesh,0.5,bmcoeff);
        
         FILE *TBMEOUT, *LABELSTABLE;
         TBMEOUT = fopen("tbme.out", "w");

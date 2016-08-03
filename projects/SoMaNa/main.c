@@ -7,7 +7,7 @@
 #include "read_file.h"
 
 #define MAX_PAR 21
-#define NMESH 25
+#define NMESH 15
 
 int main (void)
 
