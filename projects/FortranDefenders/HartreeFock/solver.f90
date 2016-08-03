@@ -4,7 +4,6 @@ module solver
   use fields
   use wavefunctions
   implicit none
-  real(wp), allocatable :: vocc(:,:,:,:)
 
 contains
   !> statichf performs the Hartree-Fock iterations until the convergence criteria
@@ -14,7 +13,7 @@ contains
 
     integer :: i, ir, nnodes,l, is, iq, n,iter
     real(wp) :: Etrial, Eupper, Elower, a1, a2, a3, b1, b2, b3, norm, j, diff,oldtotenergy,currentconv
-    real(wp), allocatable :: potential(:)
+    real(wp), allocatable :: potential(:),vocc(:,:,:,:)
 
     allocate(potential(0:nbox),vocc(lmax,0:lmax,2,2),energies(lmax,0:lmax,2,2))
 
@@ -23,7 +22,10 @@ contains
     !Main loop begins here; be careful
     allocate(sortenergies(1:nmax,2),sortstates(1:nmax,1:3,2))
     do iter = 1,itermax
-      if(iter>1) call build_fields
+      if(iter>1) then
+        call build_fields
+        !stop
+      end if
       call totenergy
       oldtotenergy = totfunct
       do iq =1,2
@@ -31,7 +33,7 @@ contains
           do l =0,lmax
               do is = 1,2
                   j = l + spin(is)
-                  !if (l==0) j=0.5
+                  if (l==0) j=0.5
                   ! Bound States only
                   Eupper = 100_wp
                   Elower = -100._wp
@@ -93,9 +95,9 @@ contains
                     end if
                     ! If the energies converge on something that is not vpb, select that solution
                     if (abs(Eupper - Elower) < conv) then
-                      if (Etrial < 0 .AND. Etrial > -100.) then
+                      if (Etrial < 0 .AND. Etrial > -100.+.01) then
                             wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/sqrt(umr(:,iq))
-                            vocc(n,l,is,iq) = 2*j+1
+                            vocc(n,l,is,iq) = 2*l+1
                             energies(n,l,is,iq) = etrial
                             norm = sqrt(sum(h*wfr(:,n,l,is,iq)*wfr(:,n,l,is,iq)))
                             wfr(:,n,l,is,iq) = wfr(:,n,l,is,iq)/norm
@@ -112,7 +114,7 @@ contains
         call build_densities
         call totenergy
         currentconv = abs(totfunct - oldtotenergy)
-        write (*,*) "Iteration:",iter,"Convergence:",currentconv
+        write (6,*) "Iteration:",iter,"Convergence:",currentconv
         if (currentconv<conv) exit
 
        end do
