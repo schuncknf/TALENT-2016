@@ -21,9 +21,9 @@
 
 
 	double skyrme(double rho, double rho_q, double rho_p, double rho_n){
-		return  rho * ( ( (t0/2.) * (2+x0) )  + ( (2+_a) * (t3/24.) * (2+x3) * pow(rho,_a)) )
-				+ rho_q * ( ((-t0/2.) * (2*x0+1)) - ( (t3/12.) * (2*x3 + 1) * pow(rho,_a)) )
-				+ _a * pow(rho,_a-1) * ((-t3/24.)*(2*x3 + 1)) * ( (rho_p * rho_p) + (rho_n * rho_n) );
+		return  rho * ((t0/2.)*(2.+x0) + (2.+_a)*(t3/24.)*(2.+x3)*pow(rho,_a)) +
+				rho_q * ((-t0/2.)*(2.*x0+1.) - (t3/12.)*(2.*x3 + 1.)*pow(rho,_a)) +
+				_a * pow(rho,_a-1)*(-t3/24.)*(2.*x3 + 1.) * (pow(rho_p,2) + pow(rho_n,2));
 	}
 
 /*

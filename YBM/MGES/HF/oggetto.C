@@ -26,7 +26,7 @@ double v_HF(double energy, double r, double S, double L, double J, double T, dou
 	}
 	// Protons
 	else if(T==1./2.){
-		return (energy - Vsky - centrifug_term(r,L))/m_factor - coulombHF();
+		return (energy - Vsky - centrifug_term(r,L))/m_factor;
 	}
 }
 
@@ -44,10 +44,7 @@ double skyrme(double rho, double rho_q, double rho_p, double rho_n){
 }
 
 
-double coulombHF(){
-	// Calculate Coulomb contribution to overall potential
-	return 0.;
-}
+
 
 /*
 double normalise_HF(double eigen, double n_step_width_box, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1){

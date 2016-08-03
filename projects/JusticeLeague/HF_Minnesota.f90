@@ -36,7 +36,15 @@ contains
     implicit none
     integer :: i,j
     character(20) :: text
-    integer :: ni,li,ji,mi,tzi
+    integer :: ni,li,ji,mi,tzi,iostatus
+    n_orbitals = -1
+    open(100,file=orbitals_file)
+    do
+       read(100,*, iostat=iostatus) 
+       if(iostatus<0) exit
+       n_orbitals = n_orbitals + 1
+    enddo
+    close(100)
     allocate(HO_inverse(1:n_orbitals))
     allocate(ho_flag(1:n_orbitals))
     allocate(n_ho(1:n_orbitals))
@@ -47,11 +55,8 @@ contains
     allocate(n_hf(1:n_orbitals))
     allocate(l_hf(1:n_orbitals))
     allocate(j_hf(1:n_orbitals))
-!    open(100,file='spM.dat')
-    open(100,file='spM_n5l2.dat')
-    do i = 1,1
-       read(100,*)
-    enddo
+    open(100,file=orbitals_file)
+    read(100,*)
     n_hf = 0
     l_hf = 0
     j_hf = 0
@@ -98,7 +103,7 @@ contains
     allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
     v_mat = 0
 !    open(100,file='VM-scheme.dat')
-    open(100,file='VM-scheme_n5l2.dat')
+    open(100,file=elements_file)
     read(100,*)
     read(100,*)
     do
@@ -126,15 +131,24 @@ contains
 !! \f$\hbar\omega\left(2n+l+\frac{3}{2}\right)\f$.
   subroutine Initialize_Minnseota
     implicit none
-    integer :: i,n,np,l
-    real(dp) :: alpha,xi,xj,wi,wj,A1,A2,A3,A4,s,L1,L2
-    integer, parameter :: Ngauss = 95
-    real(dp), dimension(1:Ngauss) :: w,x
+    integer :: i
     allocate(t_mat(1:Nsize,1:Nsize))
+    if(truncated) then
+       allocate(n_hf(1:nsize))
+       allocate(l_hf(1:nsize))
+       allocate(j_hf(1:nsize))
+       allocate(v_mat(1:Nsize,1:Nsize,1:Nsize,1:Nsize))
+    endif
     t_mat = 0
     do i = 1,nsize
+       if(truncated) then
+          n_hf(i) = i-1
+          l_hf(i) = 0
+          j_hf(i) = 1
+       endif
        t_mat(i,i) = hw*(2*n_hf(i) + l_hf(i) + 1.5_dp)
     enddo
+    if(truncated) call calculate_TBME
   end subroutine Initialize_Minnseota
 
 !> Given the number of particles \f$\texttt{Nparticles}\f$,
@@ -149,7 +163,6 @@ contains
          Noccupied = j
          k=k+1
      elseif (k.gt.Nparticles) then
-         write (*,*) "nOccupied = ", Noccupied
          exit
      endif
     end do
@@ -159,19 +172,19 @@ contains
 !! matrix elements, and stores the result in an array such that
 !! \f$V_{i_1i_2i_3i_4}= V_{i_1i_2i_4i_3}=V_{i_2i_1i_3i_4}=V_{i_2i_1i_4i_3}\f$.
 !! Consequnetly, these matrix elements respect fermion
-!! antisymmetry [see HF_truncated_v2.pdf eqns. 17-21].
+!! antisymmetry (see HF_truncated_v2.pdf eqns. 17-21).
  subroutine calculate_TBME
     implicit none
     integer :: n1,n2,n3,n4,i1,i2,i3,i4
     real(dp) :: M34, M43
     do i1 = 1,Nsize
-       n1 = n_ho(i1)
+       n1 = n_hf(i1)
        do i2 = i1,Nsize
-          n2 = n_ho(i2)
+          n2 = n_hf(i2)
           do i3 = 1,Nsize
-             n3 = n_ho(i3)
+             n3 = n_hf(i3)
              do i4 = i3,Nsize
-                n4 = n_ho(i4)
+                n4 = n_hf(i4)
                 M34 = Minnesota_TBME(n1,n2,n3,n4)
                 if(n3.eq.n4) then
                    M43 = M34
@@ -186,6 +199,7 @@ contains
           enddo
        enddo
     enddo
+    v_mat = v_mat*0.5_dp
   end subroutine calculate_TBME
 
 !> Using Gauss-Laguerre quadrature with weights \f$w_i\f$ and
@@ -206,7 +220,7 @@ contains
     real(dp) :: alpha,xi,xj,wi,wj,A1,A2,A3,A4
     real(dp), dimension(1:Ngauss) :: w,x
     logical :: first_call = .true.
-    save w,x
+    save w,x,first_call
     if(first_call) then
        alpha = 0.5_dp
        call GaussLaguerreWX(alpha,w,x)

@@ -69,7 +69,7 @@ int main(){
 	int n_neutron = 0, n_levels = 0;
 	cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
 	for(int i=0; i<neutronstates.size(); i++){
-		if(n_neutron<126){
+		if(n_neutron<N){
 			cout<<neutronstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<neutronstates[i].eig<<endl;
 			n_neutron += (2*neutronstates[i].j+1);
 			n_levels ++;
@@ -133,7 +133,7 @@ int main(){
 	int n_proton = 0, p_levels = 0;
 	cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
 	for(int i=0; i<protonstates.size(); i++){
-		if(n_proton<82){
+		if(n_proton<Z){
 			cout<<protonstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<protonstates[i].eig<<endl;
 			n_proton += (2*protonstates[i].j+1);
 			p_levels ++;

@@ -13,14 +13,14 @@ double Anl(int n,double *coeff, double **bmcoeff)
 
 	{
 		
-		int aux1, aux2;
-		aux1 = 2*n+(int)(2*coeff[1])+1; aux2 = coeff[1];
+		int aux1;
+		aux1 = 2*n+(int)(2*coeff[1])+1;
 		
 		//printf("************** bmcoeff[1][aux1] = %lf  %d \n",bmcoeff[1][aux1],aux1);		
 		
 		return sqrt(
 			(   pow(2,n+coeff[1]+2)
-			*bmcoeff[0][aux2]/
+			*bmcoeff[0][n]/
 				(sqrt(pi)*bmcoeff[1][aux1]) )		);
 	
 	}
