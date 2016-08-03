@@ -1,4 +1,4 @@
-TARGET = libhffs.a
+TARGET = libshf.a
 
 CC =gcc-5
 CXX=g++-5
@@ -36,7 +36,7 @@ $(TARGET): $(OBJ_FILES)
 %.o: %.cpp
 	$(CXX) $(CFLAGS) -c $< -o $@
 
-.PHONY: clean mrproper depend
+.PHONY: clean mrproper depend doc
 
 depend: $(DEPS)
 
@@ -44,10 +44,11 @@ clean:
 	rm -rf $(OBJ_FILES)
 
 mrproper: clean
-	cd ./python/bindings;./setup.py clean;rm -Rf build;rm -f hffs.pyc hffs.py hffs_wrap.cpp hffs_wrap.cpp.bkp;cd -
+	cd ./python/bindings;./setup.py clean;rm -Rf build;rm -f shf.pyc shf.py shf_wrap.cpp shf_wrap.cpp.bkp;cd -
 	rm -rf $(TARGET) $(DEPS)
+	rm -rf doc/html/* doc/latex/*
 
-doc: $(CPP_FILES) cpp/include/*.h
+doc:
 	doxygen ./Doxyfile
 
 %.d: %.cpp

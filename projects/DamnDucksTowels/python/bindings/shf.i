@@ -1,4 +1,4 @@
-%module hffs
+%module shf
 
 %include "typemaps.i"
 %include "std_string.i"
