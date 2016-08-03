@@ -14,9 +14,9 @@
 
 	double v_HF(double energy, double r, double S, double L, double J, double T, double Vsky){
 		if(T==-1./2.)
-			return (energy-Vsky-centrifug_term(r,L)-potential_spin_orbit(r,S,L,J))/m_factor;
+			return (energy-Vsky-centrifug_term(r,L)/*-potential_spin_orbit(r,S,L,J)*/)/m_factor;
 		else if(T==1./2.)
-			return (energy-Vsky-centrifug_term(r,L)-potential_spin_orbit(r,S,L,J))/m_factor;
+			return (energy-Vsky-centrifug_term(r,L)/*-potential_spin_orbit(r,S,L,J)*/)/m_factor;
 	}
 
 
@@ -26,20 +26,6 @@
 				_a * pow(rho,_a-1)*(-t3/24.)*(2.*x3 + 1.) * (pow(rho_p,2) + pow(rho_n,2));
 	}
 
-/*
-	double normalise_HF(double eigen, double n_step_width_box, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1){
-	vector<double> wfWork;
-	wfWork.push_back(0.05);
-	wfWork.push_back(0.1);
-
-	double sum = 0.;
-	for(int i=1; i<n_step_width_box+1; i++) wfWork.push_back(numerov_algorithm_HF(eigen, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, T, Vsky_, Vsky0, Vsky1));
-	for(int i=1; i<n_step_width_box+1; i++) sum += h_width*pow(wfWork[i],2);
-
-	wfWork.clear();
-	return sum;
-	}*/
-	
 
 /////////////////////OLD THINGS///////////////////////////
 

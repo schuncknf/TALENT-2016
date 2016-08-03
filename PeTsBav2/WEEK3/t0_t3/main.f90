@@ -225,7 +225,7 @@ do rep=1,iter
            + rho_n(i)*(-0.5d0*t0*(+1d0)-t3*(+1d0)*rho(i)**alpha/12d0)&
            + alpha*rho(i)**(alpha-1)*(-t3*(+1d0)/24d0)*(rho_p(i)**2+rho_n(i)**2)
    end do
-   open(10,file='pot_skyrme_n.dat')
+ !  open(10,file='pot_skyrme_n.dat')
  !  do i=0,N
  !     x = i*dx
  !     write(10,'(2f15.8)') x, V_skyrme_n(i)
@@ -239,11 +239,12 @@ do rep=1,iter
    g_n(:) = 0d0
    dg_p(:) = 0d0
    dg_n(:) = 0d0
-   do i=0,N
+   do i=1,N
       h_p(i) = V_skyrme_p(i) +Vcoulomb(i, rho_p)
       h_n(i) = V_skyrme_n(i)
    end do
-
+      h_p(0) = V_skyrme_p(0) 
+      h_n(0) = V_skyrme_n(0)
 !*******************neutron****************************
    E_data_n = 0d0
    orbital_l = 0

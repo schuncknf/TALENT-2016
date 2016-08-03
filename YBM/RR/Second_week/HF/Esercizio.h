@@ -10,7 +10,6 @@
 	#include <sstream>
 	#include <algorithm>
 
-
 	// Skyrme parameters for t0, t3 system
 	#define _a 1.
 	#define t0 -1132.400
@@ -18,18 +17,25 @@
 	#define x0 0.
 	#define x3 0.
 
-	#define width_box 22.
-	#define h_width 0.01
+	//Costants and box features
+	#define width_box 20.
+	#define h_width 0.02
 	#define r0 1.27
 	#define e 1.439978
+	#define m_factor 20.73553
+	#define first_point 0.000005
+	#define second_point 0.00001
 
+	//Nucleon proprieties
 	#define A 16.
 	#define N 8.
 	#define Z 8.
+	#define max_n 2
+	#define max_l 2
 
+	//Convergence constants
 	#define prec 1E-12
-	#define HF_prec 1E-6
-	#define m_factor 20.73553
+	#define HF_prec 1E-8
 
 	using namespace std;
 
