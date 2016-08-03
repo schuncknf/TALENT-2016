@@ -13,7 +13,7 @@ PROGNAME=main
 #   Fortran objects
 objs= globals.o arrange2.o	\
 	simpson.o arrange.o\
-	initial_phi.o\
+	initial_phi.o Coulomb.o\
 	main.o\
 #
 .SUFFIXES: .f90 .f	.o

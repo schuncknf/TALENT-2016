@@ -4,7 +4,6 @@
 !! 
 !! Solves the problem of \f$n\f$ neutrons in a harmonic oscillator trap
 !! by a self-consistent, Hartree-Fock calculation.
-!! \f$E_{HF}=Tr(t\rho)+Tr(h\rho)\f$
 !! 
 !!  \section install_sec Installation
 !! 
@@ -87,7 +86,7 @@
 !! distribution on a format suitable for plotting utilities such as
 !! gnuplot.
 !!
-!! \subsubsection potential_type truncated or spherical
+!! \subsubsection potential_type Type of calculation
 !!
 !! If the option \f$\texttt{truncated}\f$ is selected, the program
 !! assumes \f$l=0\f$ and calculates the two-body matrix elements
@@ -102,15 +101,13 @@
 !! If the option \f$\texttt{LDA}\f$ is selected, the program will
 !! use the Local Density Approximation to the Hamiltonian.
 !!
-!! If the option \f$\texttt{spherical}\f$ is selected, the program will
+!! If the option \f$\texttt{DME}\f$ is selected, the program will
 !! use the Density Matrix Expansion to approximate the Hamiltonian.
 !!
 !! \subsubsection n_max N_max
 !! Specify the maximum value of the orbital quantum number \f$n\f$.
-!! If using the option \f$\texttt{spherical}\f$, \f$\mathbf{N\_max}\f$
-!! can be no
-!! larger than the maximum value of \f$n\f$ specified in
-!! \f$\mathbf{Orbitals\ file}\f$.
+!! This is only applicable using the option \f$\texttt{truncated}\f$.
+!! All other options ignore this number.
 !!
 program HFSolver
   use :: types
