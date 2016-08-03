@@ -94,7 +94,7 @@ double** fac_galag_a0 (int n, double** bmcoeff)
 	for (i=0; i<n; i++)
 		
 		{
-			res[0][i] = solutions[2*i];printf ("RES 0 %lf \n", res[0][i]);
+			res[0][i] = solutions[2*i];//printf ("RES 0 %lf \n", res[0][i]);
 					
 		}
 	
@@ -105,7 +105,7 @@ double** fac_galag_a0 (int n, double** bmcoeff)
 				/(pow(n+1,2)
 				*pow( gsl_sf_laguerre_n(n+1,0.,solutions[2*i]),2. )  
 				); // Calculation of weights.
-			res[1][i] = ws[i];printf ("RES 1 %lf \n", res[1][i]);		
+			res[1][i] = ws[i];//printf ("RES 1 %lf \n", res[1][i]);		
 		}
 	
 	/*for (i=0; i<n;i++){
@@ -143,7 +143,7 @@ double** fac_galag_a (int n, double a, double** bmcoeff)
 	for (i=0; i<n+1; i++)
 		
 		{
-		coefficients[i] = sqrt(4*atan(1))*bmcoeff[(int)(a-0.5)+n+2][n-i]*pow((-1),i)*bmcoeff[0][n]/bmcoeff[0][i]; // Coefficients for the Laguerre polynomials.
+		coefficients[i] = bmcoeff[(int)(a-0.5)+n+2][n-i]*pow((-1),i)*bmcoeff[0][n]/bmcoeff[0][i]; // Coefficients for the Laguerre polynomials.
 		
 		//printf("COEFF%d : %lf \n", i, coefficients[i]);
 		}
@@ -163,14 +163,14 @@ double** fac_galag_a (int n, double a, double** bmcoeff)
 		
 		{
 			
-			res[0][i] = solutions[2*i]; //printf ("RES 0 %lf \n", res[0][i]);	
+			res[0][i] = solutions[2*i]; printf ("RES 0 %lf \n", res[0][i]);	
 		}
 	for (i=0; i<n; i++)
 		
 		{
-			ws[i] = bmcoeff[0][n+(int)(a-0.5)]*solutions[2*i]/(pow(n+1,2)*pow( gsl_sf_laguerre_n(n+1,a,solutions[2*i]),2 ) * bmcoeff[0][n] ); // Calculation of weights.
+			ws[i] =  sqrt(4*atan(1))*bmcoeff[1][2*i+1]/pow(2,i+1)*solutions[2*i]/( pow(i+1,2)*pow( gsl_sf_laguerre_n(i+1,a,solutions[2*i]),2 ) * bmcoeff[0][i] ); // Calculation of weights.
 			
-			res[1][i] = ws[i]; //printf ("RES 1 %lf \n", res[1][i]);		
+			res[1][i] = ws[i]; printf ("RES 1 %lf \n", res[1][i]);		
 		}
 	
 	free(ws);
@@ -179,7 +179,6 @@ double** fac_galag_a (int n, double a, double** bmcoeff)
 	
 	free(coefficients);
 	
-	printf ("AAAA! \n");
 	return res;
 	
 	free (res);
@@ -228,7 +227,7 @@ double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, do
 	
 	{
 	
-		double res,res1, res2, dummy1, dummy2, br;	
+		double res,res1, res2, dummy1, dummy2, br,r11,r12,r21,r22;	
 		
 		/*res1 = Rnl(coeff,bmcoeff,galcoeff[0][i])*Rnl(coeff,bmcoeff,galcoeff[0][j])*Rnl(coeff,bmcoeff,galcoeff[0][i])*Rnl(coeff,bmcoeff,galcoeff[0][j]) * (
 		d1*galcoeff[0][i]*galcoeff[0][j]/coeff[7]
@@ -250,22 +249,33 @@ double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, do
 		res2 = Rnl(n1,coeff,bmcoeff,galcoeff[0][i])*Rnl(n2,coeff,bmcoeff,galcoeff[0][j])*Rnl(n4,coeff,bmcoeff,galcoeff[0][j])*Rnl(n3,coeff,bmcoeff,galcoeff[0][i]) * (
 		d1*(pow(2*coeff[7],-3.))+d2*(pow(2*coeff[9],-3.)))*(1.-0.5*(1+s3*s4));*/
 		
-		br = bred(coeff);		
+		br = bred(coeff);
 		
-		res1 = (pow(br,-6.))*(d1 * pow((1/(coeff[7]+1/(2*br))),3) * pow(-2*coeff[7],2) 
-		+ d2 * pow((1/(coeff[9]+1/(2*br))),3) * pow(-2*coeff[9],2) )*(1.-0.5*(1+s3*s4)) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), pow(galcoeffa[0][i]/br,2))		
-		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), pow(galcoeffa[0][j]/br,2))
-		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), pow(galcoeffa[0][i]/br,2))
-		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), pow(galcoeffa[0][i]/br,2));
+		r11 = sqrt(galcoeffa[0][i]/(coeff[7]*br*br+1) );	
+		r12 = sqrt(galcoeffa[0][i]/(coeff[9]*br*br+1) );
+		r21 = sqrt(galcoeffa[0][j]/(coeff[7]*br*br+1) );	
+		r22 = sqrt(galcoeffa[0][j]/(coeff[9]*br*br+1) );
 		
-		res2 = (pow(br,-6.))*(d1 * pow((1/(coeff[7]+1/(2*br))),3) * pow(-2*coeff[7],2) +
-		+ d2 * pow((1/(coeff[9]+1/(2*br))),3) * pow(-2*coeff[9],2) * Anl(n1,coeff,bmcoeff) )*(1.-0.5*(1+s3*s4))*gsl_sf_laguerre_n(n1,(0+0.5), pow(galcoeffa[0][i]/br,2))		
-		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), pow(galcoeffa[0][j]/br,2))
-		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), pow(galcoeffa[0][i]/br,2))
-		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), pow(galcoeffa[0][j]/br,2));
+		res1 = (pow(br,-6.))*(d1 * 0.25*pow((1/(coeff[7]+1/(br*br))),2) * pow(-2*coeff[7],1) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), r11)		
+		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), r21)
+		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), r11)
+		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), r21)
+		+ d2 * 0.25*pow((1/(coeff[9]+1/(br*br))),2) * pow(-2*coeff[9],1) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), r12)		
+		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), r22)
+		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), r12)
+		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), r22) )*(1.-0.5*(1+s3*s4));
+		
+		res2 = (pow(br,-6.))*(d1 * 0.25*pow((1/(coeff[7]+1/(br*br))),2) * pow(-2*coeff[7],1) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), r11)		
+		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), r21)
+		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), r11)
+		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), r21)
+		+ d2 * 0.25*pow((1/(coeff[9]+1/(br*br))),2) * pow(-2*coeff[9],1) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), r12)		
+		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), r22)
+		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), r22)
+		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), r12) )*(1.-0.5*(1+s3*s4));
 			
 		
-		res = 1*(res1+res2);
+		res = (res1+res2)*16*pow(4*atan(1),2);
 		
 		//printf ("SPECIAL DEBUG!: %lf \t%lf \t%lf \t%lf \t%lf \t%lf \t%lf \t%lf \t \n",Rnl(n4,coeff,bmcoeff,galcoeff[0][i]),Rnl(n1,coeff,bmcoeff,galcoeff[0][j]),Rnl(n2,coeff,bmcoeff,galcoeff[0][i]),Rnl(n3,coeff,bmcoeff,galcoeff[0][j]),d1,pow(coeff[7],-1.5),d2,pow(coeff[7],-1.5));		
 		
@@ -306,6 +316,8 @@ double galag2D (int nmesh,int n, int n1, int n2, int n3, int n4, double *coeff, 
 
 	{
 	
+	//printf("++++++ %d \n", nmesh);	
+	
 	int i, j;
 	
 	double res = 0, dummy1, dummy2;
@@ -328,7 +340,7 @@ double galag2D (int nmesh,int n, int n1, int n2, int n3, int n4, double *coeff, 
 			//printf("DEBUG: dummy1 = %lf, dummy2 = %lf \t %lf \t %lf \n",dummy1,dummy2, galcoeffa[1][i],galcoeffa[1][j]);			
 			
 			res+= galcoeff[1][i]*galcoeff[1][j]*
-			integrand2(coeff,i,j,n1,n2,n3,n4,s1,s2,s3,s4,galcoeff,bmcoeff,dummy1,dummy2,galcoeffa );
+			integrand2(coeff,i,j,n1,n2,n3,n4,s1,s2,s3,s4,galcoeff,bmcoeff,dummy1,dummy2,galcoeff);
 			
 			//printf ("\n\n\n 2DGALAG \t res =%lf \n",res);
 			}

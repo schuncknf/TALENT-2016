@@ -1,0 +1,135 @@
+module      numerov_module
+
+      contains
+      subroutine get_eigenvv (orbi)
+      use globals
+      use integrations
+      external WoodsSaxon
+      implicit none
+      real(8) :: E_left, E_right, Em, cnodes , nmfactor
+      real(8) :: x
+      real(8)  :: densi(0:Nmesh, 2), k_sq(0:Nmesh)
+      integer(8) :: i, part
+
+                  E_left=E_minus
+                  E_right= E_plus
+                  psi(0, ipart) = 0.
+                  psi(1, ipart) = 0.1
+                  !begin bissection method
+                  do while (.true.) ! begin loop bissection method
+                      if (abs(E_right-E_left)<epsi) exit
+                      Em=(E_right+E_left)/2.                  
+                      cnodes=0     
+                      !begin numerov method
+
+                     if (Woods =.true.) then
+                      Do i = 1,Nmesh
+                              x=(i)*h
+                              Vpot= WoodsSaxon(x)
+                              k_sq(i) = (Em-Vpot)/h2m -1.*(l*(l+1))/x**2
+                        
+                      Enddo
+                        Vpot= WoodsSaxon(0.d0)
+                        k_sq(0) = (Em-Vpot)/h2m 
+                        else 
+                      Do i = 1,Nmesh
+                              x=(i)*h
+                              Vpot= Skyrme(x)
+                              k_sq(i) = (Em-Vpot)/h2m -1.*(l*(l+1))/x**2
+                      Enddo
+                        Vpot= Skyrme(0.d0)
+                        k_sq(0) = (Em-Vpot)/h2m                         
+                        endif
+
+
+
+                      Do i = 2,Nmesh
+                              psi(i, ipart) = (2.*(1.-5.*h**2*k_sq(i-1)/12.)*psi(i-1, ipart) &
+                              -(1.+h**2*k_sq(i-2)/12.)*psi(i-2, ipart))/(1.+h**2*k_sq(i)/12.)
+                              if (psi(i-1, ipart)*psi(i, ipart)<0)  cnodes=cnodes+1 ! we find the number of nodes
+                      Enddo
+                      !end numerov method
+                      if(cnodes.Gt.n) Then 
+                              E_right = Em
+                      else 
+                              E_left = Em
+                      Endif
+                  end do! end loop bissection method
+
+                  ! TODO: CONDICIO DE QUE SI ES POSITIU O SAPROXIMA ALS LIMITS, NO SAGAFA
+                  Enl2j(orbi, 1, ipart)=E_right !eigenvalue
+                  ! normalization of the eigenfunction
+                  ! We recalculate psi because we want to find the function that does
+                  ! not go to infinite SHOOTING METHOD WITH RIGHT HAND SIDE EQUAL TO 0
+
+                  cnodes = 0
+                     if (Woods =.true.) then
+                      Do i = 1,Nmesh
+                              x=(i)*h
+                              Vpot= WoodsSaxon(x)
+                              k_sq(i) = (Em-Vpot)/h2m -1.*(l*(l+1))/x**2
+                        
+                      Enddo
+                        Vpot= WoodsSaxon(0.d0)
+                        k_sq(0) = (Em-Vpot)/h2m 
+                        else 
+                      Do i = 1,Nmesh
+                              x=(i)*h
+                              Vpot= Skyrme(x)
+                              k_sq(i) = (Em-Vpot)/h2m -1.*(l*(l+1))/x**2
+                      Enddo
+                        Vpot= Skyrme(0.d0)
+                        k_sq(0) = (Em-Vpot)/h2m                         
+                        endif
+            
+                 psi(0, ipart) = 0.
+                 psi(1, ipart) = 0.1
+      
+                 Do i = 2,Nmesh
+                        psi(i, ipart) = (2.*(1.-5.*h**2*k_sq(i-1)/12.)*psi(i-1, ipart) &
+                        -(1.+h**2*k_sq(i-2)/12.)*psi(i-2, ipart))/(1.+h**2*k_sq(i)/12.)
+                        if (psi(i-1, ipart)*psi(i, ipart)<0)  cnodes=cnodes+1 ! we find the number of nodes  
+                        if (psi(i, ipart)*psi(i-1, ipart)<=0d0.and.cnodes>n) then
+                              psi(i, ipart) = 0.
+                        end if
+                 end do
+
+                 ! normalization
+                 nmfactor = 0d0
+                 densi(:, ipart) = abs(psi( :, ipart))**2
+                 call simpson(h, densi, nmfactor)
+                 psi(:, ipart) = psi(:, ipart)/sqrt(nmfactor)/h2m    !wave func
+
+      end subroutine get_eigenvv
+
+      subroutine calculate_dens()
+      use globals
+      implicit none
+      integer(kind=dm):: Nn_l, Nn_tmp
+      integer(kind=dm):: iorb,orbital_tmp
+      real(kind=dm) :: dens_n(0:Nmesh, 2)
+      dens_n = 0d0
+
+do ipart=1, 2
+      do iorb=1,orbital
+            Nn_l = Nn_tmp
+            j=Enl2j(iorb, 3) + Enl2j(iorb,4) 
+            Nn_tmp = Nn_tmp - nint(2d0*j+1.)
+            if (Nn_tmp<=0) then
+                  orbital_tmp = iorb-1
+                  exit
+            end if
+      dens_n(:, ipart) = dens_n(:, ipart) + (2d0*j+1) * abs(Orbwf(iorb,:, ipart))**2/(4d0*pi)
+      enddo
+      dens_n(:, ipart) = dens_n(:, ipart) + Nn_l*abs(Orbwf(orbital_tmp+1,:, ipart))**2/(4d0*pi)
+end do
+      dens_t(:) = dens_n(:, 1) + dens_n(:,2)
+
+      rhonew(:) = dens_t(:)
+      rhonnew(:) = dens_n(:,1)
+      rhopnew(:) = dens_n(:,2)
+
+      end subroutine
+
+end module numerov_module
+ 

@@ -12,7 +12,8 @@ module HO_Quadrature
   implicit none
 contains
 
-!> Gauss-Laguerre quadrature routine 
+!> Gauss-Laguerre quadrature routine. The w(i) are the weights and the
+!! x(i) are the corresponding roots 
   subroutine GaussLaguerreWX(alfa,w,x)
     implicit none
     real(dp), intent(in) :: alfa

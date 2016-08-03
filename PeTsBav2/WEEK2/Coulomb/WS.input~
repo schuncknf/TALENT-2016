@@ -1,5 +1,5 @@
 &Nucleus
-NN=126, ZZ=82/
+NN=28, ZZ=20/
 &parameters
 epsi=1e-6, h2m=20.73553, e=1.439978 /
 &sizebox
@@ -11,5 +11,5 @@ n_max=8, l_max=10/
 &WoodSaxon
 r0=1.27, a=0.67/
 &output
-out_wave_func=.true. /
+out_wave_func=.false. /
 

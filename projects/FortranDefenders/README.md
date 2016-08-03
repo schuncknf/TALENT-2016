@@ -5,7 +5,8 @@
 /_/  \___/_/  \__/_/  \_,_/_//_/ /____/\__/_/ \__/_//_/\_,_/\__/_/ /___/
 </pre>
 ## Coding for Hono(u)r
-![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.png)
+
+![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.pdf)
 
 
 Welcome to our home in the Repo.
@@ -24,3 +25,5 @@ In **plt**, we plot the central parts of the potential for neutrons and protons 
 and then two wavefunctions in the remaining columns. If you want to change which wavefunctions you plot, change it at the bottom of main and recompile.
 
 ***Have Fun!***
+
+*p.s. if you require more instruction, email one of us at kylegodbey(at)gmail.com*

@@ -19,7 +19,6 @@ contains
 	! i= point in a mesh where potential is calculated
 	! meshsize = distance between two meshpoints
 	! Rmax = right bound for potential
-	! Rmin = left bound for potential
 	! Vvalue = depth of infinite potential 
 	! numN = number of neutrons
 	! numZ = number of protons
@@ -29,7 +28,7 @@ contains
 	! l = quantum number l
 	! jj = quantum number j*2 (=>integer)
 !===============================================================
-         function potV(i,meshsize,Rmax,Rmin,a,kpot, Vvalue, &
+         function potV(i,posiR, points, meshsize,Rmax,a,kpot, Vvalue, &
                   numN, numZ,rzero,rProt,charge, l, jj) result(vr)
          
 	 use variables
@@ -42,6 +41,7 @@ contains
          integer :: i, kpot, numZ, numN, points, l, jj, charge, alphas
          real (kind=dp) :: t0s =-1132.400E0_dp
 	 real (kind=dp) :: t3s = 23610.40E0_dp
+	 real (kind=dp), dimension(0:points) :: posiR
 	 alphas=1
 ! Skyrme parameters (now potential is for x0=x3=t1=x1=t2=x2=w=0)
 ! rho=total density 
@@ -51,10 +51,7 @@ contains
 ! rho_q = neutron/proton density
 ! rho_n = neutron density
 ! rho_p = proton density
-!
-         ! symmetric square well
-         pos=Rmin+i*meshsize
-         points=(Rmax-Rmin)/meshsize !redundant
+
          bigR= rzero*(numN+numZ)**(1.0E0_dp/3.0E0_dp)
 
 ! Let's put a right value for rho_q
@@ -74,8 +71,8 @@ contains
          if(kpot .eq. 0) then
              vr=0        
          else if(kpot .eq. 1) then 
-           leftlim=Rmin
-           rightlim=a
+           leftlim=6. !random numbers
+           rightlim=10. !random numbers
            if(pos .ge. leftlim .and. pos .le. rightlim) then
              vr= Vvalue
            else
@@ -85,24 +82,24 @@ contains
 !-------------------------------------
 ! WOODS-SAXON
            else if(kpot .eq. 2) then
-             ferre=1/(1+exp((abs(pos-pos0)-bigR)/a))
+             ferre=1/(1+exp((abs(posiR(i))-bigR)/a))
              vr=-44.0192307692*ferre
  !            vr=-(51-33*(numN-numZ)/(numN+numZ))*ferre
 
 !---------------------------------------
 ! COULOMB
          else if(kpot .eq. 3) then
-             if(abs(pos-pos0) .le. rProt) then
-             vr=numZ*esquare/2/rProt*(3-(pos/rProt)**2)         
-             else if(abs(pos-pos0) .gt. rProt) then
+             if(abs(posiR(i)) .le. rProt) then
+             vr=numZ*esquare/2/rProt*(3-(posiR(i)/rProt)**2)         
+             else if(abs(posiR(i)) .gt. rProt) then
              vr=numZ*esquare/rProt 
              end if 
 
 !-------------------------------------------
 ! SPIN-ORBIT
          else if(kpot .eq. 4) then
-             ferre=-0.44*exp((abs(pos-pos0)-bigR)/a) * rzero**2 &
-                   /a/pos/(1+exp((abs(pos-pos0)-bigR)/a))**2
+             ferre=-0.44*exp((abs(posiR(i))-bigR)/a) * rzero**2 &
+                   /a/pos/(1+exp((abs(posiR(i))-bigR)/a))**2
              vr=-(51-33*(numN-numZ)/(numN+numZ))*ferre   
 
 !--------------------------------------------  
@@ -113,27 +110,27 @@ contains
                 pos = meshsize
              end if
              Uq_pot=- 44.0192307692 &
-                    /(1+exp((abs(pos)-bigR)/a))
+                    /(1+exp((abs(posiR(i))-bigR)/a))
 !                   -(51-33*(numN-numZ)/(numN+numZ)) &
-!                   /(1+exp((abs(pos-pos0)-bigR)/a))
+!                   /(1+exp((abs(posiR(i))-bigR)/a))
              !jj=2j so jj is integer
-             ferre=-0.44*exp((abs(pos)-bigR)/a) * rzero**2 &
-                   /a/(pos)/(1+exp((abs(pos)-bigR)/a))**2
+             ferre=-0.44*exp((abs(posiR(i))-bigR)/a) * rzero**2 &
+                   /a/(posiR(i))/(1+exp((abs(posiR(i))-bigR)/a))**2
 !
-             Wq_pot1=ferre*(dble(jj)/2*(dble(jj)/2+1)-l*(l+1)-3/4)/(pos) 
+             Wq_pot1=ferre*(dble(jj)/2*(dble(jj)/2+1)-l*(l+1)-3/4)/(posiR(i)) 
 ! 
              if(i .eq. 0) Wq_pot1=0.0E0_dp     
              Wq_pot2=-44.0192307692
                      !-(51-33*(numN-numZ)/(numN+numZ))
 !
-             V_cfug=hb2m*((l*(l+1))/(pos)**2)
+             V_cfug=hb2m*((l*(l+1))/(posiR(i))**2)
              if(i .eq. 0) V_cfug=0.0E0_dp  
              vr=Uq_pot+Wq_pot1*Wq_pot2+V_cfug
 ! Coulomb part
              if(charge .eq. 1) then
-               if(abs(pos) .le. rProt) then
-                V_Cou=numZ*esquare/2/rProt*(3-(pos/rProt)**2)         
-               else if(abs(pos) .gt. rProt) then
+               if(abs(posiR(i)) .le. rProt) then
+                V_Cou=numZ*esquare/2/rProt*(3-(posiR(i)/rProt)**2)         
+               else if(abs(posiR(i)) .gt. rProt) then
                 V_Cou=numZ*esquare/rProt 
                end if
              vr= vr+V_Cou
@@ -148,9 +145,9 @@ contains
                    + alphas*(rho**(alphas-1))*(-t3s*(rho_p**2+rho_n**2)/24)
 ! Coulomb part for Skyrme
              if(charge .eq. 1) then
-               if(abs(pos-pos0) .le. rProt) then
-                V_Cou=numZ*esquare/2/rProt*(3-(pos/rProt)**2)         
-               else if(abs(pos-pos0) .gt. rProt) then
+               if(abs(posiR(i)) .le. rProt) then
+                V_Cou=numZ*esquare/2/rProt*(3-(posiR(i)/rProt)**2)         
+               else if(abs(posiR(i)) .gt. rProt) then
                 V_Cou=numZ*esquare/rProt 
                end if
 	    end if
