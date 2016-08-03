@@ -43,8 +43,8 @@ contains
              if(lk.ne.lj.or.jj.ne.jk) cycle
              Anl =  HO_Normalization(nj,lj)
              Anpl = HO_Normalization(nk,lk)
-             phi = phi + (D_mat( j,i)*D_mat( k,i)*1.0_dp + &
-                          D_prev(j,i)*D_prev(k,i)*0.0_dp)*&
+             phi = phi + D_mat( j,i)*D_mat( k,i)* &
+!                          D_prev(j,i)*D_prev(k,i)*0.0_dp)*&
                           xi**(lj+lk)*exp(-xi**2)*&
                           L_nl(nj,lj)*L_nl(nk,lk)*Anl*Anpl/(b_ho**3)
           enddo
@@ -71,8 +71,11 @@ contains
           lj = l_hf(j)
           jj = j_hf(j)
           if(li.ne.lj.or.ji.ne.jj) cycle
-!          gamma = gamma_LDA(ni,nj,li)
-          gamma = gamma_DME(ni,nj,li)
+          if(type_of_calculation.eq.'DME') then
+             gamma = gamma_DME(ni,nj,li)
+          else
+             gamma = gamma_LDA(ni,nj,li)
+          endif
           gamma_mat(i,j) = gamma
           gamma_mat(j,i) = gamma
        enddo
@@ -163,7 +166,7 @@ contains
     character(2) :: index
 !    Trho = 0
 !    write(index,'(i2.2)') j
-    open(100,file='rho_plot_LDA_sat.dat')
+    open(100,file=trim(density_file))
     do i = 1,10000
        ri = i*dr
 !       Trho = Trho  + rho_LDA(ri)*ri**2*dr

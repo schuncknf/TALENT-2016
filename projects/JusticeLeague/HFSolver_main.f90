@@ -81,7 +81,7 @@
 !! \subsubsection out_file Output file
 !! Specify the name of your output file.
 !!
-!! \subsubsection dens_file
+!! \subsubsection density_file
 !!
 !! Specify the name of the density file, which will contain the density
 !! distribution on a format suitable for plotting utilities such as
@@ -119,54 +119,99 @@ program HFSolver
   use :: Minnesota
   use :: LDA
   implicit none 
-  integer :: i,j,k
+  integer :: i,j,k, U_file, ifile
   real(dp) :: EHF,tr_rho,r,dr
-  Nparticles = 8 
-  n_orbitals = 216 
-  call read_orbitals
-  Noccupied=fermi_level()
+  U_file = 7
+  call read_input
+  if(truncated) then
+     Noccupied = Nparticles/2
+  else
+     call read_orbitals
+     Noccupied=fermi_level()
+  endif
+  open(7,file=trim(output_file))
+  write(6,*) 'Writing output to stdout and ', output_file
+  write(6,*)
+  do ifile = 6,7
+     write(ifile,*) 'HARTREE FOCK SOLVER FOR NEUTRON DROPS'
+     Write(ifile,'(a32,5x,a30)') ' Type of calculation ..........', type_of_calculation
+     Write(ifile,'(a32,i6)') ' Number of particle............', Nparticles
+     Write(ifile,'(a32,i6)') ' Number of occupied shells.....', Noccupied
+     Write(ifile,'(a32,i6)') ' Dimension of HF matrices-.....', Nsize
+     Write(ifile,'(a32,i6)') ' Maximum number of iterations..', Maxit
+     if(approximated_rho) then 
+        Write(ifile,'(a32,f13.6)') ' Fermi momentum (fm^-1)........', K_fermi
+     endif
+     write(ifile,*) 
+     write(ifile,*) 'iteration    Conververgence    HF Energy  Trace of rho'
+  enddo
   call initialize_HF
   call Initialize_Minnseota
-!  call read_TBME
-  k_Fermi = 3.7_dp
-!  do 
-!     if (k_Fermi.gt.7.5_dp) exit
-!     calc_ivc = .true.
-     calc_couplings = .true.
-     do i = 1,100
-        ! call Construct_rho
-        ! write(*,*) Trace(rho_mat)
-        ! call Construct_gamma
-        ! call  plot_rho_LDA(i)
-        ! write(*,*) Trace_rho_LDA()
-        ! call sample_rho_LDA
-        call sample_DME_fields
-        call calculate_gamma_LDA 
+  if(type_of_calculation.eq.'spherical') then
+     call read_TBME
+  endif
+  calc_ivc = .true.
+  calc_couplings = .true.
+     do i = 1,maxit
+        call Construct_rho
+        if(approximated_rho) then
+           if(type_of_calculation.eq.'DME') then
+              call sample_DME_fields
+           else
+              call sample_rho_LDA
+           endif
+           call calculate_gamma_LDA 
+        else
+           call Construct_gamma
+        endif
         h_mat = t_mat + gamma_mat
-        D_prev = D_mat
+        Trrho = Trace(rho_mat)
+        EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
+
         call Diagonalize_h 
-!        write(*,'(10f11.4)') (E_values(j),j=1,10)
         delta_E = sum(abs(E_values - E_prev))/real(Nsize,kind=dp)
+        do ifile = 6,7
+           write(ifile,'(6x,1i4.4,5x,2f13.6,1x,1f13.6)') i,delta_E,EHF,Trrho
+        enddo
         if(delta_E.lt.small) then
-!           write(*,*) '  Eigenvalues converged'
+           do ifile = 6,7
+              write(ifile,*) 'Iteration Converged!!!!        (╯°□°)╯︵ ┻━┻'
+              write(ifile,*) 'Sorry, I got a little excited'
+              write(ifile,*) 'let me put that back            ┬──┬ ﾉ(°—°ﾉ)'
+           enddo
            exit 
         endif
         E_prev = E_values
      enddo
+     if(i.gt.maxit) then
+        do ifile = 6,7
+           write(ifile,*) ' WARNING!!!!!!'
+           write(ifile,*) ' Calculation failed to converge ¯\_(ツ)_/¯ '
+        enddo
+     endif
      call Construct_rho
-     ! call Construct_gamma
-     ! write(*,*)  Trace_rho_LDA()
-     ! call plot_rho_lda
-     ! call sample_rho_LDA
-     call sample_DME_fields
-!     call plot_DME_fields
-     call calculate_gamma_LDA 
+     if(approximated_rho) then
+        if(type_of_calculation.eq.'DME') then
+           call sample_DME_fields
+        else
+           call sample_rho_LDA
+        endif
+        call calculate_gamma_LDA 
+     else
+        call Construct_gamma
+     endif
      h_mat = t_mat + gamma_mat
+     Trrho = Trace(rho_mat)
      EHF = (Trace_product(t_mat,rho_mat)+Trace_product(h_mat,rho_mat))/2._dp
-!     write(*,*) '  Hartree-Fock energy in MeV'
-!     write(*,*) "C_rhorho, C_rhotau = ", C_rhorho, C_rhotau
-     write(*,*) k_Fermi, EHF,rms_DME(),i
-!     k_Fermi = K_Fermi + 0.01_dp
-!  enddo
+     call plot_rho_lda
+     do ifile = 6,7
+        Write(ifile,*)
+        Write(ifile,*) ' Final Results:'
+        Write(ifile,'(a32,i6)') ' Number of iterations..........', i
+        Write(ifile,'(a32,f13.6)') ' Hartree-Fock Energy (MeV).....', EHF
+        Write(ifile,'(a32,f13.6)') ' Root mean square radius (fm)..', rms_DME()
+        Write(ifile,'(a32,f13.6)') ' Trace of density matrix, N....', Trrho
+        write(ifile,*) ' Density distribution has been written in ', density_file
+     enddo
   
 end program HFSolver
