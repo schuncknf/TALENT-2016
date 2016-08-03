@@ -23,7 +23,7 @@ Once you compile and run the code, you'll find the **single particle states**,
 Densities are plotted in the file **densities**, with the order of the columns being *Neutrons, Protons, Total*.
 
 Run the density.gpl Gnuplot script to export *density.eps* which plots the neutron (left)
-and proton (right) densities. 
+and proton (right) densities.
 
 ***Have Fun!***
 
