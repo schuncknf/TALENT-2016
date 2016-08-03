@@ -24,3 +24,5 @@ In **plt**, we plot the central parts of the potential for neutrons and protons 
 and then two wavefunctions in the remaining columns. If you want to change which wavefunctions you plot, change it at the bottom of main and recompile.
 
 ***Have Fun!***
+
+*p.s. if you require more instruction, email one of us at kylegodbey(at)gmail.com*

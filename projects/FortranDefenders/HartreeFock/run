@@ -1,5 +1,6 @@
 #!/bin/bash
 make clean
 make
+cat ../README.md
 time ./main
 cat out
