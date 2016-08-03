@@ -9,7 +9,7 @@ double** fac_bin_mat (int);
 
 double** fac_galag_a0 (int, double** );
 
-double** fac_galag_a (int , int, double** );
+double** fac_galag_a (int , double, double** );
 
 double integrand1r (double *,double ,double);
 

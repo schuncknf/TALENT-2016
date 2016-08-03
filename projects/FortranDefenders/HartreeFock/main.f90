@@ -10,7 +10,7 @@ program main
     open(unit=13,file='plt',form='formatted')
     open(unit=14,file='densities',form='formatted')
     open(unit=15,file='fields',form='formatted')
-    open(unit=16,file='fieldsnew',form='formatted')
+
     call init_params
     call init_grids
     call init_wavefunctions
@@ -46,7 +46,7 @@ program main
     ! Particle by way of density integration
     call totenergy
     write(6,*) "Total Neutrons =", sum(4*pi*h*mesh(:)**2*rho(:,1)), &
-    "Total Protons =", sum(4*pi*h*mesh(:)**2 *rho(:,2)), "vocc:",sum(1*vocc(:,:,:,:))
+    "Total Protons =", sum(4*pi*h*mesh(:)**2 *rho(:,2))
     write(6,*) "Total Energy =", totalenergy,"Total Kinetic Energy:",totalkinetic
     do ir = 0,nbox
       write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
@@ -57,6 +57,5 @@ program main
     close(5)
     close(14)
     close(15)
-    close(16)
 
 end program main

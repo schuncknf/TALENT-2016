@@ -1,5 +1,5 @@
 module basis
-!> A Module wich compute all the required quantities and construct the harmonic oscillator basis from external inputs.
+!> A module which computes all the required quantities and constructs the harmonic oscillator basis from external inputs.
 use constants
 integer,allocatable::n_ext(:),m_ext(:),l_ext(:),j_ext(:),t_ext(:)
 integer,allocatable::n_red(:),l_red(:),j_red(:),occ(:),nocc(:)
@@ -10,9 +10,9 @@ integer::lmin,lmax,jmin,jmax
 double precision,allocatable::tbme_ext(:,:,:,:)
 contains
 
-!> A subroutine that read and creat the Harmonic Oscillator Bais from external spM.dat file.
+!> A subroutine that reads and creates the harmonic oscillator basis from external spM.dat file.
 subroutine external_basis()
-!This routine read and construct the HO basis from an external spM.dat file
+!This routine reads and constructs the HO basis from an external spM.dat file.
 implicit none
 integer::tag,nn,nl,nm,nj,niso
 integer::iho,stat,ifil
@@ -27,7 +27,7 @@ allocate(n_ext(n_lines),m_ext(n_lines),l_ext(n_lines),j_ext(n_lines),t_ext(n_lin
 allocate(repick_base(n_lines))
 n_ext=0;m_ext=0;l_ext=0;j_ext=0;t_ext=0
 j=0
-!Getting the size of the spherical basis labeled by the quantum numbers (n,l,j,m,isospin)
+!Getting the size of the spherical basis labelled by the quantum numbers (n,l,j,m,isospin)
 do iho=1,n_lines
    read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso
    n_ext(iho) = nn
@@ -36,7 +36,7 @@ do iho=1,n_lines
    m_ext(iho) = nm
    t_ext(iho) = niso
    if (niso .eq. 1 .and. nm .eq. nj) then
-   !This allow to construct a reduced basis for the neutrons only and for a fixed m
+   !This allows to construct a reduced basis for the neutrons only and for a fixed m
      j = j + 1
    endif
 enddo
@@ -52,7 +52,7 @@ read(124,*) n_lines
 count_base = 0
 do iho=1,n_lines 
  !Filling the reduced basis from the spherical basis 
- !The reduced basis will be then labeled by (n,l,j)
+ !The reduced basis will be then labelled by (n,l,j)
    read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso
   if (niso ==1 .and. count_base == 0) then
    n_red(j) = nn
@@ -94,8 +94,8 @@ stop
 endif
 end subroutine
 
-!>This routine read and stock in a binary file the matrix elements from an external code
-!>\parameter lpr a logical argument wich when false fixes the interaction to 0
+!>This routine reads and stocks in a binary file the matrix elements from an external code.
+!>\parameter lpr is a logical argument which when false fixes the interaction to 0.
 subroutine external_tbme(lpr)
 implicit none
 integer::q1,q2,q3,q4
@@ -165,7 +165,7 @@ endif
 end subroutine
 
 
-!>Computing the number of particles that can be put in each state
+!>Computing the number of particles that can be put in each state.
 subroutine filled_number()
 implicit none
 integer::il,nf,ic

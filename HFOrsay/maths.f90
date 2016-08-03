@@ -1,8 +1,8 @@
-!> A maths module wich contains basic tools and mathematical functions
+!> A maths module which contains basic tools and mathematical functions.
 module maths
 contains
-!> A logarithmic implementation of the Factorial
-!> \param n integer n!
+!> A logarithmic implementation of the factorial.
+!> \param n is integer n!.
 function fac(n) result(fak)
 implicit none
 integer::i,n
@@ -17,8 +17,8 @@ else
  fak = exp(lfak)
 endif
 end function fac
-!> A logarithmic recursive implementation of the Double factorial
-!> \param n integer n!!
+!> A logarithmic recursive implementation of the double factorial.
+!> \param n is integer n!!,
 function ffac(n) result (ffak)
 implicit none
 integer::n,k
@@ -31,9 +31,9 @@ if (mod(n,2) == 0) then
   ffak = fac(2*k)/(2**(dble(k))*fac(k))
 endif
 end function ffac
-!> An array sorting function
-!> \param n the size of the array
-!> \param a the array to sort
+!> An array sorting function.
+!> \param n is the size of the array.
+!> \param a is the array to sort.
 subroutine sort(n,a)
   implicit none
   integer n,i,j
@@ -49,10 +49,10 @@ subroutine sort(n,a)
    30   continue
         end subroutine
 
-!> An simultaneous array sorting function
-!> \param n the size of the array
-!> \param indexarray the array used to index the array to sort 
-!> \param arraytosor the array to be sort
+!> An simultaneous array sorting function.
+!> \param n is the size of the array,
+!> \param indexarray is the array used to index the array to sort. 
+!> \param arraytosor is the array to be sorted.
 subroutine sorteigv(n,indexarray,arraytosort)
 implicit none
 integer::n,i,j,k,l
@@ -77,9 +77,9 @@ arraytosort= 0.d0
 arraytosort=te
 call sort(n,indexarray)
 end subroutine
-!>This Function compute the trace of a squared matrix
-!> \param n the size of the matrix
-!> \param M the input matrix
+!>This function computes the trace of a square matrix.
+!> \param n is the size of the matrix.
+!> \param M is the input matrix.
 function trace(M,n) result(tr)
 implicit none
 integer::n,i

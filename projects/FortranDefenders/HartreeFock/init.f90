@@ -80,7 +80,6 @@ contains
           !
           cso0 = - 3._wp/4._wp * w0
           cso1 = - 1._wp/4._wp * w0
-
      end subroutine init_params
 
      !> Initialization of the grids
