@@ -43,7 +43,7 @@ void HartreeFock::run()
         {
           std::vector<arma::uword> v;
 
-          for (unsigned int i = 0; i < fullSpBasis.qNumbers.n_elem; i++ )
+          for (unsigned int i = 0; i < fullSpBasis.qNumbers.n_rows; i++ )
           {
             if (fullSpBasis.qNumbers(i, 1) != l)
               continue;
