@@ -12,7 +12,6 @@
 	! Eup = Upper limit for energy in numerov algorithm
 	! Edown= Lower limit for energy in numerov algorithm
 	! epsil= Demanded precision for convergence
-	! Rmin= Left hand side limit for the box in which we are solving SE
 	! Rmax= Right hand side limit for the box in which we are solving SE
 	! meshsize= Distance between meshpoints
 	! a= diffusivity (0.67 fm)
@@ -67,10 +66,9 @@
       use wavefunctions
 
       implicit none
-!     program to solve 1D Schroedinger equation
-!      INTEGER, PARAMETER :: dp = SELECTED_REAL_KIND(12)
+
       REAL(kind=dp) :: Eup, Edown, epsil
-      REAL(kind=dp) :: Rmin, Rmax, meshsize, a, Vvalue, rzero
+      REAL(kind=dp) :: Rmax, meshsize, a, Vvalue, rzero
       integer :: Nodemax, kpot, N_max, N_maxN, N_maxZ, N_act, Num_par
       integer :: Num_par_max
       REAL(kind=dp) :: Etrial, Eexp
@@ -90,8 +88,6 @@
       Eup=100.E0_dp
       Edown=-100.E0_dp
       epsil=1.E-6_dp
-!      Nodemax=5
-      Rmin=0.1E0_dp
       Rmax=30.E0_dp !fermi
       meshsize=0.1E0_dp
 ! kpot= 0 no potential      
@@ -101,30 +97,27 @@
 ! kpot= 4 spin-orbit W potential
 ! kpot= 5 Radial potential Eq. 2.10
 !
-      numN= 126
-      numZ= 82 
+      numN= 8
+      numZ= 8
       kpot= 5
       a=0.67E0_dp
       Vvalue=-100.E0_dp 
       rzero=1.27E0_dp 
 
       rProt= rzero*(numZ**(1.0E0_dp/3.0E0_dp))
-!     single particle inputs
-!      n_prin= n_rad+l+1
-      N_maxN=8
-      N_maxZ=8
+      N_maxN=2
+      N_maxZ=2
 !==================================================================     
 !
 ! Calculates the number of points in a mesh and allocates the trial wavefunction
 ! the potential, position array, densities
 ! Gives error message if there are problems
 
-      points=int((Rmax-Rmin)/meshsize)
+      points=int(Rmax/meshsize)
 
          allocate(trialwf(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
 
-!         trialwf(:)=0.0E0_dp
          allocate(pott(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
 !
@@ -139,10 +132,12 @@
 !
          allocate(denZ(0:points), stat = ifail)
          if (ifail .ne. 0) STOP
-!
+
+! Define array of R
          do i=0,points
-         posiR(i)=Rmin+i*meshsize
+         posiR(i)=i*meshsize
          end do
+	 posiR(0) = 0.01    ! We don't want R=0 at all!
 
          num_stat=0
          nstatN=0
@@ -153,7 +148,9 @@
          else if(charge .eq. 1) then
            N_max=N_maxZ
          end if
-!
+
+
+!Number of states
          do N_act=0,N_max   
           do n_rad=0,N_act
             do l= 0, N_act
@@ -175,19 +172,20 @@
           end do!N_act
           end do !charge
 
-         allocate(states(1:points+7,1:num_stat), stat = ifail)
+         allocate(states(1:points+6,1:num_stat), stat = ifail)
          if (ifail .ne. 0) STOP
-         allocate(states2(1:points+7,1:num_stat), stat = ifail)
+         allocate(states2(1:points+6,1:num_stat), stat = ifail)
          if (ifail .ne. 0) STOP
          allocate(ordEneN(1:nstatN), stat = ifail)
          if (ifail .ne. 0) STOP
          allocate(ordEneZ(1:nstatZ), stat = ifail)
          if (ifail .ne. 0) STOP
 
-!states contain Energy,charge, nrad, l, jj, f(0), trialwf(0:points) then index of state
+!states contain Energy,charge, nrad, l, jj, trialwf(0:points) then index of state
 
       nstat=0
-!
+
+
 ! This opens a summary table and begins the actual program, 
 ! solves the problem for different combination of l and n
       OPEN(UNIT=8, FILE='summary_table.dat', status='unknown')
@@ -203,7 +201,7 @@
          end if
 
 !
-!Calculates the number of states which needed (for neutrons, protons, together)
+!Starts to calculate the number of states which needed (for neutrons, protons, together)
 
          do N_act=0,N_max   
          do n_rad=0,N_act
@@ -211,23 +209,15 @@
                if((2*n_rad+l) .ne. N_act) then
                 go to 31
                end if 
- !               if(l .eq. 0) then
- !                jmin=1
- !                jmax=1
- !               else
- !                jmin=2*l-1
- !                jmax=2*l+1
- !               end if
                jmin=abs(2*l-1)
                do jj= jmin,2*l+1,2
                nstat=nstat+1
 
-!               print*,nstat
                
 ! Finds out the value of potential at a point                 
 !         OPEN(UNIT=9, FILE='potential.dat', status='unknown')
          do i=0,points
-         pott(i)=potV(i,meshsize,Rmax,Rmin,a,kpot, Vvalue, &
+         pott(i)=potV(i,posiR, points, meshsize,Rmax,a,kpot, Vvalue, &
                   numN, numZ,rzero,rProt,charge, l, jj)
 !         write(9,*) Rmin+i*meshsize, pott(i)
          end do
@@ -235,10 +225,10 @@
 !
 
            call wavef(points,meshsize, n_rad, l, Eup, Edown, epsil, pott, &
-                 trialwf, Etrial) 
+                 trialwf, Etrial) ! WEDO: U_r
 
            call parwf(points,meshsize, n_rad, l, numN, numZ, Etrial, &
-                    epsil, pott, trialwf) 
+                    epsil, pott, trialwf) ! WEDO: U_r
 
 
 ! Calculates the integral over trial wavefunction and normalizes the wafefunction
@@ -263,7 +253,7 @@
 
 ! Calculates the output number of nodes excluded a possible node in the last point of the box
          Nodecount=0    
-         do i=1,points
+         do i=1,points !WEDO:-1
            if(trialwf(i-1)*trialwf(i) .lt. 0.0E0_dp) &
              Nodecount= Nodecount+1
          end do 
@@ -276,9 +266,8 @@
          states(3,nstat)=n_rad
          states(4,nstat)=l
          states(5,nstat)=jj
-         states(6,nstat)=0.0E0_dp
          do i= 0,points
-            states(7+i,nstat)=trialwf(i)**2
+            states(6+i,nstat)=trialwf(i)**2 ! WEDO: U_r^2
          end do
                 end do !loop j
 31            continue
@@ -326,14 +315,14 @@
 
 ! Routine for writing meshpoint and square of "wavefunction"
 !
-!         OPEN(UNIT=7, FILE='u(r)_state'//char_nstat//'.dat', status='unknown')
+         OPEN(UNIT=7, FILE='states'//char_nstat//'.dat', status='unknown')
 !         
-!         write(7,*) "#Radial number=", states2(2,i)
-!         write(7,*) "#Energy= ", states2(1,i)
-!         do j=7,points
-!           write(7,*) Rmin+i*meshsize, states2(j,i)
-!         end do
-!         CLOSE(unit=7)
+         write(7,*) "#Radial number=", states2(2,i)
+         write(7,*) "#Energy= ", states2(1,i)
+         do j=6,points
+           write(7,*) posiR(j-6), states2(j,i), sqrt(states2(j,i))/(posiR(j-6))
+         end do
+         CLOSE(unit=7)
          if (int(states2(2,i)) .eq. 0) then
             part="n"
          else if (int(states2(2,i)) .eq. 1) then
@@ -353,7 +342,7 @@
       denN(:)=0.0E0_dp
       denZ(:)=0.0E0_dp
           
-        do j=2,points
+        do j=0,points !WEDO
 
 ! HERE SOME COMMENTS
 !loop on neutron density
@@ -372,23 +361,23 @@
          Num_par= Num_par+int(states2(5,i)+1)
 !         print*, int(states2(5,i)+1),occup, Num_par
 !
-            density(j)= density(j) + (dble(occup))*states2(7+j,i)/4/pi &
+            density(j)= density(j) + (dble(occup))*states2(6+j,i)/4/pi &
                         /posiR(j)**2
 !            print*, posiR(j), density(j), i
 
-            denN(j)= denN(j) + (dble(occup))*states2(7+j,i)/4/pi  &
+            denN(j)= denN(j) + (dble(occup))*states2(6+j,i)/4/pi  &
                         /posiR(j)**2
-            if((j .eq. 1 .or. j .eq. 2) .and. int(states2(4,i)) .eq. 0) then
-            density(0)= density(0) +(dble(occup))*states2(10,i)/4/pi &
-                        /posiR(j)**2
-            denN(0)= denN(0) +(dble(occup))*states2(10,i)/4/pi &
-                        /posiR(j)**2
-            end if
+          !  if((j .eq. 1 .or. j .eq. 2) .and. int(states2(4,i)) .eq. 0) then
+          !  density(0)= density(0) +(dble(occup))*states2(10,i)/4/pi &
+          !              /posiR(j)**2
+          !  denN(0)= denN(0) +(dble(occup))*states2(10,i)/4/pi &
+          !              /posiR(j)**2 WEDO
+          !  end if
          end do
          end do
          
 !loop on proton density
-         do j=1,points
+         do j=0,points
            charge=1
            N_max=N_maxZ
            Num_par_max=numZ
@@ -404,16 +393,16 @@
          Num_par= Num_par+(states2(5,i)+1)
 !         print*, int(states2(5,i)+1),occup
 !
-         density(j)= density(j) + (dble(occup))*states2(7+j,i)/4/pi &
+         density(j)= density(j) + (dble(occup))*states2(6+j,i)/4/pi &
                         /posiR(j)**2
-         denZ(j)= denZ(j) +  (dble(occup))*states2(7+j,i)/4/pi &
+         denZ(j)= denZ(j) +  (dble(occup))*states2(6+j,i)/4/pi &
                         /posiR(j)**2
-         if((j .eq. 1 .or. j .eq. 2) .and. int(states2(4,i)) .eq. 0) then
-            density(0)= density(0) +(dble(occup))*states2(10,i)/4/pi &
-                        /posiR(j)**2
-            denZ(0)= denZ(0) +(dble(occup))*states2(10,i)/4/pi &
-                        /posiR(j)**2
-            end if
+         !if((j .eq. 1 .or. j .eq. 2) .and. int(states2(4,i)) .eq. 0) then
+         !   density(0)= density(0) +(dble(occup))*states2(10,i)/4/pi &
+         !               /posiR(j)**2
+         !   denZ(0)= denZ(0) +(dble(occup))*states2(10,i)/4/pi &
+         !               /posiR(j)**2
+         !   end if
          end do
          end do
 
@@ -430,7 +419,7 @@
 !
          OPEN(UNIT=10, FILE='density.dat', status='unknown')
          do i=0,points
-           write(10,*) Rmin+i*meshsize, density(i), denN(i), denZ(i)
+           write(10,*) posiR(i), density(i), denN(i), denZ(i)
          end do
          CLOSE(unit=10)
 
