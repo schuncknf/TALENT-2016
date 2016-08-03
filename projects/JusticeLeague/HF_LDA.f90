@@ -18,7 +18,7 @@ module LDA
 contains
 
 !> Computes the density in the coordinate basis in the Local Density
-!! Approximation [see eqn. 60 of HF_extensions.pdf].
+!! Approximation (see eqn. 60 of HF_extensions.pdf).
   function rho_LDA(r) result(rho)
     implicit none
     real(dp), intent(in) :: r
@@ -43,8 +43,8 @@ contains
              if(lk.ne.lj.or.jj.ne.jk) cycle
              Anl =  HO_Normalization(nj,lj)
              Anpl = HO_Normalization(nk,lk)
-             phi = phi + (D_mat( j,i)*D_mat( k,i)*1.0_dp + &
-                          D_prev(j,i)*D_prev(k,i)*0.0_dp)*&
+             phi = phi + D_mat( j,i)*D_mat( k,i)* &
+!                          D_prev(j,i)*D_prev(k,i)*0.0_dp)*&
                           xi**(lj+lk)*exp(-xi**2)*&
                           L_nl(nj,lj)*L_nl(nk,lk)*Anl*Anpl/(b_ho**3)
           enddo
@@ -71,8 +71,11 @@ contains
           lj = l_hf(j)
           jj = j_hf(j)
           if(li.ne.lj.or.ji.ne.jj) cycle
-!          gamma = gamma_LDA(ni,nj,li)
-          gamma = gamma_DME(ni,nj,li)
+          if(type_of_calculation.eq.'DME') then
+             gamma = gamma_DME(ni,nj,li)
+          else
+             gamma = gamma_LDA(ni,nj,li)
+          endif
           gamma_mat(i,j) = gamma
           gamma_mat(j,i) = gamma
        enddo
@@ -80,7 +83,8 @@ contains
     
   end subroutine calculate_gamma_LDA
 
-!> Performs the integral in HF_Extensions.pdf, eqn. 58
+!> Performs the integral in HF_Extensions.pdf, eqn. 58.
+!! \f$\texttt{(n, np, l)}=n,n',l\f$
   function gamma_LDA(n,np,l) result(gamma)
     implicit none
     integer, intent(in) :: n,np,l
@@ -104,8 +108,7 @@ contains
     gamma = Ivc*gamma*An*Anp/2._dp
   end function gamma_LDA
 
-!> Evaluates the integral ******the whole thing or just part?****** in
-!! HF_Extensions.pdf eqn. 54
+!> Evaluates the integral in HF_Extensions.pdf eqn. 54
   function IntegralVc() result(Ivc)
     real(dp) :: Ivc
     real(dp) :: alpha,xi,wi,Ir,Is
@@ -163,7 +166,7 @@ contains
     character(2) :: index
 !    Trho = 0
 !    write(index,'(i2.2)') j
-    open(100,file='rho_plot_LDA_sat.dat')
+    open(100,file=trim(density_file))
     do i = 1,10000
        ri = i*dr
 !       Trho = Trho  + rho_LDA(ri)*ri**2*dr
@@ -190,7 +193,11 @@ contains
     Trho = Trho*4*pi
   end function Trace_rho_LDA
 
-!> I'm not sure what this subroutine was used for.
+!> Calls upon \f$\texttt{rho\_LDA}\f$ at an array of points defined
+!! by the Gauss-
+!! Laguerre quadrature mesh, and stores the result in a global array
+!! \f$\texttt{rho\_LDA}\f$ to be used by \f$\texttt{gamma\_LDA}\f$
+!! to calculate integral 58 of HF_extensions.pdf.
   subroutine sample_rho_LDA
     implicit none
     real(dp) :: alpha
@@ -207,7 +214,11 @@ contains
     enddo
   end subroutine sample_rho_LDA
 
-!> There's something Doxygen doesn't like about this particular subroutine.
+!> Calculates, at an arbitrary point \f$R\f$, the fields \f$\rho(R)\f$,
+!! \f$\tau(R)=\nabla_1\cdot\nabla_2\rho(r_1r_2)|_{r_1=r_2=R}\f$
+!! and \f$\nabla\rho(r)\f$.
+!! The subroutine \f$\texttt{sample\_DME\_fields}\f$ will call this
+!! subroutine for each point in the integration/quadrature mesh.
   subroutine DME_fields(r,rho,tau,del_rho)
     implicit none
     real(dp), intent(in) :: r
@@ -251,7 +262,9 @@ contains
   end subroutine DME_fields
 
 
-!> gamma_DME
+!> Performs the integration (using Guass-Laguerre quadrature with weight
+!! function w) in HF_extensions.pdf eqn. 58, except using
+!! DME instead of LDA. \f$\texttt{(n, np, l)}=n,n',l\f$
   function gamma_DME(n,np,l) result(gamma)
     implicit none
     integer, intent(in) :: n,np,l
@@ -278,7 +291,12 @@ contains
     gamma = gamma*An*Anp/2._dp
   end function gamma_DME
 
-!> sample_DME_fields
+!> Calls upon \f$\texttt{DME\_fields}\f$ at an array of points defined
+!! by the Gauss-
+!! Laguerre quadrature mesh, and stores the result in the global arrays
+!! \f$\texttt{rho\_quad}\f$, \f$\texttt{tau\_quad}\f$, and
+!! \f$\texttt{delrho\_quad}\f$ to be used by \f$\texttt{gamma\_DME}\f$
+!! to calculate integral 58 of HF_extensions.pdf.
   subroutine sample_DME_fields
     implicit none
     real(dp) :: alpha
@@ -352,7 +370,7 @@ contains
   end function C_rhorho_kernel
 
 !> Contains the kernel of the integral used to compute \f$C^{\rho\tau}\f$
-!! [see  eqn. 63 of HF_extensions.pdf] As in the case of
+!! (see  eqn. 63 of HF_extensions.pdf) As in the case of
 !! \f$C^{\rho\rho}\f$, the integral has been transformed into a
 !! form that permits it to be evaluated using our Gauss-Laguerre
 !! quadrature scheme.
@@ -364,6 +382,9 @@ contains
   end function C_rhotau_kernel
 
 
+!> Writes \f$r\f$ and \f$\rho_{DME}(r)\f$ (or rather,
+!! \f$r^2\rho_{DME}(r)\f$) to a file
+!! \f$\texttt{dmefields\_surface\_sat.dat}\f$ for plotting.
   subroutine plot_DME_fields
     implicit none
     integer :: i
@@ -384,6 +405,7 @@ contains
     write(*,*) 'Trace of DME rho', Tr
   end subroutine plot_DME_fields
 
+!> Computes the RMS radius of the neutron drop in the DME approximation.
   function rms_DME() result(rms)
     implicit none
     real(dp) :: rms

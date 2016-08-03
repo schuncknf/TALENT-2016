@@ -5,8 +5,8 @@
 !! consistent part of the calculation, include building the density
 !! matrix \f$\rho_{\mu\nu}\f$ and the single particle potential
 !! \f$\Gamma_{\alpha\beta}\f$, and diagonalizing the Hamiltonian to
-!! extract its eigenvectors and eigenvalues [see pg. 2 of
-!! HF_truncated_v2.pdf].
+!! extract its eigenvectors and eigenvalues (see pg. 2 of
+!! HF_truncated_v2.pdf).
 !---------------------------------------------------------------------
 module HartreeFock
   use :: types
@@ -14,9 +14,63 @@ module HartreeFock
   implicit none
 contains
 
+  subroutine read_input()
+    implicit none
+    open(100,file='HF_input.dat')
+    read(100,*)
+    read(100,*) Nparticles
+    read(100,*)
+    read(100,*)
+    read(100,*) Maxit
+    read(100,*)
+    read(100,*)
+    read(100,*) k_fermi
+    read(100,*)
+    read(100,*)
+    read(100,*) orbitals_file
+    read(100,*)
+    read(100,*)
+    read(100,*) elements_file
+    read(100,*)
+    read(100,*)
+    read(100,*) output_file
+    read(100,*)
+    read(100,*)
+    read(100,*) density_file
+    read(100,*)
+    read(100,*)
+    read(100,*) type_of_calculation
+    if(trim(type_of_calculation).eq.'truncated') then
+       read(100,*)
+       read(100,*)
+       read(100,*) Nsize
+       truncated = .true.
+       nsize = nsize + 1
+    else
+       truncated = .false.
+    endif
+    close(100)
+    if(trim(type_of_calculation).ne.'truncated'.and.&
+         trim(type_of_calculation).ne.'spherical'.and.&
+         trim(type_of_calculation).ne.'LDA'.and.&
+         trim(type_of_calculation).ne.'DME') then
+       write(*,*) 'Unrecognized type of calculation'
+       write(*,*) type_of_calculation
+       write(*,*) 'please check HF_input.dat file'
+       write(*,*) 'stoping now'
+       stop
+    endif
+    if(trim(type_of_calculation).eq.'LDA'.or.&
+         trim(type_of_calculation).eq.'DME') then
+       approximated_rho = .true.
+    else
+       approximated_rho = .false.
+    endif
+  end subroutine read_input
+
 !> Allocates the arrays which will be used in the Hartree-Fock
 !! calculation, and initializes the matrix \f$D_{\mu i}=\delta{\mu i}\f$
-!! [see eqns. 1, 5 of HF_truncated_v2.pdf].
+!! (see eqns. 1, 5 of HF_truncated_v2.pdf).
   subroutine Initialize_HF
     implicit none
     integer :: i
@@ -24,7 +78,7 @@ contains
        deallocate(D_mat,rho_mat,h_mat,Gamma_mat,E_values,E_prev)
     endif
     allocate(D_mat(1:Nsize,1:Nsize))
-    allocate(D_prev(1:Nsize,1:Nsize))
+!    allocate(D_prev(1:Nsize,1:Nsize))
     allocate(rho_mat(1:Nsize,1:Nsize))
     allocate(h_mat(1:Nsize,1:Nsize))
     allocate(Gamma_mat(1:Nsize,1:Nsize))
@@ -36,7 +90,7 @@ contains
     do i = 1,nsize
        D_mat(i,i) = 1
     enddo
-    D_prev = D_mat
+!    D_prev = D_mat
   end subroutine Initialize_HF
 
 !> Constructs the density matrix 
