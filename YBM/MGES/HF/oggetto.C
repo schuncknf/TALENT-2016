@@ -3,21 +3,21 @@
 
 /////////////////////HARTREE FOCK///////////////////////////
 
-double numerov_algorithm_HF(double energy, double f0, double f_,double r, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1){
+double numerov_algorithm_HF(double energy, double f0, double f_,double r, double S, double L, double J, float T, double Vsky_, double Vsky0, double Vsky1, double * densityCou){
 	// Integrate Schrodinger equation to determine next 'r' value, using Numerov algorithm
 	// 'Vsky_', 'Vsky0', 'Vsky1' are Skyrme potentials at previous, current and next 'r' values
 	// 'f_', 'f0' are previous and current wavefunction values
 	double v=0., a[3];
 
-	a[0] = 2. * (1. - 5./12. * v_HF(energy,r,S,L,J,T, Vsky0) * pow(h_width,2));
-	a[1] = 1. * (1. + 1./12. * v_HF(energy,r-h_width,S,L,J,T, Vsky_) * pow(h_width,2));
-	a[2] = 1. * (1. + 1./12. * v_HF(energy,r+h_width,S,L,J,T, Vsky1) * pow(h_width,2));
+	a[0] = 2. * (1. - 5./12. * v_HF(energy,r,S,L,J,T, Vsky0, densityCou) * pow(h_width,2));
+	a[1] = 1. * (1. + 1./12. * v_HF(energy,r-h_width,S,L,J,T, Vsky_, densityCou) * pow(h_width,2));
+	a[2] = 1. * (1. + 1./12. * v_HF(energy,r+h_width,S,L,J,T, Vsky1, densityCou) * pow(h_width,2));
 
 	return (a[0] * f0 - a[1] * f_) / a[2];
 }
 
 
-double v_HF(double energy, double r, double S, double L, double J, double T, double Vsky){
+double v_HF(double energy, double r, double S, double L, double J, double T, double Vsky, double * densityCou){
 	// Calculate total potential at point 'r', using Skyrme term 'Vsky' and centrifugal term
 
 	// Neutrons
@@ -26,7 +26,7 @@ double v_HF(double energy, double r, double S, double L, double J, double T, dou
 	}
 	// Protons
 	else if(T==1./2.){
-		return (energy - Vsky - centrifug_term(r,L))/m_factor - coulombHF();
+		return (energy - Vsky - centrifug_term(r,L))/m_factor - coulombPotentialHF(densityCou, r);
 	}
 }
 
@@ -44,9 +44,23 @@ double skyrme(double rho, double rho_q, double rho_p, double rho_n){
 }
 
 
-double coulombHF(){
-	// Calculate Coulomb contribution to overall potential
-	return 0.;
+double coulombPotentialHF(double * densityCou, double r){
+	double integ1 = 0., integ2 = 0., integ3 = 0., exchange = 0.;
+
+	for(int i=1;i<=r/h_width;++i){
+		integ1 += densityCou[i]*r*r;
+		integ2 += densityCou[i]*r;
+	}
+	for(int i=0;i<=width_box/h_width;++i){
+		integ3 += densityCou[i]*r;
+	}
+
+	exchange = pow(densityCou[int(r/h_width)],1./3.);
+
+	double pot = h_width* (4.*M_PI*e* (integ1/r - integ2 + integ3) - exchange*e*pow(3./M_PI,1./3.));
+	cout << pot << "\t" << r << endl;
+	return pot;
+	// return 0.;
 }
 
 /*
