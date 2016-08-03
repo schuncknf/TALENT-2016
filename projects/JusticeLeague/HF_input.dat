@@ -1,0 +1,26 @@
+Number of particles (closed shell integer)
+ 8
+
+Maximum number of iterations (integer)
+ 100
+
+Fermi momentum in fm^-1 (usually between 1.0 and 2.0)
+ 3.7
+
+Orbitals file (input)
+ spM_n5l2.dat
+
+Matrix elements file (input)
+ VM-scheme_n5l2.dat
+
+Output file (output)
+ hfsolver_out.dat
+
+Density file (output)
+ rho_plot.dat
+
+Type of calculation (truncated, spherical, LDA or DME)
+ DME
+
+N_max
+ 5

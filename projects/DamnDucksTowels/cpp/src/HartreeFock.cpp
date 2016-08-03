@@ -55,12 +55,12 @@ void HartreeFock::run()
           }
 
           arma::uvec vv(v);
-          arma::mat subH = H.submat( vv, vv);
+          arma::mat subH = H( vv, vv);
           arma::mat subD ;
           arma::vec subE ;
           arma::eig_sym(subE, subD, subH);
           new_indivE.elem(vv) = subE;
-          D(pType).submat(vv, vv) = subD;
+          D(pType)(vv, vv) = subD;
         }
       }
     }
