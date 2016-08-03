@@ -5,6 +5,8 @@
 /_/  \___/_/  \__/_/  \_,_/_//_/ /____/\__/_/ \__/_//_/\_,_/\__/_/ /___/
 </pre>
 ## Coding for Hono(u)r
+![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.png)
+
 
 Welcome to our home in the Repo.
 

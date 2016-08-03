@@ -47,6 +47,8 @@ mrproper: clean
 	cd ./python/bindings;./setup.py clean;rm -Rf build;rm -f hffs.pyc hffs.py hffs_wrap.cpp hffs_wrap.cpp.bkp;cd -
 	rm -rf $(TARGET) $(DEPS)
 
+doc: $(CPP_FILES) cpp/include/*.h
+	doxygen ./Doxyfile
 
 %.d: %.cpp
 	$(CC) -c -MM $< -o $@ $(CFLAGS)

@@ -39,7 +39,7 @@ contains
                *wfr(ir,sortstates(i,1,iq),sortstates(i,2,iq),sortstates(i,3,iq),iq)**2&
                /(4*pi*mesh(ir)**3)
               end do
-              !rho(0,iq) = rho(1,iq)
+              rho(0,iq) = rho(1,iq)
               !tau(2,iq) = tau(3,iq)
               tau(1,iq) = tau(2,iq)
               tau(0,iq) = tau(1,iq)
@@ -145,6 +145,9 @@ contains
     ddrho(:,4) = ddrho(:,1) - ddrho(:,2)
     do i =1,4
     laprho(:,i) = ddrho(:,i) + 2._wp/mesh(:)*drho(:,i)
+    end do
+        do ir = 0,nbox
+      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1),laprho(ir,1)
     end do
   end subroutine ddensities
 

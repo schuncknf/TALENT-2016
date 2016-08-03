@@ -8,17 +8,17 @@ implicit none
 contains
   !> build_fields builds the fields and populates the field arrays
   subroutine build_fields
-    integer :: ir, iq, ir2
+    integer :: ir, iq, ir2,i
     real(wp), dimension(0:nbox,2) :: ucnew,umrnew,uddnew,usonew,ucsonew,dumrnew,d2umrnew
     real(wp), dimension(0:nbox) :: ucoulnew
     real(wp) :: tot1=0.0d0,tot2=0.0d0
     real(wp) :: xmix, ymix
 
-    xmix = 0.4
+    xmix = 0.2
     ymix = 1.-xmix
 
     do iq = 1,2
-     do ir = 0,nbox
+     do ir = 0,nbox-50
     !!Central Field U(r)
              ucnew(ir,iq) = 2*(a0r0-a1r1)*rho(ir,3) + 4*a1r1 * rho(ir,iq)  &
                             + (a0tau0-a1tau1) *tau(ir,3)+ 2 *a1tau1*tau(ir,iq) &
@@ -31,7 +31,7 @@ contains
              dumrnew(ir,iq) = (a0tau0-a1tau1)*drho(ir,3) + 2 * a1tau1*drho(ir,iq)
              d2umrnew(ir,iq) = (a0tau0-a1tau1)*ddrho(ir,3) + 2 * a1tau1*ddrho(ir,iq)
     !! t3 part of U(r)
-             uddnew(ir,iq) = ( 2 + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
+             uddnew(ir,iq) = ( 2. + sig ) * (cddr0-cddr1)*rho(ir,3)**(sig+1)  &
                            +2*sig*cddr1*(rho(ir,1)**2+rho(ir,2)**2)*rho(ir,3)**(sig-1) &
                            + 4 * cddr1 * rho(ir,iq) * rho(ir,3)**sig
      !!spin-orbit part
@@ -52,13 +52,15 @@ contains
         do ir2=ir+1,nbox
          tot2=tot2+rho(ir2,2)*mesh(ir2)
         end do
-        ucoulnew(ir)=4.0d0*pi*e2*(tot1/mesh(ir)&
+        ucoulnew(ir)=4.0d0*pi*e2*(tot1/mesh(ir) &
         + tot2)*h - e2*(3./pi)**(1./3.)*rho(ir,2)**(1./3.)
       end if
      end do
     end do
-
-
+    do i=1,nbox
+     write(16,*) i*h,ucnew(i,1),ucsonew(i,1),umrnew(i,1),uddnew(i,1),usonew(i,1), &
+         ucoulnew(i),dumrnew(i,1),d2umrnew(i,1)
+    end do
     uc(:,:) = ucnew(:,:)*xmix + uc(:,:)*ymix
     ucso(:,:) = ucsonew(:,:)*xmix + ucso(:,:)*ymix
     umr(:,:) = umrnew(:,:)*xmix + umr(:,:)*ymix
@@ -67,7 +69,9 @@ contains
     ucoul(:) = ucoulnew(:)*xmix + ucoul(:)*ymix
     dumr(:,:) = dumrnew(:,:)*xmix + dumr(:,:)*ymix
     d2umr(:,:) = d2umrnew(:,:)*xmix + d2umr(:,:)*ymix
-
+    do i=1,nbox
+     write(15,*) i*h,uc(i,1),ucso(i,1),umr(i,1),udd(i,1),uso(i,1),ucoul(i),dumr(i,1),d2umr(i,1)
+    end do
     if(icoul==0) ucoul(:) = 0.
   end subroutine build_fields
   !> totenergy calculates the total energy using both the koopman theorem and

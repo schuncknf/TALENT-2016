@@ -1,0 +1,21 @@
+CC	= g++
+CFLAGS	= -W -O3
+LDFLAGS	=
+EXEC	= star
+#SRC	= radial_1D.c #hello.c
+SRC	= test.c main.c #hello.c
+OBJ	= $(SRC:.c=.o)
+
+all: $(EXEC)
+
+$(EXEC): $(OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+clean: 
+	rm -rf *.o
+
+mrproper: clean
+	rm -rf $(EXEC)

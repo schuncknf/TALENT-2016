@@ -1,5 +1,8 @@
+!> A maths module wich contains basic tools and mathematical functions
 module maths
 contains
+!> A logarithmic implementation of the Factorial
+!> \param n integer n!
 function fac(n) result(fak)
 implicit none
 integer::i,n
@@ -14,6 +17,8 @@ else
  fak = exp(lfak)
 endif
 end function fac
+!> A logarithmic recursive implementation of the Double factorial
+!> \param n integer n!!
 function ffac(n) result (ffak)
 implicit none
 integer::n,k
@@ -26,11 +31,10 @@ if (mod(n,2) == 0) then
   ffak = fac(2*k)/(2**(dble(k))*fac(k))
 endif
 end function ffac
-integer function delta(i,j)
-  integer :: i, j
-  delta=0; if(i==j) delta=1
-end function delta
- subroutine sort(n,a)
+!> An array sorting function
+!> \param n the size of the array
+!> \param a the array to sort
+subroutine sort(n,a)
   implicit none
   integer n,i,j
         double precision a(n),x
@@ -45,11 +49,15 @@ end function delta
    30   continue
         end subroutine
 
+!> An simultaneous array sorting function
+!> \param n the size of the array
+!> \param indexarray the array used to index the array to sort 
+!> \param arraytosor the array to be sort
 subroutine sorteigv(n,indexarray,arraytosort)
 implicit none
 integer::n,i,j,k,l
 double precision::val1,val2
-double precision::indexarray(n),arraytosort(n,n),tempar(n),te(n,n)
+double precision::indexarray(n),arraytosort(n),tempar(n),te(n)
 integer::sorted(n)
 
 tempar=indexarray
@@ -63,15 +71,15 @@ do i=1,n
  enddo
 enddo
 do i=1,n
- do j=1,n
-  te(i,j) = arraytosort(sorted(i),j)
- enddo
+  te(i) = arraytosort(sorted(i))
 enddo
 arraytosort= 0.d0
 arraytosort=te
 call sort(n,indexarray)
 end subroutine
-
+!>This Function compute the trace of a squared matrix
+!> \param n the size of the matrix
+!> \param M the input matrix
 function trace(M,n) result(tr)
 implicit none
 integer::n,i
@@ -82,8 +90,5 @@ tr = tr + M(i,i)
 enddo
 end function
 
-
-
-
-
 end module maths
+

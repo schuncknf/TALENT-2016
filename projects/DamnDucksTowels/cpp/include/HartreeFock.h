@@ -3,8 +3,13 @@
 
 #include "Solver.h"
 #include "System.h"
+#include "quadrature.h"
+#include "SpBasis.h"
+#include "FullSpBasis.h"
+#include "MinnesotaRaw.h"
+#include "global.h"
 
-/// class HartreeFock -
+/// class HartreeFock - Class representing a Hartree-Fock solver
 class HartreeFock : public Solver
 {
   // Attributes
@@ -15,9 +20,13 @@ public:
   arma::field<arma::vec> occ;
   // Operations
 public:
+  /// Constructor for the Hartree-Fock solver
   HartreeFock (System &system);
+  /// Destructor
   ~HartreeFock ();
+  /// Run a sole iteration of the Hartree-Fock solver
   void run ();
+  /// Compute the Hamiltonian H (to be suppressed)
   void calcH ();
 };
 

@@ -6,11 +6,12 @@
 
 FullSpBasis::FullSpBasis(double _omega, int _nMax, int _lMax) :
   Basis(std::string("FullSpBasis"), std::vector<std::string>(
-{"n", "l", "2j"
+{
+  "n", "l", "2j"
 })),
 omega(_omega),
-nMax(_nMax),
-lMax(_lMax)
+      nMax(_nMax),
+      lMax(_lMax)
 {
   //Defining maximum numbers and determining basis size
   size = (nMax + 1) * ((lMax + 1) * 2 - 1);
@@ -40,7 +41,7 @@ FullSpBasis::~FullSpBasis()
 
 void FullSpBasis::calcN()
 {
-  //Calculating N noramalization coefficients for each basis state
+  //Calculating N normalization coefficients for each basis state
   for (int i = 0; i < size; i++)
   {
     int n = qNumbers(i, 0);

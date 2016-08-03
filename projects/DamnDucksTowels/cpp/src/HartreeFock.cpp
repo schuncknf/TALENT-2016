@@ -1,8 +1,4 @@
 #include "HartreeFock.h"
-#include "quadrature.h"
-#include "SpBasis.h"
-#include "FullSpBasis.h"
-#include "global.h"
 
 HartreeFock::HartreeFock(System &_system) : Solver(_system), D(_system.particleNumbers.n_rows), occ(_system.particleNumbers.n_rows)
 {
@@ -23,7 +19,7 @@ HartreeFock::HartreeFock(System &_system) : Solver(_system), D(_system.particleN
 HartreeFock::~HartreeFock()
 {
 }
-#include <iostream>
+
 void HartreeFock::run()
 {
   int nb_state = system->basis->size;
@@ -34,39 +30,66 @@ void HartreeFock::run()
     arma::mat H = system->Kinetic(pType) + system->Gamma(pType);
     // Temporary vectors and matrices to store eigenvecs and energies
     arma::vec old_indivE = indivEnergies.row(pType).t();
-    arma::vec new_indivE;
+    arma::vec new_indivE = arma::zeros<arma::vec>(nb_state);
+
     // Hamiltonian diagonalization to extract D and e
-    arma::eig_sym(new_indivE, D(pType), H);
+    /*if ((system->basis->type == "FullSpBasis") && (dynamic_cast<MinnesotaRaw *>(system->inter) != NULL))
+    {
+      FullSpBasis &fullSpBasis = static_cast<FullSpBasis &>(*system->basis);
+      const int bl_size = fullSpBasis.nMax + 1;
+      //const int bl_size = 6;
+      for (int i = 0; i < nb_state / bl_size; i++ )
+      {
+        arma::mat subD = arma::eye<arma::mat>(bl_size, bl_size);
+        arma::vec subE = arma::zeros<arma::vec>(bl_size);
+        arma::mat subH = H.submat(i * bl_size, i * bl_size, (i+1) * bl_size - 1, (i+1) * bl_size - 1);
+        arma::eig_sym(subE, subD, subH);
+        new_indivE.subvec( i*bl_size, (i+1) * bl_size - 1) = subE;
+        D(pType).submat( i*bl_size, i*bl_size, (i+1) * bl_size - 1, (i+1) * bl_size - 1) = subD;
+      }
+    }
+    else
+    {*/
+      arma::eig_sym(new_indivE, D(pType), H);
+    //}
+
     // Extraction of eigenenergies' sequence
     arma::uvec sorted_ind = arma::sort_index(new_indivE);
     sorted_ind = sorted_ind.head(system->particleNumbers(pType));
     occ(pType).zeros();
-    if(system->basis->type == "FullSpBasis")
+
+    if (system->basis->type == "FullSpBasis")
     {
-      FullSpBasis & fullSpBasis = static_cast<FullSpBasis &>(*system->basis);
+      FullSpBasis &fullSpBasis = static_cast<FullSpBasis &>(*system->basis);
       arma::vec vecocc = arma::zeros<arma::vec>(sorted_ind.n_elem);
       int accu = 0;
-      for(unsigned int i = 0; i < sorted_ind.n_elem; i++)
+
+      for (unsigned int i = 0; i < sorted_ind.n_elem; i++)
       {
         int state = sorted_ind(i);
         int _2j = fullSpBasis.qNumbers(state, 2);
-        if(accu >= system->particleNumbers(pType))
+
+        if (accu >= system->particleNumbers(pType))
           break;
-        if(accu + _2j + 1 >= system->particleNumbers(pType))
+
+        if (accu + _2j + 1 >= system->particleNumbers(pType))
         {
           vecocc(i) = system->particleNumbers(pType) - accu;
           accu += system->particleNumbers(pType) - accu;
           break;
         }
+
         accu += _2j + 1;
         vecocc(i) = _2j + 1;
       }
+
       occ(pType)(sorted_ind) = vecocc;
     }
     else
     {
       occ(pType)(sorted_ind) = arma::ones<arma::vec>(sorted_ind.n_rows);
     }
+
     // New derivation of rho
     R(0, pType) = D(pType) * arma::diagmat(occ(pType)) * D(pType).t();
     indivEnergies.row(pType) = new_indivE.t();
@@ -78,7 +101,4 @@ void HartreeFock::run()
 void HartreeFock::calcH()
 {
 }
-
-
-
 

@@ -1,4 +1,11 @@
-subroutine compute_rho(rho,Dt,di,nl,nj)
+!> A subroutine which compute the density matrix
+!! \param rho the matrix to be constructed
+!! \param Dt the eigenvalues from diagonalisation
+!! \param di the size of the block density matrix 
+!! \param nl quantum number l
+!! \param nj quantum number j
+!! \param iteration argument to include initialisation
+subroutine compute_rho(rho,Dt,di,nl,nj,iteration)
 use constants
 use basis
 implicit none
@@ -7,11 +14,18 @@ double precision, dimension (di,di), intent(out) :: rho
 double precision, dimension (di,di), intent(in) :: Dt
 double precision,dimension(di,di)::D
 double precision::rho_temp
-integer::nl,nj
+integer::nl,nj,iteration
 ! subroutine local variables
 integer :: i,j,k,ibl
 rho= 0.d0
+D = 0.d0
+if (iteration .eq. 1) then
+ do i=1,di
+  if (nocc(tag_hf(i-1,nl,nj)) .gt. 0) D(i,i) = 1.d0
+ enddo
+else
 D=Dt
+endif
 ! compute rho from D and D_star
 do i=1,di
   do j=1,di
@@ -19,8 +33,6 @@ rho_temp =0.d0
     do k=1,di
       ibl=tag_hf(k-1,nl,nj)
       rho_temp = rho_temp+ nocc(ibl)*D(i,k)*D(j,k)
-!      if (nocc(ibl) .ne. 0) write(*,*) "In rho, nocc",nocc(ibl)
-      !rho_temp = rho_temp+ occ_num(k)*D(i,k)*D(j,k)
     enddo
     rho(i,j) = rho_temp
   enddo
@@ -28,12 +40,17 @@ enddo
 end subroutine compute_rho
 
 
+!> A subroutine which compute the Gamma interaction matrix
+!! \param gamma_matrix The interaction matrix to be computed
+!! \param rho The density matrix for <b>all</b> blocks
+!! \param di the size of the block density matrix 
+!! \param nl quantum number l
+!! \param nj quantum number j
 subroutine compute_gamma(gamma_matrix,rho,di,nl,nj)
 use basis
 implicit none
 integer, intent(in) :: di,nl,nj
-!double precision, dimension (di,di,di,di), intent(in) :: mtrxel
-double precision, dimension (di,di), intent(in) :: rho
+double precision, dimension (lmin:lmax,jmin:jmax,di,di), intent(in) :: rho
 double precision, dimension (di,di), intent(out) :: gamma_matrix
 double precision::gammatemp
 integer :: i1,i2,i3,i4
@@ -46,46 +63,21 @@ gamma_matrix = 0.d0
 
 !Compute the gamma matrix out of the TBMEs and the rho matrix
 do i1=1,di 
- !  write(*,*) "In matrices index, ",i1,i2,i3,i4
-  ib1 = tag_hf(i1-1,nl,nj)
- do i2=1,di
-   ib2 = tag_hf(i2-1,nl,nj)
+  ib1 = tag_hf(i1-1,nl,nj) ! ib1 = (n1,l1,j1)
+ do i3=1,di
+   ib3 = tag_hf(i3-1,nl,nj) ! ib3 = (n3,l3,j3)
      gammatemp = 0.d0
-    ! if (nocc2 .ne. 0 .and. nocc1 .ne. 0) then
-  do i3=1,di
-   ib3 = tag_hf(i3-1,nl,nj)
-   do i4=1,di
-   ib4 = tag_hf(i4-1,nl,nj)
-!     if (nocc4 .ne. 0 .and. nocc3 .ne. 0) then
-     !  if (n3 .ne. 0) then
- ! write(6,'(6i3)') n3,n4,l3,l4,j3,j4
-  !endif
-!        write(*,*) "In matrices, ",ib1,ib2,ib3,ib4,tbme_ext(ib1,ib4,ib2,ib3)
-        gammatemp = gammatemp + 0.d0*tbme_ext(ib1,ib4,ib2,ib3)*rho(i3,i4)
+  do i2=1,red_size
+   l2=l_red(i2);j2=j_red(i2);n2=n_red(i2)
+   do i4=1,red_size
+   l4=l_red(i4);j4=j_red(i4);n4=n_red(i4)
+      if (l2 .eq. l4 .and. j2 .eq. j4) then
+        gammatemp = gammatemp + 1.d0*tbme_ext(ib1,i2,ib3,i4)*rho(l2,j2,n2+1,n4+1)
+        endif
       enddo
     enddo
-    gamma_matrix(i1,i2) = gammatemp
-!    endif
+    gamma_matrix(i1,i3) = gammatemp
   enddo
 enddo
 end subroutine compute_gamma
-
-
-subroutine compute_h(h,t,gamma_matrix,di)
-implicit none
-integer, intent(in) :: di
-double precision, dimension (di,di), intent(in) :: t
-double precision, dimension (di,di), intent(in) :: gamma_matrix
-double precision, dimension (di,di), intent(out) :: h
-!subroutine local variables
-integer :: i,j
-h = 0.d0
-
-do i=1,di
-  do j=1,di
-    h(i,j) = t(i,j) + gamma_matrix(i,j)
-  enddo
-enddo
-end subroutine
-
 

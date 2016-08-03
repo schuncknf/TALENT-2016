@@ -1,117 +1,18 @@
-subroutine sphbasis(n,nr,nl,nj,nocc,lpr)
-      use constants
-      implicit none
-      integer:: il,nnsph,nlsph,nrsph,mssph,njsph,n,nt
-      logical:: lpr
-      integer::nr(n),nl(n),nj(n),ms(n),nfull(n),nocc(n)
-      integer::mspin,noc
-      integer::i,nf,ic
-! nfull - maximal number of particles in specific state
-! nocc  - true number of particles in specific state
-      nr(1) = 0
-      nl(1) = 0
-      nj(1) = 1
-      ms(1) = 1
-      nfull(1) = 2
-      il = 1
-      do nnsph = 1, nbase
-         if(mod(nnsph,2) .eq. 0) then
-            do nlsph = 0,nnsph,2
-            nrsph = (nnsph-nlsph)/2
-            do mssph=0,1
-               if(nlsph+mssph .gt. 0) then
-                 il=il+1
-                 nr(il)=nrsph
-                 nl(il)=nlsph
-                 nj(il)=nlsph+mssph
-	         ms(il)=mssph
-                 nfull(il)= 2*(nlsph+mssph)
-               endif
-            enddo ! mssph
-         enddo !nlsph
-
-        elseif(mod(nnsph,2) .eq. 1) then
-           do nlsph = 1,nnsph,2
-              nrsph = (nnsph-nlsph)/2
-              do mssph = 0,1
-                 if(nlsph+mssph .gt. 0) then
-                    il = il+1
-                    nr(il) = nrsph
-                    nl(il) = nlsph
-                    nj(il) = nlsph+mssph
-	            ms(il)=mssph
-	            nfull(il) = 2*(nlsph+mssph) ! possible number of particles in a state
-                endif
-             enddo !nlsph
-          enddo !mssph
-        else
-          stop 'error in base'
-        endif
-
-        if(nnsph .eq. nbase) nt = il
-
-        enddo
-
-! printout
-        if(lpr) then
-
-        write(*,*) ' ****** SPHERICAL BASIS ***************'
-
-        do il=1,nt
-        nrsph = nr(il)
-        nlsph = nl(il)
-        njsph = nj(il)
-        nnsph = 2*nrsph + nlsph
-	mspin = 2*(njsph-nlsph)-1
-	noc = nfull(il)
-
-        !write(*,110)'NN = ',nnsph,'nr = ',nrsph,'ml = ',nlsph,'(2*nj-1)/2 = ',2*njsph-1,'/2'
-        write(*,110)'NN = ',nnsph,'nr = ',nrsph,'nl = ',nlsph,'ms = ', mspin, '/2', 'npart = ', noc
-
-  110   format(5x,a,i2,3x,a,i2,3x,a,i2,3x,a,i2,a,3x,a,i2)
-
-        enddo
-
-        write(*,*) '****** END SPHERICAL BASIS ***********'
-
-        endif
-
-
-! determinaton of occupation number of each state
-
-	nf = 0
-	ic = 1
-        do il = 1, nt
-	   nf = nf + nfull(il)
-	   if (nf .le. npart) then
-	      nocc(il)=nfull(il)
-	   elseif(nf .gt. npart .and. ic .eq. 1) then
-	      nocc(il)=nfull(il)+npart-nf
-	      ic = 2
-	   else
-	      nocc(il)=0
-	   endif
-        enddo
-
-	if(lpr) then
-	do il = 1, nt
-	  write(*,*) il, nocc(il),nfull(il)
-        enddo
-	endif
-
-!
-end subroutine sphbasis
-
 module basis
+!> A Module wich compute all the required quantities and construct the harmonic oscillator basis from external inputs.
 use constants
 integer,allocatable::n_ext(:),m_ext(:),l_ext(:),j_ext(:),t_ext(:)
 integer,allocatable::n_red(:),l_red(:),j_red(:),occ(:),nocc(:)
 integer,allocatable::repick_base(:),tag_hf(:,:,:),isospin(:)
 integer::red_size,size_full,occ_states
 integer::ired
+integer::lmin,lmax,jmin,jmax
 double precision,allocatable::tbme_ext(:,:,:,:)
 contains
+
+!> A subroutine that read and creat the Harmonic Oscillator Bais from external spM.dat file.
 subroutine external_basis()
+!This routine read and construct the HO basis from an external spM.dat file
 implicit none
 integer::tag,nn,nl,nm,nj,niso
 integer::iho,stat,ifil
@@ -126,8 +27,8 @@ allocate(n_ext(n_lines),m_ext(n_lines),l_ext(n_lines),j_ext(n_lines),t_ext(n_lin
 allocate(repick_base(n_lines))
 n_ext=0;m_ext=0;l_ext=0;j_ext=0;t_ext=0
 j=0
+!Getting the size of the spherical basis labeled by the quantum numbers (n,l,j,m,isospin)
 do iho=1,n_lines
-!    ifil = iho-1
    read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso
    n_ext(iho) = nn
    l_ext(iho) = nl
@@ -135,6 +36,7 @@ do iho=1,n_lines
    m_ext(iho) = nm
    t_ext(iho) = niso
    if (niso .eq. 1 .and. nm .eq. nj) then
+   !This allow to construct a reduced basis for the neutrons only and for a fixed m
      j = j + 1
    endif
 enddo
@@ -149,6 +51,8 @@ open(124,file='spM.dat')
 read(124,*) n_lines
 count_base = 0
 do iho=1,n_lines 
+ !Filling the reduced basis from the spherical basis 
+ !The reduced basis will be then labeled by (n,l,j)
    read(124,'(I3,2X,5(1X,I3))', iostat=stat) tag,nn,nl,nj,nm,niso
   if (niso ==1 .and. count_base == 0) then
    n_red(j) = nn
@@ -166,14 +70,12 @@ do iho=1,n_lines
      n_red(j) = nn
      l_red(j) = nl
      j_red(j) = nj
-     !m_red(j) = nm
      occ(j) = nj + 1
      ired=iho
      endif
    endif
   endif
-     repick_base(iho) = j
- !    write(*,*) "End Basis"
+     repick_base(iho) = j !Keeping the correspondent index from the reduced basis to the spherical
    if (stat /= 0) then
    write(*,*) "Problem while reading spM.dat"
    exit
@@ -182,8 +84,9 @@ enddo
 allocate(tag_hf(minval(n_red):maxval(n_red),minval(l_red):maxval(l_red),minval(j_red):maxval(j_red)))
 tag_hf = 0
 do j=1,red_size
- tag_hf(n_red(j),l_red(j),j_red(j))=j
+ tag_hf(n_red(j),l_red(j),j_red(j))=j !Keeping the correspondancies from a label (n,l,j) to the state index of the spherical basis
 enddo
+lmin=minval(l_red);lmax=maxval(l_red);jmin=minval(j_red);jmax=maxval(j_red)
 close(124)
 else
 write(*,*) "File spM.dat not found !"
@@ -191,6 +94,8 @@ stop
 endif
 end subroutine
 
+!>This routine read and stock in a binary file the matrix elements from an external code
+!>\parameter lpr a logical argument wich when false fixes the interaction to 0
 subroutine external_tbme(lpr)
 implicit none
 integer::q1,q2,q3,q4
@@ -215,7 +120,7 @@ read(125,*)
 read(125,*)
 !-------
 if (lpr) then
-  if (tbme_exist) then
+  if (tbme_exist .and. flagext .eq. 1) then
   read(10) tbme_ext
   else
       do
@@ -223,27 +128,21 @@ if (lpr) then
          m1=m_ext(n1);m2=m_ext(n2);m3=m_ext(n3);m4=m_ext(n4)
          j1=j_ext(n1);j2=j_ext(n2);j3=j_ext(n3);j4=j_ext(n4)
          l1=l_ext(n1);l2=l_ext(n2);l3=l_ext(n3);l4=l_ext(n4)
-!         m1=m_ext(n1)**2;m2=m_ext(n2)**2;m3=m_ext(n3)**2;m4=m_ext(n4)**2
-        !  write(*,*) n1,n2,n3,n4,tbme
         if (t_ext(n1) .eq. 1 .and. t_ext(n2) .eq. 1 .and.t_ext(n3) .eq. 1 .and.t_ext(n4) .eq. 1) then !Keeping only neutrons elements
            if (tbme .ne. 0.d0) then 
             if (m1 .eq. m3 .and. m2 .eq. m4) then
              if (j1 .eq. j3 .and. j2 .eq. j4) then
               if (l1 .eq. l3 .and. l2 .eq. l4) then
             !Keeping only one projection of J
-            q1 = repick_base(n1)
+            q1 = repick_base(n1) !Writing directly the new tbme_ext in the reduced basis
             q2 = repick_base(n2)
             q3 = repick_base(n3)
             q4 = repick_base(n4)
-         !   write(1234,*) n1,n2,n3,n4
-   !         write(*,*) q1,q2,q3,q4,tbme
             tbme_ext(q1,q2,q3,q4) = tbme_ext(q1,q2,q3,q4) + 1.d0/(dble((1+j_ext(n1))*(1+j_ext(n2))))*tbme
-            !     tbme_ext(q1,q2,q3,q4) = tbme
-        !    if (tbme .ne. 0.d0) write(127,*) q1,q2,q3,q4,tbme_ext(q1,q2,q3,q4)
-          endif ! Filtering over m
-        endif !Filtering Isospin
-        endif !Filtering Isospin
-        endif !Filtering Isospin
+          endif ! delta m
+        endif !delta j
+        endif !delta l
+        endif !Non null matrix elements
         endif !Filtering Isospin
         if (stat /= 0) then
           write(*,*) "End of VM-Scheme.dat"
@@ -266,6 +165,7 @@ endif
 end subroutine
 
 
+!>Computing the number of particles that can be put in each state
 subroutine filled_number()
 implicit none
 integer::il,nf,ic

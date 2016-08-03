@@ -23,12 +23,18 @@ int main(){
 //I get the first density from files
 
     ifstream myneutron, myproton;
-    myneutron.open("density_neutron.txt");
-    myproton.open("density_proton.txt");
+    myneutron.open("Oxy_density_neutron.txt");
+    myproton.open("Oxy_density_proton.txt");
 	
     int fileLine = 0;
     double radius, fileDensity;
 
+
+
+	for(int i=0; i<n_step_width_box+1; i++){
+		density_proton[i] = 0.;
+		density_neutron[i] = 0.;
+	}
 
     while(myneutron >> radius >> fileDensity)
 	{
@@ -45,22 +51,16 @@ int main(){
 	}
 
    // for(int i=0; i<n_step_width_box; i++) cout << density_proton[i] << "\t" << density_neutron[i] << endl;
-/*
-    for(int i=0, i<n_step_width_box, i++){
-    	density_neutron[i] << density_neutron << endl;
-    }
 
-    for(int i=0, i<n_step_width_box; i++){
-    	density_proton[i] << density_proton << endl;
-    }
-*/    myneutron.close();
+	myneutron.close();
     myproton.close();
 
 
 
 do{
 
-	old_integral=integral;
+
+
 // First: get the skyrme potential
 
     U_skyrme_p.clear();
@@ -89,8 +89,8 @@ do{
 				Edown = -50.;
 				do{
 					Etrial = (Eup+Edown)/2.;
-					wave_val.push_back(0.05);
-					wave_val.push_back(0.1);
+					wave_val.push_back(0.000005);
+					wave_val.push_back(0.00001);
 					for(int i=1; i<n_step_width_box; i++){
 						wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, -1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
 					}
@@ -110,10 +110,11 @@ do{
 				if(Etrial<-0.1&&Etrial>-50){
 
 					//Normalisation
-					wfWork.push_back(0.05);
-					wfWork.push_back(0.1);
+					
+					wfWork.push_back(0.000005);
+					wfWork.push_back(0.00001);
 					double norm = 0.;
-					for(int i=1; i<n_step_width_box; i++) wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, -1./2.,  U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
+					for(int i=1; i<n_step_width_box+1; i++) wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, -1./2.,  U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
 					for(int i=1; i<n_step_width_box+1; i++) norm += h_width*pow(wfWork[i],2);
 					wfWork.clear();
 					//end normalisatio-1./2.
@@ -121,7 +122,7 @@ do{
 					appoggio.wavefn.push_back(0.05);
 					appoggio.wavefn.push_back(0.1);
 					for(int i=1; i<n_step_width_box; i++){
-						appoggio.wavefn.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, -1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]/sqrt(norm)));
+						appoggio.wavefn.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, -1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1])/sqrt(norm));
 					}
 					appoggio.eig = Etrial;
 					appoggio.l = L;
@@ -140,7 +141,7 @@ do{
 	int n_neutron = 0, n_levels = 0;
 	cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
 	for(int i=0; i<neutronstates.size(); i++){
-		if(n_neutron<126){
+		if(n_neutron<N){
 			cout<<neutronstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<neutronstates[i].eig<<endl;
 			n_neutron += (2*neutronstates[i].j+1);
 			n_levels ++;
@@ -163,8 +164,8 @@ do{
 				Edown = -50.;
 				do{
 					Etrial = (Eup+Edown)/2.;
-					wave_val.push_back(0.05);
-					wave_val.push_back(0.1);
+					wave_val.push_back(0.000005);
+					wave_val.push_back(0.00001);
 					for(int i=1; i<n_step_width_box; i++){
 						wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
 					}
@@ -183,14 +184,16 @@ do{
 				}while(abs(Eup-Edown)>prec);
 				if(Etrial<9.9&&Etrial>-50){
 
+					
 					//Normalisation
-					wfWork.push_back(0.05);
-					wfWork.push_back(0.1);
+					wfWork.push_back(0.000005);
+					wfWork.push_back(0.00001);
 					double norm = 0.;
 					for(int i=1; i<n_step_width_box; i++) wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, 1./2.,  U_skyrme_p[i-1], U_skyrme_p[i], U_skyrme_p[i+1]));
 					for(int i=1; i<n_step_width_box+1; i++) norm += h_width*pow(wfWork[i],2);
 					wfWork.clear();
 					//end normalisation
+					
 
 					appoggio.wavefn.push_back(0.05);
 					appoggio.wavefn.push_back(0.1);
@@ -213,7 +216,7 @@ do{
 	int n_proton = 0, p_levels = 0;
 	cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
 	for(int i=0; i<protonstates.size(); i++){
-		if(n_proton<82){
+		if(n_proton<Z){
 			cout<<protonstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<protonstates[i].eig<<endl;
 			n_proton += (2*protonstates[i].j+1);
 			p_levels ++;
@@ -267,7 +270,7 @@ do{
 		double rn = density_neutron[i];
 		E_skyrme[i] += 	1./2.*t0*((1+x0/2.)*pow(r,2)-(x0+1./2.)*(pow(rp,2)+pow(rn,2)))+ 
 								1./12.*t3*pow(r,_a)*((1+x3/2.)*pow(r,2)-(x3+1./2.)*(pow(rp,2)+pow(rn,2)));
-			cout<<"K_skyrme:"<<"\t"<<K_skyrme[i]<<"\t"<<"E_skyrme:"<<"\t"<<E_skyrme[i]<<endl;
+			//cout<<"K_skyrme:"<<"\t"<<K_skyrme[i]<<"\t"<<"E_skyrme:"<<"\t"<<E_skyrme[i]<<endl;
 	}
 
 
@@ -279,6 +282,7 @@ do{
 	}
 
 ///////////////////////////////////////////////////////////////
+
 
 //cout<<abs(old_integral)<<endl;
 }while(fabs(old_integral - integral) > prec);
@@ -321,33 +325,35 @@ do{
 //USEFUL ROUTINES
 
 //This is just for plotting all wavefunction
-/*
+	/*
+cout<<n_levels<<endl;
 	char orbital[26];
 	ofstream myfile_wave;
-	for(int k=0; k<p_levels-7; k++){
-					sprintf(orbital,"wf_proton%1.4f.dat",protonstates[k].eig);
+	for(int k=0; k<n_levels; k++){
+					sprintf(orbital,"wf_neutron%1.4f.dat",neutronstates[k].eig);
 					myfile_wave.open(orbital);
 		for(int i=2; i<n_step_width_box+1; i++){
-					myfile_wave << i*h_width +h_width<< "   " << protonstates[k].wavefn[i]/(i*h_width +h_width) << endl;	//Crea un numero di file pari agli autovalori e guarda nelle f d'onda dove ci sono i problemi ;-)
+					myfile_wave << i*h_width +h_width<< "   " << neutronstates[k].wavefn[i]/(i*h_width +h_width) << endl;	//Crea un numero di file pari agli autovalori e guarda nelle f d'onda dove ci sono i problemi ;-)
 				}
 				myfile_wave.close();
-			}
+			}*/
 
-*/
+
 
 //This can be useful to plot a potential
 /*
 	ofstream myfile;
 	myfile.open("Eigen.txt");
 
-	for(int i=2; i<n_step_width_box; i++){
-		wave_val.push_back(potential_woods(i*h_width +h_width)-centrifug_term(i*h_width +h_width, 0));
-		myfile <<i*h_width +h_width<< "   " << wave_val[i]<< endl;
-		myfile <<i*h_width +h_width<< "\t" << U_skyrme_p[i] << "\t" << U_skyrme_n[i] << endl;
+	for(int i=0; i<n_step_width_box; i++){
+		//wave_val.push_back(potential_woods(i*h_width +h_width)-centrifug_term(i*h_width +h_width, 0));
+		myfile <<i*h_width +h_width<< "   " << U_skyrme_n[i]<< endl;
+	//	myfile <<i*h_width +h_width<< "\t" << U_skyrme_p[i] << "\t" << U_skyrme_n[i] << endl;
 	}
 
 	myfile.close();
-*/
+	*/
+
 
 //Plot the proton and neutron central potential
 /*
