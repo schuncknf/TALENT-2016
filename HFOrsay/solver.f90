@@ -1,7 +1,8 @@
+
+!>This routine solve the Hartree-Fock Equations in a spherical basis
+!>We are here using a Block Diagonalisation method
+!>The block are labeled by the quantum numbers (l,j) in the reduced basis
 subroutine solver(pr)
-!This routine solve the Hartree-Fock Equations in a spherical basis
-!We are here using a Block Diagonalisation method
-!The block are labeled by the quantum numbers (l,j) in the reduced basis
 use basis
 use maths
 use constants
@@ -142,41 +143,13 @@ enddo
  hfenergybcs = hfenergybcs - gap**2/g_pair
 endif
 write(*,*) "Particles Number",partnum
+!Printing out in a file
 call printer(red_size,hfenergy,hfenergybcs,v2,esp,partnum,pr)
 
 
-!open(22,file='hforsay.out')
-!write(22,*) "------ System ------"
-!write(22,'(a,i5)') 'Number of particles......',Npart
-!write(22,*) "---- RESULTS ------"
-!write(22,'(a,f16.9,a)') "Hartree-Fock Energy ....",hfenergy,' MeV'
-!write(22,'(a,f16.9)') "Particles Number......",partnum
-!if (flagbcs .eq. 1) then
-!write(22,'(a,f16.9)') "Pairing Gap......",gap
-!write(22,'(a,f16.9,a)') "Pairing Energy......",hfenergy - hfenergybcs,'Mev'
-!write(22,'(a,f16.9,a)') "Total Energy HF-BCS......",hfenergybcs,'MeV' 
-!endif
-!write(22,*)
-!if (pr) then
-!write(22,*) "--------- Single Particle Energies --------"
-!  write(22,'(a)') "   n  l  j          Energy(MeV)     Occ. Num"
-!  do k=1,red_size
-!  write(22,'(a,3i3,f18.6,a,f12.4)') ' ',n_red(k),l_red(k),j_red(l),esp(k),' MeV',v2(k)
-!  enddo
-! write(22,*) "-------------------------------------------"
-!endif
-!close(22)
-!if(iplot .eq. 1) then
-!open(33,file='occ.dat')
-!call sorteigv(red_size,esp,v2)
-!do k=1,red_size
-!  write(33,'(i3,2f18.12)') k,esp(k),v2(k)
-!enddo
-!close(33)
-!endif
-!
-
+! Memory deallocation -------------------------
 deallocate(rho,h,t,gama,work,conv)
+deallocate(esp,qesp)
 end subroutine
 
 

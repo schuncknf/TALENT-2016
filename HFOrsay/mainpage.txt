@@ -20,8 +20,14 @@
 
 
 @section Requirements
- \item lapack and blas libraries installed\n
- \item VM-scheme.dat file (for the matrix elements)\n
- \item spM.dat file (for the basis)\n
+ lapack and blas libraries installed\n
+ VM-scheme.dat file (for the matrix elements)\n
+ spM.dat file (for the basis)\n
+
+@section Authors
+ Petar Marevic\n
+ Maxime Mougeot\n
+ Raphael-David Lasseri\n
+@image html orsaygroup.jpg
 
 */

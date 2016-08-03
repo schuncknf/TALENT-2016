@@ -1,4 +1,5 @@
 module constants
+!> This module is keeping all the needed physical and mathematical constants of the problem
 implicit none
 double precision,parameter::one = 1.d0,two=2.d0,half=0.5d0,zero=0.d0
 double precision,parameter::pi=acos(-1.d0)
@@ -18,6 +19,7 @@ integer::na_max,la_max,ja_max,nb_max,lb_max,jb_max,iplot,flagext
 double precision::homega,bosc,g_pair
 integer,allocatable::exttag(:,:,:)
 contains
+!> The subroutine used to read the input file
 subroutine reader()
 implicit none
 integer,allocatable:: nr(:),nl(:),nj(:)
@@ -56,6 +58,7 @@ close(1)
 allocate(nr(ntx),nl(ntx),nj(ntx))
 end subroutine
 
+!> Just fancy printouts
 subroutine fancy(lpr)
 implicit none
 logical::lpr
