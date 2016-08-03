@@ -1,3 +1,10 @@
+!> A subroutine which compute the density matrix
+!! \param rho the matrix to be constructed
+!! \param Dt the eigenvalues from diagonalisation
+!! \param di the size of the block density matrix 
+!! \param nl quantum number l
+!! \param nj quantum number j
+!! \param iteration argument to include initialisation
 subroutine compute_rho(rho,Dt,di,nl,nj,iteration)
 use constants
 use basis
@@ -33,6 +40,12 @@ enddo
 end subroutine compute_rho
 
 
+!> A subroutine which compute the Gamma interaction matrix
+!! \param gamma_matrix The interaction matrix to be computed
+!! \param rho The density matrix for <b>all</b> blocks
+!! \param di the size of the block density matrix 
+!! \param nl quantum number l
+!! \param nj quantum number j
 subroutine compute_gamma(gamma_matrix,rho,di,nl,nj)
 use basis
 implicit none

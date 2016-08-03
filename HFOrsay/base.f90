@@ -1,4 +1,5 @@
 module basis
+!> A Module wich compute all the required quantities and construct the harmonic oscillator basis from external inputs.
 use constants
 integer,allocatable::n_ext(:),m_ext(:),l_ext(:),j_ext(:),t_ext(:)
 integer,allocatable::n_red(:),l_red(:),j_red(:),occ(:),nocc(:)
@@ -9,6 +10,7 @@ integer::lmin,lmax,jmin,jmax
 double precision,allocatable::tbme_ext(:,:,:,:)
 contains
 
+!> A subroutine that read and creat the Harmonic Oscillator Bais from external spM.dat file.
 subroutine external_basis()
 !This routine read and construct the HO basis from an external spM.dat file
 implicit none
@@ -92,8 +94,9 @@ stop
 endif
 end subroutine
 
+!>This routine read and stock in a binary file the matrix elements from an external code
+!>\parameter lpr a logical argument wich when false fixes the interaction to 0
 subroutine external_tbme(lpr)
-!This routine read and stock in a binary file the matrix elements from an external code
 implicit none
 integer::q1,q2,q3,q4
 integer::n1,n2,n3,n4
@@ -162,8 +165,8 @@ endif
 end subroutine
 
 
+!>Computing the number of particles that can be put in each state
 subroutine filled_number()
-!Computing the number of particles that can be put in each state
 implicit none
 integer::il,nf,ic
 allocate(nocc(red_size))
