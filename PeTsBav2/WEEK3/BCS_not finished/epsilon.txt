@@ -1,0 +1,15 @@
+&coupling_constant
+ g = 0.2d0 /
+&number_of_shells
+ L = 2 /
+&number_from_to
+ N_from = 16, N_to = 16 /
+&shell_energy
+ eps = -1d0, 0d0 /
+! eps = -9.367034, -9.034740, -7.526933, -1.264179, 1.585917 / !130Sn_HFBRAD
+&shell_capacity
+ Omg = 8, 8,
+! Omg = 1, 2, 6, 4, 5, !130Sn_HFBRAD
+ nu  = 0, 0 /
+&P_constraint
+ p = 3.0 /
