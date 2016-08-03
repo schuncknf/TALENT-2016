@@ -4,7 +4,7 @@
 ARM:= -O2
 
 Esercizio: Esercizio.o oggetto.o star.o
-	g++ Esercizio.o oggetto.o star.o -o Esercizio -lncurses #${LIBS} ${INCS} 
+	g++ Esercizio.o oggetto.o star.o -o -lncursesEsercizio #${LIBS} ${INCS} 
 
 Esercizio.o: Esercizio.C
 	g++ -c Esercizio.C -o Esercizio.o -lncurses #${LIBS} ${INCS}
