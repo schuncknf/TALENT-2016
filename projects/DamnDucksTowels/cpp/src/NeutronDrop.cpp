@@ -110,6 +110,13 @@ void NeutronDrop::calcH()
           Kinetic(0)(bra, ket) = 0.0;
         }
       }
+    for (int i = 0; i < basis->size; i++)
+      for (int j = 0; j < basis->size; j++)
+      {
+        if (spBasis.qNumbers(i, 1) != spBasis.qNumbers(j, 1)) continue;
+        if (spBasis.qNumbers(i, 2) != spBasis.qNumbers(j, 2)) continue;
+        Gamma(0)(i, j) = arma::accu(TBME(i, j) % R(0, 0));
+      }
   }
   else if (basis->type == "FullSpBasis")
   {

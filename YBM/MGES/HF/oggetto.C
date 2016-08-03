@@ -22,11 +22,11 @@ double v_HF(double energy, double r, double S, double L, double J, double T, dou
 
 	// Neutrons
 	if(T==-1./2.){
-		return (energy - Vsky - centrifug_term(r,L))/m_factor;
+		return (energy - Vsky - centrifug_term(r,L) - potential_spin_orbit(r,S,L,J))/m_factor;
 	}
 	// Protons
 	else if(T==1./2.){
-		return (energy - Vsky - centrifug_term(r,L))/m_factor;
+		return (energy - Vsky - centrifug_term(r,L) - potential_spin_orbit(r,S,L,J))/m_factor;
 	}
 }
 
