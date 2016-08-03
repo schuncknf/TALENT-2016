@@ -26,7 +26,7 @@ real(8),allocatable :: dens_p(:), dens_n(:), dens(:)
 integer :: N_nlj,N
 integer,allocatable :: nl2j(:,:)
 real(8) :: E_p, E_m
-
+real(8) :: Vcoulomb
 NAMELIST / nucleons / proton, neutron
 NAMELIST / parameters / h2m, R_max, N
 NAMELIST / max_quantum_number / n_max, l_max 
@@ -34,6 +34,8 @@ NAMELIST / effective_charge / charge
 NAMELIST / bisection / E_p, E_m
 NAMELIST / output / output_wave_func, epsi
 NAMELIST / WoodSaxon/ r0, a, e2
+NAMELIST / CMcorr/ CMcorrection
+
 open(30,file='nucleon.txt',status='old')
 read(30,NML=nucleons)
 nucleon = neutron + proton
@@ -43,6 +45,10 @@ read(30,NML=effective_charge)
 read(30,NML=bisection)
 read(30,NML=output)
 read(30,NML=WoodSaxon)
+read(30,NML=CMcorr)
+
+
+
 close(30)   ! read form file
 !*********************************************
 
@@ -53,6 +59,8 @@ filename = trim(filename)
 
 Nmesh=N 
 dx = R_max/N
+CMh2m =h2m
+      if (CMcorrection) h2m = h2m*(1.-1./nucleon)
 
 ! the number of orbits
 orbital = 0
@@ -218,12 +226,13 @@ do rep=1,iter
            + alpha*rho(i)**(alpha-1)*(-t3*(+1d0)/24d0)*(rho_p(i)**2+rho_n(i)**2)
    end do
    open(10,file='pot_skyrme_n.dat')
-   do i=0,N
-      x = i*dx
-      write(10,'(2f15.8)') x, V_skyrme_n(i)
-   end do
-   close(10)
-! other part
+ !  do i=0,N
+ !     x = i*dx
+ !     write(10,'(2f15.8)') x, V_skyrme_n(i)
+ !  end do
+ !  close(10)
+ 
+  ! other part
    M_eff_p(:) = h2m
    M_eff_n(:) = h2m
    g_p(:) = 0d0
@@ -231,7 +240,7 @@ do rep=1,iter
    dg_p(:) = 0d0
    dg_n(:) = 0d0
    do i=0,N
-      h_p(i) = V_skyrme_p(i)
+      h_p(i) = V_skyrme_p(i) +Vcoulomb(i, rho_p)
       h_n(i) = V_skyrme_n(i)
    end do
 
@@ -423,7 +432,7 @@ do rep=1,iter
 ! h(r) and k_sq
                do i=1,N
                   x = i*dx
-                  f_p(i) = -(h_p(i)+M_eff_p(i)*l*(l+1d0)/x**2-E)/M_eff_p(i)
+                  f_p(i) = -(h_p(i) +M_eff_p(i)*l*(l+1d0)/x**2-E)/M_eff_p(i)
                   k_sq_p(i) = -0.25d0*g_p(i)**2 + f_p(i)-0.5d0*dg_p(i)
                end do
                k_sq_p(0) = k_sq_p(1)
@@ -565,11 +574,11 @@ do rep=1,iter
       E_ke = E_ke + 4d0*pi*h2m*tau(i)*x**2*dx
       E_pot= E_pot + 4d0*pi*(1.d0/2.d0*t0*(rho(i)**2 -(rho_p(i)**2+rho_n(i)**2)/2.d0&
       ) +t3/12.d0*rho(i)**alpha*(rho(i)**2 -(rho_p(i)**2+rho_n(i)**2)/2.d0 ))*x**2*dx 
-!      print*, E_ke
+
    end do
 
    E_hf_new = (E_ke + E_pot)
-   write(*,'(i5,5f20.8)') rep, number, E_hf_new, E_sp, E_ke
+   write(*,'(i5,5f20.8)') rep, number, E_hf_new, E_sp, E_ke, E_pot
       if(abs(E_hf_new-E_hf).lt.epsi) exit
 
       E_hf= E_hf_new
@@ -606,6 +615,10 @@ if (output_wave_func) then
    end do
 end if
 
+do i=1, Nmesh
+x=i*dx
+write(222, *) x,Vcoulomb(i, rho_p)
+enddo
 deallocate(E_data_n,E_data_p)
 deallocate(filename_wave_func_n,filename_wave_func_p)
 deallocate(energy_n,energy_p,wave_func_n,wave_func_p)
@@ -613,34 +626,11 @@ deallocate(V_skyrme_p,V_skyrme_n,M_eff_p,M_eff_n,W_p,W_n,g_p,g_n,dg_p,dg_n,f_p,f
 deallocate(psi,u_nlj_p,u_nlj_n)
 deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,dens_p,dens_n,dens)
 
+
+
 end program skyrme
 
-!================================ arrange energy in ascending order =======================================
-subroutine arrage_energy(matrix,wavef)
-   use globals
-   implicit none
-   integer, parameter :: dm=kind(1.d0)
-   real(kind=dm) :: temp(4)
-   real(kind=dm) :: tempwave(0:Nmesh)
-   integer(8) :: iii, jjj
-   real(kind=dm) , dimension(orbital,4)::  matrix
-   real(kind=dm) , dimension(0:Nmesh,orbital) :: wavef
-    
-   do iii=1, orbital-1
-      do jjj=1, orbital-iii
-         if (matrix(jjj, 1).gt. matrix(jjj+1,1)) then
-           temp(:)= matrix(jjj, :)
-           matrix(jjj, :) = matrix(jjj+1, :)
-           matrix(jjj+1, :) = temp(:)
-                  
-           tempwave(:)= wavef(:, jjj)
-           wavef(:,jjj) = wavef(:,jjj+1)
-           wavef(:,jjj+1) = tempwave(:)                  
-         endif
-      enddo
-    enddo
-end subroutine 
 
-
+      
 
 
