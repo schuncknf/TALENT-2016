@@ -36,8 +36,6 @@ int main(){
     myneutron.open("Oxy_density_neutron.txt");
     myproton.open("Oxy_density_proton.txt");
 
-	cout << __LINE__ << endl;
-
 	for(int i=0; i<n_step_width_box+1; i++){
 		density_proton[i] = 0.;
 		density_neutron[i] = 0.;
