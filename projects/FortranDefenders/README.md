@@ -12,7 +12,8 @@
 Welcome to our home in the Repo.
 
 Of particular interest right now is the Hartree-Fock solver in the Hartree-Fock folder.
-In the **in** file, you will set the parameters for your HF run.
+In the **in** file, you will set the parameters for your HF run. For easy use,
+try the *run* script to clean, compile, run, and output the **out** file.
 
 To see a full set of documentation, visit [here!](http://kylegodbey.com/hf/index.html)
 
@@ -20,9 +21,6 @@ Once you compile and run the code, you'll find the **single particle states**,
 **total and kinetic energies**, and **convergence at each iteration** in the file named **out**.
 
 Densities are plotted in the file **densities**, with the order of the columns being *Neutrons, Protons, Total*.
-
-In **plt**, we plot the central parts of the potential for neutrons and protons (in column 1 and 2 respectively)
-and then two wavefunctions in the remaining columns. If you want to change which wavefunctions you plot, change it at the bottom of main and recompile.
 
 ***Have Fun!***
 
