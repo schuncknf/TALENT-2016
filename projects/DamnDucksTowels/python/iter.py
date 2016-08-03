@@ -15,7 +15,7 @@ if __name__ == '__main__':
     print("+" * 85 + "\n")
     for l in logofp:
         vl = len(l)
-        ss += " " * 18 + "| " + l.replace("\n","").replace(" ", ".") + " |" + "\n"
+        ss += " " * 18 + "| " + l.replace("\n","").replace(" ", " ") + " |" + "\n"
     print(" " * 18 + "+-" + "-" * vl + "+")
     print(ss[:-1])
     print(" " * 18 + "+-" + "-" * vl + "+\n")
