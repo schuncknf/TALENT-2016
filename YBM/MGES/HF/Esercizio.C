@@ -5,7 +5,6 @@ int main(){
 
 
 	// Declaration of constants and variables
-
 	int n_step_width_box = width_box/h_width;
 	vector<double> wave_val;	// Vector for storing e'functions during
 	vector<double> wfWork;	// Vector for storing e'function and then normalising
@@ -36,6 +35,8 @@ int main(){
     ifstream myneutron, myproton;
     myneutron.open("Oxy_density_neutron.txt");
     myproton.open("Oxy_density_proton.txt");
+
+	cout << __LINE__ << endl;
 
 	for(int i=0; i<n_step_width_box+1; i++){
 		density_proton[i] = 0.;
@@ -301,7 +302,6 @@ int main(){
 			for(int i=2; i<n_step_width_box; i++)
 				density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
 		}
-
 
 		// Calculate total energy of system using kinetic and Skyrme densities
 

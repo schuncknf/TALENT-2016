@@ -25,7 +25,7 @@ real(8),allocatable :: dens_p(:), dens_n(:), dens(:)
 ! initial setting of the system***************
 integer :: N_nlj,N
 integer,allocatable :: nl2j(:,:)
-real(8) :: E_p, E_m
+real(8) :: E_p, E_m,E_tot_p, lambda_p, delta_p, E_tot_n, lambda_n, delta_n
 real(8) :: Vcoulomb
 NAMELIST / nucleons / proton, neutron
 NAMELIST / parameters / h2m, R_max, N
@@ -225,7 +225,7 @@ do rep=1,iter
            + rho_n(i)*(-0.5d0*t0*(+1d0)-t3*(+1d0)*rho(i)**alpha/12d0)&
            + alpha*rho(i)**(alpha-1)*(-t3*(+1d0)/24d0)*(rho_p(i)**2+rho_n(i)**2)
    end do
-   open(10,file='pot_skyrme_n.dat')
+ !  open(10,file='pot_skyrme_n.dat')
  !  do i=0,N
  !     x = i*dx
  !     write(10,'(2f15.8)') x, V_skyrme_n(i)
@@ -239,11 +239,12 @@ do rep=1,iter
    g_n(:) = 0d0
    dg_p(:) = 0d0
    dg_n(:) = 0d0
-   do i=0,N
+   do i=1,N
       h_p(i) = V_skyrme_p(i) +Vcoulomb(i, rho_p)
       h_n(i) = V_skyrme_n(i)
    end do
-
+      h_p(0) = V_skyrme_p(0) 
+      h_n(0) = V_skyrme_n(0)
 !*******************neutron****************************
    E_data_n = 0d0
    orbital_l = 0
@@ -587,9 +588,33 @@ end do
 
 !results
 
-! write filename of wave_func
+! output energy
+open(11,file='energy_n.dat')
+Nn_tmp = 0
+do orbital_l=1,orbital
+   j_tot = E_data_n(orbital_l,3) + E_data_n(orbital_l,4)
+   Nn_tmp = nint(2d0*j_tot+1)
+   if (E_data_n(orbital_l,1)>=0d0) exit
+   write(11,'(f15.8,2i5,f5.1,i5)') E_data_n(orbital_l,1), nint(E_data_n(orbital_l,2)),&
+        nint(E_data_n(orbital_l,3)), E_data_n(orbital_l,4), Nn_tmp
+end do
+close(11)
+open(11,file='energy_p.dat')
+Np_tmp = 0
+do orbital_l=1,orbital
+   j_tot = E_data_p(orbital_l,3) + E_data_p(orbital_l,4)
+   Np_tmp = nint(2d0*j_tot+1)
+   if (E_data_p(orbital_l,1)>=0d0) exit
+   write(11,'(f15.8,2i5,f5.1,i5)') E_data_p(orbital_l,1), nint(E_data_p(orbital_l,2)),&
+        nint(E_data_p(orbital_l,3)), E_data_p(orbital_l,4), Np_tmp
+end do
+close(11)
+   
+
+! write wave_func
 if (output_wave_func) then
    do orbital_l=1,orbital
+      if (E_data_n(orbital_l,1)>=0d0) exit
       write(filename_wave_func_n(orbital_l),'(a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a5)') &
            'p', proton, 'n', neutron, 'nl2j', nint(E_data_n(orbital_l,2)),&
            nint(E_data_n(orbital_l,3)), nint(2d0*(E_data_n(orbital_l,3)+E_data_n(orbital_l,4))), 'n.dat'
@@ -601,6 +626,9 @@ if (output_wave_func) then
          write(10,'(3f15.8)') x, u_nlj_n(i,orbital_l)
       end do
       close(10)
+   end do
+   do orbital_l=1,orbital
+      if (E_data_p(orbital_l,1)>=0d0) exit
       write(filename_wave_func_p(orbital_l),'(a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a5)') &
            'p', proton, 'n', neutron, 'nl2j', nint(E_data_p(orbital_l,2)),&
            nint(E_data_p(orbital_l,3)), nint(2d0*(E_data_p(orbital_l,3)+E_data_p(orbital_l,4))), 'p.dat'
@@ -614,6 +642,75 @@ if (output_wave_func) then
       close(10)
    end do
 end if
+
+! calculate mmagic number, and pairing region
+Nn_tmp = 0
+NNN=0.d0
+PPP=0.d0
+flag = .true.
+do orbital_l=1,orbital
+   j_tot = E_data_n(orbital_l,3) + E_data_n(orbital_l,4)
+   Nn_tmp = Nn_tmp + nint(2d0*j_tot+1)
+   if (E_data_n(orbital_l,1)>=0d0) then
+      flag = .false.
+      exit
+   end if
+   if (E_data_n(orbital_l+1,1)-E_data_n(orbital_l,1)>3.5d0) then
+      magic_n = Nn_tmp
+      NNN= NNN+magic_n
+      write(*,*) magic_n
+      if (magic_n<=neutron) then
+         orbital_down = orbital_l + 1
+      end if
+      if (magic_n>=neutron) then
+         orbital_up = orbital_l
+         exit
+      end if
+   end if
+end do
+if (flag.eqv..false.) then
+   orbital_up = orbital_l - 1
+end if
+write(*,*) orbital_down, orbital_up
+if (orbital_up<orbital_down) then
+   write(*,*) 'magic number for neutron.'
+end if
+NNN= neutron-NNN
+call solve_BCS_equation(L,E_data_n(orbital_down:orbital_up),NNN ,E_tot_n, lambda_n, delta_n)
+Np_tmp = 0
+flag = .true.
+do orbital_l=1,orbital
+   j_tot = E_data_p(orbital_l,3) + E_data_p(orbital_l,4)
+   Np_tmp = Np_tmp + nint(2d0*j_tot+1)
+   if (E_data_p(orbital_l,1)>=0d0) then
+      flag = .false.
+      exit
+   end if
+   if (E_data_p(orbital_l+1,1)-E_data_p(orbital_l,1)>3.5d0) then
+      magic_p = Np_tmp
+      PPP=PPP+magic_p
+      write(*,*) magic_p
+      if (magic_p<=proton) then
+         orbital_down = orbital_l + 1
+      end if
+      if (magic_p>=proton) then
+         orbital_up = orbital_l
+         exit
+      end if
+   end if
+end do
+if (flag.eqv..false.) then
+   orbital_up = orbital_l - 1
+end if
+write(*,*) orbital_down, orbital_up
+if (orbital_up<orbital_down) then
+   write(*,*) 'magic number for proton.'
+end if
+
+PPP= proton-PPP
+call solve_BCS_equation(L,E_data_p(orbital_down:orbital_up),PPP ,E_tot_p, lambda_p, delta_p)
+
+
 
 do i=1, Nmesh
 x=i*dx
