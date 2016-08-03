@@ -1,5 +1,5 @@
-module constants
 !> This module is keeping all the needed physical and mathematical constants of the problem
+module constants
 implicit none
 double precision,parameter::one = 1.d0,two=2.d0,half=0.5d0,zero=0.d0
 double precision,parameter::pi=acos(-1.d0)
