@@ -1,23 +1,35 @@
 #!/usr/bin/env python
 
-import hffs
+import shf
 import config
 import numpy as np
 import time
 
 if __name__ == '__main__':
-    logofp = open("logo.txt", "r")
+    logofp = open("team-logo.txt", "r")
     ss = logofp.read()
     print(ss)
+    logofp.close()
+    logofp = open("small-code-logo.txt", "r")
+    ss = ""
+    print("+" * 85 + "\n")
+    for l in logofp:
+        vl = len(l)
+        ss += " " * 18 + "| " + l.replace("\n","").replace(" ", ".") + " |" + "\n"
+    print(" " * 18 + "+-" + "-" * vl + "+")
+    print(ss[:-1])
+    print(" " * 18 + "+-" + "-" * vl + "+\n")
+    logofp.close()
+    print("+" * 85 + "\n")
     ############################################
     t0 = time.time()
     ############################################
     if config.lMax == 0:
         basisType = "ReducedSpBasis"
-        basis = hffs.ReducedSpBasis(config.omega, config.nMax)
+        basis = shf.ReducedSpBasis(config.omega, config.nMax)
     else:
         basisType = "FullSpBasis"
-        basis = hffs.FullSpBasis(config.omega, config.nMax, config.lMax)
+        basis = shf.FullSpBasis(config.omega, config.nMax, config.lMax)
 
     pi = config.interaction.split(':')
     if len(pi) == 1:
@@ -31,29 +43,29 @@ if __name__ == '__main__':
     if inter_input == "direct":
         if inter_type == "MinnesotaS0":
             if basisType == "ReducedSpBasis":
-                inter = hffs.MinnesotaS0(basis, 60)
+                inter = shf.MinnesotaS0(basis, 60)
             else:
                 raise ValueError("Bad basis type \"%s\" for \"%s\" interaction" % (basisType, config.interaction))
         else:
             raise ValueError("Unknown interaction \"%s\"" % (config.interaction))
     elif inter_input == "file":
-        inter = hffs.MinnesotaRaw(basis, config.nb_neutron, inter_type)
+        inter = shf.MinnesotaRaw(basis, config.nb_neutron, inter_type)
         #fp = open(inter_type, "r")
         # TODO
     else:
         raise ValueError("Unknown input \"%s\"" % (input_type))
         
     if config.system == "NeutronDrop":
-        system = hffs.NeutronDrop(basis, inter, config.nb_neutron, config.omega, 150)
+        system = shf.NeutronDrop(basis, inter, config.nb_neutron, config.omega, 150)
     elif config.system == "Nucleus":
-        system = hffs.Nucleus(basis, inter, config.nb_neutron, config.nb_proton)
+        system = shf.Nucleus(basis, inter, config.nb_neutron, config.nb_proton)
     else:
         raise ValueError("Unknown system \"%s\"" % (config.system))
 
     if config.solver in ("Hartree-Fock", "HF"):
-        solver = hffs.HartreeFock(system)
+        solver = shf.HartreeFock(system)
     elif config.solver in ("Hartree-Fock-Bogoliubov", "Hartree-Fock-Bogo", "HFB"):
-        solver = hffs.HartreeFockBogoliubov(system)
+        solver = shf.HartreeFockBogoliubov(system)
     else:
         raise ValueError("Unknown solver \"%s\"" % (config.solver))
 
