@@ -45,12 +45,12 @@ contains
                       ! Isospin dependent potential using matrices from before
                       if (iq .EQ. 1) then
                          potential(ir) = -0.25*(dumr(ir,1)/umr(ir,1))**2&
-                         +(-uc(ir,1) -ucso(ir,1)-udd(ir,1)-0.5*uso(ir,1)*0.5*(j*(j+1)- l*(l+1) - 0.75) &
+                         +(-uc(ir,1) -ucso(ir,1)-udd(ir,1)-uso(ir,1)*(j*(j+1)- l*(l+1) - 0.75) &
                          -dumr(ir,1)/mesh(ir) - umr(ir,1)*l*(l+1)/mesh(ir)**2+Etrial)/umr(ir,1)&
                          -0.5*(d2umr(ir,1)*umr(ir,1) - dumr(ir,1)**2)/(umr(ir,1)**2)
                       else
                          potential(ir) = -0.25*(dumr(ir,2)/umr(ir,2))**2&
-                         +(-uc(ir,2)-ucso(ir,2)-udd(ir,2)-0.5*uso(ir,2)*0.5*(j*(j+1) - l*(l+1) - 0.75) &
+                         +(-uc(ir,2)-ucso(ir,2)-udd(ir,2)-uso(ir,2)*(j*(j+1) - l*(l+1) - 0.75) &
                          -dumr(ir,2)/mesh(ir)-ucoul(ir)-umr(ir,2)*l*(l+1)/mesh(ir)**2+Etrial)/umr(ir,2)&
                          -0.5*(d2umr(ir,2)*umr(ir,2) - dumr(ir,2)**2)/(umr(ir,2)**2)
                       end if
