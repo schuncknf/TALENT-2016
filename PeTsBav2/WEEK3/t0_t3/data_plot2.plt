@@ -1,5 +1,5 @@
 set xlabel "r(fm)"
-set ylabel " Kinetic density(fm-3)"
+set ylabel " Kinetic density(fm-5)"
 set style line 1 lt 2 lc rgb "red" lw 3
 set linestyle 2 lt 5 lw 3
 m="./density_n_new.dat"

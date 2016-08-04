@@ -1,4 +1,4 @@
-#include "test.h"
+#include "star.h"
 
 int main()
 {
