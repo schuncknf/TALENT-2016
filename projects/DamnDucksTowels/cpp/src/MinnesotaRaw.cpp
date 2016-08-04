@@ -57,8 +57,7 @@ MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string
         }
       }
 
-  int a, b, c, d;
-  double V;
+  //int a, b, c, d;
   std::ifstream input(_filename.c_str());
 
   if (!input)
@@ -67,16 +66,29 @@ MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string
   }
 
   std::string line;
-  getline(input, line);
-  getline(input, line);
+  std::getline(input, line);
+  std::getline(input, line);
   //std::cout << "Reading..." << std::endl;
 
-  while (input >> a >> b >> c >> d >> V)
+  while (std::getline(input, line))
   {
-    if ((vec_l(a) == vec_l(c)) && (vec_2j(a) == vec_2j(c)) && (vec_2m(a) == vec_2m(c)) && (vec_l(b) == vec_l(d)) && abs(vec_2j(b) == vec_2j(d)) && abs(vec_2m(b) == vec_2m(d)) && (vec_2t(a) == 1) && (vec_2t(b) == 1) && (vec_2t(c) == 1) && (vec_2t(d) == 1))
-    {
-      TBME(lst(a - 1), lst(b - 1))(lst(c - 1), lst(d - 1)) += V / (vec_2j(a) + 1) / (vec_2j(b) + 1);
-    }
+    int a = std::stoi(line.substr(1, 3));
+    if (vec_2t(a) != 1) continue;
+    int c = std::stoi(line.substr(9, 3));
+    if (vec_2t(c) != 1) continue;
+    if (vec_l(a) != vec_l(c)) continue;
+    if (vec_2j(a) != vec_2j(c)) continue;
+    if (vec_2m(a) != vec_2m(c)) continue;
+    int b = std::stoi(line.substr(5, 3));
+    if (vec_2t(b) != 1) continue;
+    int d = std::stoi(line.substr(13, 3));
+    if (vec_2t(d) != 1) continue;
+    if (vec_l(b) != vec_l(d)) continue;
+    if (vec_2j(b) != vec_2j(d)) continue;
+    if (vec_2m(b) != vec_2m(d)) continue;
+    double V = std::stod(line.substr(21));
+    TBME(lst(a - 1), lst(b - 1))(lst(c - 1), lst(d - 1)) += V / (vec_2j(a) + 1) / (vec_2j(b) + 1);
+    
   }
 }
 
