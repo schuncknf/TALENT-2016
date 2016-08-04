@@ -1,0 +1,21 @@
+                 if (ipart.eq.1) then 
+                 write(filename_wave_func(uu),'(a8,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
+                  'Neutron_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
+                 else
+                  write(filename_wave_func(uu),'(a7,a1,I3.3,a1,I3.3,a4,2i2.2,i3.3,a4)') &
+                  'Proton_','p', ZZ, 'n', NN, 'nl2j', n+1, l, nint(2*j), '.dat'
+                 endif                
+                 open(10,file=filename_wave_func(uu))
+                 write(10,'(a5,3i5)') '#nl2j=', n+1, l, nint(2*j)
+
+
+
+!DENSITY PROFILE
+
+if(ipart.eq.1) then
+open(12,file='density_N.dat')
+Nn_tmp = NN
+else
+open(12,file='density_P.dat')
+Nn_tmp = ZZ
+endif 
