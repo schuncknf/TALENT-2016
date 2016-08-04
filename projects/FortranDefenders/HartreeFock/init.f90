@@ -17,7 +17,7 @@ implicit none
      real(wp), allocatable, dimension(:,:) ::uc,umr,dumr, d2umr,udd,uso,ucso,sortenergies
      real(wp), allocatable, dimension(:,:,:,:,:) :: wfl,wfr
      real(wp), allocatable, dimension(:,:,:,:) :: energies
-     integer :: nbox, nodes, radius, lmax,nmax,njoin,itermax
+     integer :: nbox, nodes, radius, lmax,nmax,njoin,itermax,nnmax
      integer :: nn,np,nt,icoul,icm
      logical :: j2terms
      integer, allocatable :: sortstates(:,:,:)
@@ -34,6 +34,8 @@ contains
           read(5,nucleus)
           read(5,interaction)
           sig = 1./sig
+          nnmax = lmax-2
+          if (lmax <= 3) nnmax = lmax 
           nt = np+nn
           nrad = r0 * (nt)**(1._wp/3._wp)
           vpb(1) = -51.+33.*(nn-np)/nt
