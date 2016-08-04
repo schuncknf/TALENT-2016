@@ -580,7 +580,7 @@ do rep=1,iter
       ) +t3/12.d0*rho(i)**alpha*(rho(i)**2 -(rho_p(i)**2+rho_n(i)**2)/2.d0 ))*x**2*dx &
       + e2/2.d0
 
-      E_Co = E_Co + 
+      E_Co = E_Co + Vcoulomb(i, rho_p)*dx
    end do
 
    E_hf_new = E_ke + E_pot + E_Co
