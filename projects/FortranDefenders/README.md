@@ -1,9 +1,4 @@
-<pre>
-   ____         __                  ___      ___            __          
-  / __/__  ____/ /________ ____    / _ \___ / _/__ ___  ___/ /__ _______
- / _// _ \/ __/ __/ __/ _ `/ _ \  / // / -_) _/ -_) _ \/ _  / -_) __(_-<
-/_/  \___/_/  \__/_/  \_,_/_//_/ /____/\__/_/ \__/_//_/\_,_/\__/_/ /___/
-</pre>
+![logo](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/fortdefenders.png)
 ## Coding for Hono(u)r
 
 ![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.png)
