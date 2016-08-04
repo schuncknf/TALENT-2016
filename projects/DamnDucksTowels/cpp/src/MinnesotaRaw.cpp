@@ -68,7 +68,6 @@ MinnesotaRaw::MinnesotaRaw(FullSpBasis &_basis, int _nParticleTypes, std::string
   std::string line;
   std::getline(input, line);
   std::getline(input, line);
-  //std::cout << "Reading..." << std::endl;
 
   while (std::getline(input, line))
   {
