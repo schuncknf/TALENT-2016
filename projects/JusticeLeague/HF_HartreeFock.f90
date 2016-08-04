@@ -54,7 +54,7 @@ contains
          trim(type_of_calculation).ne.'spherical'.and.&
          trim(type_of_calculation).ne.'LDA'.and.&
          trim(type_of_calculation).ne.'DME') then
-       write(*,*) 'Unrecognized type of calculation'
+       write(*,*) 'Unrecognized type of calculation ಠ_ಠ'
        write(*,*) type_of_calculation
        write(*,*) 'please check HF_input.dat file'
        write(*,*) 'stoping now'
