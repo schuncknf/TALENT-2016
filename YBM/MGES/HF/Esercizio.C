@@ -1,8 +1,10 @@
 #include "Esercizio.h"
+#include "initial.h"
 #include "star.h"
 
 int main(){
 
+	initial();
 
 	// Declaration of constants and variables
 	int n_step_width_box = width_box/h_width;
