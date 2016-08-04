@@ -3,10 +3,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <cstdlib>
+#include <iostream>
 
 #define NUM_FRAMES 150
 #define NUM_BLOBS 800
 #define PERSPECTIVE 50.0
+
+using namespace std;
 
 typedef struct {
   double x,y,z;
@@ -18,7 +21,7 @@ double prng() {
   return ((s % 65536) - 32768) / 32768.0;
 }
 
-int main() {
+int star() {
   char *frames[NUM_FRAMES], *p;
   int i,j,x,y,z,v,rows,cols,ith,i0;
   int maxx,minx,maxy,miny,delay=1E6;
@@ -109,5 +112,18 @@ int main() {
   }
   curs_set(1); /* unhide cursor */
   endwin(); /* Exit ncurses */
+
+//	cout << "\n\n\n\n\n\n\n\n\n\n\n                      GET THE HARTREE-FOCK OUTTA HERE!                    \n\n\n\n\n\n\n\n\n\n\n" << endl;
+
+
+cout << "\n             `.       ;        .'\n               `.  .-'''-.   .'\n                 ;'  __   _;'\n                /   '_    _`\\\n               |  _( a (  a  |\n          '''''| (_)    >    |``````\n                \\    \\    / /\n                 `.   `--'.'\n                .' `-,,,-' `.\n              .'      :      `.\n                      :\n\t              ____      _     _   _                            \n\t             / ___| ___| |_  | |_| |__   ___                   \n\t            | |  _ / _ \\ __| | __| '_ \\ / _ \\                  \n\t            | |_| |  __/ |_  | |_| | | |  __/                  \n\t  _   _      \\____|\\___|\\__|  \\__|_| |_|\\___|___          _    \n\t | | | | __ _ _ __| |_ _ __ ___  ___      |  ___|__   ___| | __\n\t | |_| |/ _` | '__| __| '__/ _ \\/ _ \\_____| |_ / _ \\ / __| |/ /\n\t |  _  | (_| | |  | |_| | |  __/  __/_____|  _| (_) | (__|   < \n\t |_| |_|\\__,_|_|   \\__|_|  \\___|\\___|     |_|  \\___/ \\___|_|\\_\\\n\t         ___  _   _| |_| |_ __ _  | |__   ___ _ __ ___         \n\t        / _ \\| | | | __| __/ _` | | '_ \\ / _ \\ '__/ _ \\        \n\t       | (_) | |_| | |_| || (_| | | | | |  __/ | |  __/        \n\t        \\___/ \\__,_|\\__|\\__\\__,_| |_| |_|\\___|_|  \\___|                                                                       " << endl;
+
+
+
+
+
+
+	cin.ignore();
+
   return 0;
 }

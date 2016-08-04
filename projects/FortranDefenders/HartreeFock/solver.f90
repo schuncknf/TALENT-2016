@@ -39,7 +39,7 @@ contains
               +(-uc(:,iq) -ucso(:,iq)-udd(:,iq)-uso(:,iq)*(j*(j+1)- l*(l+1) - 0.75) &
               -dumr(:,iq)/mesh(:) + (1-iq)*ucoul(:) - umr(:,iq)*l*(l+1)/mesh(:)**2)/umr(:,iq)&
               -0.5*(d2umr(:,iq)*umr(:,iq) - dumr(:,iq)**2)/(umr(:,iq)**2)
-              do n = 1,lmax-2
+              do n = 1,nnmax
                   Eupper = 1_wp
                   Elower = -80._wp
 

@@ -22,13 +22,8 @@
 	#define x3 0
 
 	// System parameters
-<<<<<<< HEAD
-	#define width_box 22.
-	#define h_width 0.01 // mesh spacing
-=======
 	#define width_box 20.
 	#define h_width 0.02 // mesh spacing
->>>>>>> 909cd3907ac74c12312c5552c9324962a9745d09
 	#define r0 1.27
 
 	// Nucleons numbers
@@ -58,7 +53,8 @@
 	double potential_coulomb(double r);
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
 	double skyrme(double rho, double rho_q, double rho_p, double rho_n);
-	//int star();
+	double coulombPotentialHF(double * densityCou, double r);
+	double coulombHF();
 
 	// Struct for storing all information about an e'function once found (and e'function itself)
 	struct state{

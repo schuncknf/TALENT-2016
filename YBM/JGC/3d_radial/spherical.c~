@@ -156,7 +156,6 @@ int main()
 							// Normalise the wavefunction
 							transform(wf_val.begin(),wf_val.end(),wf_val.begin(),MultValue<double>(sqrt(normFac)));
 
-
 							double j=Spin+L;
 
 							char orbital[16];
@@ -348,11 +347,13 @@ double normalise(double eigenEng, int isoSpin, int L, int spin)
 	//for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork.at(i+1), wfWork.at(i), i*h, isoSpin, L, spin));
 	//for(int i=0; i<(wBox/h)-1; i++) sum += h*pow(wfWork.at(i),2);
 
-	for(int i=0; i<wBox/h; i++) wfWork.push_back(numerovAlgorithm(eigenEng, wfWork[i+1], wfWork[i], i*h, isoSpin, L, spin));
+	for(int i=0; i<wBox/h; i++) wfWork.push_back(pow(numerovAlgorithm(eigenEng, wfWork[i+1], wfWork[i], i*h, isoSpin, L, spin),2));
 
-	for(int i=1; i<(wBox/h)-1; i++) sum += h*pow((wfWork[i]),2);
+//	for(int i=1; i<(wBox/h)-1; i++) sum += h*pow((wfWork[i]),2);
 
-	double normFac = 1/(sum);
+	sum = std::accumulate(wfWork.begin(), wfWork.end(), 0.0);
+
+	double normFac = 1/(h*sum);
 	wfWork.clear();
 
 	return normFac;

@@ -1,4 +1,4 @@
-COMPILER = gfortran
+COMPILER = gfortran -O3
 FLAGS = 
 LINEAR_ALGEBRA = -llapack
 
