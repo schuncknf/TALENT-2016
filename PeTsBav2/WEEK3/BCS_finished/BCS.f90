@@ -106,7 +106,7 @@ do ! until converge
          v(i) = v_old(i) + dv(i)
       end do
       lambda = lambda_old + real(dv(L+1))
-      if (abs(dv(L+1))/abs(lambda_old)<1e-6) exit   
+      if (abs(dv(L+1))/abs(lambda_old)<epsi) exit   
    end do
 
 ! check result****************************************
