@@ -1,5 +1,5 @@
 &nucleons
- proton = 8, neutron = 8/
+ proton = 16, neutron = 26/
 &parameters
  h2m=20.73553d0, R_max=30d0, N=300 /
 &max_quantum_number

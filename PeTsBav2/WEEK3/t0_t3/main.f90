@@ -81,7 +81,7 @@ allocate(V_skyrme_p(0:N), V_skyrme_n(0:N), M_eff_p(0:N), M_eff_n(0:N),&
 allocate(energy_n(1:orbital),energy_p(1:orbital),wave_func_n(0:N,1:orbital),&
      wave_func_p(0:N,1:orbital))
 allocate(filename_wave_func_n(1:orbital),filename_wave_func_p(1:orbital))
-allocate(E_data_n(1:orbital,1:4),E_data_p(1:orbital,1:4))
+allocate(E_data_n(1:orbital,1:4),E_data_p(1:orbital,1:4), V_Co_d(0:Nmesh),V_Co_e(0:Nmesh) )
 
 
 
@@ -562,34 +562,52 @@ do rep=1,iter
    rho(:) = rho_p(:)+rho_n(:)
    tau(:) = tau_p(:)+tau_n(:)
 
-
-
 ! HF energy
    number = 0d0
    E_ke = 0d0
    E_pot=0d0
    E_Co =0d0
+   exch=0d0
+   V_Co_d(:) = 0d0
 
+   aux1=0d0
+   aux=0d0
 
+      do i=0, N
+      x=i*dx
+      aux= aux + x**2*rho_p(i)
+      enddo
+      do i=1, N
+      x=i*dx
+      V_Co_d(i) = 4.d0*pi*dx*aux/x
+      enddo
+      
+      do i=0, N
+      x=i*dx
+      aux1= aux1 + x**2*rho_p(i)*V_co_d(i)*e2/2.d0
+      exch = exch - 3.d0/4.d0*e2*4.d0*pi*dx*x**2*rho_p(i)*(3.d0/pi)**(1.d0/3.d0)
+      enddo
 
-   do i=1,N
+      e_co= 4.d0*pi*dx*aux1 + exch
+
+   do i=0,N
       x = i*dx
       number = number + 4d0*pi*rho(i)*x**2*dx
       E_ke = E_ke + 4d0*pi*h2m*tau(i)*x**2*dx
       E_pot= E_pot + 4d0*pi*(1.d0/2.d0*t0*(rho(i)**2 -(rho_p(i)**2+rho_n(i)**2)/2.d0&
-      ) +t3/12.d0*rho(i)**alpha*(rho(i)**2 -(rho_p(i)**2+rho_n(i)**2)/2.d0 ))*x**2*dx &
-      + e2/2.d0
-
-      E_Co = E_Co + 
+      ) +t3/12.d0*rho(i)**alpha*(rho(i)**2 -(rho_p(i)**2+rho_n(i)**2)/2.d0 ))*x**2*dx 
    end do
 
+
+
    E_hf_new = E_ke + E_pot + E_Co
-   write(*,'(i5,5f20.8)') rep, number, E_hf_new, E_sp, E_ke, E_pot
+   write(*,*) rep, number, E_hf_new, E_sp, E_ke, E_pot, E_Co
       if(abs(E_hf_new-E_hf).lt.epsi) exit
 
       E_hf= E_hf_new
 end do
 ! iteration finish
+
 
 !results
 ! output energy
