@@ -22,8 +22,8 @@
 	#define x3 0
 
 	// System parameters
-	#define width_box 22.
-	#define h_width 0.01 // mesh spacing
+	#define width_box 20.
+	#define h_width 0.02 // mesh spacing
 	#define r0 1.27
 
 	// Nucleons numbers
@@ -37,7 +37,7 @@
 	#define maxProtScanE 10.	// energy below which to look for e'functions
 	#define maxNeutScanE 0.
 
-	#define integralPrec 1e-6 // iteration energy convergence
+	#define integralPrec 1e-1 // iteration energy convergence
 
 	// Physical constants
 	#define m_factor 20.73553 // hBar^2/2m
@@ -53,7 +53,8 @@
 	double potential_coulomb(double r);
 	double normalise(double eigen, double n_step_width_box, double S, double L, double J, float T);
 	double skyrme(double rho, double rho_q, double rho_p, double rho_n);
-	//int star();
+	double coulombPotentialHF(double * densityCou, double r);
+	double coulombHF();
 
 	// Struct for storing all information about an e'function once found (and e'function itself)
 	struct state{

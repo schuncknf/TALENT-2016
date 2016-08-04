@@ -1,0 +1,54 @@
+      module integrations
+
+      contains
+!***************************************************
+!*      this subroutine is simpson's formula       *
+!*      N: the number of division                  *
+!*      dx: axis step size                         *
+!*      f: array of function                       *
+!*      res: integrated value                      *
+!***************************************************
+      subroutine simpson( dx, f, res)
+      use globals
+      implicit none
+      real(8) :: res, even, odd, dx
+      real(8) :: f(0:Nmesh, 2)
+      integer(8) :: i
+      res = 0d0
+      odd = 0d0
+      even = 0d0
+      do i=1,Nmesh-1, 2
+      odd = odd + f(i, ipart)
+      end do
+      odd = 4.*odd
+      do i=2,Nmesh-2, 2
+      even = even + f(i, ipart)
+      end do
+      even = 2.*even
+      res = f(0, ipart) + f(Nmesh, ipart) + odd + even
+      res = dx/3.*res
+      end subroutine simpson
+
+
+      subroutine simpson_array( dx, f, res)
+      use globals
+      implicit none
+      real(8) :: res, even, odd, dx
+      real(8) :: f(0:Nmesh)
+      integer :: i
+      res = 0d0
+      odd = 0d0
+      even = 0d0
+      do i=1,Nmesh-1, 2
+      odd = odd + f(i)
+      end do
+      odd = 4.*odd
+      do i=2,Nmesh-2, 2
+      even = even + f(i)
+      end do
+      even = 2.*even
+      res = f(0) + f(Nmesh) + odd + even
+      res = dx/3.*res
+      end subroutine simpson_array
+
+      end module integrations

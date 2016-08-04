@@ -4,7 +4,7 @@ program main
     use wavefunctions
     use fields
     integer :: iq,i,npr,ir
-    real(wp) :: j
+    real(wp) :: j,rneu,rpro,rtot,rch,npro,nneu
     open(unit=5,file='in',status='old',form='formatted')
     open(unit=6,file='out',form='formatted')
     open(unit=13,file='plt',form='formatted')
@@ -16,7 +16,6 @@ program main
     call init_wavefunctions
     call init_fields
     call statichf
-
 
     ! Writing the single particle states to 'out'
     write(6,*) "Single Particle States | "
@@ -45,12 +44,20 @@ program main
     end do
     ! Particle by way of density integration
     call totenergy
-    write(6,*) "Total Neutrons =", sum(4*pi*h*mesh(:)**2*rho(:,1)), &
-    "Total Protons =", sum(4*pi*h*mesh(:)**2 *rho(:,2))
+    nneu = sum(4*pi*h*mesh(:)**2*rho(:,1))
+    npro = sum(4*pi*h*mesh(:)**2 *rho(:,2))
+    write(6,*) "Total Neutrons =", nneu, &
+    "Total Protons =", npro
     write(6,*) "Total Energy =", totalenergy,"Total Kinetic Energy:",totalkinetic
-    do ir = 0,nbox
-      write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
-    end do
+    !do ir = 0,nbox
+    !  write(14,*) ir*h, rho(ir,1),rho(ir,2),rho(ir,3),drho(ir,1),ddrho(ir,1),tau(ir,1),tau(ir,2),jsc(ir,1)!,rho(ir,4)
+    !end do
+    rneu = sqrt(4*pi*h*sum(mesh(:)**4 * rho(:,1))/nneu)
+    rpro = sqrt(4*pi*h*sum(mesh(:)**4 * rho(:,2))/npro)
+    rch = rpro + 0.8**2
+    write (6,*) "Neutron RMS Radius(fm) =", rneu
+    write (6,*) "Proton RMS Radius(fm) =", rpro
+    write (6,*) "Charge Radius(fm) =", rch
 
     close(13)
     close(6)
