@@ -1,7 +1,5 @@
 ![logo](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/fortdefenders.png)
-## Coding for Hono(u)r
-
-![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.png)
+## Coding for Hono(u)r and Justice
 
 
 Welcome to our home in the Repo.
