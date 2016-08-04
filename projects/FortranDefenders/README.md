@@ -8,7 +8,7 @@ Of particular interest right now is the Hartree-Fock solver in the Hartree-Fock 
 In the **in** file, you will set the parameters for your HF run. For easy use,
 try the *run* script to clean, compile, run, and output the **out** file.
 
-To see a full set of documentation, visit [here!](http://kylegodbey.com/hf/index.html)
+To see a full set of documentation, visit [here!](fortrandefenders.kylegodbey.com)
 
 Once you compile and run the code, you'll find the **single particle states**,
 **total and kinetic energies**, and **convergence at each iteration** in the file named **out**.
