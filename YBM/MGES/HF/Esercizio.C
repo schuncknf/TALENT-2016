@@ -4,10 +4,7 @@
 
 int main(){
 
-	initial();
-
 	// Declaration of constants and variables
-
 	int n_step_width_box = width_box/h_width;
 	vector<double> wave_val;	// Vector for storing e'functions during
 	vector<double> wfWork;	// Vector for storing e'function and then normalising
@@ -85,12 +82,8 @@ int main(){
 			double rn = density_neutron[i];
 			// Inputs are rho, rho_q, rho_p, rho_n
 			U_skyrme_p.push_back(skyrme(r,rp,rp,rn));
-<<<<<<< HEAD
 			U_skyrme_n.push_back(skyrme(r,rn,rp,rn));	
-		}
-=======
-			U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
->>>>>>> a705b1a6bc1586633dcb5f18a2500e2a99cb41b0
+		
 
 			double integ1 = 0., integ2 = 0., integ3 = 0., exchange = 0.;
 
@@ -103,7 +96,6 @@ int main(){
 			}
 			exchange = pow(density_proton[i],1./3.);
 			U_cou_p.push_back( h_width* (4.*M_PI*e* (integ1/(i*h_width+h_width) - integ2 + integ3) - exchange*e*pow(3./M_PI,1./3.)) );
-
 		}
 
 		// Neutron eigenstates
