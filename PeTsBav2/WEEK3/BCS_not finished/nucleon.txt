@@ -1,5 +1,5 @@
 &nucleons
- proton = 20, neutron = 22/
+ proton = 16, neutron = 26/
 &parameters
  h2m=20.73553d0, R_max=30d0, N=300 /
 &max_quantum_number
@@ -11,7 +11,9 @@
 &output
  output_wave_func = .false. , epsi=1e-2/
 &WoodSaxon
-r0=1.27, a=0.67, e2=1.439978/  
+ r0=1.27, a=0.67, e2=1.439978/  
 &CMcorr
-CMcorrection = .false./
+ CMcorrection = .false./
+&BCS_parameters
+ BCS_cal = .false., g = 0.2 /
 

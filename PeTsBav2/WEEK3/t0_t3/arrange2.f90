@@ -1,4 +1,6 @@
-!================================ arrange energy in ascending order =======================================
+!Subroutine to arrange the WoodsSaxon eigenvalues in ascending order
+! 
+
 subroutine arrage_energy(matrix,wavef)
    use globals
    implicit none

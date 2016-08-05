@@ -1,13 +1,14 @@
 program skyrme
 use globals
 implicit none
-real    :: s_z, j_tot
+real(8) :: s_z, j_tot
 real(8),allocatable :: psi(:), &
      u_nlj_p(:,:), u_nlj_n(:,:),&
      rho_p(:), rho_n(:), rho(:), tau_p(:), tau_n(:), tau(:), k_sq_p(:), k_sq_n(:)
 real(8),allocatable :: V_skyrme_p(:), V_skyrme_n(:),&
      M_eff_p(:), M_eff_n(:), W_p(:), W_n(:), g_p(:), g_n(:),&
      dg_p(:), dg_n(:), f_p(:), f_n(:), h_p(:), h_n(:)
+complex(8),allocatable :: v_n(:), v_p(:)
 real(8) :: E_left, E_right, E, E_hf, E_hf_new=0.d0, E_ke, E_sp, number, E_pot
 real(8) :: x,  nmfactor
 integer :: i, j, rep, count, spin, l, ex
@@ -21,7 +22,7 @@ character(10) :: t1, t2
 
 ! density distribution variables
 integer :: Np_tmp, Nn_tmp, Np_l, Nn_l, orbital_tmp
-real(8),allocatable :: dens_p(:), dens_n(:), dens(:)
+real(8),allocatable :: rho_BCS_p(:), rho_BCS_n(:), rho_BCS(:)
 ! initial setting of the system***************
 integer :: N_nlj,N
 integer,allocatable :: nl2j(:,:)
@@ -35,6 +36,7 @@ NAMELIST / bisection / E_p, E_m
 NAMELIST / output / output_wave_func, epsi
 NAMELIST / WoodSaxon/ r0, a, e2
 NAMELIST / CMcorr/ CMcorrection
+NAMELIST / BCS_parameters/ BCS_cal, g
 
 open(30,file='nucleon.txt',status='old')
 read(30,NML=nucleons)
@@ -46,7 +48,7 @@ read(30,NML=bisection)
 read(30,NML=output)
 read(30,NML=WoodSaxon)
 read(30,NML=CMcorr)
-
+read(30,NML=BCS_parameters)
 
 
 close(30)   ! read form file
@@ -77,7 +79,7 @@ write(*,*) orbital
 allocate(psi(0:N), &
      u_nlj_p(0:N,1:orbital), u_nlj_n(0:N,1:orbital))
 allocate(rho_p(0:N), rho_n(0:N), rho(0:N), tau_p(0:N), tau_n(0:N), tau(0:N), &
-     k_sq_p(0:N), k_sq_n(0:N), dens_p(0:N), dens_n(0:N), dens(0:N))
+     k_sq_p(0:N), k_sq_n(0:N), rho_BCS_p(0:N), rho_BCS_n(0:N), rho_BCS(0:N))
 allocate(V_skyrme_p(0:N), V_skyrme_n(0:N), M_eff_p(0:N), M_eff_n(0:N),&
      W_p(0:N), W_n(0:N), g_p(0:N), g_n(0:N), dg_p(0:N), dg_n(0:N),&
      f_p(0:N), f_n(0:N), h_p(0:N), h_n(0:N))
@@ -593,7 +595,7 @@ open(11,file='energy_n.dat')
 Nn_tmp = 0
 do orbital_l=1,orbital
    j_tot = E_data_n(orbital_l,3) + E_data_n(orbital_l,4)
-   Nn_tmp = nint(2d0*j_tot+1)
+   Nn_tmp = Nn_tmp + nint(2d0*j_tot+1)
    if (E_data_n(orbital_l,1)>=0d0) exit
    write(11,'(f15.8,2i5,f5.1,i5)') E_data_n(orbital_l,1), nint(E_data_n(orbital_l,2)),&
         nint(E_data_n(orbital_l,3)), E_data_n(orbital_l,4), Nn_tmp
@@ -603,7 +605,7 @@ open(11,file='energy_p.dat')
 Np_tmp = 0
 do orbital_l=1,orbital
    j_tot = E_data_p(orbital_l,3) + E_data_p(orbital_l,4)
-   Np_tmp = nint(2d0*j_tot+1)
+   Np_tmp = Np_tmp + nint(2d0*j_tot+1)
    if (E_data_p(orbital_l,1)>=0d0) exit
    write(11,'(f15.8,2i5,f5.1,i5)') E_data_p(orbital_l,1), nint(E_data_p(orbital_l,2)),&
         nint(E_data_p(orbital_l,3)), E_data_p(orbital_l,4), Np_tmp
@@ -643,11 +645,10 @@ if (output_wave_func) then
    end do
 end if
 
-! calculate mmagic number, and pairing region
+! calculate magic number, obtain BCS configuration space, solve BCS_eq
 Nn_tmp = 0
-NNN=0.d0
-PPP=0.d0
 flag = .true.
+write(*,*) 'magic number for neutron:'
 do orbital_l=1,orbital
    j_tot = E_data_n(orbital_l,3) + E_data_n(orbital_l,4)
    Nn_tmp = Nn_tmp + nint(2d0*j_tot+1)
@@ -657,10 +658,10 @@ do orbital_l=1,orbital
    end if
    if (E_data_n(orbital_l+1,1)-E_data_n(orbital_l,1)>3.5d0) then
       magic_n = Nn_tmp
-      NNN= NNN+magic_n
       write(*,*) magic_n
       if (magic_n<=neutron) then
          orbital_down = orbital_l + 1
+         NNN = neutron - magic_n
       end if
       if (magic_n>=neutron) then
          orbital_up = orbital_l
@@ -671,14 +672,56 @@ end do
 if (flag.eqv..false.) then
    orbital_up = orbital_l - 1
 end if
-write(*,*) orbital_down, orbital_up
 if (orbital_up<orbital_down) then
-   write(*,*) 'magic number for neutron.'
+   write(*,*) 'neutron is in magic number.'
 end if
-NNN= neutron-NNN
-call solve_BCS_equation(L,E_data_n(orbital_down:orbital_up),NNN ,E_tot_n, lambda_n, delta_n)
+if (orbital_up>=orbital_down.and.BCS_cal.eqv..true.) then
+   BCS_level = orbital_up - orbital_down + 1
+   allocate(v_n(orbital_down:orbital_up))
+   call solve_BCS_equation(BCS_level,E_data_n(orbital_down:orbital_up,1:4),&
+        NNN ,E_tot_n, lambda_n, delta_n, v_n(orbital_down:orbital_up))
+   open(10,file='BCS_result_n.dat')
+   write(10,'(a30,2f15.8)') 'total energy in BCS system', E_tot_n
+   write(10,'(a30,2f15.8)') 'chemical potential', lambda_n
+   write(10,'(a30,2f15.8)') 'pairing gap', delta_n
+   write(10,*)
+   write(10,'(a30)') 'occupation probability'
+   write(10,'(a15,3a5,a15)') 'sp_energy', 'n', 'l', 's_z', 'occ_prob'
+   do orbital_l=orbital_down,orbital_up
+      write(10,'(f15.8,2i5,f5.1,f15.8)') E_data_n(orbital_l,1),&
+           nint(E_data_n(orbital_l,2)), nint(E_data_n(orbital_l,3)),&
+           E_data_n(orbital_l,4), abs(v_n(orbital_l)**2)
+   end do
+   close(10)
+   rho_BCS_n(:) = 0d0
+   do orbital_l=1,orbital_down-1
+      do i=1,N
+         x = i*dx
+         j_tot = E_data_n(orbital_l,3) + E_data_n(orbital_l,4)
+         rho_BCS_n(i) = rho_BCS_n(i) + (2d0*j_tot+1)*abs(u_nlj_n(i,orbital_l))**2/(4d0*pi*x**2)
+      end do
+   end do
+   do orbital_l=orbital_down,orbital_up
+      do i=1,N
+         x = i*dx
+         j_tot = E_data_n(orbital_l,3) + E_data_n(orbital_l,4)
+         rho_BCS_n(i) = rho_BCS_n(i) + abs(v_n(orbital_l)**2)*&
+              (2d0*j_tot+1)*abs(u_nlj_n(i,orbital_l))**2/(4d0*pi*x**2)
+      end do
+   end do
+   rho_BCS_n(0) = rho_BCS_n(1)
+   open(10,file='density_BCS_n.dat')
+   do i=0,N
+      x = i*dx
+      write(10,'(3f15.8)') x, rho_BCS_n(i)
+   end do
+   close(10)
+   deallocate(v_n)
+end if
+
 Np_tmp = 0
 flag = .true.
+write(*,*) 'magic number for proton:'
 do orbital_l=1,orbital
    j_tot = E_data_p(orbital_l,3) + E_data_p(orbital_l,4)
    Np_tmp = Np_tmp + nint(2d0*j_tot+1)
@@ -688,10 +731,10 @@ do orbital_l=1,orbital
    end if
    if (E_data_p(orbital_l+1,1)-E_data_p(orbital_l,1)>3.5d0) then
       magic_p = Np_tmp
-      PPP=PPP+magic_p
       write(*,*) magic_p
       if (magic_p<=proton) then
          orbital_down = orbital_l + 1
+         PPP = proton - magic_p
       end if
       if (magic_p>=proton) then
          orbital_up = orbital_l
@@ -702,14 +745,53 @@ end do
 if (flag.eqv..false.) then
    orbital_up = orbital_l - 1
 end if
-write(*,*) orbital_down, orbital_up
 if (orbital_up<orbital_down) then
-   write(*,*) 'magic number for proton.'
+   write(*,*) 'proton is in magic number.'
 end if
 
-PPP= proton-PPP
-call solve_BCS_equation(L,E_data_p(orbital_down:orbital_up),PPP ,E_tot_p, lambda_p, delta_p)
-
+if (orbital_up>=orbital_down.and.BCS_cal.eqv..true.) then
+   BCS_level = orbital_up - orbital_down + 1
+   allocate(v_p(orbital_down:orbital_up))
+   call solve_BCS_equation(BCS_level,E_data_p(orbital_down:orbital_up,1:4),&
+        PPP ,E_tot_p, lambda_p, delta_p, v_p(orbital_down:orbital_up))
+   open(10,file='BCS_result_p.dat')
+   write(10,'(a30,2f15.8)') 'total energy in BCS system', E_tot_p
+   write(10,'(a30,2f15.8)') 'chemical potential', lambda_p
+   write(10,'(a30,2f15.8)') 'pairing gap', delta_p
+   write(10,*)
+   write(10,'(a30)') 'occupation probability'
+   write(10,'(a15,3a5,a15)') 'sp_energy', 'n', 'l', 's_z', 'occ_prob'
+   do orbital_l=orbital_down,orbital_up
+      write(10,'(f15.8,2i5,f5.1,f15.8)') E_data_p(orbital_l,1),&
+           nint(E_data_p(orbital_l,2)), nint(E_data_p(orbital_l,3)),&
+           E_data_p(orbital_l,4), abs(v_p(orbital_l)**2)
+   end do
+   close(10)
+   rho_BCS_p(:) = 0d0
+   do orbital_l=1,orbital_down-1
+      do i=1,N
+         x = i*dx
+         j_tot = E_data_p(orbital_l,3) + E_data_p(orbital_l,4)
+         rho_BCS_p(i) = rho_BCS_p(i) + (2d0*j_tot+1)*abs(u_nlj_p(i,orbital_l))**2/(4d0*pi*x**2)
+      end do
+   end do
+   do orbital_l=orbital_down,orbital_up
+      do i=1,N
+         x = i*dx
+         j_tot = E_data_p(orbital_l,3) + E_data_p(orbital_l,4)
+         rho_BCS_p(i) = rho_BCS_p(i) + abs(v_p(orbital_l)**2)*&
+              (2d0*j_tot+1)*abs(u_nlj_p(i,orbital_l))**2/(4d0*pi*x**2)
+      end do
+   end do
+   rho_BCS_p(0) = rho_BCS_p(1)
+   open(10,file='density_BCS_p.dat')
+   do i=0,N
+      x = i*dx
+      write(10,'(3f15.8)') x, rho_BCS_p(i)
+   end do
+   close(10)
+   deallocate(v_p)
+end if
 
 
 do i=1, Nmesh
@@ -721,7 +803,7 @@ deallocate(filename_wave_func_n,filename_wave_func_p)
 deallocate(energy_n,energy_p,wave_func_n,wave_func_p)
 deallocate(V_skyrme_p,V_skyrme_n,M_eff_p,M_eff_n,W_p,W_n,g_p,g_n,dg_p,dg_n,f_p,f_n,h_p,h_n)
 deallocate(psi,u_nlj_p,u_nlj_n)
-deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,dens_p,dens_n,dens)
+deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,rho_BCS_p,rho_BCS_n,rho_BCS)
 
 
 

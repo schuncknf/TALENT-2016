@@ -1,0 +1,21 @@
+&nucleons
+ proton = 8, neutron = 8/
+&parameters
+ h2m=20.73553d0, R_max=20d0, N=1000 /
+&skyrme_force
+ skforce = 't0t3' / ! t0t3,SLy5,SIII
+&max_quantum_number
+ n_max = 2, l_max = 5/
+&effective_charge
+ charge = 0d0 / 
+&bisection
+ E_p = 0d0, E_m = -100d0 /
+&output
+ output_wave_func = .false. , epsi=1e-8, corr=0.25d0/
+&WoodSaxon
+ r0=1.27, a=0.67, e2=1.439978/  
+&CMcorr
+ CMcorrection = .false./
+&BCS_parameters
+ BCS_cal = .false., g = 0.2 /
+

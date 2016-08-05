@@ -1,30 +1,30 @@
 program skyrme
 use globals
 implicit none
-real    :: s_z, j_tot
+real(8)    :: s_z, j_tot
 real(8),allocatable :: psi(:), &
      u_nlj_p(:,:), u_nlj_n(:,:),&
      rho_p(:), rho_n(:), rho(:), tau_p(:), tau_n(:), tau(:), k_sq_p(:), k_sq_n(:)
 real(8),allocatable :: V_skyrme_p(:), V_skyrme_n(:),&
      M_eff_p(:), M_eff_n(:), W_p(:), W_n(:), g_p(:), g_n(:),&
      dg_p(:), dg_n(:), f_p(:), f_n(:), h_p(:), h_n(:)
-real(8) :: E_left, E_right, E, E_hf, E_hf_new=0.d0, E_ke, E_sp, number, E_pot
+real(8) :: E_left, E_right, E, E_hf, E_hf_new=0.d0, E_ke, E_sp, number, E_pot, E_Co
 real(8) :: x,  nmfactor
-integer :: i, j, rep, count, spin, l, ex
+integer :: i,  rep, count, spin, l, ex
 real(8),allocatable :: energy_n(:), energy_p(:), wave_func_n(:,:), wave_func_p(:,:)
 integer :: orbital_l
 real(8),allocatable :: E_data_n(:,:), E_data_p(:,:)
 
 character(99) :: filename
 character(99),allocatable :: filename_wave_func_n(:), filename_wave_func_p(:)
-character(10) :: t1, t2
+
 
 ! density distribution variables
 integer :: Np_tmp, Nn_tmp, Np_l, Nn_l, orbital_tmp
 real(8),allocatable :: dens_p(:), dens_n(:), dens(:)
 ! initial setting of the system***************
-integer :: N_nlj,N
-integer,allocatable :: nl2j(:,:)
+integer ::N
+
 real(8) :: E_p, E_m
 real(8) :: Vcoulomb
 NAMELIST / nucleons / proton, neutron
@@ -47,12 +47,9 @@ read(30,NML=output)
 read(30,NML=WoodSaxon)
 read(30,NML=CMcorr)
 
-
-
 close(30)   ! read form file
 !*********************************************
 
-call date_and_time(time=t1) ! the starting time
 
 write(filename,'(a1,I3.3,a1,I3.3,a4)') 'p', proton, 'n', neutron, '.dat'
 filename = trim(filename)
@@ -84,7 +81,7 @@ allocate(V_skyrme_p(0:N), V_skyrme_n(0:N), M_eff_p(0:N), M_eff_n(0:N),&
 allocate(energy_n(1:orbital),energy_p(1:orbital),wave_func_n(0:N,1:orbital),&
      wave_func_p(0:N,1:orbital))
 allocate(filename_wave_func_n(1:orbital),filename_wave_func_p(1:orbital))
-allocate(E_data_n(1:orbital,1:4),E_data_p(1:orbital,1:4))
+allocate(E_data_n(1:orbital,1:4),E_data_p(1:orbital,1:4), V_Co_d(0:Nmesh),V_Co_e(0:Nmesh) )
 
 
 
@@ -224,6 +221,7 @@ do rep=1,iter
       V_skyrme_n(i) = rho(i)*(0.5d0*t0*(2d0)+(2d0+alpha)*t3*(2d0)*rho(i)**alpha/24d0)&
            + rho_n(i)*(-0.5d0*t0*(+1d0)-t3*(+1d0)*rho(i)**alpha/12d0)&
            + alpha*rho(i)**(alpha-1)*(-t3*(+1d0)/24d0)*(rho_p(i)**2+rho_n(i)**2)
+
    end do
  !  open(10,file='pot_skyrme_n.dat')
  !  do i=0,N
@@ -282,7 +280,7 @@ do rep=1,iter
 ! numerov
                do i=1,N-1
                   x = i*dx
-!               psi(i+1) = 2d0*(1-dx**2*k_sq_n(i)/2d0)*psi(i) - psi(i-1)
+
                   psi(i+1) = (2d0*(1-5d0*dx**2*k_sq_n(i)/12d0)*psi(i)&
                        -(1+dx**2*k_sq_n(i-1)/12d0)*psi(i-1))/(1+dx**2*k_sq_n(i+1)/12d0) 
                   if (psi(i+1)*psi(i)<0) then
@@ -315,7 +313,6 @@ do rep=1,iter
             k_sq_n(0) = k_sq_n(1)
             do i=1,N-1
                x = i*dx
-!            psi(i+1) = 2d0*(1-dx**2*k_sq_n(i)/2d0)*psi(i) - psi(i-1)
                psi(i+1) = (2d0*(1-5d0*dx**2*k_sq_n(i)/12d0)*psi(i)&
                     -(1+dx**2*k_sq_n(i-1)/12d0)*psi(i-1))/(1+dx**2*k_sq_n(i+1)/12d0)
                if (psi(i+1)*psi(i)<0) then
@@ -428,13 +425,13 @@ do rep=1,iter
             do while(bisloop)
                count = 0
                E = E_left + 0.5d0*(E_right-E_left)
-               if (E_right-E_left<1e-6) exit
+               if (E_right-E_left<epsi) exit
             
 ! h(r) and k_sq
                do i=1,N
                   x = i*dx
                   f_p(i) = -(h_p(i) +M_eff_p(i)*l*(l+1d0)/x**2-E)/M_eff_p(i)
-                  k_sq_p(i) = -0.25d0*g_p(i)**2 + f_p(i)-0.5d0*dg_p(i)
+                  k_sq_p(i) =  f_p(i)
                end do
                k_sq_p(0) = k_sq_p(1)
 ! numerov
@@ -469,7 +466,7 @@ do rep=1,iter
             do i=1,N
                x = i*dx
                f_p(i) = -(h_p(i)+M_eff_p(i)*l*(l+1d0)/x**2-E)/M_eff_p(i)
-               k_sq_p(i) = -0.25d0*g_p(i)**2 + f_p(i)-0.5d0*dg_p(i)
+               k_sq_p(i) = f_p(i)
             end do
             k_sq_p(0) = k_sq_p(1)
             do i=1,N-1
@@ -569,22 +566,48 @@ do rep=1,iter
    number = 0d0
    E_ke = 0d0
    E_pot=0d0
+   E_Co =0d0
+   exch=0d0
+   V_Co_d(:) = 0d0
+
+   aux1=0d0
+   aux=0d0
+
+      do i=0, N
+      x=i*dx
+      aux= aux + x**2*rho_p(i)
+      enddo
+      do i=1, N
+      x=i*dx
+      V_Co_d(i) = 4.d0*pi*dx*aux/x
+      enddo
+      
+      do i=0, N
+      x=i*dx
+      aux1= aux1 + x**2*rho_p(i)*V_co_d(i)*e2/2.d0
+      exch = exch - 3.d0/4.d0*e2*4.d0*pi*dx*x**2*rho_p(i)*(3.d0/pi)**(1.d0/3.d0)
+      enddo
+
+      e_co= 4.d0*pi*dx*aux1 + exch
+
    do i=0,N
       x = i*dx
       number = number + 4d0*pi*rho(i)*x**2*dx
       E_ke = E_ke + 4d0*pi*h2m*tau(i)*x**2*dx
       E_pot= E_pot + 4d0*pi*(1.d0/2.d0*t0*(rho(i)**2 -(rho_p(i)**2+rho_n(i)**2)/2.d0&
       ) +t3/12.d0*rho(i)**alpha*(rho(i)**2 -(rho_p(i)**2+rho_n(i)**2)/2.d0 ))*x**2*dx 
-
    end do
 
-   E_hf_new = (E_ke + E_pot)
-   write(*,'(i5,5f20.8)') rep, number, E_hf_new, E_sp, E_ke, E_pot
+
+
+   E_hf_new = E_ke + E_pot + E_Co
+   write(*,*) rep, number, E_hf_new, E_sp, E_ke, E_pot, E_Co
       if(abs(E_hf_new-E_hf).lt.epsi) exit
 
       E_hf= E_hf_new
 end do
 ! iteration finish
+
 
 !results
 ! output energy

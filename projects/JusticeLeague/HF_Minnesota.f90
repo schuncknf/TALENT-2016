@@ -215,7 +215,7 @@ contains
     implicit none
     integer, intent(in) :: n1,n2,n3,n4
     integer :: i,j
-    integer, parameter :: Ngauss = 95
+    integer, parameter :: Ngauss = 30
     real(dp) :: TBME
     real(dp) :: alpha,xi,xj,wi,wj,A1,A2,A3,A4
     real(dp), dimension(1:Ngauss) :: w,x
