@@ -12,6 +12,9 @@
 // The module contains functions for evaluating integrals that are necessary to calculate two-body matrix elements, using Gauss
 // -Laguerre quadrature.
 
+// Throughout the program, printf functions have been commented out; there were put into the code to facilitate debugging, allo
+// -wing us to track the values calculated for every case.
+
 // The following function forms a matrix containing factorials (first row), double factorials (second row) and binomial coeffic
 // -ients (remainder). We use this instead of calling recursively-defined functions in order to gain on execution speed.
 
@@ -30,18 +33,18 @@ double** fac_bin_mat (int n)
 		res[1][0] = 1.; res[1][1] = 1.; res[1][2] = 2.; res[1][3] = 3.;// Initialisation for the double factorials.
 		
 		for (i=1;i<=n;i++) {
-			res[0][i]=i*res[0][i-1];
+			res[0][i]=i*res[0][i-1]; // Filling the array of factorials.
 		}
 		
 		for (i=4;i<=n;i++) {
-			res[1][i]=i*res[1][i-2];
+			res[1][i]=i*res[1][i-2]; // Filling the array of double factorials.
 		}
 		
 		for (i=2;i<n+2;i++){
 		for (j=0;j<n;j++){
 		
 		if (i>=j+2)
-			res[i][j]=res[0][i-2]/res[0][j]/res[0][i-2-j];	
+			res[i][j]=res[0][i-2]/res[0][j]/res[0][i-2-j]; // Filling the array of binomial coefficients.	
 		else res[i][j]=0;		
 		}}
 		
@@ -85,16 +88,18 @@ double** fac_galag_a0 (int n, double** bmcoeff)
 	
 	gsl_poly_complex_workspace_free (dummy);
 	
-	for (i=0; i<2*n; i++)
+	/*for (i=0; i<2*n; i++)
 		
 		{
 			//printf("SOL = %lf \n", solutions[i]);	
-		}	
+		}	*/
 	
 	for (i=0; i<n; i++)
 		
 		{
-			res[0][i] = solutions[2*i];//printf ("RES 0 %lf \n", res[0][i]);
+			res[0][i] = solutions[2*i];//printf ("RES 0 %lf \n", res[0][i]); // The solutions are complex numbers
+// as GSL does not have an equivalent function for real polynomials. This simply takes the real part (the complex part is al
+// -ways 0.
 					
 		}
 	
@@ -163,14 +168,14 @@ double** fac_galag_a (int n, double a, double** bmcoeff)
 		
 		{
 			
-			res[0][i] = solutions[2*i]; printf ("RES 0 %lf \n", res[0][i]);	
+			res[0][i] = solutions[2*i];// printf ("RES 0 %lf \n", res[0][i]);	
 		}
 	for (i=0; i<n; i++)
 		
 		{
 			ws[i] =  sqrt(4*atan(1))*bmcoeff[1][2*i+1]/pow(2,i+1)*solutions[2*i]/( pow(i+1,2)*pow( gsl_sf_laguerre_n(i+1,a,solutions[2*i]),2 ) * bmcoeff[0][i] ); // Calculation of weights.
 			
-			res[1][i] = ws[i]; printf ("RES 1 %lf \n", res[1][i]);		
+			res[1][i] = ws[i]; //printf ("RES 1 %lf \n", res[1][i]);		
 		}
 	
 	free(ws);
@@ -183,6 +188,10 @@ double** fac_galag_a (int n, double a, double** bmcoeff)
 	
 	free (res);
 	}
+
+// As of the latest version of the code these functions are no longer used but are left in the code as they could be useful with some reworking.
+
+// BEGIN OBSOLETE
 
 // The integrands of the first integral (over r) (see HF_truncated.pdf). First is the function for the r part, then the s part.
 
@@ -221,13 +230,19 @@ double integrand1s (double *coeff,double r1,double r2)
 	
 	}
 
+// END OBSOLETE
+
+// The problem of course is that the GL quadrature is a bad choice for evaluating this integral given the boundaries. And of course it can all be done analytically.
+
 // The integrand of the 2D integral over r1, r2. (See above for reference.)
 
 double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, double s1, double s2, double s3, double s4, double **galcoeff, double ** bmcoeff,double d1, double d2, double ** galcoeffa)
 	
 	{
 	
-		double res,res1, res2, dummy1, dummy2, br,r11,r12,r21,r22;	
+		double res,res1, res2, dummy1, dummy2, br,r11,r12,r21,r22, precoeff11, precoeff12,rs11,rs21,rs12,rs22;	
+		
+// Obsolete versions of the expressions:		
 		
 		/*res1 = Rnl(coeff,bmcoeff,galcoeff[0][i])*Rnl(coeff,bmcoeff,galcoeff[0][j])*Rnl(coeff,bmcoeff,galcoeff[0][i])*Rnl(coeff,bmcoeff,galcoeff[0][j]) * (
 		d1*galcoeff[0][i]*galcoeff[0][j]/coeff[7]
@@ -249,33 +264,58 @@ double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, do
 		res2 = Rnl(n1,coeff,bmcoeff,galcoeff[0][i])*Rnl(n2,coeff,bmcoeff,galcoeff[0][j])*Rnl(n4,coeff,bmcoeff,galcoeff[0][j])*Rnl(n3,coeff,bmcoeff,galcoeff[0][i]) * (
 		d1*(pow(2*coeff[7],-3.))+d2*(pow(2*coeff[9],-3.)))*(1.-0.5*(1+s3*s4));*/
 		
-		br = bred(coeff);
+		br = bred(coeff); // Reduced length for the oscillator.
+
+// Now the tedious part: the expressions given below were obtained by taking the Minesotta potential, multiplying it by explicit expressions for the wave functions and re-
+// -arranging the expressions so the part under the integral can be reduced to f(x) x^a e-x, which can then be integrated using Gauss-Laguerre quadrature of a-th order.
+
+// For our problem this means substituting r^2(kappa + 1/br^2) with a new variable, say x. Making the substitutions we get an expression with a=0. (?)
+
+// Now we want to make the substitution in reverse: from the values of mesh points we need to figure out r^2/b^2 that is the argument of the Laguerre polynomials (which we
+// have lazily taken from GSL.
 		
-		r11 = sqrt(galcoeffa[0][i]/(coeff[7]*br*br+1) );	
-		r12 = sqrt(galcoeffa[0][i]/(coeff[9]*br*br+1) );
-		r21 = sqrt(galcoeffa[0][j]/(coeff[7]*br*br+1) );	
-		r22 = sqrt(galcoeffa[0][j]/(coeff[9]*br*br+1) );
+		r11 = galcoeffa[0][i]/(coeff[7]*br*br+1.) ;// printf("======== %lf \n", r11);	
+		r12 = galcoeffa[0][j]/(coeff[9]*br*br+1.) ;// printf("======== %lf \n", r12);
+		r21 = galcoeffa[0][i]/(coeff[7]*br*br+1.) ;// printf("======== %lf \n", r21);
+		r22 = galcoeffa[0][j]/(coeff[9]*br*br+1.) ;// printf("======== %lf \n", r22);
 		
-		res1 = (pow(br,-6.))*(d1 * 0.25*pow((1/(coeff[7]+1/(br*br))),2) * pow(-2*coeff[7],1) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), r11)		
-		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), r21)
-		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), r11)
-		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), r21)
-		+ d2 * 0.25*pow((1/(coeff[9]+1/(br*br))),2) * pow(-2*coeff[9],1) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), r12)		
-		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), r22)
-		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), r12)
-		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), r22) )*(1.-0.5*(1+s3*s4));
+// These are the numerical factors which stand in front of everything; I wouldn't be terribly surprised if we missed a factor of 1/2 or 2 but fortunately or unfortunately this 
+// does not affect the final results much.
+
+		precoeff11 = d1 * 0.25*pow((1./(coeff[7]+1./(br*br))),2.)/(pow(br,6.));
+		precoeff12 = d2 * 0.25*pow((1./(coeff[9]+1./(br*br))),2.)/(pow(br,6.));
 		
-		res2 = (pow(br,-6.))*(d1 * 0.25*pow((1/(coeff[7]+1/(br*br))),2) * pow(-2*coeff[7],1) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), r11)		
-		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), r21)
-		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), r11)
-		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), r21)
-		+ d2 * 0.25*pow((1/(coeff[9]+1/(br*br))),2) * pow(-2*coeff[9],1) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,(0+0.5), r12)		
-		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,(0+0.5), r22)
-		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,(0+0.5), r22)
-		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,(0+0.5), r12) )*(1.-0.5*(1+s3*s4));
+// Now we make the reverse substitution for the argument to sinh (which we get from the initial l=0 integral over cos(theta).
+
+		rs11 = sqrt(galcoeffa[0][i]/(coeff[7]+1./(br*br)));
+		rs21 = sqrt(galcoeffa[0][j]/(coeff[7]+1./(br*br)));
+		rs12 = sqrt(galcoeffa[0][i]/(coeff[9]+1./(br*br)));
+		rs22 = sqrt(galcoeffa[0][j]/(coeff[9]+1./(br*br)));
+
+// Finally, the expressions. The first is V_D, then V_E. Each is separated into terms for kappa_s and kappa_r.
+
+		res1 = (precoeff11*sinh(2.*coeff[7]*rs11*rs21) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,0.5, r11)		
+		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,0.5, r21)
+		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,0.5, r11)
+		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,0.5, r21)
+		+ precoeff12*sinh(2.*coeff[9]*rs12*rs22) *Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,0.5, r12)		
+		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,0.5, r22) 
+		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,0.5, r12)
+		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,0.5, r22) )*(1.-0.5*(1+s1*s2));
+		
+		res2 = (precoeff11*sinh(2.*coeff[7]*rs11*rs21) * Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,0.5, r11)		
+		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,0.5, r21)
+		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,0.5, r11)
+		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,0.5, r21)
+		+ precoeff12*sinh(2.*coeff[9]*rs12*rs22) *Anl(n1,coeff,bmcoeff)*gsl_sf_laguerre_n(n1,0.5, r12)		
+		* Anl(n2,coeff,bmcoeff)*gsl_sf_laguerre_n(n2,0.5, r22)
+		* Anl(n3,coeff,bmcoeff)*gsl_sf_laguerre_n(n3,0.5, r22)
+		* Anl(n4,coeff,bmcoeff)*gsl_sf_laguerre_n(n4,0.5, r12) )*(1.-0.5*(1+s1*s2));
 			
 		
-		res = (res1+res2)*16*pow(4*atan(1),2);
+		res = (res1+res2)/2; //printf("************************* %lf *** %lf *** %lf *** %lf \n",r11,r21,sinh(r11*r21), res);
+
+// I really have no idea about the numeric prefactor here. Naively I would expect 4*pi but that makes the solution collapse entirely.
 		
 		//printf ("SPECIAL DEBUG!: %lf \t%lf \t%lf \t%lf \t%lf \t%lf \t%lf \t%lf \t \n",Rnl(n4,coeff,bmcoeff,galcoeff[0][i]),Rnl(n1,coeff,bmcoeff,galcoeff[0][j]),Rnl(n2,coeff,bmcoeff,galcoeff[0][i]),Rnl(n3,coeff,bmcoeff,galcoeff[0][j]),d1,pow(coeff[7],-1.5),d2,pow(coeff[7],-1.5));		
 		
@@ -284,6 +324,8 @@ double integrand2 (double *coeff,int i, int j,int n1, int n2, int n3, int n4, do
 		return res;
 	
 	}
+
+// The following function is obsolete (see above).
 
 // The 1D Gauss-Laguere integral. This is reduced to a simple sum of the integrand multiplied by weights, at the mesh points.
 
@@ -324,23 +366,29 @@ double galag2D (int nmesh,int n, int n1, int n2, int n3, int n4, double *coeff, 
 
 	for (i=0; i<nmesh; i++)
 		
-		for (j=0; j<nmesh; j+=1)
+		for (j=0; j<nmesh; j++)
 		
 			{
 				{
 			//dummy1 = galag1D(nmesh,n,n1,n2,n3,n4,coeff,galcoeffa[0][i],galcoeffa[0][j],s1,s2,s3,s4,galcoeff,bmcoeff,0);
 			//dummy2 = galag1D(nmesh,n,n1,n2,n3,n4,coeff,galcoeffa[0][i],galcoeffa[0][j],s1,s2,s3,s4,galcoeff,bmcoeff,1);
+
+// Originally, the integral over cos(theta) was evaluated numerically, but that was a bad idea and I should feel bad for thinking it. It can be evaluated analytically.
+// The actual result, sinh(2 kappa r1 r2)/(kappa r1 r2), is only partly below. The other part is in integrand2().
 			
-			dummy1 = 2.3504*(0.25*
-			( coeff[4]/(coeff[7]) ));
+			dummy1 = 1.*(+0.25*
+			( coeff[4]/(coeff[7]) )); //printf("££££££££ %lf %lf \n", galcoeff[1][i],galcoeff[1][j]);
 			
-			dummy2 = 2.3504*(-0.25*
+			dummy2 = 1.*(-0.25*
 			( coeff[6]/(coeff[9]) ));
-		
+			
+			//dummy1 = 2.3504*coeff[4]; dummy2 = 2.3504*coeff[6];			
+			
 			//printf("DEBUG: dummy1 = %lf, dummy2 = %lf \t %lf \t %lf \n",dummy1,dummy2, galcoeffa[1][i],galcoeffa[1][j]);			
 			
-			res+= galcoeff[1][i]*galcoeff[1][j]*
-			integrand2(coeff,i,j,n1,n2,n3,n4,s1,s2,s3,s4,galcoeff,bmcoeff,dummy1,dummy2,galcoeff);
+			res+= galcoeff[1][i]*galcoeff[1][j]*integrand2(coeff,i,j,n1,n2,n3,n4,s1,s2,s3,s4,galcoeff,bmcoeff,dummy1,dummy2,galcoeff);
+			
+			//res+= galcoeff[1][i]*galcoeff[1][j]*sqrt(galcoeff[0][i])*sqrt(galcoeff[0][j]);			
 			
 			//printf ("\n\n\n 2DGALAG \t res =%lf \n",res);
 			}
