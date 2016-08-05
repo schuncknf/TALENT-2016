@@ -570,8 +570,8 @@ do rep=1,iter
    exch=0d0
    V_Co_d(:) = 0d0
 
-   aux1=0d0
-   aux=0d0
+aux1=0d0
+      aux=0d0
 
       do i=0, N
       x=i*dx

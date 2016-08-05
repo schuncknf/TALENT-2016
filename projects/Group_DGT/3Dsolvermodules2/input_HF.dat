@@ -1,0 +1,46 @@
+BEGIN  0.
+
+ENEUP  100.
+
+ENEDO  -100.
+
+EPSIL  1.E-6
+
+RBMAX  15.
+
+MESHS  0.1
+
+NUM_Z  8.
+
+BAS_Z  2.
+
+NUM_N  8.
+
+BAS_N  2.
+
+A_PAR  0.67
+
+V_VAL  -50.
+
+RZERO  1.27
+
+_END_  0.
+
+!=================== Input file for HF solver =======================!
+! Variables in real format
+!
+! ENEUP= Top energy among the eigenvalues of the radial Schr. equation
+! ENEDO= Bottom energy among the eigenvalues of the radial Schr. equation
+! EPSIL= convergence of the single particle eigenvalues
+! RBMAX= radius of the box
+! MESHS= size of the mesh (h)
+! NUM_Z= number of proton in the nucleus
+! BAS_Z= N max of the proton shells (from 0 to ...) 
+! NUM_N= number of neutron in the nucleus
+! BAS_N= N max of the neutron shells (from 0 to ...)
+! A_PAR= diffuseness of the Wood-Saxon potential (usually 0.67)
+! V_VAL= deepth of the Wood-Saxon potential (usually around -50.)
+! RZERO= parameter r0 for the proton radius  ( default 1.27 )
+!
+!=====================================================================
+
