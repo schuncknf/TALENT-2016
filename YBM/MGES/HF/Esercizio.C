@@ -65,14 +65,14 @@ int main(){
 	while(fabs(old_integral - integral) > integralPrec){
 
 		++iteration;
-		// cout << "\nIteration number =\t" << iteration << endl;
+		cout << "\nIteration number =\t" << iteration << endl;
 
 		neutronstates.clear();
 		protonstates.clear();
 
 
 		// Calculate Skyrme potentials from total, proton, and neutron densities
-	    	U_skyrme_p.clear();
+	    U_skyrme_p.clear();
 		U_skyrme_n.clear();
 		U_cou_p.clear();
 
@@ -82,8 +82,8 @@ int main(){
 			double rn = density_neutron[i];
 			// Inputs are rho, rho_q, rho_p, rho_n
 			U_skyrme_p.push_back(skyrme(r,rp,rp,rn));
-			U_skyrme_n.push_back(skyrme(r,rn,rp,rn));	
-		
+			U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
+
 
 			double integ1 = 0., integ2 = 0., integ3 = 0., exchange = 0.;
 
@@ -256,27 +256,27 @@ int main(){
 
 		int n_neutron = 0, n_levels = 0;
 		sort(neutronstates.begin(), neutronstates.end(), compare());
-		// cout << "J value\t\t\t" << "Eigenvalue" << endl;
+		cout << "J value\t\t\t" << "Eigenvalue" << endl;
 		for(int i=0; i<neutronstates.size(); i++){
 			if(n_neutron<N){
-				// cout  <<  neutronstates[i].j*2 << "/2\t\t\t" << setprecision(12) << neutronstates[i].eig  <<  endl;
+				cout  <<  neutronstates[i].j*2 << "/2\t\t\t" << setprecision(12) << neutronstates[i].eig  <<  endl;
 				n_neutron += (2*neutronstates[i].j+1);
 				n_levels ++;
 			}
 		}
-		// cout << "Il numero di neutroni richiesto è:" << n_neutron  <<  endl;
+		cout << "Il numero di neutroni richiesto è:" << n_neutron  <<  endl;
 
 		int n_proton = 0, p_levels = 0;
 		sort(protonstates.begin(), protonstates.end(), compare());
-		// cout << "J value\t\t\t" << "Eigenvalue" << endl;
+		cout << "J value\t\t\t" << "Eigenvalue" << endl;
 		for(int i=0; i<protonstates.size(); i++){
 			if(n_proton<Z){
-				// cout  <<  protonstates[i].j*2 << "/2\t\t\t" << setprecision(12) << protonstates[i].eig  <<  endl;
+				cout  <<  protonstates[i].j*2 << "/2\t\t\t" << setprecision(12) << protonstates[i].eig  <<  endl;
 				n_proton += (2*protonstates[i].j+1);
 				p_levels ++;
 			}
 		}
-		// cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
+		cout<<"Il numero di protoni richiesto è:"<<n_proton<<endl;
 
 
 		// Calculate new densities for neutrons and protons
@@ -333,8 +333,8 @@ int main(){
 		}
 		integral = integralKin + integralSky;
 
-		// cout << "Kinetic energy:\t" integralKin << integralSky << "\t" << endl;
-		// cout << integral << "\t" << old_integral-integral << endl;
+		cout << "Kinetic energy:\t" << integralKin << "\nSkyrme energy:\t" << integralSky << endl;
+		cout << "Total energy:\t" << integral << "\nChange from previous iteration:\t" << old_integral-integral << endl;
 	}
 
 
@@ -342,7 +342,7 @@ int main(){
 	int n_neutron = 0, n_levels = 0;
 	int n_proton = 0, p_levels = 0;
 
-	cout << "J value\t\t\t" << "Eigenvalue" << endl;
+	cout << "\n\nJ value\t\t\t" << "Eigenvalue" << endl;
 	for(int i=0; i<neutronstates.size(); i++){
 		if(n_neutron<N){
 			cout  <<  neutronstates[i].j*2 << "/2\t\t\t" << setprecision(12) << neutronstates[i].eig  <<  endl;
@@ -367,16 +367,16 @@ int main(){
 	//star();
 
 
-//Routine to obtain proton density, and the sum of both
-/*
-	double * density_proton = new double [n_step_width_box+1];
-	for(int i=0; i<n_step_width_box+1; i++){
-		density_proton[i] = 0.;
-	}
-	for(int k=0; k<p_levels-7; k++){
-		for(int i=2; i<n_step_width_box; i++)
-			density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
-	}
+	//Routine to obtain proton density, and the sum of both
+
+	// double * density_proton = new double [n_step_width_box+1];
+	// for(int i=0; i<n_step_width_box+1; i++){
+	// 	density_proton[i] = 0.;
+	// }
+	// for(int k=0; k<p_levels-7; k++){
+	// 	for(int i=2; i<n_step_width_box; i++)
+	// 		density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
+	// }
 
 	ofstream myfile_density_neutron, myfile_density_proton, myfile_density_np;
 	myfile_density_neutron.open("density_neutron.txt");
@@ -392,7 +392,6 @@ int main(){
 	myfile_density_proton.close();
 	myfile_density_np.close();
 
-	*/
 
 
 
