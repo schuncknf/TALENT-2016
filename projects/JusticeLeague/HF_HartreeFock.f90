@@ -146,7 +146,9 @@ contains
     integer :: lwork,info
     lwork = 30*nsize-1
     D_mat = h_mat
+!    write(*,*) info
     call dsyev('V','U',Nsize,D_mat,Nsize,E_Values,Work,lwork,info)
+!    write(*,*) info
   end subroutine Diagonalize_h
 
 !> Computes the trace of the matrix produce \f$Tr(AB)\f$.

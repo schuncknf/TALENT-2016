@@ -140,7 +140,7 @@ program HFSolver
         Write(ifile,'(a32,f13.6)') ' Fermi momentum (fm^-1)........', K_fermi
      endif
      write(ifile,*) 
-     write(ifile,*) 'iteration    Conververgence    HF Energy  Trace of rho'
+     write(ifile,*) 'iteration       Convergence    HF Energy  Trace of rho'
   enddo
   call initialize_HF
   call Initialize_Minnseota
@@ -154,6 +154,7 @@ program HFSolver
         if(approximated_rho) then
            if(type_of_calculation.eq.'DME') then
               call sample_DME_fields
+              call sample_DME_couplings
            else
               call sample_rho_LDA
            endif
@@ -190,6 +191,7 @@ program HFSolver
      if(approximated_rho) then
         if(type_of_calculation.eq.'DME') then
            call sample_DME_fields
+           call sample_DME_couplings
         else
            call sample_rho_LDA
         endif

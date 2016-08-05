@@ -3,7 +3,8 @@ module variables
   implicit none
   integer :: Nsize, Nparticles,n_orbitals,N_n_orbitals,Noccupied,Maxit
   integer, parameter :: N_quad = 95
-  real(dp), dimension(1:N_quad) :: w_quad, x_quad, rho_quad, tau_quad, delrho_quad
+  real(dp), dimension(1:N_quad) :: w_quad, x_quad, rho_quad, tau_quad, delrho_quad, C_rhorho_quad, C_rhotau_quad, C_rhodelrho_quad
+  real(dp), dimension(1:N_quad) :: dC_rhorho_quad, dC_rhotau_quad, dC_rhodelrho_quad
   real(dp), allocatable, dimension(:,:) :: D_mat,rho_mat,h_mat,t_mat,Gamma_mat!, D_prev
   real(dp), allocatable, dimension(:,:,:,:) :: v_mat
   real(dp), allocatable, dimension(:) :: E_values, E_prev
