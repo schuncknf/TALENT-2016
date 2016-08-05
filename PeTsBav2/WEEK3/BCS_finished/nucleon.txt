@@ -1,15 +1,15 @@
 &nucleons
- proton = 16, neutron = 26/
+ proton = 8, neutron = 8/
 &parameters
- h2m=20.73553d0, R_max=30d0, N=300 /
+ h2m=20.73553d0, R_max=20d0, N=1000 /
 &max_quantum_number
  n_max = 4, l_max = 10/
 &effective_charge
- charge = 1d0 / 
+ charge = 0d0 / 
 &bisection
  E_p = 0d0, E_m = -100d0 /
 &output
- output_wave_func = .false. , epsi=1e-2/
+ output_wave_func = .false. , epsi=1e-10, corr=0.09d0/
 &WoodSaxon
  r0=1.27, a=0.67, e2=1.439978/  
 &CMcorr

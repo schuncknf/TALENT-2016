@@ -4,13 +4,14 @@ implicit none
 real(8) :: s_z, j_tot
 real(8),allocatable :: psi(:), &
      u_nlj_p(:,:), u_nlj_n(:,:),&
+     rho_old_n(:), rho_old_p(:), rho_old(:), tau_old_n(:), tau_old_p(:), tau_old(:),&
      rho_p(:), rho_n(:), rho(:), tau_p(:), tau_n(:), tau(:), k_sq_p(:), k_sq_n(:)
 real(8),allocatable :: V_skyrme_p(:), V_skyrme_n(:),&
      M_eff_p(:), M_eff_n(:), W_p(:), W_n(:), g_p(:), g_n(:),&
      dg_p(:), dg_n(:), f_p(:), f_n(:), h_p(:), h_n(:)
 complex(8),allocatable :: v_n(:), v_p(:)
 real(8) :: E_left, E_right, E, E_hf, E_hf_new=0.d0, E_ke, E_sp, number, E_pot
-real(8) :: x,  nmfactor
+real(8) :: x, nmfactor
 integer :: i, j, rep, count, spin, l, ex
 real(8),allocatable :: energy_n(:), energy_p(:), wave_func_n(:,:), wave_func_p(:,:)
 integer :: orbital_l
@@ -33,7 +34,7 @@ NAMELIST / parameters / h2m, R_max, N
 NAMELIST / max_quantum_number / n_max, l_max 
 NAMELIST / effective_charge / charge
 NAMELIST / bisection / E_p, E_m
-NAMELIST / output / output_wave_func, epsi
+NAMELIST / output / output_wave_func, epsi, corr
 NAMELIST / WoodSaxon/ r0, a, e2
 NAMELIST / CMcorr/ CMcorrection
 NAMELIST / BCS_parameters/ BCS_cal, g
@@ -62,7 +63,7 @@ filename = trim(filename)
 Nmesh=N 
 dx = R_max/N
 CMh2m =h2m
-      if (CMcorrection) h2m = h2m*(1.-1./nucleon)
+      if (CMcorrection) h2m = h2m*(1.d0-1.d0/nucleon)
 
 ! the number of orbits
 orbital = 0
@@ -79,6 +80,7 @@ write(*,*) orbital
 allocate(psi(0:N), &
      u_nlj_p(0:N,1:orbital), u_nlj_n(0:N,1:orbital))
 allocate(rho_p(0:N), rho_n(0:N), rho(0:N), tau_p(0:N), tau_n(0:N), tau(0:N), &
+     rho_old_n(0:N), rho_old_p(0:N), rho_old(0:N), tau_old_n(0:N), tau_old_p(0:N), tau_old(0:N),&
      k_sq_p(0:N), k_sq_n(0:N), rho_BCS_p(0:N), rho_BCS_n(0:N), rho_BCS(0:N))
 allocate(V_skyrme_p(0:N), V_skyrme_n(0:N), M_eff_p(0:N), M_eff_n(0:N),&
      W_p(0:N), W_n(0:N), g_p(0:N), g_n(0:N), dg_p(0:N), dg_n(0:N),&
@@ -87,9 +89,6 @@ allocate(energy_n(1:orbital),energy_p(1:orbital),wave_func_n(0:N,1:orbital),&
      wave_func_p(0:N,1:orbital))
 allocate(filename_wave_func_n(1:orbital),filename_wave_func_p(1:orbital))
 allocate(E_data_n(1:orbital,1:4),E_data_p(1:orbital,1:4))
-
-
-
 
 ! initial density, kinetic density
 rho_p(:) = 0d0
@@ -143,8 +142,8 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
       write(111, *) x, rho_n(i), tau_n(i)
    end do
 
-   rho_n(0) = rho_n(1)
-   tau_n(0) = tau_n(1)
+   rho_n(0) = 2d0*rho_n(1)-rho_n(2)
+   tau_n(0) = 2d0*tau_n(1)-tau_n(2)
    tau_n(N-1) = 0d0
    tau_n(N) = 0d0
    E_sp = E_sp + Nn_l*energy_n(orbital_tmp+1)
@@ -188,8 +187,8 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
            )/(4d0*pi*x**2)
 
    end do
-   rho_p(0) = rho_p(1)
-   tau_p(0) = tau_p(1)
+   rho_p(0) = 2d0*rho_p(1)-rho_p(2)
+   tau_p(0) = 2d0*tau_p(1)-tau_p(2)
    tau_p(N-1) = 0d0
    tau_p(N) = 0d0
    E_sp = E_sp + Np_l*energy_p(orbital_tmp+1)
@@ -215,6 +214,14 @@ write(*,'(4f15.8)') number, E_hf, E_sp, E_ke
 
 ! iteration start
 do rep=1,iter
+
+   rho_old_p(:) = rho_p(:)
+   rho_old_n(:) = rho_n(:)
+   rho_old(:) = rho(:)
+   tau_old_p(:) = tau_p(:)
+   tau_old_n(:) = tau_n(:)
+   tau_old(:) = tau(:)
+
    E_sp = 0d0
 
 ! skyrme potential    
@@ -272,7 +279,7 @@ do rep=1,iter
             do while(bisloop)
                count = 0
                E = E_left + 0.5d0*(E_right-E_left)
-               if (E_right-E_left<1e-6) exit
+               if (E_right-E_left<epsi) exit
             
 ! h(r) and k_sq
                do i=1,N
@@ -280,7 +287,7 @@ do rep=1,iter
                   f_n(i) = -(h_n(i)+M_eff_n(i)*l*(l+1d0)/x**2-E)/M_eff_n(i)
                   k_sq_n(i) = -0.25d0*g_n(i)**2 + f_n(i)-0.5d0*dg_n(i)
                end do
-               k_sq_n(0) = k_sq_n(1)
+               k_sq_n(0) = 2d0*k_sq_n(1)-k_sq_n(2)
 ! numerov
                do i=1,N-1
                   x = i*dx
@@ -314,7 +321,7 @@ do rep=1,iter
                f_n(i) = -(h_n(i)+M_eff_n(i)*l*(l+1d0)/x**2-E)/M_eff_n(i)
                k_sq_n(i) = -0.25d0*g_n(i)**2 + f_n(i)-0.5d0*dg_n(i)
             end do
-            k_sq_n(0) = k_sq_n(1)
+            k_sq_n(0) = 2d0*k_sq_n(1)-k_sq_n(2)
             do i=1,N-1
                x = i*dx
 !            psi(i+1) = 2d0*(1-dx**2*k_sq_n(i)/2d0)*psi(i) - psi(i-1)
@@ -393,8 +400,8 @@ do rep=1,iter
            )/(4d0*pi*x**2)
 
    end do
-   rho_n(0) = rho_n(1)
-   tau_n(0) = tau_n(1)
+   rho_n(0) = 2d0*rho_n(1)-rho_n(2)
+   tau_n(0) = 2d0*tau_n(1)-tau_n(2)
    tau_n(N-1) = 0d0
    tau_n(N) = 0d0
    E_sp = E_sp + Nn_l*energy_n(orbital_tmp+1)
@@ -430,7 +437,7 @@ do rep=1,iter
             do while(bisloop)
                count = 0
                E = E_left + 0.5d0*(E_right-E_left)
-               if (E_right-E_left<1e-6) exit
+               if (E_right-E_left<epsi) exit
             
 ! h(r) and k_sq
                do i=1,N
@@ -438,7 +445,7 @@ do rep=1,iter
                   f_p(i) = -(h_p(i) +M_eff_p(i)*l*(l+1d0)/x**2-E)/M_eff_p(i)
                   k_sq_p(i) = -0.25d0*g_p(i)**2 + f_p(i)-0.5d0*dg_p(i)
                end do
-               k_sq_p(0) = k_sq_p(1)
+               k_sq_p(0) = 2d0*k_sq_p(1)-k_sq_p(2)
 ! numerov
                do i=1,N-1
                   x = i*dx
@@ -473,7 +480,7 @@ do rep=1,iter
                f_p(i) = -(h_p(i)+M_eff_p(i)*l*(l+1d0)/x**2-E)/M_eff_p(i)
                k_sq_p(i) = -0.25d0*g_p(i)**2 + f_p(i)-0.5d0*dg_p(i)
             end do
-            k_sq_p(0) = k_sq_p(1)
+            k_sq_p(0) = 2d0*k_sq_p(1)-k_sq_p(2)
             do i=1,N-1
                x = i*dx
 !            psi(i+1) = 2d0*(1-dx**2*k_sq_p(i)/2d0)*psi(i) - psi(i-1)
@@ -552,8 +559,8 @@ do rep=1,iter
             (E_data_p(orbital_tmp+1,3)+1d0)*u_nlj_p(i,orbital_tmp+1)**2/x**2&
            )/(4d0*pi*x**2)
    end do
-   rho_p(0) = rho_p(1)
-   tau_p(0) = tau_p(1)
+   rho_p(0) = 2d0*rho_p(1)-rho_p(2)
+   tau_p(0) = 2d0*tau_p(1)-tau_p(2)
    tau_p(N-1) = 0d0
    tau_p(N) = 0d0
    E_sp = E_sp + Np_l*energy_p(orbital_tmp+1)
@@ -582,9 +589,16 @@ do rep=1,iter
 
    E_hf_new = (E_ke + E_pot)
    write(*,'(i5,5f20.8)') rep, number, E_hf_new, E_sp, E_ke, E_pot
-      if(abs(E_hf_new-E_hf).lt.epsi) exit
+   if(abs(E_hf_new-E_hf).lt.epsi) exit
 
-      E_hf= E_hf_new
+   E_hf= E_hf_new
+   rho_p(:) = (1-corr)*rho_p(:) + corr*rho_old_p(:)
+   rho_n(:) = (1-corr)*rho_n(:) + corr*rho_old_n(:)
+   rho(:) = (1-corr)*rho(:) + corr*rho_old(:)
+   tau_p(:) = (1-corr)*tau_p(:) + corr*tau_old_p(:)
+   tau_n(:) = (1-corr)*tau_n(:) + corr*tau_old_n(:)
+   tau(:) = (1-corr)*tau(:) + corr*tau_old(:)
+
 end do
 ! iteration finish
 
@@ -709,7 +723,7 @@ if (orbital_up>=orbital_down.and.BCS_cal.eqv..true.) then
               (2d0*j_tot+1)*abs(u_nlj_n(i,orbital_l))**2/(4d0*pi*x**2)
       end do
    end do
-   rho_BCS_n(0) = rho_BCS_n(1)
+   rho_BCS_n(0) = 2d0*rho_BCS_n(1)-rho_BCS_n(2)
    open(10,file='density_BCS_n.dat')
    do i=0,N
       x = i*dx
@@ -783,7 +797,7 @@ if (orbital_up>=orbital_down.and.BCS_cal.eqv..true.) then
               (2d0*j_tot+1)*abs(u_nlj_p(i,orbital_l))**2/(4d0*pi*x**2)
       end do
    end do
-   rho_BCS_p(0) = rho_BCS_p(1)
+   rho_BCS_p(0) = 2d0*rho_BCS_p(1)-rho_BCS_p(2)
    open(10,file='density_BCS_p.dat')
    do i=0,N
       x = i*dx
@@ -803,7 +817,8 @@ deallocate(filename_wave_func_n,filename_wave_func_p)
 deallocate(energy_n,energy_p,wave_func_n,wave_func_p)
 deallocate(V_skyrme_p,V_skyrme_n,M_eff_p,M_eff_n,W_p,W_n,g_p,g_n,dg_p,dg_n,f_p,f_n,h_p,h_n)
 deallocate(psi,u_nlj_p,u_nlj_n)
-deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,rho_BCS_p,rho_BCS_n,rho_BCS)
+deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,rho_old_n,rho_old_p,rho_old,&
+     tau_old_n,tau_old_p,tau_old,k_sq_p,k_sq_n,rho_BCS_p,rho_BCS_n,rho_BCS)
 
 
 

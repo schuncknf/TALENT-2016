@@ -1,12 +1,5 @@
-<pre>
-   ____         __                  ___      ___            __          
-  / __/__  ____/ /________ ____    / _ \___ / _/__ ___  ___/ /__ _______
- / _// _ \/ __/ __/ __/ _ `/ _ \  / // / -_) _/ -_) _ \/ _  / -_) __(_-<
-/_/  \___/_/  \__/_/  \_,_/_//_/ /____/\__/_/ \__/_//_/\_,_/\__/_/ /___/
-</pre>
-## Coding for Hono(u)r
-
-![Example Densities](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/HartreeFock/density.png)
+![logo](https://github.com/schuncknf/TALENT2016/blob/master/projects/FortranDefenders/fortdefenders.png)
+## Coding for Hono(u)r and Justice
 
 
 Welcome to our home in the Repo.
@@ -15,7 +8,7 @@ Of particular interest right now is the Hartree-Fock solver in the Hartree-Fock 
 In the **in** file, you will set the parameters for your HF run. For easy use,
 try the *run* script to clean, compile, run, and output the **out** file.
 
-To see a full set of documentation, visit [here!](http://kylegodbey.com/hf/index.html)
+To see a full set of documentation, visit [here!](fortrandefenders.kylegodbey.com)
 
 Once you compile and run the code, you'll find the **single particle states**,
 **total and kinetic energies**, and **convergence at each iteration** in the file named **out**.

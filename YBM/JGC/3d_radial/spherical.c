@@ -351,7 +351,7 @@ double normalise(double eigenEng, int isoSpin, int L, int spin)
 
 	for(int i=1; i<(wBox/h)-1; i++) sum += h*pow((wfWork[i]),2);
 
-	double normFac = 1/(sum);
+	double normFac = 1/(h*sum);
 	wfWork.clear();
 
 	return normFac;

@@ -1,3 +1,4 @@
+
 ! module globals
 
 module globals
@@ -10,8 +11,8 @@ module globals
 real(8),parameter :: pi=4.d0*atan(1.d0) ! hbar: (MeV*s), unit:(MeV),(fm),(s)
 real(8),parameter :: t0=-1132.4d0, t3=23610.4d0, x0=0d0, x3=0d0, alpha=1d0 ! skyrme parameters
 integer,parameter :: iter=10000
-real(8) :: h2m, R_max, e2,  charge, epsi, dx, CMh2m
-real(8) :: r0=1.27, a=0.67, g=0.2
+real(8) :: h2m, R_max, e2,  charge, epsi, dx, CMh2m, corr
+real(8) :: r0=1.27d0, a=0.67d0, g=0.2d0
 logical :: bisloop=.true. , output_wave_func, CMcorrection, flag, BCS_cal
 integer :: magic_n, magic_p, orbital_down, orbital_up,  NNN, PPP, BCS_level
 end module globals
