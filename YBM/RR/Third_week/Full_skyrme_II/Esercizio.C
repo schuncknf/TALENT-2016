@@ -30,7 +30,6 @@ int main(){
     double r, rp, rn;
    	double integ1 = 0., integ2 = 0., integ3 = 0., exchange = 0.;
 
-
 //I get the first density from files
 
     state appoggio;
@@ -45,8 +44,8 @@ int main(){
 				Edown = -50.;
 				do{
 					Etrial = (Eup+Edown)/2.;
-					wave_val.push_back(0.05);
-					wave_val.push_back(0.1);
+					wave_val.push_back(first_point);
+					wave_val.push_back(second_point);
 					for(int i=1; i<n_step_width_box; i++){
 						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+h_width,S,L,J,-1./2.));
 					}
@@ -65,8 +64,8 @@ int main(){
 				}while(abs(Eup-Edown)>prec);
 				if(Etrial<-0.1&&Etrial>-50){
 					double norm = normalise(Etrial, n_step_width_box, S, L, J,-1./2.);
-					appoggio.wavefn.push_back(0.05);
-					appoggio.wavefn.push_back(0.1);
+					appoggio.wavefn.push_back(first_point);
+					appoggio.wavefn.push_back(second_point);
 					for(int i=1; i<n_step_width_box; i++){
 						appoggio.wavefn.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+h_width,S,L,J,-1./2.)/sqrt(norm));
 					}
@@ -107,8 +106,8 @@ int main(){
 				Edown = -50.;
 				do{
 					Etrial = (Eup+Edown)/2.;
-					wave_val.push_back(0.05);
-					wave_val.push_back(0.1);
+					wave_val.push_back(first_point);
+					wave_val.push_back(second_point);
 					for(int i=1; i<n_step_width_box; i++){
 						wave_val.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+h_width,S,L,J,1./2.));
 					}
@@ -127,8 +126,8 @@ int main(){
 				}while(abs(Eup-Edown)>prec);
 				if(Etrial<9.9&&Etrial>-50){
 					double norm = normalise(Etrial, n_step_width_box, S, L, J,1./2.);
-					appoggio.wavefn.push_back(0.05);
-					appoggio.wavefn.push_back(0.1);
+					appoggio.wavefn.push_back(first_point);
+					appoggio.wavefn.push_back(second_point);
 					for(int i=1; i<n_step_width_box; i++){
 						appoggio.wavefn.push_back(numerov_algorithm_woods(Etrial, wave_val[i], wave_val[i-1], i*h_width+h_width,S,L,J,1./2.)/sqrt(norm));
 					}
@@ -172,25 +171,14 @@ int main(){
 			density_proton[i] += (2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*pow(protonstates[k].wavefn[i],2);
 	}
 
-	for(int i=0; i<n_step_width_box+1; i++){
-		K_skyrme_n[i] = 0.;
-		K_skyrme_p[i] = 0.;
-	}
-	for(int k=0; k<n_levels; k++){
-		for(int i=2; i<n_step_width_box; i++){
-			K_skyrme_n[i] +=	m_factor*(1-1./A)*(2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((neutronstates[k].wavefn[i]-neutronstates[k].wavefn[i-1])/h_width-neutronstates[k].wavefn[i]/(i*h_width+h_width),2)+
-									neutronstates[k].l*(neutronstates[k].l+1)/pow(i*h_width+h_width,2)*pow(neutronstates[k].wavefn[i],2));
-			K_skyrme_p[i] +=	m_factor*(2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((protonstates[k].wavefn[i]-protonstates[k].wavefn[i-1])/h_width-protonstates[k].wavefn[i]/(i*h_width+h_width),2)+
-									protonstates[k].l*(protonstates[k].l+1)/pow(i*h_width+h_width,2)*pow(protonstates[k].wavefn[i],2) );
-		}
-	}
+
 
 /////////////////////////////////////////////Here starts the HF loop////////////////////////////////////////////
 
 int iteration =0;
 
-do{
-
+//do{
+//for(int u=0; u<2; u++){
  	old_integral = integral_en+integral_kin;
 
 // First: get the skyrme potential
@@ -199,23 +187,11 @@ do{
 	U_skyrme_n.clear();
 	U_cou_p.clear();
 
-	for(int i=0; i<n_step_width_box; i++){
+	for(int i=2; i<n_step_width_box-1; i++){
 
 		//Skyrme potential
-		r1  = density_proton[i] + density_neutron[i];
-		rp1 = density_proton[i];
-		rn1 = density_neutron[i];
-
-		r2  = density_proton[i+1] + density_neutron[i+1];
-		rp2 = density_proton[i+1];
-		rn2 = density_neutron[i+1];
-
-		r3  = density_proton[i+2] + density_neutron[i+2];
-		rp3 = density_proton[i+2];
-		rn3 = density_neutron[i+2];
-
-		U_skyrme_p.push_back(skyrme(r1,rp1,rp1,rn1,r2,rp2,r3,rp3,i*h_width+h_width, K_skyrme_n[i] + K_skyrme_p[i], K_skyrme_p[i]));
-		U_skyrme_n.push_back(skyrme(r1,rn1,rp1,rn1,r2,rn2,r3,rn3,i*h_width+h_width, K_skyrme_n[i] + K_skyrme_p[i], K_skyrme_n[i]));
+		U_skyrme_p.push_back(skyrme(density_proton, density_neutron, density_proton, i, i*h_width+h_width, K_skyrme_n[i] + K_skyrme_p[i], K_skyrme_p[i]));
+		U_skyrme_n.push_back(skyrme(density_neutron, density_neutron, density_proton, i, i*h_width+h_width, K_skyrme_n[i] + K_skyrme_p[i], K_skyrme_n[i]));
 
 		//Coulomb potential
 		/*integ1 = 0., integ2 = 0., integ3 = 0., exchange = 0.;
@@ -235,7 +211,7 @@ do{
 
 //Routine to find eigevalues of neutron
 
-    state appoggio;
+    appoggio.wavefn.clear();
     wfWork.clear();
 	for(int node=0; node<max_n; node++){
 		for(int L=0; L<max_l;L++){
@@ -267,7 +243,6 @@ do{
 					wave_val.clear();
 				}while(abs(Eup-Edown)>prec);
 				if(Etrial<-0.1&&Etrial>-50){
-
 					//Normalisation
 					wfWork.push_back(first_point);
 					wfWork.push_back(second_point);
@@ -298,7 +273,7 @@ do{
 //This routine sort the vector of NEUTRON and print it
 
 	sort(neutronstates.begin(), neutronstates.end(), compare());
-	int n_neutron = 0; n_levels = 0;
+	n_neutron = 0; n_levels = 0;
 	//cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
 	for(int i=0; i<neutronstates.size(); i++){
 		if(n_neutron<N){
@@ -374,11 +349,11 @@ do{
 //This routine sort the vector of PROTON and print it
 
 	sort(protonstates.begin(), protonstates.end(), compare());
-	int n_proton = 0; p_levels = 0;
-	//cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
+	n_proton = 0; p_levels = 0;
+	cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
 	for(int i=0; i<protonstates.size(); i++){
 		if(n_proton<Z){
-			//cout<<protonstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<protonstates[i].eig<<endl;
+			cout<<protonstates[i].j*2<<"/2"<<"  	 		"<<setprecision(12)<<protonstates[i].eig<<endl;
 			n_proton += (2*protonstates[i].j+1);
 			p_levels ++;
 		}
@@ -416,9 +391,14 @@ do{
 	}
 	for(int k=0; k<n_levels; k++){
 		for(int i=2; i<n_step_width_box; i++){
-			K_skyrme_n[i] +=	m_factor*(2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((neutronstates[k].wavefn[i]-neutronstates[k].wavefn[i-1])/h_width-neutronstates[k].wavefn[i]/(i*h_width+h_width),2)+
+			K_skyrme_n[i] +=	m_factor*(1-1./A)*(2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((neutronstates[k].wavefn[i]-neutronstates[k].wavefn[i-1])/h_width-neutronstates[k].wavefn[i]/(i*h_width+h_width),2)+
 									neutronstates[k].l*(neutronstates[k].l+1)/pow(i*h_width+h_width,2)*pow(neutronstates[k].wavefn[i],2));
-			K_skyrme_p[i] +=	m_factor*(2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((protonstates[k].wavefn[i]-protonstates[k].wavefn[i-1])/h_width-protonstates[k].wavefn[i]/(i*h_width+h_width),2)+
+		}
+	}
+
+	for(int k=0; k<p_levels; k++){
+		for(int i=2; i<n_step_width_box; i++){
+			K_skyrme_p[i] +=	m_factor*(1-1./A)*(2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((protonstates[k].wavefn[i]-protonstates[k].wavefn[i-1])/h_width-protonstates[k].wavefn[i]/(i*h_width+h_width),2)+
 									protonstates[k].l*(protonstates[k].l+1)/pow(i*h_width+h_width,2)*pow(protonstates[k].wavefn[i],2) );
 		}
 	}
@@ -441,16 +421,17 @@ do{
 
 //Integral
 	integral_kin = 0., integral_en= 0.;
-	for(int i=1; i<n_step_width_box+1; i++){
+	for(int i=2; i<n_step_width_box+1; i++){
 		integral_kin += 4*M_PI*pow(i*h_width+h_width,2)*(K_skyrme_n[i]+K_skyrme_p[i])*h_width;
 		integral_en += 4*M_PI*pow(i*h_width+h_width,2)*(E_skyrme[i])*h_width;
 	}
 
+cout<<"Kinetic energy:"<<integral_kin<<"\t"<<"Skyrme energy:"<<integral_en<<endl;
 ///////////////////////////////////////////////////////////////
-	
-	cout<<"Kinetic energy:"<<integral_kin<<"\t"<<"Skyrme energy:"<<integral_en<<endl;
+
 iteration++;
-}while(fabs(old_integral - integral_kin -integral_en) > HF_prec);
+//}
+//}while(fabs(old_integral - integral_kin -integral_en) > HF_prec);
 
 	cout<<"Neutrons:"<<endl;
 	cout<<"J value"<<"  	  	"<<"Eigenvalue"<<endl;
@@ -464,7 +445,6 @@ iteration++;
 	}
 
 cout<<"Number of iteration:"<<iteration<<endl;
-cout<<"Kinetic energy:"<<integral_kin<<"\t"<<"Skyrme energy:"<<integral_en<<endl;
 cout<<"Total energy:"<<integral_kin+integral_en<<endl;
 cout<<"Energy difference:"<<abs(old_integral - integral_kin - integral_en)<<endl;
 
@@ -517,18 +497,18 @@ cout<<n_levels<<endl;
 
 
 //This can be useful to plot a potential
-/*
+
 	ofstream myfile;
 	myfile.open("Eigen.txt");
 
 	for(int i=2; i<n_step_width_box; i++){
 		//wave_val.push_back(potential_woods(i*h_width +h_width)-centrifug_term(i*h_width +h_width, 0));
-		myfile <<i*h_width +h_width<< "   " << U_skyrme_n[i]<< endl;
+		myfile <<i*h_width +h_width<< "   " << 2*U_skyrme_n[i]<< endl;
 	//	myfile <<i*h_width +h_width<< "\t" << U_skyrme_p[i] << "\t" << U_skyrme_n[i] << endl;
 	}
 
 	myfile.close();
-*/
+
 
 
 //Plot the proton and neutron central potential

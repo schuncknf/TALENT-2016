@@ -182,7 +182,7 @@ int main(){
 
 //USEFUL ROUTINES
 
-//This is just for plotting all wavefunction
+//This is for plotting all wavefunction
 /*
 	char orbital[26];
 	ofstream myfile_wave;

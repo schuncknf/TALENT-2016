@@ -6,21 +6,20 @@
 	#include <armadillo>
 	#include <vector>
 	#include <fstream>
-/*
-	#include "TH1F.h"
-	#include "TH2F.h"
-	#include "TApplication.h"
-	#include "TCanvas.h"
-	#include "TGraph.h"
-	#include "TAxis.h"
-*/
+
+//Box and well features
 	#define width_box 34.
 	#define width 6.
 	#define h_width 0.01
 	#define V0 40.
 
+//Constants and precisions
 	#define prec 1E-10
 	#define m_factor 20.75
+
+//Eigenvalues to plot, up to 2
+	#define n 3
+
 
 	using namespace std;
 

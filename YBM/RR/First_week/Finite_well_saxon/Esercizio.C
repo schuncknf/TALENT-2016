@@ -55,7 +55,7 @@ int main(){
 	wave_val.push_back(0);
 	wave_val.push_back(1E-5);
 	for(int i=0; i<=n_step_width_box; i++){
-		wave_val.push_back(numerov_algorithm_woods(eigenval[3], wave_val[i+1], wave_val[i], i*h_width));
+		wave_val.push_back(numerov_algorithm_woods(eigenval[n], wave_val[i+1], wave_val[i], i*h_width));
 		if(i*h_width>24.&&wave_val[i]*wave_val[i-1]<0){
 			count = i;
 			break;
@@ -66,6 +66,11 @@ int main(){
 		wave_val.push_back(0.);
 		myfile << i*h_width << "   " << wave_val[i] << endl;
 	}
+
+	cout<<"The eigenvalues are:"<<endl;
+	for(int i=0; i<eigenval.size(); i++){
+		cout<<eigenval[i]<<endl;
+	}	
 
 
 	myfile.close();

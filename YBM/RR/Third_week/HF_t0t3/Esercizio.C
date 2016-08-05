@@ -195,7 +195,8 @@ do{
 		U_skyrme_n.push_back(skyrme(r,rn,rp,rn));
 
 		//Coulomb potential
-		/*integ1 = 0., integ2 = 0., integ3 = 0., exchange = 0.;
+		/*
+		integ1 = 0., integ2 = 0., integ3 = 0., exchange = 0.;
 		for(int count=0;count<i+1;count++){
 				integ1 += density_proton[count]*pow(count*h_width+h_width,2);
 				integ2 += density_proton[count]*(count*h_width+h_width);
@@ -205,7 +206,8 @@ do{
 		}
 		exchange = pow(density_proton[i],1./3.);
 		U_cou_p.push_back( h_width* (4.*M_PI*e* (integ1/(i*h_width+h_width) - integ2 + integ3) - exchange*e*pow(3./M_PI,1./3.)) );
-	*/}
+		*/
+	}
 
 	neutronstates.clear();
 	protonstates.clear();
@@ -303,7 +305,7 @@ do{
 					wave_val.push_back(first_point);
 					wave_val.push_back(second_point);
 					for(int i=1; i<n_step_width_box; i++){
-						wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_n[i-1] /*+ U_cou_p[i-1] */, U_skyrme_n[i]/*+ U_cou_p[i] */, U_skyrme_n[i+1]/*+ U_cou_p[i+1] */));
+						wave_val.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_n[i-1] /*+ U_cou_p[i-1]*/ , U_skyrme_n[i] /*+ U_cou_p[i]*/ , U_skyrme_n[i+1] /*+ U_cou_p[i+1] */));
 					}
 					nodecount = 0;
 					for(int i=1; i<n_step_width_box+2; i++){
@@ -326,7 +328,7 @@ do{
 					wfWork.push_back(second_point);
 					double norm = 0.;
 					for(int i=1; i<n_step_width_box; i++){
-						wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_n[i-1] /*+ U_cou_p[i-1] */, U_skyrme_n[i]/*+ U_cou_p[i] */, U_skyrme_n[i+1]/*+ U_cou_p[i+1] */));
+						wfWork.push_back(numerov_algorithm_HF(Etrial, wfWork[i], wfWork[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_n[i-1] /*+ U_cou_p[i-1]*/ , U_skyrme_n[i] /*+ U_cou_p[i]*/ , U_skyrme_n[i+1] /*+ U_cou_p[i+1] */));
 						norm += h_width*pow(wfWork[i],2);
 					}
 					wfWork.clear();
@@ -336,7 +338,7 @@ do{
 					appoggio.wavefn.push_back(first_point);
 					appoggio.wavefn.push_back(second_point);
 					for(int i=1; i<n_step_width_box; i++){
-						appoggio.wavefn.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2., U_skyrme_n[i-1] /*+ U_cou_p[i-1] */, U_skyrme_n[i]/*+ U_cou_p[i] */, U_skyrme_n[i+1]/*+ U_cou_p[i+1] */)/sqrt(norm));
+						appoggio.wavefn.push_back(numerov_algorithm_HF(Etrial, wave_val[i], wave_val[i-1], i*h_width + h_width, S, L, J, 1./2.,U_skyrme_n[i-1] /*+ U_cou_p[i-1]*/ , U_skyrme_n[i] /*+ U_cou_p[i]*/ , U_skyrme_n[i+1] /*+ U_cou_p[i+1] */ )/sqrt(norm));
 					}
 					appoggio.eig = Etrial;
 					appoggio.l = L;
@@ -395,6 +397,11 @@ do{
 		for(int i=2; i<n_step_width_box; i++){
 			K_skyrme_n[i] +=	m_factor*(1-1./A)*(2.*neutronstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((neutronstates[k].wavefn[i]-neutronstates[k].wavefn[i-1])/h_width-neutronstates[k].wavefn[i]/(i*h_width+h_width),2)+
 									neutronstates[k].l*(neutronstates[k].l+1)/pow(i*h_width+h_width,2)*pow(neutronstates[k].wavefn[i],2));
+		}
+	}
+
+	for(int k=0; k<p_levels; k++){
+		for(int i=2; i<n_step_width_box; i++){
 			K_skyrme_p[i] +=	m_factor*(1-1./A)*(2.*protonstates[k].j+1.)/(4.*M_PI*pow(i*h_width+h_width,2))*(pow((protonstates[k].wavefn[i]-protonstates[k].wavefn[i-1])/h_width-protonstates[k].wavefn[i]/(i*h_width+h_width),2)+
 									protonstates[k].l*(protonstates[k].l+1)/pow(i*h_width+h_width,2)*pow(protonstates[k].wavefn[i],2) );
 		}
