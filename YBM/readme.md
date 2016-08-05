@@ -1,5 +1,5 @@
-<![CDATA[
-# ${1:Project Name}
+
+#Project Name
 
 TODO: Write a project description
 
@@ -30,4 +30,3 @@ TODO: Write credits
 ## License
 
 TODO: Write license
-]]>
