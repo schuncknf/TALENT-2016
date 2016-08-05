@@ -144,6 +144,13 @@ contains
     j1 = sin(x)/x**2 - cos(x)/x
   end function SphericalBesselJ1
 
+  function SphericalBesselJ2(x) result(j2)
+    implicit none
+    real(dp), intent(in) :: x
+    real(dp) :: j2
+    j2 = (-3*Cos(x))/x**2 + ((3 - x**2)*Sin(x))/x**3
+  end function SphericalBesselJ2
+
 !> Spherical Bessel function \f$J_3(x)\f$
   function SphericalBesselJ3(x) result(j3)
     implicit none
@@ -151,6 +158,14 @@ contains
     real(dp) :: j3
     j3 = (15/x**3-6/x)*sin(x)/x - (15/x**2-1)*cos(x)/x
   end function SphericalBesselJ3
+
+  function SphericalBesselJ4(x) result(j4)
+    implicit none
+    real(dp), intent(in) :: x
+    real(dp) :: j4
+    j4 = (5*(-21 + 2*x**2)*Cos(x))/x**4 + &
+         ((105 - 45*x**2 + x**4)*Sin(x))/x**5
+  end function SphericalBesselJ4
 
 
 !> Writes \f$r\f$ and \f$\rho_{LDA}(r)\f$ (or rather,
@@ -270,11 +285,12 @@ contains
     integer, intent(in) :: n,np,l
     real(dp) :: gamma
     real(dp) :: alpha,xi,wi,An,Anp,Ln,Lnp,rho,tau,delrho
+    real(dp) :: crho,ctau,cdelrho,dcrho,dctau,dcdelrho
     integer :: i
-    if(calc_couplings) then
-       call calculte_couplings
-       calc_couplings = .false.
-    endif
+!    if(calc_couplings) then
+!       call calculte_couplings
+!       calc_couplings = .false.
+!    endif
     An  = HO_Normalization(n ,l)
     Anp = HO_Normalization(np,l)
     gamma = 0
@@ -284,9 +300,16 @@ contains
        rho = rho_quad(i)
        tau = tau_quad(i)
        delrho = delrho_quad(i)
+       crho = c_rhorho_quad(i)
+       ctau = c_rhotau_quad(i)
+       cdelrho = c_rhodelrho_quad(i)
+       dcrho = dc_rhorho_quad(i)
+       dctau = dc_rhotau_quad(i)
+       dcdelrho = dc_rhodelrho_quad(i)
        gamma = gamma + w_quad(i)*x_quad(i)**l*Ln*Lnp &
 !            *(-18.25_dp*rho + 4.57_dp*tau - 1.8_dp*delrho)
-            *(C_rhorho*rho + C_rhotau*tau + C_rhodelrho*delrho)
+            *(dcrho*rho**2 + 2*Crho*rho + dctau*rho*tau + Ctau*tau + &
+            dcdelrho*rho*delrho + Cdelrho*delrho)
     enddo
     gamma = gamma*An*Anp/2._dp
   end function gamma_DME
@@ -319,6 +342,21 @@ contains
     enddo
   end subroutine sample_DME_fields
 
+  subroutine sample_DME_couplings
+    implicit none
+    integer :: i
+    real(dp) :: crho,ctau,cdelrho,dcrho,dctau,dcdelrho
+    do i = 1,N_quad
+       call calculate_couplings(i,crho,ctau,cdelrho,dcrho,dctau,dcdelrho)
+       C_rhorho_quad(i) = crho
+       C_rhotau_quad(i) = ctau
+       C_rhodelrho_quad(i) = cdelrho
+       dC_rhorho_quad(i) = dcrho
+       dC_rhotau_quad(i) = dctau
+       dC_rhodelrho_quad(i) = dcdelrho
+    enddo
+  end subroutine sample_DME_couplings
+
 
 !> Here the coupling constants \f$C^{\rho\rho}, C^{\rho\tau}\f$, and
 !! \f$C^{\rho\nabla^2\rho}\f$ are calculated using the kernels defined in
@@ -326,47 +364,141 @@ contains
 !! \f$\texttt{C\_rhotau\_kernel(r)}\f$ (the kernel of the
 !! \f$C^{\rho\nabla^2\rho}\f$ term is equal to
 !! \f$-\frac{C^{\rho\tau}}{4}\f$; see  HF_extensions.pdf eqn. 63).
-  subroutine calculte_couplings
+  subroutine calculate_couplings(i_quad,crho,ctau,cdelrho,dcrho,dctau,dcdelrho)
     implicit none
-    real(dp) :: alpha,xi,wi
+    integer, intent(in) :: i_quad
+    real(dp), intent(out) :: crho,ctau,cdelrho,dcrho,dctau,dcdelrho
+    real(dp) :: alpha,xi,wi,KF
     integer, parameter :: Ngauss = 77
     real(dp), dimension(1:Ngauss) :: w,x
     logical :: first_call = .true.
     integer :: i
-    real(dp) :: I_R, I_S, J_R, J_S, C_Hdelrho
+    real(dp) :: I_R, I_S, J_R, J_S, C_Hdelrho, dI_R, dI_S, dJ_R, dJ_S
     save w,x,first_call
     if(first_call) then
        alpha = -0.5_dp
        call GaussLaguerreWX(alpha,w,x)
        first_call = .false.
     endif
-    C_hartree =  pi**(1.5_dp)*(V0R/(muR**1.5_dp)-V0s/(mus**1.5_dp))/4._dp
-    C_Hdelrho =0!3*pi**(1.5_dp)*(V0R/(muR**2.5_dp)-V0s/(mus**2.5_dp))/8._dp
+    C_hartree =  pi**(1.5_dp)*(V0R/(muR**1.5_dp)-V0s/(mus**1.5_dp))/8._dp
+    C_Hdelrho =3*pi**(1.5_dp)*(V0R/(muR**2.5_dp)-V0s/(mus**2.5_dp))/8._dp
     I_R = 0
     I_S = 0
-    do i = 1,Ngauss
-       I_R = I_R + w(i)*C_rhorho_kernel((x(i)/muR)**0.5_dp)
-       I_S = I_S + w(i)*C_rhorho_kernel((x(i)/muS)**0.5_dp)
-       J_R = J_R + w(i)*C_rhotau_kernel((x(i)/muR)**0.5_dp)
-       J_S = J_S + w(i)*C_rhotau_kernel((x(i)/muS)**0.5_dp)
+    J_R = 0
+    J_S = 0
+    dI_R = 0
+    dI_S = 0
+    dJ_R = 0
+    dJ_S = 0
+    do i = 1,N_quad
+       I_R = I_R + w_quad(i)*C_rhorho_kernel((x_quad(i)/muR)**0.5_dp,i_quad)
+       I_S = I_S + w_quad(i)*C_rhorho_kernel((x_quad(i)/muS)**0.5_dp,i_quad)
+       J_R = J_R + w_quad(i)*C_rhotau_kernel((x_quad(i)/muR)**0.5_dp,i_quad)
+       J_S = J_S + w_quad(i)*C_rhotau_kernel((x_quad(i)/muS)**0.5_dp,i_quad)
+       dI_R=dI_R + w_quad(i)*DC_rhorho_kernel((x_quad(i)/muR)**0.5_dp,i_quad)
+       dI_S=dI_S + w_quad(i)*DC_rhorho_kernel((x_quad(i)/muS)**0.5_dp,i_quad)
+       dJ_R=dJ_R + w_quad(i)*DC_rhotau_kernel((x_quad(i)/muR)**0.5_dp,i_quad)
+       dJ_S=dJ_S + w_quad(i)*DC_rhotau_kernel((x_quad(i)/muS)**0.5_dp,i_quad)
     enddo
-    C_rhorho=pi*(V0R*I_R/muR**0.5_dp-V0S*I_S/muS**0.5_dp)/(4*k_fermi**2)
-    C_rhotau=-pi*105*(V0R*J_R/muR**0.5_dp-V0S*J_S/muS**0.5_dp)/(4*k_fermi**4)
-    C_rhodelrho = (-C_rhotau/4._dp+C_Hdelrho/8._dp)
-    C_rhorho = 2*C_rhorho + C_hartree
-  end subroutine calculte_couplings
+    Crho=pi*(V0R*I_R/muR**1.5_dp-V0S*I_S/muS**1.5_dp)*0.5_dp
+    Ctau=pi*(V0R*J_R/muR**1.5_dp-V0S*J_S/muS**1.5_dp)*0.5_dp
+    Cdelrho = (-Ctau/4._dp+C_Hdelrho/8._dp)
+    Crho = Crho + C_hartree
+    dCrho=pi*(V0R*dI_R/muR**1.5_dp-V0S*dI_S/muS**1.5_dp)*0.5_dp
+    dCtau=pi*(V0R*dJ_R/muR**1.5_dp-V0S*dJ_S/muS**1.5_dp)*0.5_dp
+    dCdelrho = -dCtau/4._dp
+  end subroutine calculate_couplings
+
+  function pi0(x) result(p0)
+    implicit none
+    real(dp), intent(in) :: x
+    real(dp) :: p0
+    if(x.lt.0.01_dp) then
+       p0 = 1-x**2/10._dp + x**4/280._dp
+    else
+       p0 = 3*SphericalBesselJ1(x)/x
+    endif
+  end function pi0
+
+  function pi2(x) result(p2)
+    implicit none
+    real(dp), intent(in) :: x
+    real(dp) :: p2
+    if(x.lt.0.01_dp) then
+       p2 = 1-x**2/18._dp + x**4/792._dp
+    else
+       p2 = 105*SphericalBesselJ3(x)/x**3
+    endif
+  end function pi2
+
+  function dpi0(x) result(p0)
+    implicit none
+    real(dp), intent(in) :: x
+    real(dp) :: p0
+    if(x.lt.0.01_dp) then
+       p0 = -x/5._dp + x**3/70._dp
+    else
+       p0 = 3*(sin(x)-3*SphericalBesselJ1(x))/x**2
+    endif
+  end function dpi0
+
+  function dpi2(x) result(p2)
+    implicit none
+    real(dp), intent(in) :: x
+    real(dp) :: p2
+    if(x.lt.0.01_dp) then
+       p2 = -x/9._dp + x**3/198._dp
+    else
+       p2 = 105*(x*SphericalBesselJ2(x)-7*SphericalBesselJ3(x))/x**4
+    endif
+  end function dpi2
+  
+
+  function DC_rhorho_kernel(r,i) result(DCk)
+    implicit none
+    integer, intent(in) :: i
+    real(dp), intent(in) :: r
+    real(dp) :: DCk, Kf,dKf,p0,p2,dp0,dp2
+    Kf = (3*pi**2*rho_quad(i))**(1/3._dp)
+    dKF = (3*pi**2)**(1/3._dp)*rho_quad(i)**(-2/3._dp)/3._dp
+    p0 = pi0(kf*r)
+    p2 = pi2(kf*r)
+    dp0 = dpi0(kf*r)
+    dp2 = dpi2(kf*r)
+    DCk = r*dKF*(2*r*Kf*p0*p2 + 10*p0*dp0 + &
+         (r*kf)**2*(p2*dp0+p0*dp2))*0.1_dp
+  end function DC_rhorho_kernel
+
+  function DC_rhotau_kernel(r,i) result(DCk)
+    implicit none
+    integer, intent(in) :: i
+    real(dp), intent(in) :: r
+    real(dp) :: DCk, Kf,dKf,p0,p2,dp0,dp2
+    Kf = (3*pi**2*rho_quad(i))**(1/3._dp)
+    dKF = (3*pi**2)**(1/3._dp)*rho_quad(i)**(-2/3._dp)/3._dp
+    p0 = pi0(kf*r)
+    p2 = pi2(kf*r)
+    dp0 = dpi0(kf*r)
+    dp2 = dpi2(kf*r)
+    DCk = -r**3*dkf*(p2*dp0+p0*dp2)/6._dp
+  end function DC_rhotau_kernel
+
 
 !> Contains the kernel of the integral used to compute \f$C^{\rho\rho}\f$.
 !! Essentially, it is everything inside the integral in eqn. 64 of
 !! HF_extensions.pdf, except the integral has been transformed into a
 !! form that permits it to be evaluated using our Gauss-Laguerre
 !! quadrature scheme.
-  function C_rhorho_kernel(r) result(Ck)
+  function C_rhorho_kernel(r,i) result(Ck)
     implicit none
+    integer, intent(in) :: i
     real(dp), intent(in) :: r
     real(dp) :: Ck
-    Ck =  9*SphericalBesselJ1(k_fermi*r)**2 + &
-         63*SphericalBesselJ1(k_fermi*r)*SphericalBesselJ3(k_fermi*r)
+    real(dp) :: Kf
+    Kf = (3*pi**2*rho_quad(i))**(1/3._dp)
+    Ck = (pi0(kf*r)**2+(kf*r)**2*pi0(kf*r)*pi2(kf*r)/5._dp)*0.5_dp
+!    Ck =  9*SphericalBesselJ1(Kf*r)**2 + &
+!         63*SphericalBesselJ1(Kf*r)*SphericalBesselJ3(kf*r)
   end function C_rhorho_kernel
 
 !> Contains the kernel of the integral used to compute \f$C^{\rho\tau}\f$
@@ -374,11 +506,14 @@ contains
 !! \f$C^{\rho\rho}\f$, the integral has been transformed into a
 !! form that permits it to be evaluated using our Gauss-Laguerre
 !! quadrature scheme.
-  function C_rhotau_kernel(r) result(Ck)
+  function C_rhotau_kernel(r,i) result(Ck)
     implicit none
+    integer, intent(in) :: i
     real(dp), intent(in) :: r
     real(dp) :: Ck
-    Ck =  SphericalBesselJ1(k_fermi*r)*SphericalBesselJ3(k_fermi*r)
+    real(dp) :: Kf
+    Kf = (3*pi**2*rho_quad(i))**(1/3._dp)
+    Ck = -pi0(kf*r)*pi2(kf*r)*r**2/6._dp
   end function C_rhotau_kernel
 
 
