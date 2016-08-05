@@ -13,8 +13,8 @@
 int main (int argc, char **argv)
 
 	{
-		double res, *coefficients,nmesh;
-		int i,j,n, flags, opt;
+		double res, *coefficients;
+		int i,j,n, flags, opt,nmesh;
 		
     	while ((opt = getopt(argc, argv, "n:")) != -1) {
         switch (opt) {
