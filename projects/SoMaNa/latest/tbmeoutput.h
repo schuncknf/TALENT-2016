@@ -4,4 +4,6 @@
 // #include "potential.h"
 // #include "harmon.h"
 
+double deltaf(double, double);
+
 void tbmeprint (double*, int);

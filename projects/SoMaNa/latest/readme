@@ -1,0 +1,33 @@
+Readme for the TBME code for neutron drops:
+
+Compilation should be straightforward; a makefile is included. The only caveat is that on our system the GSL libraries were in another directory; change this part of the makefile:
+
+" -I/usr/userfs/t/tmpu3150/include/include -L/usr/userfs/t/tmpu3150/include/lib "
+
+to use the path to the folder where your GSL libraries are, or remove it if they are installed in the default directory. The calculation uses functions from the GSL library throughout.
+
+The present code reads data from the parameters.dat file stored in the same directory. The data include the maximum number of shells, parameters for the H.O. potential that defines our basis, and the coefficients of the Minesotta potential. Note all the coefficients are positive; where a minus sign appears in front of them in the expressions for the matrix elements etc. this has been handled in the code. I do not believe this would cause significant issues when generalising.
+
+The matrix elements are calculated using Gauss-Laguerre quadrature; the details are mentioned in the source files. The number of mesh point is read in from the command line.
+
+The option for this is -n N, where N is a positive integer.
+
+The output of the program consists of two files, tbme.out and states.out, which respectively contain the table of TBME sorted by the orbitals of the states that we take the matrix element between, and the quantum numbers of those orbitals for reference.
+
+There is still much that could be optimised in the code, but we are forced to put out this final version due to time constraints. In particular, we have not done much testing on what nesting of loops is optimal. The implementation of paralel processing is primitive but I think it is sufficient for our purposes and I am unsure if adding further paralelisation would make the results worse.
+
+The first version of the code (immortalised in many nonfunctional commits to the git repository) strived to be more general; as a result, it had recursively defined functions and functions that used pointers to functions as their parameters, and in the end the program was slow and often did things it should not do.
+
+Now, the most difficult part: the results are bad. The resulting TBME matrix gives, using our solver, ~33 MeV for the benchmark test. I have checked the integration and the mathematical functions used; both are OK. The only remaining option is that some of the integrands are wrong but after a week of staring at the code I can't for the life of me find the mistake. So this is a code that could sadly use a bit more work.
+
+The modules used are:
+
+read_file.c, which reads the parameters from parameters.dat;
+harmon.c, which contains the definitions of functions related to the harmonic oscillator wave functions;
+gauss-laguerre.c, the main module which includes the functions needed to evaluate the matrix elements using G-L quadrature;
+tbmeoutput.c, which contains the loop over all the states included and outputs the results to the two files mentioned above; and
+main.c, which contains the main function.
+
+The executable does not output anything to the standard output; first of all because there is no need for it, and second because we want to run the HFB solver program immediately after.
+
+5. 8. 2016., Sofija Antic and Nato Popara (the rest of the code by Maxwell Cao)
