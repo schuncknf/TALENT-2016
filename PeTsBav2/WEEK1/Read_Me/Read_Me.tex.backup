@@ -1,0 +1,50 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+
+%opening
+\title{WEEK 1: Infinite well potential, finite square potential, Wood-Saxon potential}
+\author{Ni Fang\\ Kai Wang\\Claudia Gonzalez-Boquera}
+\date{TALENT 2016}
+\begin{document}
+
+\maketitle
+\section{Structure}
+The three programs have the same structure in order to find the eigenvalues and eigenvectors 
+of the considered system. \\
+The main file contains the code that finds the eigenvalues between 0 and 100 MeV (E$_\mathrm{plus}$).
+The eigenvalues are found with the bissection method, which includes the numerov 
+method in order to calculate the eigenfunction for each eigenvalue. For each
+eigenfunction found, we calculate its nodes, and we modify the extremes of the 
+bissection method according to them. When the extremes are closer than epsi,
+we exit the loop, and put the eigenvalue as the right extreme of the bissection
+method. 
+Then we recalculate the eigenfunction with the shooting method, with 
+right hand side equal to 0, in order to find the convergence, and we normalize it. 
+
+The only thing that changes between the different programs is the potential.
+\subsection{Functions and Subroutines}
+Function Vpot(xy) :  potential used in each case. 
+Subroutine Simpson : subroutine to integrate the densities, in order to normalize the 
+eigenfunctions. Inputs: N number of points in the mesh, dx space between the points in the mesh,f array
+to integrare. Output:res  value of the integration. 
+
+\section{Input file}
+\begin{itemize}
+ \item epsi= epsilon error to find the solution. 
+ \item h2m = value of $\hbar^2/2m$.
+ \item R$_\mathrm{max}$ = in coordinate space, up to where the potential acts.
+ \item R$_\mathrm{box}$ = size of our considered and studied system.
+ \item h= space between two points in the mesh.
+ \item E$_\mathrm{minus}$= left value of the energy when finding the eigenvalues using the bissection method.
+ \item E$_\mathrm{plus}$ = right value of the energy when finding the eigenvalues using the bissection method.
+ \item V0 = depth of the potential. (used for finite square and WS).
+ \item a = difusivity of the Wood-Saxon potential. 
+\end{itemize}
+
+\section{Makefile}
+To run the program, there is a Makefile, that compiles all files that form the code. 
+To compile, type \bf{make}, and a executable \bf{main} is created. To run the code, 
+type \bf{./main}. And to delete all exectuables and outputs, type either \bf{make clean} or
+\bf{make clear}.
+
+\end{document}

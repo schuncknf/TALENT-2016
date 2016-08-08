@@ -24,7 +24,7 @@
       enddo
       exchange = e2*(3.d0/pi)**(1./3.)*rho_p(N)**(1./3.)
 
-      V_Co_d(N) = 4.d0*pi*e2*(1.d0/(N*dx)*int_a +int_c)
+     !V_Co_d(N) = 4.d0*pi*e2*(1.d0/(N*dx)*int_a +int_c)
 
       Vcoulomb =  4.d0*pi*e2*(1.d0/(N*dx)*int_a +int_c) -exchange
       end function

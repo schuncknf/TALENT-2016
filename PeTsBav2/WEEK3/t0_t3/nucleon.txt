@@ -9,9 +9,10 @@
 &bisection
  E_p = 0d0, E_m = -100d0 /
 &output
- output_wave_func = .false. , epsi=1e-5/
+ output_wave_func = .false. , epsi=1e-8/
 &WoodSaxon
-r0=1.27, a=0.67, e2=1.439978/
+r0=1.27, a=0.67, e2=0.d0/
+!r0=1.27, a=0.67, e2=1.439978/
 &CMcorr
-CMcorrection = .true./
+CMcorrection = .false./
 

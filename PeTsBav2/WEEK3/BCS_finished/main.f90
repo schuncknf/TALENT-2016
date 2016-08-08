@@ -28,7 +28,7 @@ real(8),allocatable :: rho_BCS_p(:), rho_BCS_n(:), rho_BCS(:)
 integer :: N_nlj,N
 integer,allocatable :: nl2j(:,:)
 real(8) :: E_p, E_m,E_tot_p, lambda_p, delta_p, E_tot_n, lambda_n, delta_n
-real(8) :: Vcoulomb
+real(8) :: Vcoulomb, E_Co
 NAMELIST / nucleons / proton, neutron
 NAMELIST / parameters / h2m, R_max, N
 NAMELIST / max_quantum_number / n_max, l_max 
@@ -89,6 +89,7 @@ allocate(energy_n(1:orbital),energy_p(1:orbital),wave_func_n(0:N,1:orbital),&
      wave_func_p(0:N,1:orbital))
 allocate(filename_wave_func_n(1:orbital),filename_wave_func_p(1:orbital))
 allocate(E_data_n(1:orbital,1:4),E_data_p(1:orbital,1:4))
+allocate(V_Co_d(0:Nmesh),V_Co_e(0:Nmesh) )
 
 ! initial density, kinetic density
 rho_p(:) = 0d0
@@ -139,7 +140,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
            - u_nlj_n(i,orbital_tmp+1)/x)**2 + E_data_n(orbital_tmp+1,3)*(E_data_n(orbital_tmp+1,3) &
             +1d0)*u_nlj_n(i,orbital_tmp+1)**2/x**2&
            )/(4d0*pi*x**2)
-      write(111, *) x, rho_n(i), tau_n(i)
+    !  write(111, *) x, rho_n(i), tau_n(i)
    end do
 
    rho_n(0) = 2d0*rho_n(1)-rho_n(2)
@@ -578,6 +579,32 @@ do rep=1,iter
    number = 0d0
    E_ke = 0d0
    E_pot=0d0
+   E_Co =0d0
+   exch=0d0
+   V_Co_d(:) = 0d0
+   V_Co_e(:)=0.d0
+   aux1=0d0
+   aux=0d0
+
+
+      do i=0, N
+      x=i*dx
+      aux= aux + x**2*rho_p(i)
+      enddo
+
+      do i=1, N
+      x=i*dx
+      V_Co_d(i) = 4.d0*pi*dx*aux/x
+      enddo
+      V_Co_d(0) = V_Co_d(1)
+      do i=0, N
+      x=i*dx
+      aux1= aux1 + 4.d0*pi*dx*x**2*rho_p(i)*V_co_d(i)*e2/2.d0
+      exch = exch - 3.d0/4.d0*e2*(3.d0/pi)**(1.d0/3.d0)*4.d0*pi*x**2*rho_p(i)**(4.d0/3.d0)*dx
+      enddo
+
+     E_Co= aux1 + exch
+
    do i=0,N
       x = i*dx
       number = number + 4d0*pi*rho(i)*x**2*dx
@@ -587,7 +614,7 @@ do rep=1,iter
 
    end do
 
-   E_hf_new = (E_ke + E_pot)
+   E_hf_new = (E_ke + E_pot) + E_Co
    write(*,'(i5,5f20.8)') rep, number, E_hf_new, E_sp, E_ke, E_pot
    if(abs(E_hf_new-E_hf).lt.epsi) exit
 
@@ -808,10 +835,10 @@ if (orbital_up>=orbital_down.and.BCS_cal.eqv..true.) then
 end if
 
 
-do i=1, Nmesh
-x=i*dx
-write(222, *) x,Vcoulomb(i, rho_p)
-enddo
+!do i=1, Nmesh
+!x=i*dx
+!write(222, *) x,Vcoulomb(i, rho_p)
+!enddo
 deallocate(E_data_n,E_data_p)
 deallocate(filename_wave_func_n,filename_wave_func_p)
 deallocate(energy_n,energy_p,wave_func_n,wave_func_p)

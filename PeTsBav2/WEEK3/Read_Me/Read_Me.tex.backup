@@ -1,0 +1,126 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+
+%opening
+\title{WEEK3: Skyrme Potential}
+\author{Ni Fang\\ Kai Wang\\Claudia Gonzalez-Boquera}
+\date{TALENT 2016}
+\begin{document}
+
+\maketitle
+\section{Structure}
+This program calculates the eigenvalues and wavefunctions of each given nlj orbital when having a t0-t3 Skyrme potential.
+
+The program consists in a self-consistent method to calculate
+for each possible nlj (up to the limit put in the input file) the 
+corresponding eigenvalue and wavefunction.
+
+We start from wavefunctions and densities trials (using the WS 3D code).  
+When having this, we start the self-consistent loop.
+We start calculating the full series of levels for the nucleus we want to study.
+As in the previous codes, the eigenvalues are found with the bissection method, which includes the numerov 
+method in order to calculate the eigenfunction for each eigenvalue. For each
+eigenfunction found, we calculate its nodes, and we modify the extremes of the 
+bissection method according to them. When the extremes are closer than epsi,
+we exit the loop, and put the eigenvalue as the right extreme of the bissection
+method. 
+Then we recalculate the eigenfunction with the shooting method, with 
+right hand side equal to 0, in order to find the convergence, and we normalize it. 
+
+We do this for neutrons and for protons separately. 
+
+When all possible orbitals are calculated, we rearrange the energy in ascending order, 
+in order to find the correct order in the levels. 
+
+After, the density profiles are calculated.
+
+When having all of this, we calculate and compare the Hartree-Fock total energy with the one obtained in the 
+previous loop. 
+If the difference is less than epsilon, we exit the loop, as we have reached the convergence.
+
+\subsection{Functions and Subroutines}
+\begin{itemize}
+
+\item Subroutine WoodsSaxon3D(energy$\_$n,energy$\_$p,quant$\_$n,quant$\_$p,wf$\_$n, wf$\_$p): subroutine to get the 
+trial energies and wavefunctions. The energies of the neutrons (protons) will be
+stored in the array energy$\_$n  (energy$\_$p), the neutron (proton) quantum numbers
+in quant$\_$n (quant$\_$p) and the wavefunctions in wf$\_$n (wf$\_$p). In order to arrange the energy 
+levels, we use the subroutine arrage$\_$energy(matrix,wavef).
+\item Subroutine arrange$\_$energy(matrix,wavef): function that arranges the eigenvalues in ascending order. 
+These values are inside matrix, which includes the energies and quantum numbers. All is 
+ordered following the energy ascendancy. Also, the ,matrix that includes all the wavefunctions
+(wavef) is also ordered.
+ \item Subroutine simpson(N, dx, f, res) : subroutine to integrate the densities, in order to normalize the 
+eigenfunctions. Inputs: N number of points in the mesh, dx space between the points in the mesh,f array
+to integrate. Output:res  value of the integration. 
+\item Function Vcoulomb (N, rho$\_$p): function to calculate the Coulomb potential for protons. As an input
+the position in the mesh to calculate (N) and the proton density (rho$\_$p).
+\end{itemize}
+
+\section{Files}
+\begin{itemize}
+ \item global.f90: module that includes the global variables.
+ \item initial$\_$phi.f90: file that contains the WoodsSaxon3D subroutine to find the initial eigenvalues and wavefunctions.
+ \item nucleon.txt: input file (see below).
+ \item Coulomb.f90: file that includes the function Vcoulomb to calculate the value of the Coulomb potential. 
+ \item main.f90: main file that includes the code to find the eigenvalues and eigenfunctions in a self-consistent way. 
+ \item Makefile : makefile to compile the code (see below). 
+ \item simpson.f90: file that contains the subroutine that integrates using the Simpson method.
+ \item arrange.f90: file that contains the subroutine that arranges the energy in ascending order for the Hartree-Fock eigenvalues. 
+  \item arrange2.f90: file that contains the subroutine that arranges the energy in ascending order for the WoodsSaxon3D subroutine. 
+ \item data$\_$plot.plt: file to plot with gnuplot the proton and neutron densities. 
+ \item data$\_$plot2.plt: file to plot with gnuplot the proton and neutron kinetic densities. 
+  \end{itemize}
+
+
+\section{Input file---nucleon.txt}
+\begin{itemize}
+ \item proton, neutron = number of protons and neutron of the nucleus to study. 
+  \item h2m = value of $\hbar^2/2m$.
+   \item R$_\mathrm{max}$ = size of our considered and studied system.
+    \item N= number of points in the mesh.
+    \item charge= not used
+ \item epsi= epsilon error to find the solution. 
+ \item E$_\mathrm{m}$= left value of the energy when finding the eigenvalues using the bissection method.
+ \item E$_\mathrm{p}$ = right value of the energy when finding the eigenvalues using the bissection method.
+ \item e2= value of e$^2$, value of the charge for the Coulomb potential.
+ \item out$\_$wave$\_$func = logical parameter to output all the wavefunctions calculated in files or not.
+ \item n$\_$max, l$\_$max = maximum n and l quantum numbers to calculate.
+ \item r0 = parameter to calculate R0 in Wood-Saxon potential. 
+ \item a = difusivity of the Wood-Saxon potential. 
+ \item CMcorrection = logical parameter to indicate if CM correction is used.
+
+\end{itemize}
+
+\section{Output}
+\begin{itemize}
+ \item Energy levels of neutrons (energy$\_$level$\_$n.dat) and protons (energy$\_$level$\_$p.dat).
+ \item Density profiles of neutrons (density$\_$n$\_$new.dat) and protons(density$\_$p$\_$new.dat).
+ \item If wanted, output with all wavefunctions calculated. (output$\_$wave$\_$func =.true.)
+ \item Console: iteration, nucleon number, total energy of the system, single particle energy, kinetic energy, 
+ Skyrme energy, Coulomb energy.
+ \item plots of the neutron and proton densities and kinetic densities.
+\end{itemize}
+
+
+\section{Makefile}
+To run the program, there is a Makefile, that compiles all files that form the code. 
+To compile, type \textbf{make}, and an executable \textbf{main} is created. To run the code, 
+type \textbf{./main}. And to delete all exectuables and outputs, type either \textbf{make clean} or
+\textbf{make clear}. Makefile has to be modified with vi or vim programs.
+
+\section{Extras}
+\subsection{Coulomb potential}
+Coulomb potential has been added, but the total energy does not give the correct value. \textbf{Is not correct. It has to 
+be modified}.
+\subsection{BCS.}
+With the t0-t3 Skyrme code, we have added, in a different folder, the BCS calculation. 
+New subroutines: solve_BCS_equation(L,E_data,N,E_tot, lambda, Delta, v): inputs:  L: the number of shell
+E_data(1:L,1:4): 1:energy, 2:n, 3:angular momentum, 4:spin,
+N: particle number in BCS system output,
+ E_tot: total energy in BCS system,
+ lambda: chemical potential, subroutine LU(N, A, b, x, err), subroutine that implements the LU decomposition for the A matrix
+ Delta: pairing gap, v(1:L): occupation probability in BCS system..
+ 
+ 
+\end{document}

@@ -42,7 +42,7 @@
             !begin bissection method
             do while (bisloop) ! begin loop bissection method
 
-                  if (E_right-E_left<1e-6) exit
+                  if (E_right-E_left<epsi) exit
                   Em=(E_right+E_left)/2.
                   cnodes=0     
                  !begin numerov method
@@ -118,7 +118,7 @@
       use globals
       implicit none
       real(kind=dm)::xy
-      vpot=0. 
+      vpot=0.d0
       end function
 
 !***************************************************

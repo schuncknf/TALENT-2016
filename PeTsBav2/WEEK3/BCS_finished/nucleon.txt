@@ -11,7 +11,8 @@
 &output
  output_wave_func = .false. , epsi=1e-10, corr=0.09d0/
 &WoodSaxon
- r0=1.27, a=0.67, e2=1.439978/  
+ r0=1.27, a=0.67, e2=0.d0/ 
+! r0=1.27, a=0.67, e2=1.439978/  
 &CMcorr
  CMcorrection = .false./
 &BCS_parameters

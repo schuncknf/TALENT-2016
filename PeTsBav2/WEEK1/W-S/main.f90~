@@ -1,10 +1,10 @@
       ! Program to calculate the eigenvalues and 
-      ! eigenvectors in a finite square well potential
-      ! Parts: main.f90, globals.f90, Simpson.f90, finite.input
+      ! eigenvectors in a W-S potential
+      ! Parts: main.f90, globals.f90, Simpson.f90, WS.input
       !      
       !Authors: Fang Ni, Kai Wang, Claudia Gonzalez Boquera
       !TALENT COURSE 4 2016 
-      program finite_square_well
+      program WoodsSaxon
       use globals  
       implicit none
       external vpot
@@ -14,10 +14,10 @@
 
       !------------------Read parameters from input---------------------
       NAMELIST / parameters / epsi, h2m
-      NAMELIST / sizebox / R_max,  R_box, h   
+      NAMELIST / sizebox / R_max, R_min, R_box, h , a  
       NAMELIST / energy / E_minus, E_plus, V0
 
-      open (30, file='finite.input', status='old')
+      open (30, file='WS.input', status='old')
       read(30, NML=parameters)
       read(30, NML=sizebox)
       read(30, NML=energy)
@@ -25,7 +25,7 @@
       !-----------------------------------------------------------------
       write(*,'(3a20)') 'nodes', 'eigenvalue', 'filename eigvec'
 
-      Nmesh=nint(2.*R_box/h)
+      Nmesh=nint((R_box-R_min)/h)
 
       allocate(k_sq(0:Nmesh),psi(0:Nmesh), rho(0:Nmesh))
 
@@ -43,12 +43,12 @@
             !begin bissection method
             do while (bisloop) ! begin loop bissection method
 
-                  if (E_right-E_left<epsi) exit
+                  if (E_right-E_left<1e-6) exit
                   Em=(E_right+E_left)/2.
                   cnodes=0     
                  !begin numerov method
                   Do i = 0,Nmesh
-                   x=-R_box+i*h
+                   x=R_min+i*h
                    k_sq(i) = (Em-vpot(x))/h2m   
                   
                   Enddo
@@ -80,7 +80,7 @@
 
             cnodes = 0
             Do i = 0,Nmesh
-                  x=-R_box+i*h
+                  x=R_min+i*h
                   k_sq(i) = (Em-vpot(x))/h2m  
             Enddo
             
@@ -105,28 +105,24 @@
             if (E_plus-Em.lt. epsi) exit
             open(10,file=filename)
             do i=0,Nmesh
-                  x = -R_box + i*h
-                  write(10,*) x, psi(i)
+                  x = R_min + i*h
+                  write(10,'(3F20.10)') x, psi(i), vpot(x)
             end do
             close(10)
       
-            write(*, *) numnodes, Em, filename
+            write(*, '(I15,F15.5,5X, A15)') numnodes, Em, filename
            
             numnodes=numnodes+1
 
       enddo ! end loop to compare if eigenvalues are between 0-100MeV. 
 
-      end program finite_square_well
+      end program WoodsSaxon
 
-
+      ! Woods-Saxon potential
       real (8) function vpot(xy)
       use globals
       implicit none
       real(kind=dm)::xy
-      if (abs(xy).le.R_max) then
-      vpot=-V0
-      else
-      vpot=0.
-      endif       
+      vpot = -V0/(1.+exp((xy-R_max)/a))    
       end function
 

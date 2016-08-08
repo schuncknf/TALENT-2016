@@ -4,6 +4,7 @@ implicit none
 real(8)    :: s_z, j_tot
 real(8),allocatable :: psi(:), &
      u_nlj_p(:,:), u_nlj_n(:,:),&
+     rho_old_n(:), rho_old_p(:), rho_old(:), tau_old_n(:), tau_old_p(:), tau_old(:),&
      rho_p(:), rho_n(:), rho(:), tau_p(:), tau_n(:), tau(:), k_sq_p(:), k_sq_n(:)
 real(8),allocatable :: V_skyrme_p(:), V_skyrme_n(:),&
      M_eff_p(:), M_eff_n(:), W_p(:), W_n(:), g_p(:), g_n(:),&
@@ -74,6 +75,7 @@ write(*,*) orbital
 allocate(psi(0:N), &
      u_nlj_p(0:N,1:orbital), u_nlj_n(0:N,1:orbital))
 allocate(rho_p(0:N), rho_n(0:N), rho(0:N), tau_p(0:N), tau_n(0:N), tau(0:N), &
+rho_old_n(0:N), rho_old_p(0:N), rho_old(0:N), tau_old_n(0:N), tau_old_p(0:N), tau_old(0:N),&
      k_sq_p(0:N), k_sq_n(0:N), dens_p(0:N), dens_n(0:N), dens(0:N))
 allocate(V_skyrme_p(0:N), V_skyrme_n(0:N), M_eff_p(0:N), M_eff_n(0:N),&
      W_p(0:N), W_n(0:N), g_p(0:N), g_n(0:N), dg_p(0:N), dg_n(0:N),&
@@ -97,10 +99,13 @@ Nn_tmp = neutron
 Np_tmp = proton
 E_sp = 0d0
 
-
+! use the program created in WEEK2 in order to find the initial eigenvalues and 
+! wavefunctions. Used Wood-Saxon potential.
 call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
 
+! calculate inital densities for neutrons and protons 
 !-------------------------------------------------------------------------------
+!NEUTRONS
    do orbital_l=1,orbital
       Nn_l = Nn_tmp
       j_tot = E_data_n(orbital_l,3) + E_data_n(orbital_l,4)
@@ -113,6 +118,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
          x = i*dx
          rho_n(i) = rho_n(i) + (2d0*j_tot+1)*abs(u_nlj_n(i,orbital_l))**2/(4d0*pi*x**2)
       end do
+!kinetic density
       do i=1,N-2
          x = i*dx
          tau_n(i) = tau_n(i) + (2d0*j_tot+1)*( ((4d0*u_nlj_n(i+1,orbital_l)&
@@ -121,6 +127,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
               )/(4d0*pi*x**2)
 !         write(*,*) tau_n(i)
       end do
+! single particle energy
       E_sp = E_sp + (2d0*j_tot+1)*energy_n(orbital_l)
    end do
    do i=1,N
@@ -128,6 +135,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
       rho_n(i) = rho_n(i) + Nn_l*abs(u_nlj_n(i,orbital_tmp+1))**2/(4d0*pi*x**2)
 
    end do
+!kinetic density
    do i=1,N-2
       x = i*dx
       tau_n(i) = tau_n(i) + Nn_l*( ((4d0*u_nlj_n(i+1,orbital_tmp+1)&
@@ -135,7 +143,6 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
            - u_nlj_n(i,orbital_tmp+1)/x)**2 + E_data_n(orbital_tmp+1,3)*(E_data_n(orbital_tmp+1,3) &
             +1d0)*u_nlj_n(i,orbital_tmp+1)**2/x**2&
            )/(4d0*pi*x**2)
-      write(111, *) x, rho_n(i), tau_n(i)
    end do
 
    rho_n(0) = rho_n(1)
@@ -145,7 +152,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
    E_sp = E_sp + Nn_l*energy_n(orbital_tmp+1)
 
 !
-
+!PROTONS
    do orbital_l=1,orbital
       Np_l = Np_tmp
       j_tot = E_data_p(orbital_l,3) + E_data_p(orbital_l,4)
@@ -159,6 +166,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
          rho_p(i) = rho_p(i) + (2d0*j_tot+1)*abs(u_nlj_p(i,orbital_l))**2/(4d0*pi*x**2)
 
       end do
+!kinetic density
       do i=1,N-2
          x = i*dx
          tau_p(i) = tau_p(i) + (2d0*j_tot+1)*( ((4d0*u_nlj_p(i+1,orbital_l)&
@@ -167,6 +175,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
               )/(4d0*pi*x**2)
 
       end do
+!single particle density
       E_sp = E_sp + (2d0*j_tot+1)*energy_p(orbital_l)
    end do
    
@@ -174,6 +183,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
       x = i*dx
       rho_p(i) = rho_p(i) + Np_l*abs(u_nlj_p(i,orbital_tmp+1))**2/(4d0*pi*x**2)
    end do
+!kinetic density
    do i=1,N-2
       x = i*dx
       tau_p(i) = tau_p(i) + Np_l*( ((4d0*u_nlj_p(i+1,orbital_tmp+1)&
@@ -210,9 +220,17 @@ write(*,'(4f15.8)') number, E_hf, E_sp, E_ke
 
 ! iteration start
 do rep=1,iter
+
+   rho_old_p(:) = rho_p(:)
+   rho_old_n(:) = rho_n(:)
+   rho_old(:) = rho(:)
+   tau_old_p(:) = tau_p(:)
+   tau_old_n(:) = tau_n(:)
+   tau_old(:) = tau(:)
+
    E_sp = 0d0
 
-! skyrme potential    
+! skyrme potential    (only t0-t3)
    do i=0,N
       x = i*dx
       V_skyrme_p(i) = rho(i)*(0.5d0*t0*(2d0)+(2d0+alpha)*t3*(2d0)*rho(i)**alpha/24d0)&
@@ -268,7 +286,7 @@ do rep=1,iter
             do while(bisloop)
                count = 0
                E = E_left + 0.5d0*(E_right-E_left)
-               if (E_right-E_left<1e-6) exit
+               if (E_right-E_left<epsi) exit
             
 ! h(r) and k_sq
                do i=1,N
@@ -299,7 +317,7 @@ do rep=1,iter
             E = E_right
 !            write(*,*) E
 ! unbound or spurious states
-            if (E-E_m<1e-5.or.E_p-E<1e-5) then
+            if (E-E_m<epsi.or.E_p-E<epsi) then
                orbital_l = orbital_l - 1
                exit
             end if
@@ -456,7 +474,7 @@ do rep=1,iter
             E = E_right
 !            write(*,*) E
 ! unbound or spurious states
-            if (E-E_m<1e-5.or.E_p-E<1e-5) then
+            if (E-E_m<epsi.or.E_p-E<epsi) then
                orbital_l = orbital_l - 1
                exit
             end if
@@ -569,26 +587,28 @@ do rep=1,iter
    E_Co =0d0
    exch=0d0
    V_Co_d(:) = 0d0
-
+   V_Co_e(:)=0.d0
    aux1=0d0
    aux=0d0
+
 
       do i=0, N
       x=i*dx
       aux= aux + x**2*rho_p(i)
       enddo
+
       do i=1, N
       x=i*dx
       V_Co_d(i) = 4.d0*pi*dx*aux/x
       enddo
-      
+      V_Co_d(0) = V_Co_d(1)
       do i=0, N
       x=i*dx
-      aux1= aux1 + x**2*rho_p(i)*V_co_d(i)*e2/2.d0
-      exch = exch - 3.d0/4.d0*e2*4.d0*pi*dx*x**2*rho_p(i)*(3.d0/pi)**(1.d0/3.d0)
+      aux1= aux1 + 4.d0*pi*dx*x**2*rho_p(i)*V_co_d(i)*e2/2.d0
+      exch = exch - 3.d0/4.d0*e2*(3.d0/pi)**(1.d0/3.d0)*4.d0*pi*x**2*rho_p(i)**(4.d0/3.d0)*dx
       enddo
 
-      e_co= 4.d0*pi*dx*aux1 + exch
+     E_Co= aux1 + exch
 
    do i=0,N
       x = i*dx
@@ -600,11 +620,18 @@ do rep=1,iter
 
 
 
+
    E_hf_new = E_ke + E_pot + E_Co
    write(*,*) rep, number, E_hf_new, E_sp, E_ke, E_pot, E_Co
       if(abs(E_hf_new-E_hf).lt.epsi) exit
 
       E_hf= E_hf_new
+   rho_p(:) = (1-corr)*rho_p(:) + corr*rho_old_p(:)
+   rho_n(:) = (1-corr)*rho_n(:) + corr*rho_old_n(:)
+   rho(:) = (1-corr)*rho(:) + corr*rho_old(:)
+   tau_p(:) = (1-corr)*tau_p(:) + corr*tau_old_p(:)
+   tau_n(:) = (1-corr)*tau_n(:) + corr*tau_old_n(:)
+   tau(:) = (1-corr)*tau(:) + corr*tau_old(:)
 end do
 ! iteration finish
 
@@ -658,16 +685,18 @@ if (output_wave_func) then
    end do
 end if
 
-do i=1, Nmesh
-x=i*dx
-write(222, *) x,Vcoulomb(i, rho_p)
-enddo
+!do i=1, Nmesh
+!x=i*dx
+!write(222, *) x,Vcoulomb(i, rho_p)
+!enddo
 deallocate(E_data_n,E_data_p)
 deallocate(filename_wave_func_n,filename_wave_func_p)
 deallocate(energy_n,energy_p,wave_func_n,wave_func_p)
 deallocate(V_skyrme_p,V_skyrme_n,M_eff_p,M_eff_n,W_p,W_n,g_p,g_n,dg_p,dg_n,f_p,f_n,h_p,h_n)
 deallocate(psi,u_nlj_p,u_nlj_n)
-deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,dens_p,dens_n,dens)
+deallocate(rho_p,rho_n,rho,tau_p,tau_n,tau,k_sq_p,k_sq_n,&
+rho_old_n,rho_old_p,rho_old,&
+     tau_old_n,tau_old_p,tau_old,dens_p,dens_n,dens)
 
 CALL SYSTEM('gnuplot -p data_plot.plt')
 CALL SYSTEM('gnuplot -p data_plot2.plt')
