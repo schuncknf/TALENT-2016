@@ -91,6 +91,17 @@ else if (skforce=='SIII') then
    x3=1d0
    W0=130d0
    alpha=1d0
+else if (skforce=='test') then
+   t0=-1132.4d0
+   t1=1d0
+   t2=-1d0
+   t3=23610.4d0
+   x0=0.1d0
+   x1=0d0
+   x2=0d0
+   x3=1d0
+   W0=100d0 
+   alpha=1d0
 end if
 
 write(filename,'(a1,I3.3,a1,I3.3,a4)') 'p', proton, 'n', neutron, '.dat'
@@ -99,7 +110,7 @@ filename = trim(filename)
 Nmesh=N 
 dx = R_max/N
 CMh2m =h2m
-      if (CMcorrection) h2m = h2m*(1.d0-1.d0/nucleon)
+!      if (CMcorrection) h2m = h2m*(1.d0-1.d0/nucleon)
 
 ! the number of orbits
 orbital = 0
@@ -184,14 +195,13 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
            - u_nlj_n(i,orbital_tmp+1)/x)**2 + E_data_n(orbital_tmp+1,3)*(E_data_n(orbital_tmp+1,3) &
             +1d0)*u_nlj_n(i,orbital_tmp+1)**2/x**2&
            )/(4d0*pi*x**2)
-      write(111, *) x, rho_n(i), tau_n(i)
    end do
    j_tot = E_data_n(orbital_tmp+1,3) + E_data_n(orbital_tmp+1,4)
    l = nint(E_data_n(orbital_tmp+1,3))
    do i=1,N
       x = i*dx
       JJ_n(i) = JJ_n(i) + Nn_l*(j_tot*(j_tot+1d0)-l*(l+1d0)-0.75d0)*&
-           u_nlj_n(i,orbital_l)**2/(4d0*pi*x**3)
+           u_nlj_n(i,orbital_tmp+1)**2/(4d0*pi*x**3)
    end do
 
    rho_n(0) = 2d0*rho_n(1)-rho_n(2)
@@ -246,7 +256,7 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
    do i=1,N
       x = i*dx
       JJ_p(i) = JJ_p(i) + Np_l*(j_tot*(j_tot+1d0)-l*(l+1d0)-0.75d0)*&
-           u_nlj_p(i,orbital_l)**2/(4d0*pi*x**3)
+           u_nlj_p(i,orbital_tmp+1)**2/(4d0*pi*x**3)
    end do
    rho_p(0) = 2d0*rho_p(1)-rho_p(2)
    tau_p(0) = 2d0*tau_p(1)-tau_p(2)
@@ -261,12 +271,6 @@ call WoodsSaxon3D(energy_n,energy_p,E_data_n,E_data_p,u_nlj_n,u_nlj_p)
 rho(:) = rho_p(:)+rho_n(:)
 tau(:) = tau_p(:)+tau_n(:)
 JJ(:) = JJ_p(:)+JJ_n(:)
-   open(10,file='err.dat')
-   do i=0,N
-      x = i*dx
-      write(10,'(2f15.8)') x, JJ(i)
-   end do
-   close(10)
 
 ! initial HF energy
 number = 0d0
@@ -302,26 +306,34 @@ do rep=1,iter
       V_skyrme_p(i) = rho(i)*(0.5d0*t0*(2d0+x0)+(2d0+alpha)*t3*(2d0+x3)*rho(i)**alpha/24d0)&
            + rho_p(i)*(-0.5d0*t0*(2d0*x0+1d0)-t3*(2d0*x3+1d0)*rho(i)**alpha/12d0)&
            + alpha*rho(i)**(alpha-1)*(-t3*(2d0*x3+1d0)/24d0)*(rho_p(i)**2+rho_n(i)**2)&
-           + 0.125d0*tau(i)*(t1*(2d0+x1)+t2*(2d0+x2)) - (3d0*t1*(2d0+x1)-t2*(2d0+x2))*(&
+           + 0.125d0*tau(i)*(t1*(2d0+x1)+t2*(2d0+x2)) - (3d0*t1*(2d0+x1)-t2*(2d0+x2))/16d0*(&
            (rho(i+4)-8d0*rho(i+3)+22d0*rho(i+2)-24d0*rho(i+1)+9d0*rho(i))/(4d0*dx**2)&
            +2d0*(4d0*rho(i+1)-3d0*rho(i)-rho(i+2))/(2d0*dx*x) )&
            - 0.125d0*(t1*(2d0*x1+1d0)-t2*(2d0*x2+1d0))*tau_p(i) - 0.125d0*(t1*x1+t2*x2)*(&
            (rho_p(i+4)-8d0*rho_p(i+3)+22d0*rho_p(i+2)-24d0*rho_p(i+1)+9d0*rho_p(i))/(4d0*dx**2)&
-           +2d0*(4d0*rho_p(i+1)-3d0*rho_p(i)-rho_p(i+2))/(2d0*dx*x) )           
+           +2d0*(4d0*rho_p(i+1)-3d0*rho_p(i)-rho_p(i+2))/(2d0*dx*x) )&
+           - 0.5d0*W0*(4d0*(JJ(i+1)+JJ_n(i+1))-3d0*(JJ(i)+JJ_n(i))-(JJ(i+2)+JJ_n(i+2)))/(2d0*dx)
       V_skyrme_n(i) = rho(i)*(0.5d0*t0*(2d0+x0)+(2d0+alpha)*t3*(2d0+x3)*rho(i)**alpha/24d0)&
            + rho_n(i)*(-0.5d0*t0*(2d0*x0+1d0)-t3*(2d0*x3+1d0)*rho(i)**alpha/12d0)&
            + alpha*rho(i)**(alpha-1)*(-t3*(2d0*x3+1d0)/24d0)*(rho_p(i)**2+rho_n(i)**2)&
-           + 0.125d0*tau(i)*(t1*(2d0+x1)+t2*(2d0+x2)) - (3d0*t1*(2d0+x1)-t2*(2d0+x2))*(&
+           + 0.125d0*tau(i)*(t1*(2d0+x1)+t2*(2d0+x2)) - (3d0*t1*(2d0+x1)-t2*(2d0+x2))/16d0*(&
            (rho(i+4)-8d0*rho(i+3)+22d0*rho(i+2)-24d0*rho(i+1)+9d0*rho(i))/(4d0*dx**2)&
            +2d0*(4d0*rho(i+1)-3d0*rho(i)-rho(i+2))/(2d0*dx*x) )&
            - 0.125d0*(t1*(2d0*x1+1d0)-t2*(2d0*x2+1d0))*tau_n(i) - 0.125d0*(t1*x1+t2*x2)*(&
            (rho_n(i+4)-8d0*rho_n(i+3)+22d0*rho_n(i+2)-24d0*rho_n(i+1)+9d0*rho_n(i))/(4d0*dx**2)&
-           +2d0*(4d0*rho_n(i+1)-3d0*rho_n(i)-rho_n(i+2))/(2d0*dx*x) )
+           +2d0*(4d0*rho_n(i+1)-3d0*rho_n(i)-rho_n(i+2))/(2d0*dx*x) )&
+           - 0.5d0*W0*(4d0*(JJ(i+1)+JJ_p(i+1))-3d0*(JJ(i)+JJ_p(i))-(JJ(i+2)+JJ_p(i+2)))/(2d0*dx)
    end do
    V_skyrme_p(0) = V_skyrme_p(1)
    V_skyrme_n(0) = V_skyrme_n(1)
    V_skyrme_p(N-3:N) = 0d0
    V_skyrme_n(N-3:N) = 0d0
+   open(10,file='err.dat')
+   do i=0,N
+      x = i*dx
+      write(10,'(3f15.8)') x, V_skyrme_n(i), V_skyrme_p(i)
+   end do
+   close(10)
    open(10,file='pot_skyrme_n.dat')
    do i=0,N
       x = i*dx
@@ -332,15 +344,15 @@ do rep=1,iter
 ! spin_orbit potential
    do i=1,N-2
       x = i*dx
-      W_p(i) = -0.125d0*(t1*x1+t2*x2)*JJ(i) + 0.125d0*(t1-t2)*JJ_p(i) + W0*&
-           (4d0*(rho(i+1)+rho_p(i+1))-3d0*(rho(i)+rho_p(i))-(rho(i+2)+rho_p(i+2)))/(2d0*dx)
-      W_n(i) = -0.125d0*(t1*x1+t2*x2)*JJ(i) + 0.125d0*(t1-t2)*JJ_n(i) + W0*&
-           (4d0*(rho(i+1)+rho_n(i+1))-3d0*(rho(i)+rho_n(i))-(rho(i+2)+rho_n(i+2)))/(2d0*dx)
+      W_p(i) = -0.125d0*(t1*x1+t2*x2)*JJ(i) + 0.125d0*(t1-t2)*JJ_p(i) &
+           + W0*(4d0*(rho(i+1)+rho_p(i+1))-3d0*(rho(i)+rho_p(i))-(rho(i+2)+rho_p(i+2)))/(2d0*dx)
+      W_n(i) = -0.125d0*(t1*x1+t2*x2)*JJ(i) + 0.125d0*(t1-t2)*JJ_n(i) &
+           + W0*(4d0*(rho(i+1)+rho_n(i+1))-3d0*(rho(i)+rho_n(i))-(rho(i+2)+rho_n(i+2)))/(2d0*dx)
    end do
    W_p(0) = W_p(1)
    W_n(0) = W_n(1)
-   W_p(N-1:N) = 0d0
-   W_n(N-1:N) = 0d0
+   W_p(N-1:N) = -0.125d0*(t1*x1+t2*x2)*JJ(N-1:N) + 0.125d0*(t1-t2)*JJ_p(N-1:N)
+   W_n(N-1:N) = -0.125d0*(t1*x1+t2*x2)*JJ(N-1:N) + 0.125d0*(t1-t2)*JJ_n(N-1:N)
 
   ! other part
    do i=0,N
@@ -392,8 +404,8 @@ do rep=1,iter
             do i=1,N-2
                x = i*dx
                h_n(i) = V_skyrme_n(i) + (4d0*M_eff_n(i+1)-3d0*M_eff_n(i)&
-                    -M_eff_n(i+2))/(2d0*dx*x)+((l+s_z)*(l+s_z+1d0)&
-                    -l*(l+1d0)-0.75d0)*W_n(i)/x
+                    -M_eff_n(i+2))/(2d0*dx*x) + ((l+s_z)*(l+s_z+1d0)&
+                    -l*(l+1d0)-0.75d0)*W_n(i)/(2d0*x)
             end do
             h_n(0) = h_n(1)
             h_n(N-1:N) = 0d0
@@ -454,8 +466,10 @@ do rep=1,iter
                end if
                if (psi(i+1)*psi(i)<=0d0.and.count>ex) then
                   psi(i+1) = 0d0
+                  exit
                end if
             end do
+            psi(i+1:N) = 0d0
 ! normalization
             nmfactor = 0d0
             do i=0,N
@@ -533,7 +547,7 @@ do rep=1,iter
    do i=1,N
       x = i*dx
       JJ_n(i) = JJ_n(i) + Nn_l*(j_tot*(j_tot+1d0)-l*(l+1d0)-0.75d0)*&
-           u_nlj_n(i,orbital_l)**2/(4d0*pi*x**3)
+           u_nlj_n(i,orbital_tmp+1)**2/(4d0*pi*x**3)
    end do
 
    rho_n(0) = 2d0*rho_n(1)-rho_n(2)
@@ -574,8 +588,8 @@ do rep=1,iter
             do i=1,N-2
                x = i*dx
                h_p(i) = V_skyrme_p(i) + (4d0*M_eff_p(i+1)-3d0*M_eff_p(i)&
-                    -M_eff_p(i+2))/(2d0*dx*x)+((l+s_z)*(l+s_z+1d0)&
-                    -l*(l+1d0)-0.75d0)*W_p(i)/x + Vcoulomb(i, rho_p)
+                    -M_eff_p(i+2))/(2d0*dx*x) + ((l+s_z)*(l+s_z+1d0)&
+                    -l*(l+1d0)-0.75d0)*W_p(i)/(2d0*x)! + Vcoulomb(i, rho_p)
             end do
             h_p(0) = h_p(1)
             h_p(N-1:N) = 0d0
@@ -637,8 +651,10 @@ do rep=1,iter
                end if
                if (psi(i+1)*psi(i)<=0d0.and.count>ex) then
                   psi(i+1) = 0d0
+                  exit
                end if
             end do
+            psi(i+1:N) = 0d0
 ! normalization
             nmfactor = 0d0
             do i=0,N
@@ -716,7 +732,7 @@ do rep=1,iter
    do i=1,N
       x = i*dx
       JJ_p(i) = JJ_p(i) + Np_l*(j_tot*(j_tot+1d0)-l*(l+1d0)-0.75d0)*&
-           u_nlj_p(i,orbital_l)**2/(4d0*pi*x**3)
+           u_nlj_p(i,orbital_tmp+1)**2/(4d0*pi*x**3)
    end do
    rho_p(0) = 2d0*rho_p(1)-rho_p(2)
    tau_p(0) = 2d0*tau_p(1)-tau_p(2)
@@ -739,13 +755,24 @@ do rep=1,iter
    number = 0d0
    E_ke = 0d0
    E_pot=0d0
-   do i=0,N
+   do i=0,N-2
       x = i*dx
       number = number + 4d0*pi*rho(i)*x**2*dx
       E_ke = E_ke + 4d0*pi*h2m*tau(i)*x**2*dx
       E_pot= E_pot + 4d0*pi*(0.5d0*t0*((1d0+0.5d0*x0)*rho(i)**2 -(x0+0.5d0)*(rho_p(i)**2+rho_n(i)**2))&
-           + +t3/12.d0*rho(i)**alpha*((1d0+0.5d0*x3)*rho(i)**2 -(x3+0.5d0)*(rho_p(i)**2+rho_n(i)**2) ))*x**2*dx 
-
+           + 0.25*t1*((1d0+0.5d0*x1)*(rho(i)*tau(i)+0.75d0*&
+           ((4d0*rho(i+1)-3d0*rho(i)-rho(i+2))/(2d0*dx))**2)-(x1+0.5d0)*(rho_n(i)*tau_n(i)+0.75d0*&
+           ((4d0*rho_n(i+1)-3d0*rho_n(i)-rho_n(i+2))/(2d0*dx))**2+rho_p(i)*tau_p(i)+0.75d0*&
+           ((4d0*rho_p(i+1)-3d0*rho_p(i)-rho_p(i+2))/(2d0*dx))**2) )&
+           + 0.25*t2*((1d0+0.5d0*x2)*(rho(i)*tau(i)-0.25d0*&
+           ((4d0*rho(i+1)-3d0*rho(i)-rho(i+2))/(2d0*dx))**2)-(x2+0.5d0)*(rho_n(i)*tau_n(i)-0.25d0*&
+           ((4d0*rho_n(i+1)-3d0*rho_n(i)-rho_n(i+2))/(2d0*dx))**2+rho_p(i)*tau_p(i)-0.25d0*&
+           ((4d0*rho_p(i+1)-3d0*rho_p(i)-rho_p(i+2))/(2d0*dx))**2) )&
+           - (t1*x1+t2*x2)*JJ(i)**2/16d0 + (t1-t2)*(JJ_n(i)**2+JJ_p(i)**2)/16d0 &
+           +t3/12.d0*rho(i)**alpha*((1d0+0.5d0*x3)*rho(i)**2 -(x3+0.5d0)*(rho_p(i)**2+rho_n(i)**2))&
+           + 0.5d0*W0*(JJ(i)*(4d0*rho(i+1)-3d0*rho(i)-rho(i+2))/(2d0*dx)&
+           +JJ_n(i)*(4d0*rho_n(i+1)-3d0*rho_n(i)-rho_n(i+2))/(2d0*dx)&
+           +JJ_p(i)*(4d0*rho_p(i+1)-3d0*rho_p(i)-rho_p(i+2))/(2d0*dx)) )*x**2*dx 
    end do
 
    E_hf_new = (E_ke + E_pot)
@@ -974,7 +1001,7 @@ end if
 
 do i=1, Nmesh
 x=i*dx
-write(222, *) x,Vcoulomb(i, rho_p)
+!write(222, *) x,Vcoulomb(i, rho_p)
 enddo
 deallocate(E_data_n,E_data_p)
 deallocate(filename_wave_func_n,filename_wave_func_p)

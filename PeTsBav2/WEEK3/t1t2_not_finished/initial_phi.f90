@@ -1,5 +1,5 @@
-
-!=========================================================================================================================
+! Subroutine to look for the first phi and density trials.
+! Ols WoodSaxon code used
 subroutine WoodsSaxon3D(energy_n,energy_p,quant_n,quant_p,wf_n, wf_p)
     use globals
     implicit none
@@ -9,18 +9,17 @@ subroutine WoodsSaxon3D(energy_n,energy_p,quant_n,quant_p,wf_n, wf_p)
       real (kind=dm),allocatable :: rho(:) ,Psi(:)! psi(grid_index)
 
       real (kind=dm) :: E_minus, E_plus=0., E_left, E_right
-      integer(kind=dm) :: numnodes ! the number of excited state, that has to be the same as number of nodes in wavefunction
+
       integer(kind=dm) :: cnodes ! nodes of wavefuntion 
-      integer(kind=dm) :: i,ii, uu, ipart, iord
+      integer(kind=dm) :: i,ii, uu, ipart
       integer(kind=dm) :: n, l
-      integer(kind=dm) :: nl2j
       real(kind=dm)    :: sm, j, x
       real(kind=dm) ::   wf_n(0:Nmesh, orbital), wf_p(0:Nmesh,orbital), energy_n(1:orbital), energy_p(1:orbital)
       real(kind=dm) ::   quant_n(1:orbital,1:4), quant_p(1:orbital,1:4)
       real(kind=dm),allocatable :: k_sq(:), Enl2j(:,:),dens_n(:), dens_t(:)
       real(kind=dm),allocatable :: all_wavefunction(:,:)
       real(kind=dm) :: vpot
-      integer(kind=dm):: Nn_l, Nn_tmp
+
       h=dx
       ZZ=proton
       NN=neutron
